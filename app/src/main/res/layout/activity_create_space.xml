@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/screen_bg"
+    tools:context=".CreateSpaceActivity">
+
+    <LinearLayout
+        android:id="@+id/topBar"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:background="@color/white"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+        <ImageView android:layout_width="34dp" android:layout_height="34dp" android:padding="6dp" android:src="@drawable/ic_arrow_back" android:contentDescription="Quay lại" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:layout_weight="1" android:text="Đăng không gian" android:textColor="@color/text_primary" android:textSize="17sp" android:textStyle="bold" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Bản nháp" android:textColor="@color/teal" android:textSize="12sp" android:textStyle="bold" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toTopOf="@+id/actionBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/topBar">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Thông tin cơ bản" android:textColor="@color/text_primary" android:textSize="18sp" android:textStyle="bold" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Khai báo thông tin để người thuê dễ tìm và so sánh không gian." android:textColor="@color/text_secondary" android:textSize="12sp" />
+
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Tên không gian" android:textColor="@color/text_primary" android:textSize="12sp" android:textStyle="bold" />
+            <EditText android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="6dp" android:background="@drawable/bg_input" android:hint="Ví dụ: Tầng 8 - Nova Office" android:paddingStart="12dp" android:paddingEnd="12dp" android:singleLine="true" android:textColor="@color/text_primary" android:textColorHint="@color/text_secondary" android:textSize="13sp" />
+
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:text="Loại không gian" android:textColor="@color/text_primary" android:textSize="12sp" android:textStyle="bold" />
+            <HorizontalScrollView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="7dp" android:scrollbars="none">
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
+                    <TextView android:layout_width="wrap_content" android:layout_height="36dp" android:background="@drawable/bg_chip_selected" android:gravity="center" android:paddingStart="14dp" android:paddingEnd="14dp" android:text="Bàn làm việc" android:textColor="@color/white" android:textSize="11sp" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="36dp" android:layout_marginStart="7dp" android:background="@drawable/bg_chip" android:gravity="center" android:paddingStart="14dp" android:paddingEnd="14dp" android:text="Phòng riêng" android:textColor="@color/text_primary" android:textSize="11sp" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="36dp" android:layout_marginStart="7dp" android:background="@drawable/bg_chip" android:gravity="center" android:paddingStart="14dp" android:paddingEnd="14dp" android:text="Phòng họp" android:textColor="@color/text_primary" android:textSize="11sp" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="36dp" android:layout_marginStart="7dp" android:background="@drawable/bg_chip" android:gravity="center" android:paddingStart="14dp" android:paddingEnd="14dp" android:text="Mặt bằng" android:textColor="@color/text_primary" android:textSize="11sp" />
+                </LinearLayout>
+            </HorizontalScrollView>
+
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:text="Địa chỉ" android:textColor="@color/text_primary" android:textSize="12sp" android:textStyle="bold" />
+            <EditText android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="6dp" android:background="@drawable/bg_input" android:drawableStart="@drawable/ic_location" android:drawablePadding="8dp" android:hint="Nhập địa chỉ hoặc tòa nhà" android:paddingStart="12dp" android:paddingEnd="12dp" android:singleLine="true" android:textColor="@color/text_primary" android:textColorHint="@color/text_secondary" android:textSize="13sp" />
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:orientation="horizontal">
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Diện tích" android:textColor="@color/text_primary" android:textSize="12sp" android:textStyle="bold" />
+                    <EditText android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="6dp" android:background="@drawable/bg_input" android:hint="m²" android:inputType="numberDecimal" android:paddingStart="12dp" android:paddingEnd="12dp" android:singleLine="true" android:textSize="13sp" />
+                </LinearLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="10dp" android:layout_weight="1" android:orientation="vertical">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Sức chứa" android:textColor="@color/text_primary" android:textSize="12sp" android:textStyle="bold" />
+                    <EditText android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="6dp" android:background="@drawable/bg_input" android:hint="Số người" android:inputType="number" android:paddingStart="12dp" android:paddingEnd="12dp" android:singleLine="true" android:textSize="13sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:text="Ảnh không gian" android:textColor="@color/text_primary" android:textSize="18sp" android:textStyle="bold" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="122dp" android:layout_marginTop="10dp" android:background="@drawable/bg_card" android:gravity="center" android:orientation="vertical">
+                <TextView android:layout_width="52dp" android:layout_height="52dp" android:background="@drawable/bg_circle_teal" android:gravity="center" android:text="+" android:textColor="@color/white" android:textSize="28sp" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="7dp" android:text="Thêm ảnh không gian" android:textColor="@color/teal_dark" android:textSize="12sp" android:textStyle="bold" />
+            </LinearLayout>
+
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:text="Giá và lịch sử dụng" android:textColor="@color/text_primary" android:textSize="18sp" android:textStyle="bold" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:orientation="horizontal">
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Giá theo giờ" android:textColor="@color/text_primary" android:textSize="12sp" android:textStyle="bold" />
+                    <EditText android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="6dp" android:background="@drawable/bg_input" android:hint="120.000đ" android:inputType="number" android:paddingStart="12dp" android:paddingEnd="12dp" android:singleLine="true" android:textSize="13sp" />
+                </LinearLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="10dp" android:layout_weight="1" android:orientation="vertical">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Giá theo ngày" android:textColor="@color/text_primary" android:textSize="12sp" android:textStyle="bold" />
+                    <EditText android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="6dp" android:background="@drawable/bg_input" android:hint="750.000đ" android:inputType="number" android:paddingStart="12dp" android:paddingEnd="12dp" android:singleLine="true" android:textSize="13sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:background="@drawable/bg_card" android:orientation="vertical" android:padding="12dp">
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Khung giờ cho thuê" android:textColor="@color/text_primary" android:textSize="13sp" android:textStyle="bold" />
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="9dp" android:orientation="horizontal"><TextView android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1" android:background="@drawable/bg_soft_panel" android:gravity="center" android:text="08:00" android:textColor="@color/text_primary"/><TextView android:layout_width="40dp" android:layout_height="40dp" android:gravity="center" android:text="→" android:textColor="@color/text_secondary"/><TextView android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1" android:background="@drawable/bg_soft_panel" android:gravity="center" android:text="22:00" android:textColor="@color/text_primary"/></LinearLayout>
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="T2  T3  T4  T5  T6  T7  CN" android:textColor="@color/teal_dark" android:textSize="12sp" android:textStyle="bold" />
+            </LinearLayout>
+
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:text="Tiện ích" android:textColor="@color/text_primary" android:textSize="18sp" android:textStyle="bold" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="9dp" android:orientation="horizontal"><CheckBox android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Wi-Fi" android:textColor="@color/text_primary" android:textSize="12sp"/><CheckBox android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Máy lạnh" android:textColor="@color/text_primary" android:textSize="12sp"/></LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal"><CheckBox android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Máy chiếu" android:textColor="@color/text_primary" android:textSize="12sp"/><CheckBox android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Bãi giữ xe" android:textColor="@color/text_primary" android:textSize="12sp"/></LinearLayout>
+
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:layout_marginBottom="12dp" android:text="Mô tả ngắn" android:textColor="@color/text_primary" android:textSize="12sp" android:textStyle="bold" />
+            <EditText android:layout_width="match_parent" android:layout_height="110dp" android:background="@drawable/bg_input" android:gravity="top|start" android:hint="Mô tả môi trường làm việc, nội quy và điểm nổi bật..." android:inputType="textMultiLine" android:padding="12dp" android:textSize="13sp" />
+            <View android:layout_width="match_parent" android:layout_height="16dp" />
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/actionBar"
+        android:layout_width="0dp"
+        android:layout_height="70dp"
+        android:background="@color/white"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+        <TextView android:layout_width="0dp" android:layout_height="46dp" android:layout_weight="1" android:background="@drawable/bg_button_outline" android:gravity="center" android:text="Lưu bản nháp" android:textColor="@color/teal" android:textSize="13sp" android:textStyle="bold" />
+        <TextView android:layout_width="0dp" android:layout_height="46dp" android:layout_marginStart="10dp" android:layout_weight="1.2" android:background="@drawable/bg_button_primary" android:gravity="center" android:text="Gửi duyệt" android:textColor="@color/white" android:textSize="13sp" android:textStyle="bold" />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

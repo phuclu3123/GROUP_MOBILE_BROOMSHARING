@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="navy">#173A57</color>
+    <color name="teal">#2F7D78</color>
+    <color name="teal_dark">#246863</color>
+    <color name="screen_bg">#F5F7F8</color>
+    <color name="white">#FFFFFF</color>
+    <color name="text_primary">#1F2933</color>
+    <color name="text_secondary">#667580</color>
+    <color name="border">#E3E8EC</color>
+    <color name="chip_bg">#EEF5F4</color>
+    <color name="soft_blue">#EEF3F8</color>
+    <color name="success">#4B9B88</color>
+    <color name="warning">#D9962C</color>
+    <color name="danger">#C94B4B</color>
+</resources>
