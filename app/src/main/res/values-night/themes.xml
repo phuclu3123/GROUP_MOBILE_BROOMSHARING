@@ -2,6 +2,7 @@
 <resources>
     <style name="Theme.BroomSharing" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/teal</item>
+        <item name="colorSecondary">@color/teal</item>
         <item name="colorPrimaryVariant">@color/teal_dark</item>
         <item name="colorOnPrimary">@color/white</item>
         <item name="android:fontFamily">sans-serif</item>

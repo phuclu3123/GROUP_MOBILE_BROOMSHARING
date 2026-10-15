@@ -1,0 +1,129 @@
+rules_version = '2';
+// Optional controlled mode. The main firestore.rules intentionally stays open for class demo.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signed() { return request.auth != null; }
+    function own(uid) { return signed() && request.auth.uid == uid; }
+    function account() { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data; }
+    function active() { return signed() && account().status == 'ACTIVE'; }
+    function admin() { return active() && account().role == 'ADMIN'; }
+    function host() { return active() && account().role == 'HOST'; }
+    function renter() { return active() && account().role in ['GUEST', 'HOST']; }
+    function publicRoom(room) { return room.approvalStatus == 'APPROVED' && room.listingStatus == 'ACTIVE'; }
+    function buildingOwner(id) {
+      return own(get(/databases/$(database)/documents/buildings/$(id)).data.ownerUid);
+    }
+    function roomFields(data) {
+      return data.keys().hasOnly(['id','schemaVersion','ownerUid','buildingId','buildingName','roomName','roomType',
+        'capacity','area','floor','address','activeMode','pricePerHour','pricePerDay','pricePerMonth','pricePerQuarter',
+        'deposit','openTime','closeTime','amenities','rules','approvalStatus','listingStatus','imageUrls',
+        'rejectionReason','createdAt','updatedAt','reviewedBy'])
+        && data.schemaVersion == 1 && data.roomName is string && data.roomName.size() > 0
+        && data.imageUrls is list && data.imageUrls.size() <= 6
+        && data.capacity >= 0 && data.capacity <= 10000 && data.area >= 0 && data.area <= 1000000
+        && data.activeMode in ['HOURLY','FIXED']
+        && data.pricePerHour >= 0 && data.pricePerHour <= 1000000000000
+        && data.pricePerMonth >= 0 && data.pricePerMonth <= 1000000000000
+        && data.pricePerQuarter >= 0 && data.pricePerQuarter <= 1000000000000
+        && data.deposit >= 0 && data.deposit <= 1000000000000;
+    }
+    function submittedRoom(data) {
+      return data.approvalStatus == 'DRAFT' || (data.capacity > 0 && data.area > 0
+        && data.address.size() > 0 && data.floor.size() > 0 && data.imageUrls.size() > 0
+        && ((data.activeMode == 'HOURLY' && data.pricePerHour > 0)
+          || (data.activeMode == 'FIXED' && (data.pricePerMonth > 0 || data.pricePerQuarter > 0))));
+    }
+    match /users/{uid} {
+      allow read: if own(uid) || admin();
+      allow create: if own(uid) && request.resource.data.uid == uid
+        && request.resource.data.role == 'GUEST' && request.resource.data.status == 'ACTIVE'
+        && request.resource.data.schemaVersion == 1
+        && request.resource.data.phoneVerified == false && request.resource.data.phone.matches('[+][1-9][0-9]{7,14}')
+        && request.resource.data.keys().hasOnly(['uid','schemaVersion','name','username','email','phone','phoneVerified','role','status','createdAt','updatedAt'])
+        && getAfter(/databases/$(database)/documents/usernames/$(request.resource.data.username)).data.uid == uid;
+      allow update: if (admin() && request.resource.data.uid == resource.data.uid)
+        || (own(uid) && active() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name','phone','phoneVerified','photoUrl','updatedAt'])
+          && (request.resource.data.get('phoneVerified', false) == false
+            || (request.resource.data.get('phoneVerified', false) == resource.data.get('phoneVerified', false)
+              && request.resource.data.get('phone', '') == resource.data.get('phone', ''))));
+      allow delete: if admin();
+    }
+    match /usernames/{username} {
+      // Required by the chosen username -> email login. No collection listing.
+      allow get: if true;
+      allow list: if admin();
+      allow create: if own(request.resource.data.uid) && username.matches('[a-z0-9_]{3,24}')
+        && request.resource.data.keys().hasOnly(['uid','email'])
+        && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.username == username
+        && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.email == request.resource.data.email;
+      allow update, delete: if admin();
+    }
+    match /hostApplications/{id} {
+      allow read: if own(id) || own(resource.data.applicantUid) || admin();
+      allow create: if active() && account().role == 'GUEST' && id == request.auth.uid
+        && request.resource.data.applicantUid == request.auth.uid && request.resource.data.status == 'PENDING'
+        && request.resource.data.rejectionReason == ''
+        && request.resource.data.keys().hasOnly(['id','schemaVersion','applicantUid','fullName','phone','email','organizationType','identityDoc','status','rejectionReason','createdAt','updatedAt']);
+      allow update: if (admin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','rejectionReason','reviewedBy','updatedAt']))
+        || (active() && account().role == 'GUEST' && own(resource.data.applicantUid)
+          && id == request.auth.uid && resource.data.status == 'REJECTED' && request.resource.data.status == 'PENDING'
+          && request.resource.data.applicantUid == resource.data.applicantUid && request.resource.data.rejectionReason == ''
+          && request.resource.data.keys().hasOnly(['id','schemaVersion','applicantUid','fullName','phone','email','organizationType','identityDoc','status','rejectionReason','createdAt','updatedAt']));
+      allow delete: if admin();
+    }
+    match /buildings/{id} {
+      allow read: if (host() && (own(resource.data.ownerUid) || !exists(/databases/$(database)/documents/buildings/$(id)))) || admin();
+      allow create: if host() && own(request.resource.data.ownerUid) && request.resource.data.id == id
+        && request.resource.data.schemaVersion == 1 && request.resource.data.status == 'ACTIVE'
+        && request.resource.data.keys().hasOnly(['id','schemaVersion','ownerUid','name','address','district','contactName','contactPhone','latitude','longitude','location','directionGuide','coverUrl','status','createdAt','updatedAt']);
+      allow update: if host() && own(resource.data.ownerUid)
+        && request.resource.data.ownerUid == resource.data.ownerUid
+        && request.resource.data.id == resource.data.id
+        && request.resource.data.status == resource.data.status
+        && request.resource.data.keys().hasOnly(['id','schemaVersion','ownerUid','name','address','district','contactName','contactPhone','latitude','longitude','location','directionGuide','coverUrl','status','createdAt','updatedAt']);
+      allow delete: if false; // Avoid orphan rooms until deletion/cascade is implemented.
+    }
+    match /rooms/{id} {
+      allow read: if publicRoom(resource.data) || (host() && (own(resource.data.ownerUid) || !exists(/databases/$(database)/documents/rooms/$(id)))) || admin();
+      allow create: if host() && own(request.resource.data.ownerUid) && request.resource.data.id == id
+        && buildingOwner(request.resource.data.buildingId) && roomFields(request.resource.data) && submittedRoom(request.resource.data)
+        && request.resource.data.approvalStatus in ['DRAFT','PENDING_REVIEW'] && request.resource.data.listingStatus == 'ACTIVE'
+        && request.resource.data.rejectionReason == '' && !('reviewedBy' in request.resource.data);
+      allow update: if (admin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['approvalStatus','rejectionReason','reviewedBy','updatedAt','listingStatus']))
+        || (host() && own(resource.data.ownerUid) && request.resource.data.ownerUid == resource.data.ownerUid
+          && request.resource.data.id == resource.data.id && buildingOwner(request.resource.data.buildingId)
+          && roomFields(request.resource.data) && submittedRoom(request.resource.data)
+          && request.resource.data.approvalStatus in ['DRAFT','PENDING_REVIEW']
+          && request.resource.data.listingStatus == resource.data.listingStatus && request.resource.data.rejectionReason == ''
+          && (!('reviewedBy' in request.resource.data) || request.resource.data.reviewedBy == resource.data.reviewedBy));
+      allow delete: if false;
+    }
+    match /bookings/{id} {
+      allow read: if own(resource.data.guestUid) || own(resource.data.ownerUid) || admin();
+      allow create: if renter() && own(request.resource.data.guestUid)
+        && request.resource.data.status == 'PENDING' && request.resource.data.paymentStatus == 'UNPAID'
+        && request.resource.data.startAt is timestamp && request.resource.data.endAt > request.resource.data.startAt
+        && publicRoom(get(/databases/$(database)/documents/rooms/$(request.resource.data.roomId)).data)
+        && request.resource.data.ownerUid == get(/databases/$(database)/documents/rooms/$(request.resource.data.roomId)).data.ownerUid
+        && request.resource.data.keys().hasOnly(['id','schemaVersion','roomId','ownerUid','guestUid','status','paymentStatus','activeMode','startAt','endAt','createdAt','updatedAt','totalAmount']);
+      // Price/payment verification belongs to the later booking/payment implementation.
+      allow update: if active() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','updatedAt'])
+        && ((own(resource.data.guestUid) && resource.data.status in ['PENDING','CONFIRMED'] && request.resource.data.status == 'CANCELLED')
+          || (host() && own(resource.data.ownerUid) && resource.data.status == 'PENDING' && request.resource.data.status in ['CONFIRMED','REJECTED']));
+      allow delete: if false;
+    }
+    match /reports/{id} {
+      allow read: if own(resource.data.reporterUid) || admin();
+      allow create: if active() && own(request.resource.data.reporterUid) && request.resource.data.status == 'OPEN';
+      allow update: if admin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','resolution','reviewedBy','updatedAt']);
+    }
+    match /auditLogs/{id} { allow read, create: if admin(); allow update, delete: if false; }
+    match /payments/{id} { allow read: if own(resource.data.guestUid) || admin(); allow write: if false; }
+    match /notifications/{id} {
+      allow read: if own(resource.data.recipientUid);
+      allow update: if own(resource.data.recipientUid) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['readAt']);
+    }
+    // Future modules stay closed until their own flows and validations are implemented.
+    match /{other=**} { allow read, write: if false; }
+  }
+}

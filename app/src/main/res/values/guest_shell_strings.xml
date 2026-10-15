@@ -1,0 +1,12 @@
+<resources>
+    <string name="nav_home_label">Trang chủ</string><string name="nav_map_label">Bản đồ</string><string name="nav_bookings_label">Đặt chỗ</string><string name="nav_messages_label">Tin nhắn</string><string name="nav_profile_label">Hồ sơ</string>
+    <string name="home_filter">Bộ lọc</string><string name="home_filter_count">Bộ lọc (%1$d)</string><string name="home_search_hint">Tìm phòng, tòa nhà hoặc địa chỉ</string>
+    <string name="home_no_rooms">Chưa có không gian đang cho thuê</string><string name="home_no_rooms_hint">Các không gian được duyệt sẽ xuất hiện tại đây. Bạn có thể thử tải lại sau.</string>
+    <string name="home_no_match">Không tìm thấy không gian phù hợp</string><string name="home_no_match_hint">Thử thay đổi bộ lọc hoặc tải thêm không gian.</string>
+    <string name="home_result_count">%1$d kết quả trong %2$d không gian đã tải</string>
+    <string name="home_more">Xem thêm không gian</string><string name="home_area_hint">Khu vực / quận</string><string name="home_type_label">Loại không gian</string><string name="home_mode_label">Hình thức thuê</string>
+    <string name="map_pending_title">Tìm không gian trên bản đồ</string><string name="map_pending_body">Bản đồ đang được chuẩn bị. Hiện tại, bạn có thể tìm theo khu vực ở Trang chủ.</string>
+    <string name="bookings_pending_title">Theo dõi lịch thuê của bạn</string><string name="bookings_pending_body">Chức năng đặt chỗ và quản lý lịch thuê sẽ được bổ sung ở đợt tiếp theo.</string>
+    <string name="messages_pending_title">Trao đổi về không gian</string><string name="messages_pending_body">Chức năng nhắn tin với người cho thuê sẽ được bổ sung ở đợt tiếp theo.</string>
+    <string name="back_to_explore">Khám phá không gian</string><string name="profile_username_label">Tên đăng nhập: %1$s</string><string name="profile_account_info">Thông tin tài khoản</string>
+</resources>

@@ -17,6 +17,8 @@ public final class AuthMessages {
             case TOO_MANY_REQUESTS: return R.string.auth_rate_limit;
             case DISABLED: return R.string.auth_disabled;
             case OPERATION_DISABLED: return R.string.auth_operation_disabled;
+            case AUTH_CONFIGURATION_MISSING: return R.string.auth_configuration_missing;
+            case PHONE_INVALID: return R.string.auth_phone_invalid;
             case PROFILE_UNAVAILABLE: return R.string.auth_profile_error;
             case PROFILE_MISSING: return R.string.auth_profile_missing;
             case INCOMPLETE_REGISTRATION: return R.string.auth_incomplete_registration;

@@ -24,8 +24,4 @@
         style="@style/Widget.BroomSharing.AuthButton"
         android:text="@string/auth_retry"
         android:visibility="gone" />
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/signOutButton"
-        style="@style/Widget.BroomSharing.AuthLink"
-        android:text="@string/auth_sign_out" />
 </LinearLayout>

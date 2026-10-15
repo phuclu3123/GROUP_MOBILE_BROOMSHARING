@@ -1,12 +1,30 @@
 package vn.edu.ueh.phuclu.broomsharing;
 
-import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
+import vn.edu.ueh.phuclu.broomsharing.ui.common.GuestSectionActivity;
 
-public class MyBookingsActivity extends AppCompatActivity {
+public class MyBookingsActivity extends GuestSectionActivity {
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_my_bookings);
+    protected int tab() {
+        return R.id.nav_bookings;
+    }
+
+    @Override
+    protected int title() {
+        return R.string.nav_bookings_label;
+    }
+
+    @Override
+    protected int heading() {
+        return R.string.bookings_pending_title;
+    }
+
+    @Override
+    protected int description() {
+        return R.string.bookings_pending_body;
+    }
+
+    @Override
+    protected int icon() {
+        return R.drawable.ic_booking;
     }
 }

@@ -8,6 +8,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import vn.edu.ueh.phuclu.broomsharing.AdminDashboardActivity;
+import vn.edu.ueh.phuclu.broomsharing.MainActivity;
 import vn.edu.ueh.phuclu.broomsharing.R;
 import vn.edu.ueh.phuclu.broomsharing.model.UserProfile;
 import vn.edu.ueh.phuclu.broomsharing.model.UserRole;
@@ -21,16 +22,27 @@ public abstract class SessionActivity extends AppCompatActivity {
     private boolean checking;
 
     protected abstract int pageLayout();
-    protected void onProfileReady(UserProfile profile) { }
-    protected boolean requiresAdmin() { return false; }
-    protected boolean isGuestHome() { return false; }
 
-    @Override protected void onCreate(Bundle state) {
+    protected void onProfileReady(UserProfile profile) {}
+
+    protected boolean requiresAdmin() {
+        return false;
+    }
+
+    protected boolean requiresHost() {
+        return false;
+    }
+
+    protected boolean isGuestHome() {
+        return false;
+    }
+
+    @Override
+    protected void onCreate(Bundle state) {
         super.onCreate(state);
         repository = new FirebaseAuthRepository(getApplicationContext());
         setContentView(R.layout.activity_session_check);
         findViewById(R.id.retryButton).setOnClickListener(v -> checkSession());
-        findViewById(R.id.signOutButton).setOnClickListener(v -> signOut());
         checkSession();
     }
 
@@ -43,36 +55,51 @@ public abstract class SessionActivity extends AppCompatActivity {
         checking = true;
         findViewById(R.id.authProgress).setVisibility(View.VISIBLE);
         findViewById(R.id.retryButton).setVisibility(View.GONE);
-        findViewById(R.id.signOutButton).setEnabled(false);
         ((TextView) findViewById(R.id.authMessage)).setText(R.string.auth_busy);
-        repository.loadSession(new AuthRepository.Callback() {
-            @Override public void onSuccess(UserProfile profile) {
-                if (isFinishing() || isDestroyed()) return;
-                checking = false;
-                if (requiresAdmin() && profile.getUserRole() != UserRole.ADMIN) {
-                    toLogin(R.string.auth_role_invalid);
-                    return;
-                }
-                if (isGuestHome() && profile.getUserRole() == UserRole.ADMIN) {
-                    Intent admin = new Intent(SessionActivity.this, AdminDashboardActivity.class);
-                    admin.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(admin);
-                    finish();
-                    return;
-                }
-                setContentView(pageLayout());
-                onProfileReady(profile);
-            }
+        repository.loadSession(
+                new AuthRepository.Callback() {
+                    @Override
+                    public void onSuccess(UserProfile profile) {
+                        if (isFinishing() || isDestroyed()) return;
+                        checking = false;
+                        if (requiresAdmin() && profile.getUserRole() != UserRole.ADMIN) {
+                            toLogin(R.string.auth_role_invalid);
+                            return;
+                        }
+                        if (requiresHost() && profile.getUserRole() != UserRole.HOST) {
+                            android.widget.Toast.makeText(
+                                            SessionActivity.this,
+                                            "Chức năng này dành cho tài khoản Host đã được duyệt.",
+                                            android.widget.Toast.LENGTH_LONG)
+                                    .show();
+                            startActivity(new Intent(SessionActivity.this, MainActivity.class));
+                            finish();
+                            return;
+                        }
+                        if (isGuestHome() && profile.getUserRole() == UserRole.ADMIN) {
+                            Intent admin =
+                                    new Intent(SessionActivity.this, AdminDashboardActivity.class);
+                            admin.addFlags(
+                                    Intent.FLAG_ACTIVITY_NEW_TASK
+                                            | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(admin);
+                            finish();
+                            return;
+                        }
+                        setContentView(pageLayout());
+                        onProfileReady(profile);
+                    }
 
-            @Override public void onError(AuthError error) {
-                if (isFinishing() || isDestroyed()) return;
-                checking = false;
-                findViewById(R.id.authProgress).setVisibility(View.GONE);
-                findViewById(R.id.signOutButton).setEnabled(true);
-                ((TextView) findViewById(R.id.authMessage)).setText(AuthMessages.resource(error));
-                findViewById(R.id.retryButton).setVisibility(View.VISIBLE);
-            }
-        });
+                    @Override
+                    public void onError(AuthError error) {
+                        if (isFinishing() || isDestroyed()) return;
+                        checking = false;
+                        findViewById(R.id.authProgress).setVisibility(View.GONE);
+                        ((TextView) findViewById(R.id.authMessage))
+                                .setText(AuthMessages.resource(error));
+                        findViewById(R.id.retryButton).setVisibility(View.VISIBLE);
+                    }
+                });
     }
 
     protected void signOut() {

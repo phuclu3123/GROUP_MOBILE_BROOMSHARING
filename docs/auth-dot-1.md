@@ -1,10 +1,12 @@
 # Đợt 1: đăng nhập và đăng ký
 
+> Cập nhật 15/10/2026: Phúc đã thêm cấu hình Firebase local và xác nhận database ID là `broomsharing` trong project BRoom-Sharing-Firebase-Mobile. Auth và Host đã dùng chung database này; xem [ghi chú tích hợp](integration-dot-1.md). Phần mô tả kiểm thử ngày 14/10 bên dưới ghi lại trạng thái trước khi kết nối.
+
 ## Phạm vi Phúc đã chốt
 
 - Làm trước UI đăng nhập, đăng ký, quên mật khẩu; viết luồng đăng nhập và đăng ký với database.
 - Đăng nhập bằng username **hoặc** email, kèm mật khẩu.
-- Google Sign-In, số điện thoại và gửi email đặt lại mật khẩu triển khai sau. Nút hiện tại thông báo chưa hỗ trợ, không gọi API và không báo thành công giả.
+- Google Sign-In, đăng nhập SMS/OTP và gửi email đặt lại mật khẩu triển khai sau. Số điện thoại liên hệ đã được thêm vào đăng ký. Nút hiện tại thông báo chưa hỗ trợ, không gọi API và không báo thành công giả.
 - Firebase project đã có nhưng Phúc sẽ kết nối sau. Không tạo project hay deploy Rules từ phiên làm việc này.
 - HOST dùng được chức năng của GUEST. Đăng ký mới luôn tạo GUEST, không có lựa chọn tự cấp HOST/ADMIN.
 - Maps chưa chốt nhà cung cấp, tạm hoãn cấu hình SDK/API.
@@ -74,7 +76,7 @@ Collection `usernames` bổ sung để hỗ trợ yêu cầu username; không c�
 1. Trong Firebase project của Phúc, thêm Android app với package **`vn.edu.ueh.phuclu.broomsharing`**.
 2. Tải `google-services.json`, đặt đúng tại **`BroomSharing/app/google-services.json`**.
 3. Trong Authentication, bật provider **Email/Password**. Google Sign-In và Phone không cần bật lúc này.
-4. Tạo Cloud Firestore database mặc định `(default)`. File Rules local chưa tự áp dụng lên project. Nếu làm demo theo lựa chọn đã chốt, copy nội dung `firestore.rules` vào Rules của database và Publish bằng tài khoản của Phúc.
+4. Sử dụng Cloud Firestore database ID **`broomsharing`** theo lựa chọn Phúc đã xác nhận. File Rules local chưa tự áp dụng lên project. Nếu làm demo theo lựa chọn đã chốt, copy nội dung `firestore.rules` vào Rules của đúng database này và Publish bằng tài khoản của Phúc.
 5. Gradle Sync rồi build lại. Google services plugin chỉ được áp dụng khi file JSON tồn tại. Thiếu JSON vẫn build/mở được UI, nhưng không đăng nhập hoặc đăng ký thật.
 6. Chạy checklist bên dưới với project thật trước khi ghi P03 hoàn tất.
 
@@ -133,3 +135,7 @@ Phần username registry và Firebase Authentication là ứng dụng yêu cầu
 | P10 Admin | Giữ dashboard prototype, thêm kiểm tra phiên/role; moderation và dữ liệu dashboard còn sau |
 
 Sheet phân công còn có khác biệt tên collection `verifications/audit` với `propertyVerifications/auditLogs`; chưa tạo các collection này trong phần Auth. Cần Phúc chốt khi quay lại P05.
+
+### Bổ sung số điện thoại vào form đăng ký
+
+Số điện thoại bắt buộc, được chuẩn hóa và lưu cùng profile với phoneVerified=false. Chưa gửi OTP/chưa đăng nhập bằng số điện thoại; bước đó sẽ liên kết vào cùng UID sau khi xác minh. Tài khoản cũ chưa có số vẫn đăng nhập được. Xem schema.md và manual-check-dot-1.md cho định dạng và ca kiểm tra.

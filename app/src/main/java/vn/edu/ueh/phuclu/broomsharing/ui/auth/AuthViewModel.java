@@ -53,10 +53,10 @@ public class AuthViewModel extends AndroidViewModel {
         repository.login(identifier, password, callback);
     }
 
-    public void register(String name, String username, String email, String password) {
+    public void register(String name, String username, String email, String phone, String password) {
         if (isBusy()) return;
         state.setValue(new State(true, null, null));
-        repository.register(name, username, email, password, callback);
+        repository.register(name, username, email, phone, password, callback);
     }
 
     public void restoreSessionOnce() {

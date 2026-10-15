@@ -118,6 +118,24 @@
                     android:textSize="16sp" />
             </com.google.android.material.textfield.TextInputLayout>
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/phoneLayout"
+                style="@style/Widget.BroomSharing.AuthField"
+                android:hint="@string/auth_phone"
+                app:helperText="@string/auth_phone_hint">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/phoneInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="56dp"
+                    android:inputType="phone"
+                    android:imeOptions="actionNext"
+                    android:maxLines="1"
+                    android:saveEnabled="true"
+                    android:autofillHints="phone"
+                    android:textColor="@color/text_primary"
+                    android:textSize="16sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/passwordLayout"
                 style="@style/Widget.BroomSharing.AuthField"
                 android:hint="@string/auth_password" app:endIconMode="password_toggle" app:helperText="@string/auth_password_hint">

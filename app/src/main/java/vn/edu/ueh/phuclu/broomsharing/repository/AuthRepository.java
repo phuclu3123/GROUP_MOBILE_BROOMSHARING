@@ -11,7 +11,7 @@ public interface AuthRepository {
     boolean isConfigured();
     boolean hasSession();
     void login(String identifier, String password, Callback callback);
-    void register(String name, String username, String email, String password, Callback callback);
+    void register(String name, String username, String email, String phone, String password, Callback callback);
     void loadSession(Callback callback);
     void logout();
 }

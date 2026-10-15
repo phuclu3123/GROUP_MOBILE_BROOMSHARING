@@ -13,6 +13,14 @@ public final class AuthValidation {
         return value.trim().toLowerCase(Locale.ROOT);
     }
 
+    /** Accept a 10-digit VN number or an international number with country code. */
+    public static String normalizePhone(String value) {
+        if (value == null || !value.trim().matches("[+0-9 ().-]+")) return "";
+        String digits = value.trim().replaceAll("[ ().-]", "");
+        if (digits.matches("0[0-9]{9}")) digits = "+84" + digits.substring(1);
+        return digits.matches("\\+[1-9][0-9]{7,14}") ? digits : "";
+    }
+
     public static boolean isPasswordLongEnough(String value) {
         // Passwords are never trimmed: whitespace can be part of the credential.
         return value != null && value.length() >= 6;

@@ -6,6 +6,8 @@ BROOM Sharing giúp tận dụng hiệu quả diện tích văn phòng chưa đ�
 
 > Đây là đồ án ứng dụng di động. README mô tả ý tưởng, phạm vi và định hướng chức năng của dự án; các chức năng bên dưới là yêu cầu/roadmap, không mặc định rằng chúng đã được triển khai.
 
+Phần code đợt 1 hiện tại và cách tự kiểm tra: [hướng dẫn chạy thử](docs/manual-check-dot-1.md), [kiến trúc](docs/architecture.md), [schema/contract](docs/schema.md), [tình trạng tích hợp](docs/integration-dot-1.md). Maps/API xử lý sau; Firestore Rules chính đang mở theo lựa chọn demo, có file phân quyền riêng chưa triển khai.
+
 ## Thành viên
 
 | STT | Họ và tên | Mã số sinh viên |
@@ -128,3 +130,7 @@ Các màn hình nghiệp vụ còn lại là prototype. Mã Auth cần kiểm th
 ## Đóng góp
 
 Đây là đồ án nhóm. Các thành viên có thể cùng cập nhật tài liệu, thiết kế, mã nguồn và tiến độ triển khai thông qua các nhánh và pull request của repository.
+
+### Tích hợp guest từ Trúc
+
+Xem [đối chiếu U01–U08 và cách tự kiểm tra](docs/integration-truc.md). Giữ chung Auth, schema Host và database broomsharing; không đổi Firebase config hoặc tích hợp Maps trong lượt này.

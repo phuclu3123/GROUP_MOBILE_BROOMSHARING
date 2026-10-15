@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@color/screen_bg">
+    <com.google.android.material.appbar.MaterialToolbar android:id="@+id/guestToolbar" android:layout_width="match_parent" android:layout_height="?attr/actionBarSize" app:title="@string/nav_home_label" app:titleTextColor="@color/navy" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:orientation="horizontal">
+        <ScrollView android:layout_width="280dp" android:layout_height="match_parent">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="@dimen/spacing_md">
+                <com.google.android.material.textfield.TextInputLayout style="@style/Widget.BroomSharing.AuthField" android:hint="@string/home_search_hint" android:layout_marginTop="8dp">
+                    <com.google.android.material.textfield.TextInputEditText android:id="@+id/search" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:inputType="text" android:singleLine="true" android:maxLength="100" android:textSize="14sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+                    <com.google.android.material.button.MaterialButton style="@style/Widget.BroomSharing.AuthLink" android:id="@+id/toggleFilters" android:layout_width="0dp" android:layout_weight="1" android:text="@string/home_filter" />
+                    <com.google.android.material.button.MaterialButton style="@style/Widget.BroomSharing.AuthLink" android:id="@+id/btnRefresh" android:layout_width="0dp" android:layout_weight="1" android:text="@string/guest_refresh" />
+                </LinearLayout>
+                <LinearLayout android:id="@+id/filterPanel" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone" android:background="@drawable/bg_card" android:padding="12dp">
+                    <com.google.android.material.textfield.TextInputLayout style="@style/Widget.BroomSharing.AuthField" android:hint="@string/home_area_hint" android:layout_marginTop="8dp">
+                        <com.google.android.material.textfield.TextInputEditText android:id="@+id/area" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:inputType="text" android:singleLine="true" android:maxLength="100" android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="@string/home_type_label" android:textColor="@color/text_secondary" android:textSize="12sp" />
+                    <Spinner android:id="@+id/typeFilter" android:layout_width="match_parent" android:layout_height="48dp" android:background="@drawable/bg_input" android:entries="@array/guest_types" android:contentDescription="@string/home_type_label" />
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="@string/home_mode_label" android:textColor="@color/text_secondary" android:textSize="12sp" />
+                    <Spinner android:id="@+id/modeFilter" android:layout_width="match_parent" android:layout_height="48dp" android:background="@drawable/bg_input" android:entries="@array/guest_modes" android:contentDescription="@string/home_mode_label" />
+                    <com.google.android.material.button.MaterialButton style="@style/Widget.BroomSharing.AuthLink" android:id="@+id/clearFilters" android:text="@string/guest_clear" />
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+        <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical">
+            <ProgressBar android:id="@+id/progress" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="4dp" android:indeterminate="true" android:visibility="gone" />
+            <TextView android:id="@+id/scope" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingHorizontal="16dp" android:paddingVertical="8dp" android:textAppearance="@style/Widget.BroomSharing.GuestState" android:visibility="gone" />
+            <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+                <androidx.recyclerview.widget.RecyclerView android:id="@+id/publicRooms" android:layout_width="match_parent" android:layout_height="match_parent" android:padding="16dp" android:clipToPadding="false" />
+                <TextView android:id="@+id/tvFeedback" android:layout_width="match_parent" android:layout_height="match_parent" android:padding="24dp" android:gravity="center" android:textSize="16sp" android:textColor="@color/text_secondary" android:lineSpacingExtra="6dp" android:accessibilityLiveRegion="polite" android:visibility="gone" />
+            </FrameLayout>
+            <com.google.android.material.button.MaterialButton style="@style/Widget.BroomSharing.AuthLink" android:id="@+id/loadMore" android:layout_gravity="center_horizontal" android:text="@string/home_more" android:visibility="gone" />
+        </LinearLayout>
+    </LinearLayout>
+    <include layout="@layout/view_guest_navigation" />
+</LinearLayout>

@@ -18,5 +18,7 @@ Các màn hình:
 8. activity_profile.xml             - Hồ sơ + quản lý không gian
 9. activity_admin_dashboard.xml     - Dashboard quản trị và duyệt bài
 
-MainActivity, ProfileActivity và AdminDashboardActivity đã thêm kiểm tra phiên. Các màn hình nghiệp vụ còn lại vẫn là prototype.
-Ảnh dùng file tĩnh trong res/drawable, lấy từ prototype mà bạn cung cấp.
+MainActivity, ProfileActivity, chi tiết phòng, các màn Host và Admin kiểm tra phiên/role. Trang chủ/chi tiết đọc phòng APPROVED + ACTIVE; Host/Admin đã nối ViewModel và Repository. Booking, Maps và Messages còn thuộc các đợt tiếp theo.
+Ảnh phòng/tòa nhà có picker và Firebase Storage; drawable chỉ làm placeholder. Hướng dẫn tự chạy: docs/manual-check-dot-1.md; phạm vi: docs/integration-dot-1.md.
+
+Guest Trúc: RoomViewModel + RoomRepository + RoomListing dùng chung Room/Building; tìm kiếm và lọc các trang đã tải, phân trang 20 document, card có nguồn nhãn duyệt, chi tiết thật và layout ngang. Xem docs/integration-truc.md; không đồng nghĩa các luồng Firebase/thiết bị đã được kiểm tra thực tế.

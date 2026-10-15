@@ -1,0 +1,26 @@
+<resources>
+    <string name="guest_title">Khám phá không gian</string>
+    <string name="guest_search">Tên phòng, địa chỉ hoặc tòa nhà</string>
+    <string name="guest_area">Khu vực / quận</string>
+    <string name="guest_content_approved">Nội dung đã được Admin duyệt</string>
+    <string name="guest_room_photo">Ảnh không gian</string>
+    <string name="guest_refresh">Tải lại</string>
+    <string name="guest_more">Tải thêm</string>
+    <string name="guest_clear">Xóa bộ lọc</string>
+    <string name="guest_loading">Đang tải không gian…</string>
+    <string name="guest_empty">Chưa có phòng phù hợp trong các trang đã tải.</string>
+    <string name="guest_scope">Đã tải %1$d phòng hợp lệ · Hiển thị %2$d. Bộ lọc áp dụng trên các trang đã tải.</string>
+    <string name="guest_more_hint">Bấm Tải thêm để mở rộng kết quả.</string>
+    <string name="guest_end">Đã hết danh sách.</string>
+    <string name="guest_host_manage">Quản lý không gian của tôi</string>
+    <string name="guest_host_apply">Đăng ký trở thành người cho thuê</string>
+    <string name="guest_bookings_later">Đặt chỗ và lịch thuê sẽ được bổ sung ở đợt tiếp theo.</string>
+    <string name="guest_detail_back">Quay lại</string>
+    <string name="guest_unknown">Chưa cập nhật</string>
+    <string name="guest_price_hour">%1$s / giờ</string>
+    <string name="guest_price_month">%1$s / tháng</string>
+    <string name="guest_price_quarter">%1$s / quý</string>
+    <string name="guest_specs">%1$d người · %2$s m² · %3$s</string>
+    <string-array name="guest_types"><item>Tất cả loại phòng</item><item>Bàn làm việc</item><item>Phòng riêng</item><item>Phòng họp</item><item>Mặt bằng</item></string-array>
+    <string-array name="guest_modes"><item>Tất cả hình thức thuê</item><item>Theo giờ</item><item>Theo tháng / quý</item></string-array>
+</resources>

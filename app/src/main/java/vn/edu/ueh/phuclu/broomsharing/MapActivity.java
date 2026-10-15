@@ -1,12 +1,30 @@
 package vn.edu.ueh.phuclu.broomsharing;
 
-import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
+import vn.edu.ueh.phuclu.broomsharing.ui.common.GuestSectionActivity;
 
-public class MapActivity extends AppCompatActivity {
+public class MapActivity extends GuestSectionActivity {
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_map);
+    protected int tab() {
+        return R.id.nav_map;
+    }
+
+    @Override
+    protected int title() {
+        return R.string.nav_map_label;
+    }
+
+    @Override
+    protected int heading() {
+        return R.string.map_pending_title;
+    }
+
+    @Override
+    protected int description() {
+        return R.string.map_pending_body;
+    }
+
+    @Override
+    protected int icon() {
+        return R.drawable.ic_map;
     }
 }

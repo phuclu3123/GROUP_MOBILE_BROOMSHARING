@@ -1,0 +1,29 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function own(uid) { return request.auth != null && request.auth.uid == uid; }
+    function image() {
+      return request.resource.size > 0 && request.resource.size <= 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/(jpeg|png|webp)');
+    }
+    // Public photographs only. Download URLs may be shared by approved listings.
+    match /roomMedia/{uid}/{roomId}/{file} {
+      allow read: if true;
+      allow create, update: if own(uid) && image();
+      allow delete: if own(uid);
+    }
+    match /buildingMedia/{uid}/{buildingId}/{file} {
+      allow read: if true;
+      allow create, update: if own(uid) && image();
+      allow delete: if own(uid);
+    }
+    // No public download URL is generated for identity evidence by this app.
+    match /verification/{uid}/{file} {
+      allow read, delete: if own(uid);
+      allow create, update: if own(uid)
+        && request.resource.size > 0 && request.resource.size <= 5 * 1024 * 1024
+        && request.resource.contentType.matches('(image/(jpeg|png|webp)|application/pdf)');
+    }
+    match /{other=**} { allow read, write: if false; }
+  }
+}

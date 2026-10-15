@@ -7,6 +7,27 @@ import java.util.Locale;
 import static org.junit.Assert.*;
 
 public class AuthValidationTest {
+    @Test public void typedPhoneDoesNotBecomeAVerifiedIdentity() {
+        vn.edu.ueh.phuclu.broomsharing.model.UserProfile profile =
+                new vn.edu.ueh.phuclu.broomsharing.model.UserProfile(
+                        "uid", "Name", "username", "user@example.com", "+84912345678");
+        assertEquals("+84912345678", profile.phone);
+        assertFalse(profile.phoneVerified);
+        assertEquals("", new vn.edu.ueh.phuclu.broomsharing.model.UserProfile().phone);
+    }
+    @Test public void localAndInternationalPhoneFormatsAreNormalized() {
+        assertEquals("+84912345678", AuthValidation.normalizePhone("0912 345 678"));
+        assertEquals("+84912345678", AuthValidation.normalizePhone("+84 912-345-678"));
+        assertEquals("+12025550123", AuthValidation.normalizePhone("+1 (202) 555-0123"));
+    }
+
+    @Test public void invalidPhoneIsNotSilentlyConvertedToAValidOne() {
+        for (String phone : new String[]{"", "   ", "12345", "090/1234567", "abc0912345678", "+0123456789", "+1234567890123456"}) {
+            assertEquals("", AuthValidation.normalizePhone(phone));
+        }
+        assertEquals("", AuthValidation.normalizePhone(null));
+    }
+
     @Test public void usernameLengthBoundaries() {
         assertFalse(AuthValidation.isUsernameValid("ab"));
         assertTrue(AuthValidation.isUsernameValid("abc"));

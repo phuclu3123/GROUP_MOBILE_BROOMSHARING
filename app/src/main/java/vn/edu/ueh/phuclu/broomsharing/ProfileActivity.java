@@ -1,29 +1,60 @@
 package vn.edu.ueh.phuclu.broomsharing;
 
 import android.content.Intent;
-import android.widget.TextView;
-import android.view.ViewGroup;
+import android.view.View;
+
+import vn.edu.ueh.phuclu.broomsharing.databinding.ActivityProfileBinding;
 import vn.edu.ueh.phuclu.broomsharing.model.UserProfile;
 import vn.edu.ueh.phuclu.broomsharing.model.UserRole;
 import vn.edu.ueh.phuclu.broomsharing.ui.auth.SessionActivity;
+import vn.edu.ueh.phuclu.broomsharing.ui.host.AddBuildingActivity;
+import vn.edu.ueh.phuclu.broomsharing.ui.host.HostApplyActivity;
+import vn.edu.ueh.phuclu.broomsharing.ui.host.HostDashboardActivity;
 
 public class ProfileActivity extends SessionActivity {
-    @Override protected int pageLayout() { return R.layout.activity_profile; }
+    @Override
+    protected int pageLayout() {
+        return R.layout.activity_profile;
+    }
 
-    @Override protected void onProfileReady(UserProfile profile) {
-        ((TextView) findViewById(R.id.profileName)).setText(profile.name);
-        ((TextView) findViewById(R.id.profileSubtitle)).setText(profile.email);
-        ((TextView) findViewById(R.id.profileInitial)).setText(
-                profile.name == null || profile.name.isEmpty() ? "B" : profile.name.substring(0, 1));
-        ((TextView) findViewById(R.id.profileBadge)).setText(profile.getUserRole() == UserRole.HOST
-                ? R.string.auth_role_host : R.string.auth_role_guest);
-        findViewById(R.id.profileSignOut).setOnClickListener(v -> signOut());
-        ViewGroup bottomNav = findViewById(R.id.bottomNav);
-        bottomNav.getChildAt(0).setOnClickListener(v -> {
-            Intent home = new Intent(this, MainActivity.class);
-            home.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(home);
-            finish();
-        });
+    @Override
+    protected void onProfileReady(UserProfile profile) {
+        ActivityProfileBinding binding =
+                ActivityProfileBinding.bind(findViewById(R.id.profileRoot));
+        binding.profileName.setText(profile.name);
+        binding.profileSubtitle.setText(profile.email);
+        if (profile.phone != null && !profile.phone.isEmpty()) {
+            binding.profilePhone.setVisibility(View.VISIBLE);
+            binding.profilePhone.setText(
+                    profile.phoneVerified
+                            ? profile.phone
+                            : getString(R.string.auth_phone_unverified, profile.phone));
+        }
+        binding.profileInitial.setText(
+                profile.name == null || profile.name.isEmpty()
+                        ? "B"
+                        : profile.name.substring(0, 1));
+        boolean isHost = profile.getUserRole() == UserRole.HOST;
+        binding.profileBadge.setText(isHost ? R.string.auth_role_host : R.string.auth_role_guest);
+        binding.profileSignOut.setOnClickListener(v -> signOut());
+
+        binding.btnMenuCreateSpace.setOnClickListener(
+                v -> startActivity(new Intent(this, CreateSpaceActivity.class)));
+        binding.btnMenuMySpaces.setOnClickListener(
+                v -> startActivity(new Intent(this, HostDashboardActivity.class)));
+        binding.btnMenuAddBuilding.setOnClickListener(
+                v -> startActivity(new Intent(this, AddBuildingActivity.class)));
+        binding.btnMenuHostApply.setOnClickListener(
+                v -> startActivity(new Intent(this, HostApplyActivity.class)));
+        binding.hostManagementMenu.setVisibility(isHost ? View.VISIBLE : View.GONE);
+        binding.btnMenuHostApply.setVisibility(isHost ? View.GONE : View.VISIBLE);
+        binding.hostSectionTitle.setText(
+                isHost ? R.string.profile_host_management : R.string.profile_host_join);
+
+        binding.profileUsername.setText(
+                getString(
+                        R.string.profile_username_label,
+                        profile.username == null ? "" : profile.username));
+        vn.edu.ueh.phuclu.broomsharing.ui.common.GuestNavigation.attach(this, R.id.nav_profile);
     }
 }

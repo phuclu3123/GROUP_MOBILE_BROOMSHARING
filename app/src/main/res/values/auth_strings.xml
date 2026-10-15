@@ -35,6 +35,10 @@
     <string name="auth_other_methods">Hoặc tiếp tục với</string>
     <string name="auth_google">Google</string>
     <string name="auth_phone">Số điện thoại</string>
+    <string name="auth_phone_hint">Số Việt Nam 10 chữ số hoặc số có mã quốc gia, ví dụ +84…</string>
+    <string name="auth_phone_required">Vui lòng nhập số điện thoại.</string>
+    <string name="auth_phone_invalid">Số điện thoại chưa đúng định dạng. Nhập số Việt Nam 10 chữ số bắt đầu bằng 0, hoặc +mã quốc gia và số điện thoại (8–15 chữ số).</string>
+    <string name="auth_phone_unverified">%1$s · Chưa xác minh số điện thoại</string>
     <string name="auth_google_later">Đăng nhập Google sẽ được tích hợp trong giai đoạn tiếp theo.</string>
     <string name="auth_phone_later">Đăng nhập bằng số điện thoại sẽ được tích hợp trong giai đoạn tiếp theo.</string>
     <string name="auth_reset">Gửi yêu cầu đặt lại mật khẩu</string>
@@ -43,6 +47,8 @@
     <string name="auth_retry">Thử lại</string>
     <string name="auth_sign_out">Đăng xuất</string>
     <string name="auth_name_required">Vui lòng nhập họ và tên.</string>
+    <string name="auth_username_required">Vui lòng nhập tên đăng nhập.</string>
+    <string name="auth_confirm_password_required">Vui lòng nhập lại mật khẩu.</string>
     <string name="auth_name_too_long">Họ và tên tối đa 100 ký tự.</string>
     <string name="auth_email_required">Vui lòng nhập email.</string>
     <string name="auth_email_invalid">Email chưa đúng định dạng.</string>
@@ -50,13 +56,14 @@
     <string name="auth_password_short">Mật khẩu cần ít nhất 6 ký tự.</string>
     <string name="auth_password_mismatch">Mật khẩu nhập lại chưa khớp.</string>
     <string name="auth_setup_required">Chưa kết nối Firebase. Bạn vẫn có thể xem giao diện; đăng nhập và đăng ký sẽ hoạt động sau khi cấu hình Firebase.</string>
-    <string name="auth_invalid_credentials">Email hoặc mật khẩu không đúng. Vui lòng kiểm tra lại.</string>
+    <string name="auth_invalid_credentials">Tên đăng nhập, email hoặc mật khẩu không đúng. Vui lòng kiểm tra lại.</string>
     <string name="auth_email_in_use">Email này đã được đăng ký. Vui lòng đăng nhập.</string>
     <string name="auth_weak_password">Mật khẩu chưa đáp ứng yêu cầu của Firebase project.</string>
     <string name="auth_network_error">Không thể kết nối. Kiểm tra mạng và thử lại.</string>
     <string name="auth_rate_limit">Bạn đã thử quá nhiều lần. Vui lòng thử lại sau.</string>
     <string name="auth_disabled">Tài khoản đã bị vô hiệu hóa.</string>
     <string name="auth_operation_disabled">Firebase chưa bật đăng nhập bằng email và mật khẩu.</string>
+    <string name="auth_configuration_missing">Firebase Authentication chưa được thiết lập. Người quản lý dự án cần mở Authentication trong Firebase Console và bật Email/Password.</string>
     <string name="auth_profile_error">Chưa thể tải hoặc lưu hồ sơ tài khoản. Vui lòng thử lại; không cần đăng ký lại.</string>
     <string name="auth_profile_missing">Tài khoản chưa có hồ sơ. Vui lòng liên hệ người quản lý dự án.</string>
     <string name="auth_unknown_error">Không thể hoàn tất yêu cầu. Vui lòng thử lại.</string>

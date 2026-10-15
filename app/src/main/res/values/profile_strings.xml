@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profile_host_management">Quản lý không gian</string>
+    <string name="profile_host_join">Trở thành người cho thuê</string>
+    <string name="profile_create_space">Đăng không gian mới</string>
+    <string name="profile_my_spaces">Danh sách không gian của tôi</string>
+    <string name="profile_add_building">Thêm tòa nhà hoặc địa điểm</string>
+    <string name="profile_apply_host">Đăng ký hồ sơ Host để xét duyệt</string>
+</resources>
