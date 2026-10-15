@@ -1,6 +1,11 @@
 BROOM SHARING - UI PROTOTYPE
 
-Project chỉ tập trung vào giao diện XML. Không có xử lý nghiệp vụ, API, database hay điều hướng giữa các màn hình.
+Project có prototype giao diện XML và module Auth mới. Xem docs/auth-dot-1.md để biết phạm vi và cách kết nối Firebase.
+
+Màn hình khởi động: ui/auth/LoginActivity.
+Đã thêm UI Đăng nhập / Đăng ký / Quên mật khẩu, điều hướng Auth, validation và luồng Firebase Auth + Firestore cho username hoặc email + mật khẩu.
+Chưa có google-services.json thì xem được UI nhưng không đăng nhập/đăng ký thật.
+Google, số điện thoại và gửi email quên mật khẩu xử lý sau.
 
 Các màn hình:
 1. activity_main.xml                - Trang chủ / khám phá không gian
@@ -13,5 +18,5 @@ Các màn hình:
 8. activity_profile.xml             - Hồ sơ + quản lý không gian
 9. activity_admin_dashboard.xml     - Dashboard quản trị và duyệt bài
 
-Các Activity Java chỉ có onCreate + setContentView để mở layout; không có logic chức năng.
+MainActivity, ProfileActivity và AdminDashboardActivity đã thêm kiểm tra phiên. Các màn hình nghiệp vụ còn lại vẫn là prototype.
 Ảnh dùng file tĩnh trong res/drawable, lấy từ prototype mà bạn cung cấp.

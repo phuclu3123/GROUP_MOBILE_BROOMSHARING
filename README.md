@@ -109,17 +109,21 @@ Các ý tưởng như chatbot AI, khóa thông minh, cảm biến IoT, định g
 
 ## Nền tảng và công nghệ
 
-Dự án được định hướng là ứng dụng **mobile-first**. Repository hiện chưa có mã nguồn ứng dụng, vì vậy framework, cơ sở dữ liệu và dịch vụ backend chưa được xác nhận trong README này. Các dịch vụ như xác thực, bản đồ, lưu trữ ảnh, thông báo đẩy, chat và thanh toán sẽ được cập nhật tại đây khi nhóm chốt và tích hợp vào dự án.
+Dự án dùng **Android Java + XML**, AndroidX và Material Components. Module Auth đã có UI đăng nhập/đăng ký/quên mật khẩu, ViewModel/LiveData và repository Firebase Auth + Cloud Firestore. Đăng nhập hỗ trợ username hoặc email kèm mật khẩu; Google Sign-In, số điện thoại và đặt lại mật khẩu triển khai sau. Firebase project chưa kết nối vào mã nguồn; nhà cung cấp Maps đang chờ chốt.
 
 ## Hướng dẫn cài đặt và chạy
 
-Hướng dẫn cài đặt sẽ được bổ sung cùng với mã nguồn và cấu hình build của ứng dụng. Khi có source code, phần này cần nêu phiên bản công cụ cần thiết, cách cấu hình biến môi trường/API key và lệnh chạy trên thiết bị hoặc trình giả lập.
+Mở thư mục `BroomSharing` trong Android Studio và Gradle Sync. App khởi động ở `LoginActivity`; thiếu cấu hình Firebase vẫn xem được ba màn hình Auth. Đặt `google-services.json` tại `app/`, bật Email/Password và tạo Cloud Firestore để thử đăng nhập/đăng ký thật. Xem [hướng dẫn Auth đợt 1](docs/auth-dot-1.md) cho schema, Rules, checklist và tiến độ P01–P10.
+
+```powershell
+./gradlew.bat :app:assembleDebug :app:testDebugUnitTest
+```
 
 ## Trạng thái dự án
 
-**Giai đoạn:** xác định ý tưởng và phạm vi chức năng.
+**Giai đoạn:** đợt 1, triển khai trước module Auth theo phạm vi Phúc đã chốt.
 
-Các tính năng trong README là định hướng sản phẩm. Tiến độ triển khai thực tế sẽ được cập nhật khi mã nguồn và các chức năng tương ứng được đưa lên repository.
+Các màn hình nghiệp vụ còn lại là prototype. Mã Auth cần kiểm thử với Firebase project thật sau khi kết nối. Theo yêu cầu demo của Phúc, file Firestore Rules local đang mở đọc/ghi; phân quyền database theo P06 chưa hoàn tất. Chưa deploy Firebase hoặc tích hợp Maps trong phần việc hiện tại.
 
 ## Đóng góp
 

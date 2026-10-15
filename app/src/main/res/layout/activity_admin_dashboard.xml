@@ -128,5 +128,9 @@
             <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/border" />
             <TextView android:layout_width="match_parent" android:layout_height="52dp" android:gravity="center_vertical" android:paddingStart="14dp" android:text="Booking &amp; giao dịch" android:textColor="@color/text_primary" android:textSize="13sp" />
         </LinearLayout>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/adminSignOut"
+            style="@style/Widget.BroomSharing.AuthButton"
+            android:text="@string/auth_sign_out" />
     </LinearLayout>
 </ScrollView>

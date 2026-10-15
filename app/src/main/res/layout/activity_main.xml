@@ -514,7 +514,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="vertical">
-            <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_home" android:tint="@color/teal" android:contentDescription="Trang chủ" />
+            <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_home" app:tint="@color/teal" android:contentDescription="Trang chủ" />
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Trang chủ" android:textColor="@color/teal" android:textSize="10sp" android:textStyle="bold" />
         </LinearLayout>
 

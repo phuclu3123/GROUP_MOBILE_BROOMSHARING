@@ -1,0 +1,10 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Phuc explicitly chose the lecture's open rules for this course demo.
+    // P06 ownership / role enforcement and denied-write tests remain deferred.
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}
