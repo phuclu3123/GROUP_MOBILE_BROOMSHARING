@@ -1,11 +1,13 @@
 package vn.edu.ueh.phuclu.broomsharing.repository;
 
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
@@ -25,6 +27,14 @@ import java.util.Map;
 import java.util.TimeZone;
 
 public class BookingRepository {
+    // Chỉ thêm biến auth
+    private final FirebaseAuth auth = FirebaseAuth.getInstance();
+
+    // Dùng interface Callback
+    public interface Callback<T> {
+        void onSuccess(T result);
+        void onError(Exception e);
+    }
 
     private final FirebaseFirestore db =
             FirebaseHelper.getFirestore();
@@ -861,4 +871,78 @@ public class BookingRepository {
                         callback.onSuccess(null))
                 .addOnFailureListener(callback::onError);
     }
+    // NÚT YÊU THÍCH
+    public void toggleFavorite(String roomId, boolean isFavorite, Callback<Boolean> callback) {
+        if (auth.getCurrentUser() == null) {
+            if (callback != null) callback.onError(new Exception("Chưa đăng nhập"));
+            return;
+        }
+
+        String uid = auth.getCurrentUser().getUid();
+
+        if (isFavorite) {
+            db.collection("users").document(uid)
+                    .collection("favorites").document(roomId)
+                    .set(new java.util.HashMap<String, Object>() {{ put("addedAt", System.currentTimeMillis()); }})
+                    .addOnSuccessListener(aVoid -> {
+                        if (callback != null) callback.onSuccess(true);
+                    })
+                    .addOnFailureListener(e -> {
+                        if (callback != null) callback.onError(e);
+                    });
+        } else {
+            db.collection("users").document(uid)
+                    .collection("favorites").document(roomId)
+                    .delete()
+                    .addOnSuccessListener(aVoid -> {
+                        if (callback != null) callback.onSuccess(false);
+                    })
+                    .addOnFailureListener(e -> {
+                        if (callback != null) callback.onError(e);
+                    });
+        }
+    }
+    /*Khóa các tháng/quý cho thuê cố định (FIXED) bằng Firestore Transaction
+     * @param monthKeys Danh sách chuỗi tháng cần khóa, ví dụ: ["202611", "202612", "202701"]
+     */
+    public Task<Void> createFixedBookingTransaction(Booking booking, List<String> monthKeys) {
+        return db.runTransaction(transaction -> {
+            // Step 1: Kiểm tra xem các tháng này đã bị ai khóa chưa
+            for (String monthKey : monthKeys) {
+                String lockId = booking.getRoomId() + "_" + monthKey;
+                DocumentReference lockRef = db.collection("fixedMonthLocks").document(lockId);
+                DocumentSnapshot snapshot = transaction.get(lockRef);
+
+                if (snapshot.exists()) {
+                    throw new FirebaseFirestoreException(
+                            "Tháng " + monthKey + " đã được người khác đặt trước!",
+                            FirebaseFirestoreException.Code.ABORTED
+                    );
+                }
+            }
+
+            // Step 2: Tiến hành khóa các tháng
+            for (String monthKey : monthKeys) {
+                String lockId = booking.getRoomId() + "_" + monthKey;
+                DocumentReference lockRef = db.collection("fixedMonthLocks").document(lockId);
+
+                Map<String, Object> lockData = new HashMap<>();
+                lockData.put("roomId", booking.getRoomId());
+                lockData.put("month", monthKey);
+                lockData.put("bookingId", booking.getId());
+                lockData.put("state", "LOCKED");
+                lockData.put("createdAt", FieldValue.serverTimestamp());
+
+                transaction.set(lockRef, lockData);
+            }
+
+            // Step 3: Tạo bản ghi booking chính
+            DocumentReference bookingRef = db.collection("bookings").document(booking.getId());
+            transaction.set(bookingRef, booking);
+
+            return null;
+        });
+    }
+
+
 }

@@ -19,4 +19,11 @@ public class Booking {
 
     public double depositAmount;
     public double priceSnapshot;
+    public String getId() {
+        return id;
+    }
+
+    public String getRoomId() {
+        return roomId;
+    }
 }

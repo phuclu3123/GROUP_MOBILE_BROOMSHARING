@@ -22,10 +22,6 @@
     <string name="booking_to_my_bookings">Về đặt chỗ của tôi</string>
     <string name="booking_continue_explore">Tiếp tục khám phá</string>
 
-    <string name="my_bookings_title">Đặt chỗ của tôi</string>
-    <string name="my_bookings_subtitle">Theo dõi trạng thái, thời gian thuê và khoản cọc dự kiến.</string>
-    <string name="my_bookings_refresh">Tải lại</string>
-
     <string name="booking_mode_hourly">Thuê theo giờ</string>
     <string name="booking_mode_fixed">Thuê theo kỳ cố định</string>
     <string name="booking_mode_monthly">Theo tháng</string>

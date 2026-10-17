@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.UUID;
+import android.widget.Toast;
 
 public class BookingActivity extends SessionActivity {
 
@@ -707,4 +708,43 @@ public class BookingActivity extends SessionActivity {
         startActivity(intent);
         finish();
     }
+    // 1. Kiểm tra ngày bắt đầu Thuê Cố Định (bắt buộc ngày 01 của tháng lịch)
+private boolean validateFixedBooking(Calendar startDate) {
+    if (startDate.get(Calendar.DAY_OF_MONTH) != 1) {
+        Toast.makeText(this, "Thuê cố định (Tháng/Quý) bắt buộc bắt đầu từ ngày 01 của tháng", Toast.LENGTH_LONG).show();
+        return false;
+    }
+    return true;
+}
+
+// 2. Kiểm tra giờ thuê HOURLY (phải nằm trong khung openTime - closeTime của phòng)
+private boolean validateHourlyBooking(String selectedStartTime, String selectedEndTime, String openTime, String closeTime) {
+    try {
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
+        Date start = sdf.parse(selectedStartTime);
+        Date end = sdf.parse(selectedEndTime);
+        Date open = sdf.parse(openTime);
+        Date close = sdf.parse(closeTime);
+
+        if (start == null || end == null || open == null || close == null) {
+            Toast.makeText(this, "Thời gian chọn không hợp lệ", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if (start.before(open) || end.after(close)) {
+            Toast.makeText(this, "Giờ đặt nằm ngoài khung giờ hoạt động (" + openTime + " - " + closeTime + ")", Toast.LENGTH_LONG).show();
+            return false;
+        }
+
+        if (!start.before(end)) {
+            Toast.makeText(this, "Giờ kết thúc phải sau giờ bắt đầu", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        return true;
+    } catch (Exception e) {
+        e.printStackTrace();
+        return false;
+    }
+}
 }
