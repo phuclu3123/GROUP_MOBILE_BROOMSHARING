@@ -1,5 +1,7 @@
 package vn.edu.ueh.phuclu.broomsharing;
 
+import android.content.Intent;
+
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
@@ -46,11 +48,24 @@ public class SpaceDetailActivity extends SessionActivity {
         String id = getIntent().getStringExtra(ROOM_ID);
         b.detailToolbar.setNavigationOnClickListener(v -> finish());
         b.btnRefresh.setOnClickListener(v -> model.load(id));
+        b.btnBook.setOnClickListener(v -> {
+            if (id == null || id.trim().isEmpty()) {
+                return;
+            }
+
+            Intent intent = new Intent(
+                    SpaceDetailActivity.this,
+                    BookingActivity.class);
+
+            intent.putExtra(BookingActivity.ROOM_ID, id);
+            startActivity(intent);
+        });
         model.detail()
                 .observe(
                         this,
                         state -> {
                             b.btnRefresh.setEnabled(!state.loading);
+                            b.btnBook.setEnabled(!state.loading && state.data != null);
                             b.details.setText("");
                             b.title.setText("");
                             com.bumptech.glide.Glide.with(this).clear(b.cover);

@@ -18,6 +18,9 @@
     <activity android:name=".ui.auth.RegisterActivity" android:exported="false" android:theme="@style/Theme.BroomSharing.Auth" android:windowSoftInputMode="adjustResize" />
     <activity android:name=".ui.auth.ForgotPasswordActivity" android:exported="false" android:theme="@style/Theme.BroomSharing.Auth" android:windowSoftInputMode="adjustResize" />
     <activity android:name=".ui.auth.LoginActivity" android:theme="@style/Theme.BroomSharing.Auth" android:windowSoftInputMode="adjustResize" android:exported="true">
+      <activity
+          android:name=".BookingActivity"
+          android:exported="false" />
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />

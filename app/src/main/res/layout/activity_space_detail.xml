@@ -7,6 +7,13 @@
     <androidx.recyclerview.widget.RecyclerView android:id="@+id/gallery" android:layout_width="match_parent" android:layout_height="100dp" />
     <TextView android:id="@+id/details" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="" android:textColor="@color/text_primary" android:textSize="14sp" android:padding="8dp" />
     <TextView android:id="@+id/tvFeedback" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="" android:textColor="@color/text_primary" android:textSize="14sp" android:padding="8dp" />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnBook"
+        style="@style/Widget.BroomSharing.AuthButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Đặt chỗ" />
     <Button android:id="@+id/btnRefresh" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:text="Tải lại" />
   </LinearLayout>
 </ScrollView>

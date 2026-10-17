@@ -13,4 +13,10 @@ public class Booking {
     public long schemaVersion = 1;
 
     public Booking() {}
+    public String roomName;
+    public String roomAddress;
+    public String priceUnit;
+
+    public double depositAmount;
+    public double priceSnapshot;
 }
