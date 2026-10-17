@@ -45,6 +45,7 @@ public class Room implements Serializable {
     private String approvalStatus; // DRAFT, PENDING_REVIEW, APPROVED
     private String listingStatus; // ACTIVE, INACTIVE, SUSPENDED
     private List<String> imageUrls;
+    private List<String> blackoutDates; // Danh sách các ngày khóa lịch YYYY-MM-DD
 
     @ServerTimestamp private Date createdAt;
 
@@ -54,6 +55,7 @@ public class Room implements Serializable {
         this.listingStatus = "ACTIVE";
         this.amenities = new ArrayList<>();
         this.imageUrls = new ArrayList<>();
+        this.blackoutDates = new ArrayList<>();
     }
 
     public String getId() {
@@ -272,5 +274,14 @@ public class Room implements Serializable {
 
     public void setUpdatedAt(Date value) {
         updatedAt = value;
+    }
+
+    public List<String> getBlackoutDates() {
+        if (blackoutDates == null) blackoutDates = new ArrayList<>();
+        return blackoutDates;
+    }
+
+    public void setBlackoutDates(List<String> blackoutDates) {
+        this.blackoutDates = blackoutDates;
     }
 }

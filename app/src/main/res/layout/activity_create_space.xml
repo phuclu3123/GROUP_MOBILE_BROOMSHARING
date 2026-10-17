@@ -82,6 +82,293 @@
       </LinearLayout>
       <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:layout_marginBottom="12dp" android:text="Mô tả ngắn" android:textColor="@color/text_primary" android:textSize="12sp" android:textStyle="bold" />
       <EditText android:id="@+id/etDescription" android:layout_width="match_parent" android:layout_height="110dp" android:background="@drawable/bg_input" android:gravity="top|start" android:hint="Mô tả môi trường làm việc, nội quy và điểm nổi bật..." android:inputType="textMultiLine" android:padding="12dp" android:textColor="@color/text_primary" android:textSize="13sp" />
+
+      <!-- Trạng thái nhận khách (H17) -->
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="16dp"
+          android:background="@drawable/bg_card"
+          android:orientation="vertical"
+          android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Trạng thái nhận khách"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Kiểm soát việc hiển thị không gian và nhận yêu cầu đặt chỗ"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp" />
+
+        <!-- Card 1: Đang nhận khách (ACTIVE) -->
+        <LinearLayout
+            android:id="@+id/cardStatusActive"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_status_card_selected"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+          <RadioButton
+              android:id="@+id/rbStatusActive"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:checked="true" />
+
+          <LinearLayout
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_marginStart="8dp"
+              android:layout_weight="1"
+              android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+              <TextView
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="Đang nhận khách"
+                  android:textColor="@color/text_primary"
+                  android:textSize="13sp"
+                  android:textStyle="bold" />
+
+              <TextView
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginStart="8dp"
+                  android:background="@drawable/bg_chip"
+                  android:paddingStart="8dp"
+                  android:paddingTop="2dp"
+                  android:paddingEnd="8dp"
+                  android:paddingBottom="2dp"
+                  android:text="Hoạt động"
+                  android:textColor="@color/teal"
+                  android:textSize="11sp"
+                  android:textStyle="bold" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="Hiển thị trên tìm kiếm, khách có thể xem và gửi yêu cầu đặt chỗ."
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp" />
+          </LinearLayout>
+        </LinearLayout>
+
+        <!-- Card 2: Tạm ngưng nhận khách (SUSPENDED) -->
+        <LinearLayout
+            android:id="@+id/cardStatusSuspended"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_status_card_unselected"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+          <RadioButton
+              android:id="@+id/rbStatusSuspended"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:checked="false" />
+
+          <LinearLayout
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_marginStart="8dp"
+              android:layout_weight="1"
+              android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+              <TextView
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="Tạm ngưng nhận khách"
+                  android:textColor="@color/text_primary"
+                  android:textSize="13sp"
+                  android:textStyle="bold" />
+
+              <TextView
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginStart="8dp"
+                  android:background="@drawable/bg_soft_panel"
+                  android:paddingStart="8dp"
+                  android:paddingTop="2dp"
+                  android:paddingEnd="8dp"
+                  android:paddingBottom="2dp"
+                  android:text="Tạm ngưng"
+                  android:textColor="@color/warning"
+                  android:textSize="11sp"
+                  android:textStyle="bold" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="Tạm ẩn khỏi tìm kiếm, chặn booking mới. Các booking trước đó vẫn giữ nguyên."
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp" />
+          </LinearLayout>
+        </LinearLayout>
+      </LinearLayout>
+
+      <!-- Khóa lịch & Ngày nghỉ -->
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="16dp"
+          android:background="@drawable/bg_card"
+          android:orientation="vertical"
+          android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+          <LinearLayout
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_weight="1"
+              android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Khóa lịch &amp; Ngày nghỉ"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="Chặn ngày bảo trì hoặc nghỉ để khách không thể đặt lịch"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
+          </LinearLayout>
+
+          <TextView
+              android:id="@+id/tvBlackoutCountBadge"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:background="@drawable/bg_soft_panel"
+              android:paddingStart="10dp"
+              android:paddingTop="4dp"
+              android:paddingEnd="10dp"
+              android:paddingBottom="4dp"
+              android:text="0 ngày khóa"
+              android:textColor="@color/text_secondary"
+              android:textSize="11sp"
+              android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Nút hành động: Thêm ngày & Xóa tất cả -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+          <LinearLayout
+              android:id="@+id/btnAddBlackout"
+              android:layout_width="0dp"
+              android:layout_height="42dp"
+              android:layout_weight="1"
+              android:background="@drawable/bg_button_outline"
+              android:clickable="true"
+              android:focusable="true"
+              android:gravity="center"
+              android:orientation="horizontal"
+              android:paddingStart="12dp"
+              android:paddingEnd="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="+ Thêm ngày khóa lịch"
+                android:textColor="@color/teal"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+          </LinearLayout>
+
+          <TextView
+              android:id="@+id/btnClearBlackouts"
+              android:layout_width="wrap_content"
+              android:layout_height="42dp"
+              android:layout_marginStart="10dp"
+              android:background="@drawable/bg_button_outline"
+              android:clickable="true"
+              android:focusable="true"
+              android:gravity="center"
+              android:paddingStart="14dp"
+              android:paddingEnd="14dp"
+              android:text="Xóa tất cả"
+              android:textColor="@color/danger"
+              android:textSize="12sp"
+              android:textStyle="bold"
+              android:visibility="gone" />
+        </LinearLayout>
+
+        <!-- ChipGroup chứa danh sách các ngày khóa -->
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupBlackouts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            app:chipSpacingHorizontal="8dp"
+            app:chipSpacingVertical="6dp" />
+
+        <!-- Empty state khi chưa có ngày nào bị khóa -->
+        <LinearLayout
+            android:id="@+id/layoutEmptyBlackouts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_soft_panel"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+          <TextView
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:text="Lịch đang mở hoàn toàn — Khách có thể đặt vào tất cả các ngày hoạt động."
+              android:textColor="@color/text_secondary"
+              android:textSize="12sp" />
+        </LinearLayout>
+      </LinearLayout>
+
       <TextView android:id="@+id/tvFeedback" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="8dp" android:textColor="@color/danger" android:accessibilityLiveRegion="polite" />
       <ProgressBar android:id="@+id/progressBar" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:layout_marginTop="12dp" android:visibility="gone" />
       <View android:layout_width="match_parent" android:layout_height="16dp" />

@@ -283,7 +283,9 @@ public class HostRepository {
                                         room.setRejectionReason("");
                                         if (old.exists()) {
                                             room.setCreatedAt(old.getDate("createdAt"));
-                                            room.setListingStatus(old.getString("listingStatus"));
+                                            if (room.getListingStatus() == null || room.getListingStatus().isEmpty()) {
+                                                room.setListingStatus(old.getString("listingStatus"));
+                                            }
                                         }
                                         tx.set(ref, room);
                                         return ref.getId();
@@ -357,5 +359,107 @@ public class HostRepository {
                                                     .addOnFailureListener(cb::onError);
                                         })
                                 .addOnFailureListener(cb::onError));
+    }
+
+    public void getBookings(Callback<List<Booking>> cb) {
+        asHost(
+                cb,
+                actor ->
+                        db.collection("bookings")
+                                .whereEqualTo("ownerUid", actor)
+                                .get(Source.SERVER)
+                                .addOnSuccessListener(
+                                        rows -> {
+                                            List<Booking> list = new ArrayList<>();
+                                            for (DocumentSnapshot d : rows) {
+                                                Booking b = d.toObject(Booking.class);
+                                                if (b != null) {
+                                                    b.setId(d.getId());
+                                                    list.add(b);
+                                                }
+                                            }
+                                            // Sap xep moi nhat len dau neu co ngay tao
+                                            Collections.sort(list, (a, b) -> {
+                                                if (a.getCreatedAt() == null || b.getCreatedAt() == null) return 0;
+                                                return b.getCreatedAt().compareTo(a.getCreatedAt());
+                                            });
+                                            cb.onSuccess(list);
+                                        })
+                                .addOnFailureListener(cb::onError));
+    }
+
+    public void updateBookingStatus(String bookingId, String newStatus, String reason, Callback<String> cb) {
+        asHost(
+                cb,
+                actor -> {
+                    DocumentReference ref = db.collection("bookings").document(bookingId);
+                    db.runTransaction(
+                                    tx -> {
+                                        requireHost(tx, actor);
+                                        DocumentSnapshot snap = tx.get(ref);
+                                        if (!snap.exists()) {
+                                            throw new IllegalStateException("Yêu cầu đặt phòng không tồn tại.");
+                                        }
+                                        if (!actor.equals(snap.getString("ownerUid"))) {
+                                            throw new IllegalStateException("Bạn không sở hữu yêu cầu đặt phòng này.");
+                                        }
+                                        Map<String, Object> updates = new HashMap<>();
+                                        updates.put("status", newStatus);
+                                        updates.put("updatedAt", FieldValue.serverTimestamp());
+                                        if (reason != null && !reason.trim().isEmpty()) {
+                                            updates.put("rejectionReason", reason.trim());
+                                        }
+                                        tx.update(ref, updates);
+                                        return bookingId;
+                                    })
+                            .addOnSuccessListener(cb::onSuccess)
+                            .addOnFailureListener(cb::onError);
+                });
+    }
+
+    public void toggleListingStatus(String roomId, String newStatus, Callback<String> cb) {
+        asHost(
+                cb,
+                actor -> {
+                    DocumentReference ref = db.collection("rooms").document(roomId);
+                    db.runTransaction(
+                                    tx -> {
+                                        requireHost(tx, actor);
+                                        DocumentSnapshot snap = tx.get(ref);
+                                        if (!snap.exists()) {
+                                            throw new IllegalStateException("Không gian không tồn tại.");
+                                        }
+                                        if (!actor.equals(snap.getString("ownerUid"))) {
+                                            throw new IllegalStateException("Bạn không sở hữu không gian này.");
+                                        }
+                                        tx.update(ref, "listingStatus", newStatus, "updatedAt", FieldValue.serverTimestamp());
+                                        return roomId;
+                                    })
+                            .addOnSuccessListener(cb::onSuccess)
+                            .addOnFailureListener(cb::onError);
+                });
+    }
+
+    public void updateRoomBlackouts(String roomId, List<String> blackoutDates, Callback<String> cb) {
+        asHost(
+                cb,
+                actor -> {
+                    DocumentReference ref = db.collection("rooms").document(roomId);
+                    db.runTransaction(
+                                    tx -> {
+                                        requireHost(tx, actor);
+                                        DocumentSnapshot snap = tx.get(ref);
+                                        if (!snap.exists()) {
+                                            throw new IllegalStateException("Không gian không tồn tại.");
+                                        }
+                                        if (!actor.equals(snap.getString("ownerUid"))) {
+                                            throw new IllegalStateException("Bạn không sở hữu không gian này.");
+                                        }
+                                        tx.update(ref, "blackoutDates", blackoutDates, "updatedAt", FieldValue.serverTimestamp());
+                                        return roomId;
+                                    })
+                            .addOnSuccessListener(cb::onSuccess)
+                            .addOnFailureListener(cb::onError);
+                });
     }
 }

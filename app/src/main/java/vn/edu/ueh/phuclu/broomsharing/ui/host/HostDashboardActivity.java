@@ -40,6 +40,8 @@ public class HostDashboardActivity extends SessionActivity {
         binding.btnGoApply.setVisibility(View.GONE);
         binding.btnBack.setOnClickListener(v -> finish());
         binding.btnRefresh.setOnClickListener(v -> refresh());
+        binding.cardBookingRequests.setOnClickListener(
+                v -> startActivity(new Intent(this, HostBookingsActivity.class)));
         binding.btnAddBuilding.setOnClickListener(
                 v -> startActivity(new Intent(this, AddBuildingActivity.class)));
         binding.btnAddRoom.setOnClickListener(
@@ -100,12 +102,14 @@ public class HostDashboardActivity extends SessionActivity {
                         binding.tvFeedback.setText(state.error);
                         binding.tvExtraStats.setText("Chưa tải được thống kê. Vui lòng thử lại.");
                     }
-                    if (state.data != null)
+                    if (state.data != null) {
                         binding.tvExtraStats.setText(
                                 "Phòng đang hoạt động: "
                                         + state.data.activeRooms
                                         + " • Yêu cầu đặt chỗ: "
                                         + state.data.bookingRequests);
+                        binding.tvBadgeBookingCount.setText(String.valueOf(state.data.bookingRequests));
+                    }
                 });
         refresh();
     }

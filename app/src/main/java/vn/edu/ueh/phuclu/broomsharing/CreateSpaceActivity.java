@@ -1,5 +1,6 @@
 package vn.edu.ueh.phuclu.broomsharing;
 
+import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.net.Uri;
@@ -110,7 +111,7 @@ public class CreateSpaceActivity extends SessionActivity {
         binding.etDescription.setText(r.getRules());
         binding.tvOpenTime.setText(r.getOpenTime() == null ? "08:00" : r.getOpenTime());
         binding.tvCloseTime.setText(r.getCloseTime() == null ? "22:00" : r.getCloseTime());
-        if (r.getAmenities() != null) {
+        if (r.getId() != null && r.getAmenities() != null) {
             binding.cbWifi.setChecked(r.getAmenities().contains("Wi-Fi"));
             binding.cbAirConditioner.setChecked(r.getAmenities().contains("Máy lạnh"));
             binding.cbProjector.setChecked(r.getAmenities().contains("Máy chiếu"));
@@ -173,6 +174,24 @@ public class CreateSpaceActivity extends SessionActivity {
         binding.btnPickPhotos.setOnClickListener(
                 v -> picker.launch(new String[] {"image/jpeg", "image/png", "image/webp"}));
         showPhotos();
+
+        // Trạng thái nhận khách (H17)
+        boolean isActive = !"SUSPENDED".equalsIgnoreCase(r.getListingStatus()) && !"INACTIVE".equalsIgnoreCase(r.getListingStatus());
+        setListingStatusSelection(isActive);
+        binding.cardStatusActive.setOnClickListener(v -> setListingStatusSelection(true));
+        binding.rbStatusActive.setOnClickListener(v -> setListingStatusSelection(true));
+        binding.cardStatusSuspended.setOnClickListener(v -> setListingStatusSelection(false));
+        binding.rbStatusSuspended.setOnClickListener(v -> setListingStatusSelection(false));
+
+        // Khóa lịch & Ngày nghỉ (H10)
+        renderBlackoutDates(r);
+        binding.btnAddBlackout.setOnClickListener(v -> showDatePickerForBlackout(r));
+        binding.btnClearBlackouts.setOnClickListener(v -> {
+            r.getBlackoutDates().clear();
+            renderBlackoutDates(r);
+            Toast.makeText(this, "Đã xóa toàn bộ ngày khóa lịch.", Toast.LENGTH_SHORT).show();
+        });
+
         binding.btnSaveDraft.setOnClickListener(v -> save(false));
         binding.btnSubmitApproval.setOnClickListener(v -> save(true));
         model.buildings.observe(
@@ -303,8 +322,16 @@ public class CreateSpaceActivity extends SessionActivity {
                     "Kiểm tra các ô số; sức chứa phải là số nguyên từ 0 đến 10.000.");
             return;
         }
+        List<String> amenities = new ArrayList<>();
+        if (binding.cbWifi.isChecked()) amenities.add("Wi-Fi");
+        if (binding.cbAirConditioner.isChecked()) amenities.add("Máy lạnh");
+        if (binding.cbProjector.isChecked()) amenities.add("Máy chiếu");
+        if (binding.cbParking.isChecked()) amenities.add("Bãi giữ xe");
+        r.setAmenities(amenities);
+
         r.setPricePerDay(0);
         r.setActiveMode(binding.rbHourly.isChecked() ? Room.MODE_HOURLY : Room.MODE_FIXED);
+        r.setListingStatus(binding.rbStatusActive.isChecked() ? "ACTIVE" : "SUSPENDED");
         r.setApprovalStatus(submit ? Room.STATUS_PENDING_REVIEW : Room.STATUS_DRAFT);
         List<String> old = r.getImageUrls();
         List<String> preview = new ArrayList<>();
@@ -318,6 +345,63 @@ public class CreateSpaceActivity extends SessionActivity {
         }
         binding.tvFeedback.setText("");
         model.saveRoom(r);
+    }
+
+    private void setListingStatusSelection(boolean active) {
+        binding.rbStatusActive.setChecked(active);
+        binding.rbStatusSuspended.setChecked(!active);
+        binding.cardStatusActive.setBackgroundResource(
+                active ? R.drawable.bg_status_card_selected : R.drawable.bg_status_card_unselected);
+        binding.cardStatusSuspended.setBackgroundResource(
+                !active ? R.drawable.bg_status_card_selected : R.drawable.bg_status_card_unselected);
+    }
+
+    private void renderBlackoutDates(Room r) {
+        List<String> dates = r.getBlackoutDates();
+        binding.chipGroupBlackouts.removeAllViews();
+
+        if (dates == null || dates.isEmpty()) {
+            binding.layoutEmptyBlackouts.setVisibility(View.VISIBLE);
+            binding.btnClearBlackouts.setVisibility(View.GONE);
+            binding.tvBlackoutCountBadge.setText("0 ngày khóa");
+            binding.tvBlackoutCountBadge.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
+            binding.tvBlackoutCountBadge.setBackgroundResource(R.drawable.bg_soft_panel);
+        } else {
+            binding.layoutEmptyBlackouts.setVisibility(View.GONE);
+            binding.btnClearBlackouts.setVisibility(View.VISIBLE);
+            binding.tvBlackoutCountBadge.setText("Đang khóa " + dates.size() + " ngày");
+            binding.tvBlackoutCountBadge.setTextColor(ContextCompat.getColor(this, R.color.danger));
+            binding.tvBlackoutCountBadge.setBackgroundResource(R.drawable.bg_date_chip_badge);
+
+            for (String dateStr : dates) {
+                com.google.android.material.chip.Chip chip = new com.google.android.material.chip.Chip(this);
+                chip.setText(dateStr);
+                chip.setChipIconVisible(false);
+                chip.setChipBackgroundColor(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#FEE2E2")));
+                chip.setTextColor(ContextCompat.getColor(this, R.color.danger));
+                chip.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 12);
+                chip.setCloseIconVisible(true);
+                chip.setCloseIconTint(android.content.res.ColorStateList.valueOf(ContextCompat.getColor(this, R.color.danger)));
+                chip.setOnCloseIconClickListener(v -> {
+                    r.getBlackoutDates().remove(dateStr);
+                    renderBlackoutDates(r);
+                });
+                binding.chipGroupBlackouts.addView(chip);
+            }
+        }
+    }
+
+    private void showDatePickerForBlackout(Room r) {
+        Calendar c = Calendar.getInstance();
+        new DatePickerDialog(this, (picker, year, month, dayOfMonth) -> {
+            String dateStr = String.format(Locale.US, "%02d/%02d/%d", dayOfMonth, month + 1, year);
+            if (!r.getBlackoutDates().contains(dateStr)) {
+                r.getBlackoutDates().add(dateStr);
+                renderBlackoutDates(r);
+            } else {
+                Toast.makeText(this, "Ngày này đã có trong danh sách khóa lịch.", Toast.LENGTH_SHORT).show();
+            }
+        }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
     }
 
     @Override
