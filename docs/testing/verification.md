@@ -84,6 +84,7 @@ Lượt Android cuối chạy 15 bài trong 199,087 giây: **14 đạt, 1 bỏ q
 
 - Host/Admin: đăng nhập vào đúng workspace; điều hướng, lịch theo phòng, tài khoản, chuyển Host sang giao diện thuê, khôi phục tab sau tái tạo Activity, hủy/xác nhận đăng xuất. Đã xem ảnh chụp trên emulator.
 - Guest: đọc phòng công khai từ cloud, mở/áp dụng/xóa bộ lọc, trạng thái không có kết quả, khôi phục màn hình, danh sách đặt chỗ và hồ sơ đúng vai trò, mở phòng đã lưu. Màn chi tiết và tuyến đường thật tiếp tục đạt; đã chờ geometry xuất hiện trên bản đồ.
+- Kiểm tra hình ảnh bổ sung đạt trong 37,347 giây: ngoài query geometry, bài DemoFlowCheckTest chờ đường màu xanh hiện trên khung hình Android rồi mới lưu ảnh. Đã xem lại ảnh có tuyến ô tô 1,63 km/khoảng 4 phút. Mã ứng dụng không đổi sau lượt 15 bài; thay đổi bổ sung chỉ ở harness chụp ảnh và bằng chứng.
 - Form đăng nhập/đăng ký kiểm tra dữ liệu sai và không lưu lại mật khẩu khi tái tạo màn hình. Quên mật khẩu đã nối Firebase Auth qua ViewModel/Repository; bài test chỉ kiểm tra email sai để không tự gửi thư. **Chưa nghiệm thu thư reset thực sự tới hộp thư người dùng.**
 - Lỗi focus hộp thoại trong lượt kiểm tra trước đã sửa ở harness: chờ Activity có focus và chọn đúng dialog root; lượt cuối đạt toàn bộ bài áp dụng.
 

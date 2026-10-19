@@ -90,5 +90,11 @@
     "P19 private Storage evidence access is not complete.",
     "Password reset is connected to Firebase Auth; email delivery not tested or triggered in this run.",
     "Blackout policy is checked by Java; this is not a production security certification."
-  ]
+  ],
+  "additionalMapFrameCheck": {
+    "passed": true,
+    "seconds": 37.347,
+    "nativeRouteGeometryRendered": true,
+    "blueRouteVisibleOnAndroidFrame": true
+  }
 }

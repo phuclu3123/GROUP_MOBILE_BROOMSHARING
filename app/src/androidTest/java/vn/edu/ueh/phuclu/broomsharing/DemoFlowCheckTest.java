@@ -98,8 +98,26 @@ public class DemoFlowCheckTest {
                     });
                     if(!drawn.get())SystemClock.sleep(250);
                 }
-                screenshot("check-map-road-route.png");
                 assertTrue("Directions returned but MapLibre did not render route geometry",drawn.get());
+                Rect mapBounds = new Rect();
+                map.onActivity(activity -> activity.findViewById(R.id.mapCanvas).getGlobalVisibleRect(mapBounds));
+                // Native geometry queries can precede presentation of the GL frame to Android.
+                boolean visibleRoute = false;
+                for (int attempt = 0; attempt < 40 && !visibleRoute; attempt++) {
+                    Bitmap frame = device.getUiAutomation().takeScreenshot();
+                    int blue = 0;
+                    for (int y = Math.max(0, mapBounds.top); y < Math.min(frame.getHeight(), mapBounds.bottom); y += 2)
+                        for (int x = Math.max(0, mapBounds.left); x < Math.min(frame.getWidth(), mapBounds.right); x += 2) {
+                            int color = frame.getPixel(x, y);
+                            if (android.graphics.Color.red(color) < 40 && android.graphics.Color.green(color) >= 70
+                                    && android.graphics.Color.green(color) <= 150 && android.graphics.Color.blue(color) > 170) blue++;
+                        }
+                    frame.recycle();
+                    visibleRoute = blue > 500;
+                    if (!visibleRoute) SystemClock.sleep(500);
+                }
+                screenshot("check-map-road-route.png");
+                assertTrue("Route geometry exists but the blue road line is not visible in the presented frame", visibleRoute);
             }
         }finally{auth.logout();}
     }
