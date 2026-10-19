@@ -1,0 +1,27 @@
+{
+  "passed": true,
+  "project": "broom-sharing-firebase-mobile",
+  "database": "broomsharing",
+  "checks": [
+    "Host creates building and two pending listings through Java repositories",
+    "Pending listing cannot be booked",
+    "Admin approves both listings on cloud",
+    "Two authenticated guests race: one hold; retry returns same booking; server price and payment state match",
+    "Guest cannot confirm; Host confirms; occupied room cannot switch mode; cancel\/reject release slots",
+    "Quarter locks three calendar months; overlapping month rejected; cancellation releases all months",
+    "Host saves blackout dates; real quotes reject closed days and hours outside opening schedule",
+    "Host pauses and resumes new bookings without deleting booking history",
+    "Admin suspension blocks new bookings and keeps existing booking history",
+    "Cloud rules reject self-promotion, price tampering and fake PAID state",
+    "Blocked demo Host cannot access active Host operations"
+  ],
+  "bookingIds": [
+    "6e013def2482ade63d181b8de9f9858d8484e4f2c2f35a9616b9dd094c1791fa",
+    "96365439efc6ba5f03f77307d237310699bdaf214e8a2f57ed4e3704cfa862fe",
+    "db0f387b386e5aae621a11029fac168bb66c61f0c37f17aebaafa7e3953861fe",
+    "edcceddbb411285c1c27f87e56e7444682c313ca7c4aa08f12dd5daf9cb360bb"
+  ],
+  "fixturesHidden": true,
+  "holdsReleased": true,
+  "note": "Dedicated DEMO QA fixtures retained as audit evidence; no real payment; no existing demo roles changed."
+}

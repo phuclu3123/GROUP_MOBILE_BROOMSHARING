@@ -1,10 +1,218 @@
 rules_version = '2';
+// Firestore Security Rules language. App/business code is Java, with no backend runtime.
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Phuc explicitly chose the lecture's open rules for this course demo.
-    // P06 ownership / role enforcement and denied-write tests remain deferred.
-    match /{document=**} {
-      allow read, write: if true;
+    function own(uid) { return request.auth != null && request.auth.uid == uid; }
+    function account() { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data; }
+    function active() { return request.auth != null && account().status == 'ACTIVE'; }
+    function admin() { return active() && account().role == 'ADMIN'; }
+    function host() { return active() && account().role == 'HOST'; }
+    function renter() { return active() && account().role in ['GUEST','HOST']; }
+    function publicRoom(r) { return r.approvalStatus == 'APPROVED' && r.listingStatus == 'ACTIVE'; }
+    function local(t) { return t + duration.value(7,'h'); }
+    function monthNumber(t) { return local(t).year() * 12 + local(t).month() - 1; }
+    function monthId(b,i) {
+      let n = monthNumber(b.startAt) + i;
+      return b.roomId + '_' + string(int(n / 12) * 100 + n % 12 + 1);
     }
+    function slots8(b,n) {
+      return b.slotCount<=n || ((b.slotCount<=n+0 || b.slotKeys[n+0]==b.slotStart+n+0)
+        && (b.slotCount<=n+1 || b.slotKeys[n+1]==b.slotStart+n+1)
+        && (b.slotCount<=n+2 || b.slotKeys[n+2]==b.slotStart+n+2)
+        && (b.slotCount<=n+3 || b.slotKeys[n+3]==b.slotStart+n+3)
+        && (b.slotCount<=n+4 || b.slotKeys[n+4]==b.slotStart+n+4)
+        && (b.slotCount<=n+5 || b.slotKeys[n+5]==b.slotStart+n+5)
+        && (b.slotCount<=n+6 || b.slotKeys[n+6]==b.slotStart+n+6)
+        && (b.slotCount<=n+7 || b.slotKeys[n+7]==b.slotStart+n+7));
+    }
+    function slotsValid(b) {
+      return b.slotKeys.size()==b.slotCount && slots8(b,0) && slots8(b,8)
+        && slots8(b,16) && slots8(b,24) && slots8(b,32) && slots8(b,40);
+    }
+    function heldMonth(b,i) {
+      let id=monthId(b,i);
+      let m=getAfter(/databases/$(database)/documents/availabilityMonths/$(id)).data;
+      return b.monthKeys[i]==id && m.roomId==b.roomId
+        && (b.activeMode=='FIXED' ? m.fixedBookingId==b.id && m.slotsBusy.size()==0
+            : m.fixedBookingId=='' && m.hourlyBookings[b.id]==b.slotKeys && m.slotsBusy.hasAll(b.slotKeys));
+    }
+    function held(b) { return heldMonth(b,0) && (b.rentalMonths!=3 || (heldMonth(b,1)&&heldMonth(b,2))); }
+    function releasedMonth(b,i) {
+      let id=b.monthKeys[i];
+      let m=getAfter(/databases/$(database)/documents/availabilityMonths/$(id)).data;
+      return m.lastBookingId==b.id && m.fixedBookingId!=b.id && !m.hourlyBookings.keys().hasAny([b.id]);
+    }
+    function released(b) { return releasedMonth(b,0) && (b.rentalMonths!=3 || (releasedMonth(b,1)&&releasedMonth(b,2))); }
+    function validPeriod(b,r) {
+      let start=local(b.startAt);
+      let end=local(b.endAt);
+      let from=start.hours()*60+start.minutes();
+      let to=(b.endAt.toMillis()-b.startAt.toMillis()) / 60000 + from;
+      return b.activeMode==r.activeMode && b.startAt>request.time
+        && b.startAt<=request.time+duration.value(366,'d') && b.endAt>b.startAt
+        && start.seconds()==0 && start.nanos()==0 && end.seconds()==0 && end.nanos()==0
+        && (b.activeMode=='HOURLY'
+          ? b.rentalMonths==0 && b.monthKeys.size()==1 && b.slotCount>=1 && b.slotCount<=48
+            && b.slotStart==(start.day()-1)*48+int(from / 30)
+            && b.slotCount==(b.endAt.toMillis()-b.startAt.toMillis()) / 1800000 && slotsValid(b)
+            && b.endAt<=b.startAt+duration.value(int(1440-from),'m')
+            && from%r.slotMinutes==0 && to%r.slotMinutes==0 && to-from>=r.minBookingMinutes
+            && r.workingDays.hasAny([int(start.toMillis() / 86400000 + 3)%7+1])
+            && from>=int(r.openTime.split(':')[0])*60+int(r.openTime.split(':')[1])
+            && to<=int(r.closeTime.split(':')[0])*60+int(r.closeTime.split(':')[1])
+          : b.activeMode=='FIXED' && b.rentalMonths in [1,3] && b.monthKeys.size()==b.rentalMonths
+            && b.slotCount==0 && b.slotStart==0 && b.slotKeys.size()==0
+            && start.day()==1 && from==0 && end.day()==1 && end.hours()==0 && end.minutes()==0
+            && monthNumber(b.endAt)-monthNumber(b.startAt)==b.rentalMonths
+            && (start.year()*100+start.month())>=int(r.fixedStartMonth.replace('-','')));
+    }
+    function validPrice(b,r) {
+      let rental=b.activeMode=='HOURLY'?math.round(r.pricePerHour*(b.endAt.toMillis()-b.startAt.toMillis()) / 3600000):b.rentalMonths==1?r.pricePerMonth:r.pricePerQuarter;
+      let p=b.priceSnapshot;
+      return rental>0 && b.totalAmount==rental && p.totalAmount==rental && p.rentalAmount==rental
+        && p.currency=='VND' && p.feeAmount==0 && p.depositAmount==r.deposit
+        && p.paymentDueAmount==rental+r.deposit && p.rentalPolicy==r.rentalPolicy && p.renewalPolicy==r.renewalPolicy;
+    }
+    function roomValid(r) {
+      return r.id is string && r.schemaVersion==1 && r.roomName is string && r.roomName.size()>0 && r.roomName.size()<=200
+        && r.activeMode in ['HOURLY','FIXED'] && r.imageUrls is list && r.imageUrls.size()<=6
+        && r.capacity>=0 && r.capacity<=10000 && r.area>=0 && r.area<=1000000
+        && r.pricePerHour>=0 && r.pricePerMonth>=0 && r.pricePerQuarter>=0 && r.deposit>=0
+        && r.pricePerHour<=1000000000000 && r.pricePerMonth<=1000000000000 && r.pricePerQuarter<=1000000000000 && r.deposit<=1000000000000;
+    }
+    match /users/{uid} {
+      allow read: if own(uid)||admin();
+      allow create: if own(uid) && request.resource.data.uid==uid && request.resource.data.role=='GUEST'
+        && request.resource.data.status=='ACTIVE' && request.resource.data.schemaVersion==1
+        && request.resource.data.phoneVerified==false && request.resource.data.phone.matches('[+][1-9][0-9]{7,14}')
+        && request.resource.data.keys().hasOnly(['uid','schemaVersion','name','username','email','phone','phoneVerified','role','status','createdAt','updatedAt'])
+        && getAfter(/databases/$(database)/documents/usernames/$(request.resource.data.username)).data.uid==uid;
+      allow update: if (own(uid)&&active()&&request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name','phone','phoneVerified','photoUrl','updatedAt'])
+        && (request.resource.data.get('phoneVerified',false)==false || (request.resource.data.get('phoneVerified',false)==resource.data.get('phoneVerified',false)&&request.resource.data.phone==resource.data.phone)))
+        || (admin()&&request.resource.data.uid==resource.data.uid&&request.resource.data.diff(resource.data).affectedKeys().hasOnly(['role','status','moderationReason','moderatedBy','updatedAt'])
+          && request.resource.data.role in ['GUEST','HOST'] && request.resource.data.status in ['ACTIVE','BLOCKED']);
+    }
+    match /publicHosts/{uid} {
+      allow read: if active();
+      allow create,update: if (admin() || (own(uid)&&host()))
+        && request.resource.data.keys().hasOnly(['uid','name','status']) && request.resource.data.uid==uid
+        && getAfter(/databases/$(database)/documents/users/$(uid)).data.role=='HOST'
+        && request.resource.data.name==getAfter(/databases/$(database)/documents/users/$(uid)).data.name
+        && request.resource.data.status==getAfter(/databases/$(database)/documents/users/$(uid)).data.status;
+    }
+    match /usernames/{name} {
+      allow get: if true;
+      allow list: if admin();
+      allow create: if own(request.resource.data.uid)&&name.matches('[a-z0-9_]{3,24}')&&request.resource.data.keys().hasOnly(['uid','email'])
+        && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.username==name
+        && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.email==request.resource.data.email;
+      allow update,delete: if admin();
+    }
+    match /users/{uid}/favorites/{roomId} {
+      allow read,delete: if own(uid)&&active();
+      allow create,update: if own(uid)&&active()&&request.resource.data.keys().hasOnly(['roomId','roomName','createdAt'])
+        && request.resource.data.roomId==roomId&&request.resource.data.roomName is string&&request.resource.data.roomName.size()<=200
+        && request.resource.data.createdAt==request.time&&publicRoom(get(/databases/$(database)/documents/rooms/$(roomId)).data);
+    }
+    match /hostApplications/{id} {
+      allow read: if own(id)||own(resource.data.applicantUid)||admin();
+      allow create: if active()&&account().role=='GUEST'&&own(id)&&request.resource.data.applicantUid==id
+        && request.resource.data.status=='PENDING'&&request.resource.data.rejectionReason=='';
+      allow update: if admin() || (active()&&account().role=='GUEST'&&own(id)&&resource.data.status=='REJECTED'
+        && request.resource.data.status=='PENDING'&&request.resource.data.applicantUid==resource.data.applicantUid&&request.resource.data.rejectionReason=='');
+    }
+    match /buildings/{id} {
+      allow get: if active()&&(!exists(/databases/$(database)/documents/buildings/$(id))||resource.data.status=='ACTIVE'||own(resource.data.ownerUid)||admin());
+      allow list: if active()&&(resource.data.status=='ACTIVE'||own(resource.data.ownerUid)||admin());
+      allow create: if host()&&own(request.resource.data.ownerUid)&&request.resource.data.id==id&&request.resource.data.status=='ACTIVE';
+      allow update: if host()&&own(resource.data.ownerUid)&&request.resource.data.ownerUid==resource.data.ownerUid&&request.resource.data.id==id&&request.resource.data.status==resource.data.status;
+    }
+    match /rooms/{id} {
+      allow get: if active()&&(!exists(/databases/$(database)/documents/rooms/$(id))||publicRoom(resource.data)||own(resource.data.ownerUid)||admin());
+      allow list: if active()&&(publicRoom(resource.data)||own(resource.data.ownerUid)||admin());
+      allow create: if host()&&own(request.resource.data.ownerUid)&&request.resource.data.id==id&&roomValid(request.resource.data)
+        && request.resource.data.approvalStatus in ['DRAFT','PENDING_REVIEW']&&request.resource.data.listingStatus in ['ACTIVE','INACTIVE']
+        && own(get(/databases/$(database)/documents/buildings/$(request.resource.data.buildingId)).data.ownerUid)
+        && request.resource.data.locationVerification=='UNVERIFIED'&&request.resource.data.photosVerification=='UNVERIFIED';
+      allow update: if admin() || (host()&&own(resource.data.ownerUid)&&request.resource.data.ownerUid==resource.data.ownerUid&&roomValid(request.resource.data)
+        && request.resource.data.get('lastBookingId','')==resource.data.get('lastBookingId','')
+        && (resource.data.listingStatus!='SUSPENDED' || request.resource.data.listingStatus=='SUSPENDED')
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['id','schemaVersion','roomName','buildingId','buildingName','roomType','capacity','area','floor','address','activeMode','pricePerHour','pricePerDay','pricePerMonth','pricePerQuarter','deposit','openTime','closeTime','amenities','rules','imageUrls','blackoutDates','blackoutRanges','workingDays','slotMinutes','minBookingMinutes','fixedStartMonth','renewalPolicy','rentalPolicy','approvalStatus','listingStatus','rejectionReason','locationVerification','photosVerification','createdAt','updatedAt','bookingRevision','lastBookingId'])
+        && (request.resource.data.approvalStatus in ['DRAFT','PENDING_REVIEW'] || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['listingStatus','bookingRevision','updatedAt']))
+        && request.resource.data.locationVerification in ['UNVERIFIED',resource.data.locationVerification]&&request.resource.data.photosVerification in ['UNVERIFIED',resource.data.photosVerification])
+        || (renter()&&request.resource.data.diff(resource.data).affectedKeys().hasOnly(['bookingRevision','lastBookingId'])
+          && request.resource.data.bookingRevision==resource.data.get('bookingRevision',0)+1
+          && getAfter(/databases/$(database)/documents/bookings/$(request.resource.data.lastBookingId)).data.roomId==id
+          && getAfter(/databases/$(database)/documents/bookings/$(request.resource.data.lastBookingId)).data.updatedAt==request.time
+          && (own(getAfter(/databases/$(database)/documents/bookings/$(request.resource.data.lastBookingId)).data.guestUid)||own(getAfter(/databases/$(database)/documents/bookings/$(request.resource.data.lastBookingId)).data.ownerUid)));
+    }
+    match /bookings/{id} {
+      allow get: if active()&&(!exists(/databases/$(database)/documents/bookings/$(id))||own(resource.data.guestUid)||own(resource.data.ownerUid)||admin());
+      allow list: if active()&&(own(resource.data.guestUid)||own(resource.data.ownerUid)||admin());
+      allow create: if renter()&&newBooking(id);
+      allow update: if active()&&bookingTransition();
+      function newBooking(id) {
+        let b=request.resource.data;
+        let r=get(/databases/$(database)/documents/rooms/$(b.roomId)).data;
+        let owner=get(/databases/$(database)/documents/users/$(r.ownerUid)).data;
+        let building=get(/databases/$(database)/documents/buildings/$(r.buildingId)).data;
+        return b.keys().hasOnly(['id','schemaVersion','roomId','roomName','roomAddress','ownerUid','guestUid','guestName','guestPhone','status','paymentStatus','activeMode','rejectionReason','startAt','endAt','totalAmount','priceSnapshot','rentalMonths','slotStart','slotCount','monthKeys','slotKeys','requestFingerprint','createdAt','updatedAt'])
+          && b.id==id&&id.matches('[a-f0-9]{64}')&&b.schemaVersion==2&&own(b.guestUid)&&!own(b.ownerUid)
+          && b.ownerUid==r.ownerUid&&owner.role=='HOST'&&owner.status=='ACTIVE'&&publicRoom(r)
+          && building.ownerUid==r.ownerUid&&building.status=='ACTIVE'
+          && b.roomName==r.roomName&&b.roomAddress==r.address&&b.guestName==account().name&&b.guestPhone==account().phone
+          && b.status=='PENDING'&&b.paymentStatus=='DEMO_PENDING'&&b.rejectionReason==''&&b.createdAt==request.time&&b.updatedAt==request.time
+          && b.requestFingerprint.matches('[a-f0-9]{64}')&&validPeriod(b,r)&&validPrice(b,r)&&held(b);
+      }
+      function bookingTransition() {
+        let before=resource.data;let after=request.resource.data;
+        return before.schemaVersion==2&&after.diff(before).affectedKeys().hasOnly(['status','rejectionReason','updatedAt'])&&after.updatedAt==request.time
+          && after.rejectionReason is string&&after.rejectionReason.size()<=500
+          && ((own(before.guestUid)&&renter()&&before.status in ['PENDING','CONFIRMED']&&after.status=='CANCELLED'&&before.startAt>request.time&&released(after))
+            || (own(before.ownerUid)&&host()&&(
+              (before.status=='PENDING'&&before.startAt>request.time&&after.status=='CONFIRMED'&&publicRoom(get(/databases/$(database)/documents/rooms/$(before.roomId)).data)&&held(after))
+              ||(before.status=='PENDING'&&before.startAt>request.time&&after.status=='REJECTED'&&after.rejectionReason.size()>0&&released(after))
+              ||(before.status=='CONFIRMED'&&after.status=='CHECKED_IN'&&before.startAt<=request.time&&before.endAt>request.time&&held(after))
+              ||(before.status in ['CONFIRMED','CHECKED_IN']&&after.status=='COMPLETED'&&before.endAt<=request.time&&released(after)))));
+      }
+    }
+    match /availabilityMonths/{id} {
+      allow get,list: if active();
+      allow create,update: if renter()&&validCalendar(id);
+      function validCalendar(id) {
+        let n=request.resource.data;
+        let old=exists(/databases/$(database)/documents/availabilityMonths/$(id))?resource.data:{'fixedBookingId':'','slotsBusy':[],'hourlyBookings':{}};
+        let b=getAfter(/databases/$(database)/documents/bookings/$(n.lastBookingId)).data;
+        let changed=n.hourlyBookings.diff(old.hourlyBookings).affectedKeys();
+        return n.keys().hasOnly(['roomId','monthIndex','fixedBookingId','slotsBusy','hourlyBookings','lastBookingId','updatedAt'])&&n.updatedAt==request.time
+          && n.slotsBusy.size()==n.slotsBusy.toSet().size()
+          && b.roomId==n.roomId&&b.monthKeys.hasAny([id])&&id==b.roomId+'_'+string(n.monthIndex)
+          && b.schemaVersion==2&&b.updatedAt==request.time
+          && ((own(b.guestUid)&&b.status=='PENDING'&&b.createdAt==request.time&&old.fixedBookingId==''
+            && (b.activeMode=='FIXED'?old.slotsBusy.size()==0&&old.hourlyBookings.size()==0&&n.slotsBusy.size()==0&&n.hourlyBookings.size()==0&&n.fixedBookingId==b.id
+              :n.fixedBookingId==''&&changed.hasOnly([b.id])&&!old.hourlyBookings.keys().hasAny([b.id])&&n.hourlyBookings[b.id]==b.slotKeys
+                &&!old.slotsBusy.hasAny(b.slotKeys)&&n.slotsBusy.toSet()==old.slotsBusy.toSet().union(b.slotKeys.toSet())))
+            ||((own(b.guestUid)||own(b.ownerUid))&&b.status in ['CANCELLED','REJECTED','COMPLETED']
+              && (b.activeMode=='FIXED'?old.fixedBookingId==b.id&&n.fixedBookingId==''&&n.slotsBusy==old.slotsBusy&&n.hourlyBookings==old.hourlyBookings
+                :n.fixedBookingId==old.fixedBookingId&&changed.hasOnly([b.id])&&old.hourlyBookings[b.id]==b.slotKeys&&!n.hourlyBookings.keys().hasAny([b.id])
+                  && n.slotsBusy.toSet()==old.slotsBusy.toSet().difference(b.slotKeys.toSet()))));
+      }
+    }
+    match /propertyVerifications/{id} { allow read: if admin()||own(resource.data.ownerUid); allow update: if admin(); }
+    match /reports/{id} { allow read: if admin()||own(resource.data.reporterUid); allow create: if active()&&own(request.resource.data.reporterUid)&&request.resource.data.status=='OPEN'; allow update: if admin(); }
+    match /auditLogs/{id} {
+      allow read: if admin();
+      allow create: if active()&&own(request.resource.data.actorUid)&&request.resource.data.createdAt==request.time
+        && (admin() || (request.resource.data.targetPath.matches('bookings/[a-f0-9]{64}')
+          && getAfter(/databases/$(database)/documents/$(request.resource.data.targetPath.split("/")[0])/$(request.resource.data.targetPath.split("/")[1])).data.updatedAt==request.time
+          && (own(getAfter(/databases/$(database)/documents/$(request.resource.data.targetPath.split("/")[0])/$(request.resource.data.targetPath.split("/")[1])).data.guestUid)||own(getAfter(/databases/$(database)/documents/$(request.resource.data.targetPath.split("/")[0])/$(request.resource.data.targetPath.split("/")[1])).data.ownerUid)))
+          ||(host()&&request.resource.data.targetPath.matches('rooms/[a-zA-Z0-9_-]{1,128}')
+            && own(getAfter(/databases/$(database)/documents/$(request.resource.data.targetPath.split("/")[0])/$(request.resource.data.targetPath.split("/")[1])).data.ownerUid)
+            && getAfter(/databases/$(database)/documents/$(request.resource.data.targetPath.split("/")[0])/$(request.resource.data.targetPath.split("/")[1])).data.updatedAt==request.time
+            && request.resource.data.action in ['SAVE_ROOM','SET_LISTING']));
+    }
+    match /payments/{id} { allow read: if admin()||own(resource.data.guestUid); }
+    match /notifications/{id} { allow read: if own(resource.data.recipientUid); allow update: if own(resource.data.recipientUid)&&request.resource.data.diff(resource.data).affectedKeys().hasOnly(['readAt']); }
+    match /{other=**} { allow read,write: if false; }
   }
 }

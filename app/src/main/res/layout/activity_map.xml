@@ -1,155 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/screen_bg"
-    tools:context=".MapActivity">
-
-    <ImageView
-        android:id="@+id/mapImage"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:contentDescription="Bản đồ"
-        android:scaleType="centerCrop"
-        android:src="@drawable/map_static"
-        app:layout_constraintBottom_toTopOf="@+id/bottomNav"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <LinearLayout
-        android:id="@+id/mapTopPanel"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="12dp"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:background="@drawable/bg_input"
-            android:elevation="4dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp">
-            <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_search" android:contentDescription="Tìm kiếm" />
-            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:layout_weight="1" android:text="Landmark, Bình Thạnh" android:textColor="@color/text_primary" android:textSize="13sp" />
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Lọc" android:textColor="@color/teal" android:textSize="12sp" android:textStyle="bold" />
-        </LinearLayout>
-
-        <HorizontalScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:scrollbars="none">
-            <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
-                <TextView android:layout_width="wrap_content" android:layout_height="34dp" android:background="@drawable/bg_chip_selected" android:gravity="center" android:paddingStart="12dp" android:paddingEnd="12dp" android:text="Hôm nay" android:textColor="@color/white" android:textSize="11sp" />
-                <TextView android:layout_width="wrap_content" android:layout_height="34dp" android:layout_marginStart="7dp" android:background="@drawable/bg_price" android:gravity="center" android:paddingStart="12dp" android:paddingEnd="12dp" android:text="≤ 150k" android:textColor="@color/text_primary" android:textSize="11sp" />
-                <TextView android:layout_width="wrap_content" android:layout_height="34dp" android:layout_marginStart="7dp" android:background="@drawable/bg_price" android:gravity="center" android:paddingStart="12dp" android:paddingEnd="12dp" android:text="1–4 người" android:textColor="@color/text_primary" android:textSize="11sp" />
-                <TextView android:layout_width="wrap_content" android:layout_height="34dp" android:layout_marginStart="7dp" android:background="@drawable/bg_price" android:gravity="center" android:paddingStart="12dp" android:paddingEnd="12dp" android:text="Phòng họp" android:textColor="@color/text_primary" android:textSize="11sp" />
-            </LinearLayout>
-        </HorizontalScrollView>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@color/white">
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Văn phòng gần bạn · TP.HCM" android:textSize="20sp" android:textStyle="bold" android:padding="12dp" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingHorizontal="8dp" android:gravity="center_vertical">
+        <EditText android:id="@+id/mapAddress" android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp" android:hint="Địa chỉ xuất phát tại TP.HCM" android:inputType="textPostalAddress" android:maxLength="200" android:maxLines="1" android:imeOptions="actionSearch" android:textSize="14sp" />
+        <Button android:id="@+id/mapSearch" android:layout_width="wrap_content" android:layout_height="48dp" android:text="Tìm" />
     </LinearLayout>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="36dp"
-        android:layout_marginStart="86dp"
-        android:layout_marginTop="235dp"
-        android:background="@drawable/bg_price"
-        android:elevation="3dp"
-        android:gravity="center"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:text="80K"
-        android:textColor="@color/text_primary"
-        android:textSize="12sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="38dp"
-        android:layout_marginEnd="70dp"
-        android:layout_marginTop="190dp"
-        android:background="@drawable/bg_chip_selected"
-        android:elevation="4dp"
-        android:gravity="center"
-        android:paddingStart="14dp"
-        android:paddingEnd="14dp"
-        android:text="120K"
-        android:textColor="@color/white"
-        android:textSize="12sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="36dp"
-        android:layout_marginEnd="44dp"
-        android:layout_marginTop="315dp"
-        android:background="@drawable/bg_price"
-        android:elevation="3dp"
-        android:gravity="center"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:text="180K"
-        android:textColor="@color/text_primary"
-        android:textSize="12sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <LinearLayout
-        android:id="@+id/mapCard"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp"
-        android:layout_marginBottom="12dp"
-        android:background="@drawable/bg_card"
-        android:elevation="6dp"
-        android:orientation="vertical"
-        android:paddingBottom="12dp"
-        app:layout_constraintBottom_toTopOf="@id/bottomNav"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <ImageView android:layout_width="match_parent" android:layout_height="110dp" android:contentDescription="WorkHub Landmark" android:scaleType="centerCrop" android:src="@drawable/booking_hero" />
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingStart="12dp" android:paddingTop="10dp" android:paddingEnd="12dp">
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="WorkHub Landmark" android:textColor="@color/text_primary" android:textSize="16sp" android:textStyle="bold" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:text="Bình Thạnh • Cách 1,8 km • ★ 4,9" android:textColor="@color/text_secondary" android:textSize="11sp" />
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center_vertical" android:orientation="horizontal">
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="120.000đ/giờ" android:textColor="@color/teal_dark" android:textSize="14sp" android:textStyle="bold" />
-                <TextView android:layout_width="wrap_content" android:layout_height="36dp" android:background="@drawable/bg_button_primary" android:gravity="center" android:paddingStart="14dp" android:paddingEnd="14dp" android:text="Xem chi tiết" android:textColor="@color/white" android:textSize="11sp" android:textStyle="bold" />
-            </LinearLayout>
-        </LinearLayout>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingHorizontal="8dp">
+        <Button android:id="@+id/mapGps" android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp" android:text="Vị trí của tôi" />
+        <Button android:id="@+id/mapRetry" android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp" android:text="Thử lại bản đồ" android:visibility="gone" />
     </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/bottomNav"
-        android:layout_width="0dp"
-        android:layout_height="66dp"
-        android:background="@color/white"
-        android:gravity="center"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-        <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_home" android:contentDescription="Trang chủ"/><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Trang chủ" android:textColor="@color/text_secondary" android:textSize="10sp"/></LinearLayout>
-        <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_map" app:tint="@color/teal" android:contentDescription="Bản đồ"/><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Bản đồ" android:textColor="@color/teal" android:textSize="10sp" android:textStyle="bold"/></LinearLayout>
-        <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_booking" android:contentDescription="Đặt chỗ"/><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Đặt chỗ" android:textColor="@color/text_secondary" android:textSize="10sp"/></LinearLayout>
-        <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_chat" android:contentDescription="Tin nhắn"/><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tin nhắn" android:textColor="@color/text_secondary" android:textSize="10sp"/></LinearLayout>
-        <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_profile" android:contentDescription="Hồ sơ"/><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Hồ sơ" android:textColor="@color/text_secondary" android:textSize="10sp"/></LinearLayout>
+    <TextView android:id="@+id/mapOrigin" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingHorizontal="12dp" android:textSize="12sp" />
+    <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:minHeight="160dp">
+        <ViewStub android:id="@+id/mapStub" android:layout_width="match_parent" android:layout_height="match_parent" android:layout="@layout/view_map_canvas" />
+        <ProgressBar android:id="@+id/mapProgress" android:layout_width="40dp" android:layout_height="40dp" android:layout_gravity="center" />
+        <ImageView android:id="@+id/mapTilerLogo" android:layout_width="100dp" android:layout_height="30dp" android:layout_gravity="top|end" android:layout_margin="8dp" android:background="#DDFFFFFF" android:src="@drawable/maptiler_logo" android:contentDescription="MapTiler" />
+        <TextView android:id="@+id/mapCredits" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="bottom|end" android:background="#EEFFFFFF" android:padding="3dp" android:textSize="10sp" android:textColor="#333333" />
+    </FrameLayout>
+    <TextView android:id="@+id/mapMessage" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingHorizontal="12dp" android:textSize="12sp" android:accessibilityLiveRegion="polite" />
+    <TextView android:id="@+id/mapDestination" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingHorizontal="12dp" android:textSize="12sp" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingHorizontal="8dp">
+        <Button android:id="@+id/mapRoute" android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp" android:text="Chỉ đường ô tô" android:enabled="false" />
+        <Button android:id="@+id/mapDetail" android:layout_width="wrap_content" android:layout_height="48dp" android:text="Xem phòng" android:visibility="gone" />
     </LinearLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <TextView android:id="@+id/mapRoomMessage" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingHorizontal="12dp" android:textSize="12sp" />
+    <androidx.recyclerview.widget.RecyclerView android:id="@+id/mapRooms" android:layout_width="match_parent" android:layout_height="120dp" android:visibility="gone" />
+    <Button android:id="@+id/mapMore" android:layout_width="match_parent" android:layout_height="48dp" android:text="Tải văn phòng" />
+    <include layout="@layout/view_guest_navigation" />
+</LinearLayout>

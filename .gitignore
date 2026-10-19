@@ -15,8 +15,18 @@ CHAT_HISTORY_NOTE.md
 README_HOST.md
 # Sensitive configs
 app/google-services.json
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc
 
-# Local backend dependencies and emulator output
-functions/node_modules/
+# Local lecture slides and reference documents
+/tmp_1/
+
+# Local emulator output
 *-debug.log
 .firebase/
+
+# Passwords for Firebase demo accounts (local only)
+/data/demo/credentials.local.properties

@@ -40,6 +40,10 @@ public class HostBookingsActivity extends vn.edu.ueh.phuclu.broomsharing.ui.auth
     @Override protected void onProfileReady(vn.edu.ueh.phuclu.broomsharing.model.UserProfile profile) {
         binding = ActivityHostBookingsBinding.bind(((android.view.ViewGroup) findViewById(android.R.id.content)).getChildAt(0));
         roomId = getIntent().getStringExtra("ROOM_ID");
+        vn.edu.ueh.phuclu.broomsharing.ui.common.ManagementNavigation.applyInsets(this);
+        vn.edu.ueh.phuclu.broomsharing.ui.common.ManagementNavigation.attach(this,
+                vn.edu.ueh.phuclu.broomsharing.model.UserRole.HOST, R.id.host_bookings, null);
+        binding.btnBack.setVisibility(roomId == null ? View.GONE : View.VISIBLE);
         if (restored != null) {
             currentFilter = restored.getString("filter", "ALL");
             scheduleDay = java.time.LocalDate.parse(restored.getString("day", scheduleDay.toString()));
@@ -65,7 +69,8 @@ public class HostBookingsActivity extends vn.edu.ueh.phuclu.broomsharing.ui.auth
             });
         }
         TextView selected = "PENDING".equals(currentFilter) ? binding.chipPending : "CONFIRMED".equals(currentFilter) ? binding.chipConfirmed
-            : "REJECTED".equals(currentFilter) ? binding.chipRejected : "CANCELLED".equals(currentFilter) ? binding.chipCancelled : binding.chipAll;
+            : "REJECTED".equals(currentFilter) ? binding.chipRejected : "CANCELLED".equals(currentFilter) ? binding.chipCancelled
+            : "CHECKED_IN".equals(currentFilter) ? binding.chipCheckedIn : "COMPLETED".equals(currentFilter) ? binding.chipCompleted : binding.chipAll;
         setFilter(currentFilter, selected);
         refresh();
     }
@@ -77,6 +82,12 @@ public class HostBookingsActivity extends vn.edu.ueh.phuclu.broomsharing.ui.auth
         if (scheduleRoom != null && bookingsLoaded) binding.tvSchedule.setText(vn.edu.ueh.phuclu.broomsharing.utils.HostSchedule.daySummary(scheduleRoom, fullList, scheduleDay));
     }
     @Override protected void onResume() { super.onResume(); if (binding != null && viewModel != null) refresh(); }
+    @Override protected void onNewIntent(android.content.Intent intent) {
+        super.onNewIntent(intent);
+        boolean changedRoom = !java.util.Objects.equals(roomId, intent.getStringExtra("ROOM_ID"));
+        setIntent(intent);
+        if (changedRoom) recreate();
+    }
     @Override protected void onSaveInstanceState(Bundle state) {
         state.putString("filter",currentFilter); state.putString("day",scheduleDay.toString()); super.onSaveInstanceState(state);
     }
@@ -113,6 +124,8 @@ public class HostBookingsActivity extends vn.edu.ueh.phuclu.broomsharing.ui.auth
         binding.chipAll.setOnClickListener(v -> setFilter("ALL", binding.chipAll));
         binding.chipPending.setOnClickListener(v -> setFilter("PENDING", binding.chipPending));
         binding.chipConfirmed.setOnClickListener(v -> setFilter("CONFIRMED", binding.chipConfirmed));
+        binding.chipCheckedIn.setOnClickListener(v -> setFilter("CHECKED_IN", binding.chipCheckedIn));
+        binding.chipCompleted.setOnClickListener(v -> setFilter("COMPLETED", binding.chipCompleted));
         binding.chipCancelled.setOnClickListener(v -> setFilter("CANCELLED", binding.chipCancelled));
         binding.chipRejected.setOnClickListener(v -> setFilter("REJECTED", binding.chipRejected));
     }
@@ -120,7 +133,7 @@ public class HostBookingsActivity extends vn.edu.ueh.phuclu.broomsharing.ui.auth
     private void setFilter(String filter, TextView selectedChip) {
         currentFilter = filter;
         TextView[] chips = new TextView[]{
-                binding.chipAll, binding.chipPending, binding.chipConfirmed, binding.chipRejected, binding.chipCancelled
+                binding.chipAll, binding.chipPending, binding.chipConfirmed, binding.chipCheckedIn, binding.chipCompleted, binding.chipRejected, binding.chipCancelled
         };
         for (TextView chip : chips) {
             chip.setBackgroundResource(R.drawable.bg_chip);
@@ -139,18 +152,13 @@ public class HostBookingsActivity extends vn.edu.ueh.phuclu.broomsharing.ui.auth
             String status = b.getStatus() != null ? b.getStatus().toUpperCase() : Booking.STATUS_PENDING;
             if ("ALL".equals(currentFilter)) {
                 filtered.add(b);
-            } else if ("PENDING".equals(currentFilter) && Booking.STATUS_PENDING.equals(status)) {
-                filtered.add(b);
-            } else if ("CONFIRMED".equals(currentFilter) && Booking.STATUS_CONFIRMED.equals(status)) {
-                filtered.add(b);
-            } else if ("REJECTED".equals(currentFilter) && Booking.STATUS_REJECTED.equals(status)) {
-                filtered.add(b);
-            } else if ("CANCELLED".equals(currentFilter) && Booking.STATUS_CANCELLED.equals(status)) {
+            } else if (currentFilter.equals(status)) {
                 filtered.add(b);
             }
         }
 
         adapter.setData(filtered);
+        binding.tvEmptyMessage.setText(R.string.workspace_empty_filter);
         binding.layoutEmpty.setVisibility(filtered.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
@@ -158,6 +166,8 @@ public class HostBookingsActivity extends vn.edu.ueh.phuclu.broomsharing.ui.auth
         viewModel.bookings.observe(this, state -> {
             if (state == null) return;
             binding.progressBar.setVisibility(state.loading ? View.VISIBLE : View.GONE);
+            binding.btnRefreshBookings.setEnabled(!state.loading);
+            binding.btnRefreshBookings.setText(state.error == null ? R.string.workspace_refresh : R.string.workspace_retry);
             if (state.loading) { bookingsLoaded = false; binding.tvSchedule.setText(R.string.booking_loading); binding.layoutEmpty.setVisibility(View.GONE); }
 
             if (state.error != null) {

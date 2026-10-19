@@ -1,54 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/screen_bg">
-  <LinearLayout android:id="@+id/topBar" android:layout_width="0dp" android:layout_height="56dp" android:background="@color/white" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="12dp" android:paddingEnd="12dp" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent">
-    <ImageView android:id="@+id/btnBack" android:layout_width="34dp" android:layout_height="34dp" android:padding="6dp" android:src="@drawable/ic_arrow_back" android:contentDescription="Quay lại" />
-    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:layout_weight="1" android:text="Quản lý Không gian của tôi" android:textColor="@color/text_primary" android:textSize="17sp" android:textStyle="bold" />
-  </LinearLayout>
-  <ScrollView android:layout_width="0dp" android:layout_height="0dp" android:fillViewport="true" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/topBar">
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
-      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/bg_card" android:orientation="vertical" android:padding="16dp">
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Kênh Đối tác Cho thuê (Host)" android:textColor="@color/teal_dark" android:textSize="17sp" android:textStyle="bold" />
-        <TextView android:id="@+id/tvHostRoleStatus" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Trạng thái tài khoản: Đang hoạt động" android:textColor="@color/text_secondary" android:textSize="12sp" />
-        <TextView android:id="@+id/btnGoApply" android:layout_width="wrap_content" android:layout_height="36dp" android:layout_marginTop="10dp" android:background="@drawable/bg_button_outline" android:gravity="center" android:paddingStart="14dp" android:paddingEnd="14dp" android:text="Nộp hồ sơ xét duyệt Host" android:textColor="@color/teal" android:textSize="12sp" android:textStyle="bold" />
-      </LinearLayout>
-      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:background="@drawable/bg_card" android:orientation="horizontal" android:padding="12dp">
-        <LinearLayout android:layout_width="0dp" android:layout_height="70dp" android:layout_weight="1" android:gravity="center" android:orientation="vertical">
-          <TextView android:id="@+id/tvCountRooms" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="@color/teal_dark" android:textSize="22sp" android:textStyle="bold" />
-          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tổng phòng" android:textColor="@color/text_secondary" android:textSize="11sp" />
-        </LinearLayout>
-        <LinearLayout android:layout_width="0dp" android:layout_height="70dp" android:layout_weight="1" android:gravity="center" android:orientation="vertical">
-          <TextView android:id="@+id/tvCountPending" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="@color/warning" android:textSize="22sp" android:textStyle="bold" />
-          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Chờ duyệt" android:textColor="@color/text_secondary" android:textSize="11sp" />
-        </LinearLayout>
-        <LinearLayout android:layout_width="0dp" android:layout_height="70dp" android:layout_weight="1" android:gravity="center" android:orientation="vertical">
-          <TextView android:id="@+id/tvCountBuildings" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="@color/navy" android:textSize="22sp" android:textStyle="bold" />
-          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tòa nhà" android:textColor="@color/text_secondary" android:textSize="11sp" />
-        </LinearLayout>
-      </LinearLayout>
-
-      <!-- Booking Requests Card (H13, H14) -->
-      <LinearLayout android:id="@+id/cardBookingRequests" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:background="@drawable/bg_card" android:orientation="horizontal" android:gravity="center_vertical" android:padding="16dp">
-        <ImageView android:layout_width="36dp" android:layout_height="36dp" android:src="@drawable/ic_booking" />
-        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_weight="1" android:orientation="vertical">
-          <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Hộp yêu cầu đặt phòng" android:textColor="@color/text_primary" android:textSize="15sp" android:textStyle="bold" />
-          <TextView android:id="@+id/tvBookingRequestsSubtitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="Xem và duyệt các yêu cầu từ khách thuê" android:textColor="@color/text_secondary" android:textSize="12sp" />
-        </LinearLayout>
-        <TextView android:id="@+id/tvBadgeBookingCount" android:layout_width="wrap_content" android:layout_height="24dp" android:minWidth="24dp" android:gravity="center" android:background="@drawable/bg_chip_selected" android:textColor="@color/white" android:textSize="12sp" android:textStyle="bold" android:text="0" android:paddingStart="8dp" android:paddingEnd="8dp" />
-      </LinearLayout>
-
-      <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:orientation="horizontal">
-        <TextView android:id="@+id/btnAddBuilding" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:background="@drawable/bg_button_outline" android:clickable="true" android:focusable="true" android:gravity="center" android:text="+ Thêm Tòa nhà" android:textColor="@color/teal" android:textSize="13sp" android:textStyle="bold" />
-        <TextView android:id="@+id/btnAddRoom" android:layout_width="0dp" android:layout_height="48dp" android:layout_marginStart="10dp" android:layout_weight="1.2" android:background="@drawable/bg_button_primary" android:clickable="true" android:focusable="true" android:gravity="center" android:text="+ Đăng không gian mới" android:textColor="@color/white" android:textSize="13sp" android:textStyle="bold" />
-      </LinearLayout>
-      <TextView android:id="@+id/tvExtraStats" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:textColor="@color/text_secondary" android:textSize="11sp" android:visibility="gone" />
-      <TextView android:id="@+id/tvFeedback" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="@color/danger" android:textSize="12sp" android:accessibilityLiveRegion="polite" />
-      <Button android:id="@+id/btnRefresh" android:layout_width="wrap_content" android:layout_height="wrap_content" android:visibility="gone" />
-      <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="22dp" android:text="Danh sách không gian đã tạo" android:textColor="@color/text_primary" android:textSize="16sp" android:textStyle="bold" />
-      <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvRooms" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:nestedScrollingEnabled="false" />
-      <TextView android:id="@+id/tvEmptyRooms" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:gravity="center" android:text="Chưa có không gian nào. Hãy bấm '+ Đăng không gian mới'!" android:textColor="@color/text_secondary" android:textSize="13sp" android:visibility="gone" />
-      <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="22dp" android:text="Tòa nhà / Địa điểm sở hữu" android:textColor="@color/text_primary" android:textSize="16sp" android:textStyle="bold" />
-      <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvBuildings" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:nestedScrollingEnabled="false" />
-      <TextView android:id="@+id/tvEmptyBuildings" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:gravity="center" android:text="Chưa có tòa nhà nào. Hãy bấm 'Thêm Tòa nhà'!" android:textColor="@color/text_secondary" android:textSize="13sp" android:visibility="gone" />
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/workspaceRoot" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@color/screen_bg">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="68dp" android:orientation="vertical" android:paddingStart="20dp" android:paddingEnd="20dp" android:paddingTop="12dp" android:paddingBottom="12dp" android:background="@color/white">
+        <TextView style="@style/WorkspaceBody" android:text="@string/workspace_host" android:textStyle="bold" android:textColor="@color/teal_dark"/>
+        <TextView android:id="@+id/workspaceTitle" style="@style/WorkspaceSection" android:text="@string/workspace_overview"/>
     </LinearLayout>
-  </ScrollView>
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <ScrollView android:id="@+id/dashboardScroll" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+            <LinearLayout android:id="@+id/overviewPanel" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+                <TextView android:id="@+id/tvHostRoleStatus" style="@style/WorkspaceTitle" android:text=""/>
+                <TextView style="@style/WorkspaceBody" android:text="@string/workspace_host_hint" android:layout_marginTop="6dp"/>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="12dp">
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_margin="4dp" android:padding="16dp" android:orientation="vertical" android:background="@drawable/bg_card">
+                        <TextView android:id="@+id/tvCountRooms" style="@style/WorkspaceTitle" android:text="@string/workspace_stat_unknown"/>
+                        <TextView style="@style/WorkspaceBody" android:text="@string/workspace_total_rooms"/>
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_margin="4dp" android:padding="16dp" android:orientation="vertical" android:background="@drawable/bg_card">
+                        <TextView android:id="@+id/tvCountPending" style="@style/WorkspaceTitle" android:text="@string/workspace_stat_unknown"/>
+                        <TextView style="@style/WorkspaceBody" android:text="@string/workspace_pending_rooms"/>
+                    </LinearLayout>
+                </LinearLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="12dp">
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_margin="4dp" android:padding="16dp" android:orientation="vertical" android:background="@drawable/bg_card">
+                        <TextView android:id="@+id/tvCountActive" style="@style/WorkspaceTitle" android:text="@string/workspace_stat_unknown"/>
+                        <TextView style="@style/WorkspaceBody" android:text="@string/workspace_active_rooms"/>
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_margin="4dp" android:padding="16dp" android:orientation="vertical" android:background="@drawable/bg_card">
+                        <TextView android:id="@+id/tvBadgeBookingCount" style="@style/WorkspaceTitle" android:text="@string/workspace_stat_unknown"/>
+                        <TextView style="@style/WorkspaceBody" android:text="@string/workspace_pending_bookings"/>
+                    </LinearLayout>
+                </LinearLayout>
+                <TextView style="@style/WorkspaceSection" android:text="@string/workspace_quick_actions" android:layout_marginTop="24dp"/>
+                <com.google.android.material.button.MaterialButton android:id="@+id/cardBookingRequests" style="@style/WorkspaceAction" android:text="@string/workspace_open_bookings"/>
+                <TextView style="@style/WorkspaceBody" android:text="@string/workspace_open_bookings_hint"/>
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnManageSpaces" style="@style/WorkspaceAction" android:text="@string/workspace_open_spaces"/>
+                <TextView style="@style/WorkspaceBody" android:text="@string/workspace_open_spaces_hint"/>
+                <TextView style="@style/WorkspaceBody" android:text="@string/workspace_host_summary" android:layout_marginTop="20dp"/>
+            </LinearLayout>
+            <LinearLayout android:id="@+id/spacesPanel" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+                <TextView style="@style/WorkspaceBody" android:text="@string/workspace_spaces_hint"/>
+                <com.google.android.material.tabs.TabLayout android:id="@+id/spaceTabs" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" app:tabMode="fixed" app:tabTextColor="@color/text_secondary" app:tabSelectedTextColor="@color/teal_dark"/>
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnAddRoom" style="@style/WorkspaceAction" android:text="@string/workspace_add_room"/>
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnAddBuilding" style="@style/WorkspaceAction" android:text="@string/workspace_add_building" android:visibility="gone"/>
+                <TextView android:id="@+id/tvCountBuildings" style="@style/WorkspaceBody" android:text="" android:layout_marginTop="8dp"/>
+                <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvRooms" android:layout_width="match_parent" android:layout_height="wrap_content" android:nestedScrollingEnabled="false" android:layout_marginTop="12dp"/>
+                <TextView android:id="@+id/tvEmptyRooms" style="@style/WorkspaceBody" android:text="@string/workspace_empty_rooms" android:layout_marginTop="24dp" android:visibility="gone"/>
+                <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvBuildings" android:layout_width="match_parent" android:layout_height="wrap_content" android:nestedScrollingEnabled="false" android:layout_marginTop="12dp" android:visibility="gone"/>
+                <TextView android:id="@+id/tvEmptyBuildings" style="@style/WorkspaceBody" android:text="@string/workspace_empty_buildings" android:layout_marginTop="24dp" android:visibility="gone"/>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+    <TextView android:id="@+id/tvFeedback" style="@style/WorkspaceBody" android:text="" android:paddingStart="20dp" android:paddingEnd="20dp" android:accessibilityLiveRegion="polite" android:visibility="gone"/>
+    <ProgressBar android:id="@+id/progressBar" android:layout_width="24dp" android:layout_height="24dp" android:layout_gravity="center" android:visibility="gone"/>
+    <com.google.android.material.button.MaterialButton android:id="@+id/btnRefresh" style="@style/WorkspaceAction" android:text="@string/workspace_refresh" android:layout_marginStart="16dp" android:layout_marginEnd="16dp"/>
+    <include layout="@layout/view_management_navigation"/>
+</LinearLayout>

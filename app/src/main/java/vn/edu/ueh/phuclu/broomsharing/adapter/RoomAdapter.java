@@ -26,10 +26,12 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
 
     private final List<Room> roomList;
     private final OnRoomClickListener listener;
+    private final OnRoomClickListener calendar;
 
-    public RoomAdapter(List<Room> roomList, OnRoomClickListener listener) {
+    public RoomAdapter(List<Room> roomList, OnRoomClickListener listener, OnRoomClickListener calendar) {
         this.roomList = roomList;
         this.listener = listener;
+        this.calendar = calendar;
     }
 
     @NonNull
@@ -67,7 +69,10 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
 
         // Status Badge
         String status = r.getApprovalStatus();
-        if (Room.STATUS_APPROVED.equals(status)) {
+        if ("SUSPENDED".equals(r.getListingStatus())) {
+            holder.tvStatusBadge.setText(R.string.workspace_room_suspended);
+            holder.tvStatusBadge.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.danger));
+        } else if (Room.STATUS_APPROVED.equals(status)) {
             holder.tvStatusBadge.setText(
                     "ACTIVE".equals(r.getListingStatus())
                             ? "ĐÃ DUYỆT • ĐANG HIỂN THỊ"
@@ -104,6 +109,8 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
                 v -> {
                     if (listener != null) listener.onClick(r);
                 });
+        holder.itemView.findViewById(R.id.editSpace).setOnClickListener(v -> listener.onClick(r));
+        holder.itemView.findViewById(R.id.roomCalendar).setOnClickListener(v -> calendar.onClick(r));
     }
 
     @Override

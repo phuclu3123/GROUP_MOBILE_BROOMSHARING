@@ -7,6 +7,10 @@ public interface AuthRepository {
         void onSuccess(UserProfile profile);
         void onError(AuthError error);
     }
+    interface ResetCallback {
+        void onSuccess();
+        void onError(AuthError error);
+    }
 
     boolean isConfigured();
     boolean hasSession();
@@ -14,4 +18,5 @@ public interface AuthRepository {
     void register(String name, String username, String email, String phone, String password, Callback callback);
     void loadSession(Callback callback);
     void logout();
+    void resetPassword(String email, ResetCallback callback);
 }

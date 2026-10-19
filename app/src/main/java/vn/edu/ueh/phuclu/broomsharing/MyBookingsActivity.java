@@ -40,6 +40,7 @@ public class MyBookingsActivity extends SessionActivity {
             if (state == null) return;
             b.refresh.setEnabled(!state.loading && !model.busy());
             b.feedback.setText(state.loading ? getString(R.string.booking_loading) : state.error == null ? "" : state.error);
+            if (state.error != null) adapter.setData(java.util.Collections.emptyList());
             if (state.data != null) {
                 render(adapter);
             }
@@ -57,7 +58,7 @@ public class MyBookingsActivity extends SessionActivity {
         vn.edu.ueh.phuclu.broomsharing.model.UiState<java.util.List<vn.edu.ueh.phuclu.broomsharing.model.Booking>> state=model.bookings.getValue();
         if(state==null||state.data==null)return;
         String[] statuses={"","PENDING","CONFIRMED","CANCELLED","COMPLETED","REJECTED","CHECKED_IN"};
-        String wanted=statuses[Math.min(model.filterPosition,statuses.length-1)];
+        String wanted=statuses[Math.max(0, Math.min(model.filterPosition,statuses.length-1))];
         java.util.List<vn.edu.ueh.phuclu.broomsharing.model.Booking> rows=new java.util.ArrayList<>();
         for(vn.edu.ueh.phuclu.broomsharing.model.Booking item:state.data)if(wanted.isEmpty()||wanted.equals(item.status))rows.add(item);
         adapter.setData(rows);b.feedback.setText(rows.isEmpty()?getString(R.string.booking_empty):"");

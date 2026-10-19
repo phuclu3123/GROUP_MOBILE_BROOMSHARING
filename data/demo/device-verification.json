@@ -1,0 +1,94 @@
+{
+  "date": "2026-10-20",
+  "build": "cloud",
+  "unitTests": 51,
+  "unitFailures": 0,
+  "androidPassed": 14,
+  "androidSkipped": 1,
+  "androidFailures": 0,
+  "androidSeconds": 199.087,
+  "lintErrors": 0,
+  "lintWarnings": 473,
+  "cases": [
+    {
+      "class": "vn.edu.ueh.phuclu.broomsharing.CloudBookingAcceptanceTest",
+      "test": "realCloudHourlyFixedConflictAndModeration",
+      "result": "passed"
+    },
+    {
+      "class": "vn.edu.ueh.phuclu.broomsharing.MapApiTest",
+      "test": "actualGeocodingAndRoadRouteAtHcmc",
+      "result": "passed"
+    },
+    {
+      "class": "vn.edu.ueh.phuclu.broomsharing.DemoFlowCheckTest",
+      "test": "actualDemoLoginDetailsAndInAppRoadRoute",
+      "result": "passed"
+    },
+    {
+      "class": "vn.edu.ueh.phuclu.broomsharing.ui.auth.AuthUiTest",
+      "test": "loginRejectsInvalidUsernamePath",
+      "result": "passed"
+    },
+    {
+      "class": "vn.edu.ueh.phuclu.broomsharing.ui.auth.AuthUiTest",
+      "test": "loginRejectsEmptyIdentifier",
+      "result": "passed"
+    },
+    {
+      "class": "vn.edu.ueh.phuclu.broomsharing.ui.auth.AuthUiTest",
+      "test": "forgotPasswordValidatesEmailBeforeSending",
+      "result": "passed"
+    },
+    {
+      "class": "vn.edu.ueh.phuclu.broomsharing.ui.auth.AuthUiTest",
+      "test": "missingFirebaseDoesNotFakeSuccessfulLogin",
+      "result": "skipped"
+    },
+    {
+      "class": "vn.edu.ueh.phuclu.broomsharing.ui.auth.AuthUiTest",
+      "test": "recreationKeepsIdentifierButClearsPassword",
+      "result": "passed"
+    },
+    {
+      "class": "vn.edu.ueh.phuclu.broomsharing.ui.auth.AuthUiTest",
+      "test": "registrationRejectsMismatchedPasswords",
+      "result": "passed"
+    },
+    {
+      "class": "vn.edu.ueh.phuclu.broomsharing.RoleWorkspaceTest",
+      "test": "hostAndAdminHaveTheirOwnWorkspaces",
+      "result": "passed"
+    },
+    {
+      "class": "vn.edu.ueh.phuclu.broomsharing.RoleWorkspaceTest",
+      "test": "guestFiltersBookingsAndProfileStayInRenterArea",
+      "result": "passed"
+    },
+    {
+      "class": "vn.edu.ueh.phuclu.broomsharing.ui.MapPriorityTest",
+      "test": "samePointStaysInAppAndFailureFallsBackOnlyAfterProviderAttempt",
+      "result": "passed"
+    },
+    {
+      "class": "vn.edu.ueh.phuclu.broomsharing.ui.auth.AuthFormValidationTest",
+      "test": "registrationRejectsInvalidFormatsAndLengths",
+      "result": "passed"
+    },
+    {
+      "class": "vn.edu.ueh.phuclu.broomsharing.ui.auth.AuthFormValidationTest",
+      "test": "loginMissingFieldsAndInvalidFormats",
+      "result": "passed"
+    },
+    {
+      "class": "vn.edu.ueh.phuclu.broomsharing.ui.auth.AuthFormValidationTest",
+      "test": "registrationMissingFieldsAndCorrections",
+      "result": "passed"
+    }
+  ],
+  "limits": [
+    "P19 private Storage evidence access is not complete.",
+    "Password reset is connected to Firebase Auth; email delivery not tested or triggered in this run.",
+    "Blackout policy is checked by Java; this is not a production security certification."
+  ]
+}

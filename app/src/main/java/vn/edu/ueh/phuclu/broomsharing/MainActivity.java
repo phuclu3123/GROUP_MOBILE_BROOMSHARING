@@ -23,6 +23,8 @@ public class MainActivity extends SessionActivity {
     private RoomViewModel model;
     private Bundle restored;
     private Parcelable pendingScroll;
+    private androidx.appcompat.app.AlertDialog filterDialog;
+    private vn.edu.ueh.phuclu.broomsharing.databinding.ViewGuestFiltersBinding filters;
 
     @Override
     protected void onCreate(Bundle state) {
@@ -58,17 +60,6 @@ public class MainActivity extends SessionActivity {
             pendingScroll = restored.getParcelable("guest.scroll");
         }
         b.search.setText(model.search);
-        b.area.setText(model.area);
-        b.capacityFilter.setText(model.minCapacity>0?String.valueOf(model.minCapacity):"");
-        b.priceFilter.setText(model.maxPrice>0?String.valueOf(model.maxPrice):"");
-        b.sortFilter.setSelection(model.sort);
-        String[] types = getResources().getStringArray(R.array.guest_types);
-        for (int i = 1; i < types.length; i++)
-            if (types[i].equals(model.type)) b.typeFilter.setSelection(i);
-        b.modeFilter.setSelection(
-                Room.MODE_HOURLY.equals(model.mode)
-                        ? 1
-                        : Room.MODE_FIXED.equals(model.mode) ? 2 : 0);
         LinearLayoutManager layout = new LinearLayoutManager(this);
         b.publicRooms.setLayoutManager(layout);
         GuestRoomAdapter adapter =
@@ -82,52 +73,17 @@ public class MainActivity extends SessionActivity {
         b.publicRooms.setAdapter(adapter);
         b.btnRefresh.setOnClickListener(v -> model.load());
         b.loadMore.setOnClickListener(v -> model.more());
-        b.clearFilters.setOnClickListener(
-                v -> {
-                    b.search.setText("");
-                    b.area.setText("");
-                    b.typeFilter.setSelection(0);
-                    b.modeFilter.setSelection(0);
-                    b.capacityFilter.setText("");b.priceFilter.setText("");b.sortFilter.setSelection(0);
-                });
         GuestNavigation.attach(this, R.id.nav_home);
-        b.filterPanel.setVisibility(
-                restored != null && restored.getBoolean("guest.filtersExpanded")
-                        ? View.VISIBLE
-                        : View.GONE);
-        b.toggleFilters.setOnClickListener(
-                v ->
-                        b.filterPanel.setVisibility(
-                                b.filterPanel.getVisibility() == View.VISIBLE
-                                        ? View.GONE
-                                        : View.VISIBLE));
+        b.toggleFilters.setOnClickListener(v -> showFilters());
         updateFilterLabel();
-        TextWatcher watcher =
-                new TextWatcher() {
-                    public void beforeTextChanged(
-                            CharSequence s, int start, int count, int after) {}
-
-                    public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        applyFilters();
-                    }
-
-                    public void afterTextChanged(Editable text) {}
-                };
-        b.search.addTextChangedListener(watcher);
-        b.area.addTextChangedListener(watcher);
-        b.capacityFilter.addTextChangedListener(watcher);b.priceFilter.addTextChangedListener(watcher);
-        AdapterView.OnItemSelectedListener selected =
-                new AdapterView.OnItemSelectedListener() {
-                    public void onItemSelected(
-                            AdapterView<?> parent, View view, int position, long id) {
-                        applyFilters();
-                    }
-
-                    public void onNothingSelected(AdapterView<?> parent) {}
-                };
-        b.typeFilter.setOnItemSelectedListener(selected);
-        b.modeFilter.setOnItemSelectedListener(selected);
-        b.sortFilter.setOnItemSelectedListener(selected);
+        b.search.addTextChangedListener(new TextWatcher() {
+            public void beforeTextChanged(CharSequence text, int start, int count, int after) {}
+            public void afterTextChanged(Editable text) {}
+            public void onTextChanged(CharSequence text, int start, int before, int count) {
+                pendingScroll = null;
+                model.filter(text.toString(), model.area, model.type, model.mode);
+            }
+        });
         model.rooms()
                 .observe(
                         this,
@@ -191,6 +147,7 @@ public class MainActivity extends SessionActivity {
                             }
                         });
         model.ensureLoaded();
+        if (restored != null && restored.getBoolean("guest.filtersExpanded")) b.getRoot().post(this::showFilters);
     }
 
     private void updateFilterLabel() {
@@ -212,33 +169,64 @@ public class MainActivity extends SessionActivity {
         b.activeFilters.setText(android.text.TextUtils.join(" • ",labels));b.activeFilters.setVisibility(labels.isEmpty()?View.GONE:View.VISIBLE);
     }
 
-    private void applyFilters() {
-        String search = b.search.getText().toString(), area = b.area.getText().toString();
-        String type =
-                b.typeFilter.getSelectedItemPosition() <= 0
-                        ? ""
-                        : b.typeFilter.getSelectedItem().toString();
-        String mode =
-                b.modeFilter.getSelectedItemPosition() == 1
-                        ? Room.MODE_HOURLY
-                        : b.modeFilter.getSelectedItemPosition() == 2 ? Room.MODE_FIXED : "";
-        int capacity=(int)number(b.capacityFilter.getText().toString());
-        long price=number(b.priceFilter.getText().toString());int sort=b.sortFilter.getSelectedItemPosition();
-        if (capacity==model.minCapacity && price==model.maxPrice && sort==model.sort && search.equals(model.search)
-                && area.equals(model.area)
-                && type.equals(model.type)
-                && mode.equals(model.mode)) return;
-        pendingScroll = null;
-        model.minCapacity=capacity;model.maxPrice=price;model.sort=sort;
-        model.filter(search, area, type, mode);
-        updateFilterLabel();
-        b.publicRooms.scrollToPosition(0);
+    private void showFilters() {
+        if (filterDialog != null && filterDialog.isShowing()) return;
+        filters = vn.edu.ueh.phuclu.broomsharing.databinding.ViewGuestFiltersBinding.inflate(getLayoutInflater());
+        boolean draft = restored != null && restored.getBoolean("guest.filtersExpanded");
+        filters.area.setText(draft ? restored.getString("draft.area", model.area) : model.area);
+        filters.capacityFilter.setText(draft ? restored.getString("draft.capacity", "") : model.minCapacity > 0 ? String.valueOf(model.minCapacity) : "");
+        filters.priceFilter.setText(draft ? restored.getString("draft.price", "") : model.maxPrice > 0 ? String.valueOf(model.maxPrice) : "");
+        String[] types = getResources().getStringArray(R.array.guest_types);
+        int type = 0;
+        for (int i = 1; i < types.length; i++) if (types[i].equals(model.type)) type = i;
+        filters.typeFilter.setSelection(draft ? restored.getInt("draft.type", type) : type);
+        int mode = Room.MODE_HOURLY.equals(model.mode) ? 1 : Room.MODE_FIXED.equals(model.mode) ? 2 : 0;
+        filters.modeFilter.setSelection(draft ? restored.getInt("draft.mode", mode) : mode);
+        filters.sortFilter.setSelection(draft ? restored.getInt("draft.sort", model.sort) : model.sort);
+        if (restored != null) restored.putBoolean("guest.filtersExpanded", false);
+        filters.clearFilters.setOnClickListener(v -> {
+            filters.area.setText(""); filters.capacityFilter.setText(""); filters.priceFilter.setText("");
+            filters.typeFilter.setSelection(0); filters.modeFilter.setSelection(0); filters.sortFilter.setSelection(0);
+        });
+        filterDialog = new androidx.appcompat.app.AlertDialog.Builder(this).setTitle(R.string.guest_filter_title)
+                .setView(filters.getRoot()).setNegativeButton(android.R.string.cancel, null)
+                .setPositiveButton(R.string.guest_filter_apply, null).create();
+        filterDialog.setOnShowListener(dialog -> filterDialog.getButton(android.content.DialogInterface.BUTTON_POSITIVE)
+                .setOnClickListener(view -> {
+                    long capacity = number(filters.capacityFilter.getText().toString());
+                    long price = number(filters.priceFilter.getText().toString());
+                    if (capacity > 10000) { filters.capacityFilter.setError(getString(R.string.guest_filter_capacity_error)); return; }
+                    if (price > 1_000_000_000_000L) { filters.priceFilter.setError(getString(R.string.guest_filter_price_error)); return; }
+                    model.minCapacity = (int) capacity; model.maxPrice = price;
+                    model.sort = filters.sortFilter.getSelectedItemPosition();
+                    String selectedType = filters.typeFilter.getSelectedItemPosition() == 0 ? "" : filters.typeFilter.getSelectedItem().toString();
+                    int selectedMode = filters.modeFilter.getSelectedItemPosition();
+                    pendingScroll = null;
+                    model.filter(b.search.getText().toString(), filters.area.getText().toString().trim(), selectedType,
+                            selectedMode == 1 ? Room.MODE_HOURLY : selectedMode == 2 ? Room.MODE_FIXED : "");
+                    updateFilterLabel(); b.publicRooms.scrollToPosition(0); filterDialog.dismiss();
+                }));
+        filterDialog.show();
+    }
+
+    @Override protected void onDestroy() {
+        if (filterDialog != null) filterDialog.dismiss();
+        super.onDestroy();
     }
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle out) {
         if (model != null) {
-            out.putBoolean("guest.filtersExpanded", b.filterPanel.getVisibility() == View.VISIBLE);
+            boolean open = filterDialog != null && filterDialog.isShowing();
+            out.putBoolean("guest.filtersExpanded", open);
+            if (open && filters != null) {
+                out.putString("draft.area", filters.area.getText().toString());
+                out.putString("draft.capacity", filters.capacityFilter.getText().toString());
+                out.putString("draft.price", filters.priceFilter.getText().toString());
+                out.putInt("draft.type", filters.typeFilter.getSelectedItemPosition());
+                out.putInt("draft.mode", filters.modeFilter.getSelectedItemPosition());
+                out.putInt("draft.sort", filters.sortFilter.getSelectedItemPosition());
+            }
             out.putString("guest.search", model.search);
             out.putString("guest.area", model.area);
             out.putString("guest.type", model.type);

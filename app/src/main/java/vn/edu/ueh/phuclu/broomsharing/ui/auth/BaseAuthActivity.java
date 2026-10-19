@@ -122,7 +122,9 @@ public abstract class BaseAuthActivity extends AppCompatActivity {
         Class<?> target =
                 profile.getUserRole() == UserRole.ADMIN
                         ? AdminDashboardActivity.class
-                        : MainActivity.class;
+                        : profile.getUserRole() == UserRole.HOST
+                                ? vn.edu.ueh.phuclu.broomsharing.ui.host.HostDashboardActivity.class
+                                : MainActivity.class;
         Intent intent = new Intent(this, target);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);

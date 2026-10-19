@@ -41,10 +41,6 @@ public class LoginActivity extends BaseAuthActivity {
         findViewById(R.id.forgotButton)
                 .setOnClickListener(
                         v -> startActivity(new Intent(this, ForgotPasswordActivity.class)));
-        findViewById(R.id.googleButton)
-                .setOnClickListener(v -> showMessage(R.string.auth_google_later));
-        findViewById(R.id.phoneButton)
-                .setOnClickListener(v -> showMessage(R.string.auth_phone_later));
         passwordInput.setOnEditorActionListener(
                 (v, actionId, event) -> {
                     if (actionId != EditorInfo.IME_ACTION_DONE) return false;

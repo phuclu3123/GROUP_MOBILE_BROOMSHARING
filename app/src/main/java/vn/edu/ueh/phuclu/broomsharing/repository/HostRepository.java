@@ -1,12 +1,12 @@
 package vn.edu.ueh.phuclu.broomsharing.repository;
 
-import android.content.Context;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.*;
 
 import vn.edu.ueh.phuclu.broomsharing.model.*;
+import vn.edu.ueh.phuclu.broomsharing.utils.BookingPolicy;
 import vn.edu.ueh.phuclu.broomsharing.utils.FirebaseHelper;
+import vn.edu.ueh.phuclu.broomsharing.utils.HostSchedule;
 import vn.edu.ueh.phuclu.broomsharing.utils.HostValidation;
 
 import java.util.*;
@@ -20,7 +20,9 @@ public class HostRepository {
 
     public HostRepository() {}
 
-    public HostRepository(Context ignored) {}
+    public String currentUserId() {
+        return uid();
+    }
 
     private String uid() {
         if (FirebaseAuth.getInstance().getCurrentUser() == null)
@@ -255,7 +257,91 @@ public class HostRepository {
             cb.onError(new Exception(error));
             return;
         }
-        new BookingRepository().saveRoom(room, cb);
+        final String actor;
+        try {
+            actor = uid();
+            BookingPolicy.id(room.getId());
+            BookingPolicy.id(room.getBuildingId());
+        } catch (Exception e) {
+            cb.onError(e);
+            return;
+        }
+        db.runTransaction(
+                        tx -> {
+                            requireHost(tx, actor);
+                            DocumentReference ref = db.collection("rooms").document(room.getId());
+                            DocumentSnapshot old = tx.get(ref);
+                            BookingPolicy.require(
+                                    !old.exists() || actor.equals(old.getString("ownerUid")),
+                                    "Phòng không thuộc tài khoản này.");
+                            DocumentSnapshot building =
+                                    tx.get(
+                                            db.collection("buildings")
+                                                    .document(room.getBuildingId()));
+                            BookingPolicy.require(
+                                    actor.equals(building.getString("ownerUid"))
+                                            && "ACTIVE".equals(building.getString("status")),
+                                    "Chọn tòa nhà đang hoạt động của bạn.");
+                            if (old.exists()) {
+                                List<AvailabilityMonth> months = new ArrayList<>();
+                                java.time.YearMonth first =
+                                        java.time.YearMonth.now(HostSchedule.ZONE);
+                                for (int i = 0; i < 15; i++) {
+                                    AvailabilityMonth month =
+                                            tx.get(
+                                                            db.collection("availabilityMonths")
+                                                                    .document(
+                                                                            BookingPolicy.monthKey(
+                                                                                    room.getId(),
+                                                                                    first
+                                                                                            .plusMonths(
+                                                                                                    i))))
+                                                    .toObject(AvailabilityMonth.class);
+                                    if (month != null) months.add(month);
+                                }
+                                BookingPolicy.validateRoomChange(
+                                        old.toObject(Room.class),
+                                        room,
+                                        months,
+                                        System.currentTimeMillis());
+                            }
+                            room.setOwnerUid(actor);
+                            room.setBuildingName(building.getString("name"));
+                            room.setListingStatus(
+                                    "SUSPENDED".equals(old.getString("listingStatus"))
+                                            ? "SUSPENDED"
+                                            : "INACTIVE".equals(room.getListingStatus())
+                                                    ? "INACTIVE"
+                                                    : "ACTIVE");
+                            room.setRejectionReason("");
+                            room.setLocationVerification("UNVERIFIED");
+                            room.setPhotosVerification("UNVERIFIED");
+                            room.setCreatedAt(old.getDate("createdAt"));
+                            room.setUpdatedAt(null);
+                            Number revision = (Number) old.get("bookingRevision");
+                            room.bookingRevision =
+                                    (revision == null ? 0 : revision.longValue()) + 1;
+                            room.lastBookingId =
+                                    old.getString("lastBookingId") == null
+                                            ? ""
+                                            : old.getString("lastBookingId");
+                            tx.set(ref, room, SetOptions.merge());
+                            tx.set(
+                                    db.collection("auditLogs").document(),
+                                    new AuditLog(
+                                            actor,
+                                            ref.getPath(),
+                                            "SAVE_ROOM",
+                                            Collections.singletonMap(
+                                                    "approvalStatus",
+                                                    old.getString("approvalStatus")),
+                                            Collections.singletonMap(
+                                                    "approvalStatus", room.getApprovalStatus()),
+                                            ""));
+                            return room.getId();
+                        })
+                .addOnSuccessListener(cb::onSuccess)
+                .addOnFailureListener(cb::onError);
     }
 
     public void getRoomsByOwner(String ownerUid, Callback<List<Room>> cb) {
@@ -342,21 +428,70 @@ public class HostRepository {
                                                 }
                                             }
                                             // Sap xep moi nhat len dau neu co ngay tao
-                                            Collections.sort(list, (a, b) -> {
-                                                if (a.getCreatedAt() == null || b.getCreatedAt() == null) return 0;
-                                                return b.getCreatedAt().compareTo(a.getCreatedAt());
-                                            });
+                                            Collections.sort(
+                                                    list,
+                                                    (a, b) -> {
+                                                        if (a.getCreatedAt() == null
+                                                                || b.getCreatedAt() == null)
+                                                            return 0;
+                                                        return b.getCreatedAt()
+                                                                .compareTo(a.getCreatedAt());
+                                                    });
                                             cb.onSuccess(list);
                                         })
                                 .addOnFailureListener(cb::onError));
     }
 
-    public void updateBookingStatus(String bookingId, String newStatus, String reason, Callback<String> cb) {
+    public void updateBookingStatus(
+            String bookingId, String newStatus, String reason, Callback<String> cb) {
         new BookingRepository().transition(bookingId, newStatus, reason, cb);
     }
 
     public void toggleListingStatus(String roomId, String newStatus, Callback<String> cb) {
-        new BookingRepository().listing(roomId, newStatus, cb);
+        final String actor;
+        try {
+            actor = uid();
+            BookingPolicy.id(roomId);
+            BookingPolicy.require(
+                    Arrays.asList("ACTIVE", "INACTIVE").contains(newStatus),
+                    "Chủ phòng chỉ được mở/tạm ngừng nhận đặt.");
+        } catch (Exception e) {
+            cb.onError(e);
+            return;
+        }
+        db.runTransaction(
+                        tx -> {
+                            requireHost(tx, actor);
+                            DocumentReference ref = db.collection("rooms").document(roomId);
+                            DocumentSnapshot room = tx.get(ref);
+                            BookingPolicy.require(
+                                    actor.equals(room.getString("ownerUid")),
+                                    "Phòng không thuộc tài khoản này.");
+                            BookingPolicy.require(
+                                    !"SUSPENDED".equals(room.getString("listingStatus")),
+                                    "Phòng đang bị Admin khóa.");
+                            tx.update(
+                                    ref,
+                                    "listingStatus",
+                                    newStatus,
+                                    "bookingRevision",
+                                    FieldValue.increment(1),
+                                    "updatedAt",
+                                    FieldValue.serverTimestamp());
+                            tx.set(
+                                    db.collection("auditLogs").document(),
+                                    new AuditLog(
+                                            actor,
+                                            ref.getPath(),
+                                            "SET_LISTING",
+                                            Collections.singletonMap(
+                                                    "listingStatus",
+                                                    room.getString("listingStatus")),
+                                            Collections.singletonMap("listingStatus", newStatus),
+                                            ""));
+                            return roomId;
+                        })
+                .addOnSuccessListener(cb::onSuccess)
+                .addOnFailureListener(cb::onError);
     }
-
 }

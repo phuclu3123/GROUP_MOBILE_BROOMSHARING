@@ -42,7 +42,8 @@
     <string name="auth_google_later">Đăng nhập Google sẽ được tích hợp trong giai đoạn tiếp theo.</string>
     <string name="auth_phone_later">Đăng nhập bằng số điện thoại sẽ được tích hợp trong giai đoạn tiếp theo.</string>
     <string name="auth_reset">Gửi yêu cầu đặt lại mật khẩu</string>
-    <string name="auth_reset_later">Chức năng đặt lại mật khẩu sẽ được bổ sung sau. Bạn có thể quay lại đăng nhập hoặc tạo tài khoản mới.</string>
+    <string name="auth_reset_help">Nhập email tài khoản để yêu cầu gửi hướng dẫn đặt lại mật khẩu.</string>
+    <string name="auth_reset_sent">Nếu email thuộc một tài khoản đã đăng ký, bạn sẽ nhận được thư hướng dẫn đặt lại mật khẩu. Hãy kiểm tra cả thư mục Spam.</string>
     <string name="auth_busy">Đang xử lý…</string>
     <string name="auth_retry">Thử lại</string>
     <string name="auth_sign_out">Đăng xuất</string>

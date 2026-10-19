@@ -1,5 +1,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginBottom="12dp" android:padding="16dp" android:background="@drawable/bg_card">
-    <TextView android:id="@+id/info" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="16sp" android:textColor="@color/text_primary" />
-    <Button android:id="@+id/cancel" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/booking_cancel" />
-    <Button android:id="@+id/open" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Xem chi tiết đặt chỗ" />
+    <TextView android:id="@+id/info" android:layout_marginTop="8dp" style="@style/WorkspaceSection" />
+    <TextView android:id="@+id/bookingStatus" android:layout_marginTop="8dp" style="@style/WorkspaceBody" android:textColor="@color/teal_dark" android:textStyle="bold" />
+    <TextView android:id="@+id/bookingTime" android:layout_marginTop="8dp" style="@style/WorkspaceBody" />
+    <TextView android:id="@+id/bookingPrice" android:layout_marginTop="8dp" style="@style/WorkspaceBody" />
+    <TextView android:id="@+id/bookingPayment" android:layout_marginTop="8dp" style="@style/WorkspaceBody" />
+    <TextView android:id="@+id/bookingReason" android:layout_marginTop="8dp" style="@style/WorkspaceBody" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="8dp">
+        <com.google.android.material.button.MaterialButton android:id="@+id/cancel" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:minHeight="52dp" android:textAllCaps="false" android:text="@string/booking_cancel" android:layout_marginEnd="8dp" android:textColor="@color/danger" style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/open" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:minHeight="52dp" android:textAllCaps="false" android:text="@string/guest_detail_booking" />
+    </LinearLayout>
 </LinearLayout>

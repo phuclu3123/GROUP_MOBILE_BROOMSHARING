@@ -1,47 +1,36 @@
-<?xml version='1.0' encoding='utf-8'?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/screen_bg">
-
-
-    <LinearLayout android:id="@+id/topBar" android:layout_width="0dp" android:layout_height="56dp" android:background="@color/white" android:elevation="2dp" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="12dp" android:paddingEnd="12dp" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent">
-
-        <ImageView android:id="@+id/btnBack" android:layout_width="36dp" android:layout_height="36dp" android:background="?attr/selectableItemBackgroundBorderless" android:contentDescription="Quay lại" android:padding="6dp" android:src="@drawable/ic_arrow_back" />
-
-        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:layout_weight="1" android:text="Hộp yêu cầu đặt phòng" android:textColor="@color/text_primary" android:textSize="17sp" android:textStyle="bold" />
-        <Button android:id="@+id/btnRefreshBookings" android:layout_width="wrap_content" android:layout_height="48dp" android:text="@string/booking_refresh" />
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/workspaceRoot" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/screen_bg">
+    <LinearLayout android:id="@+id/topBar" android:layout_width="0dp" android:layout_height="wrap_content" android:minHeight="72dp" android:background="@color/white" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="12dp" android:paddingEnd="12dp" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="parent">
+        <ImageView android:id="@+id/btnBack" android:layout_width="48dp" android:layout_height="48dp" android:background="?attr/selectableItemBackgroundBorderless" android:contentDescription="@string/workspace_back_overview" android:padding="12dp" android:src="@drawable/ic_arrow_back" android:visibility="gone"/>
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:padding="8dp">
+            <TextView style="@style/WorkspaceBody" android:text="@string/workspace_host" android:textColor="@color/teal_dark" android:textStyle="bold"/>
+            <TextView style="@style/WorkspaceSection" android:text="@string/workspace_bookings"/>
+        </LinearLayout>
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnRefreshBookings" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minHeight="48dp" android:textAllCaps="false" android:text="@string/workspace_refresh"/>
     </LinearLayout>
-
-
-    <HorizontalScrollView android:id="@+id/filterScroll" android:layout_width="0dp" android:layout_height="wrap_content" android:background="@color/white" android:paddingStart="16dp" android:paddingTop="8dp" android:paddingEnd="16dp" android:paddingBottom="12dp" android:scrollbars="none" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/topBar">
-
+    <TextView android:id="@+id/bookingHint" style="@style/WorkspaceBody" android:layout_width="0dp" android:padding="16dp" android:text="@string/workspace_booking_hint" app:layout_constraintTop_toBottomOf="@id/topBar" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"/>
+    <HorizontalScrollView android:id="@+id/filterScroll" android:layout_width="0dp" android:layout_height="wrap_content" android:paddingStart="16dp" android:paddingEnd="16dp" android:paddingBottom="8dp" android:scrollbars="none" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toBottomOf="@id/bookingHint">
         <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
-
-            <TextView android:id="@+id/chipAll" android:layout_width="wrap_content" android:layout_height="32dp" android:background="@drawable/bg_chip_selected" android:gravity="center" android:paddingStart="14dp" android:paddingEnd="14dp" android:text="Tất cả" android:textColor="@color/white" android:textSize="12sp" android:textStyle="bold" />
-
-            <TextView android:id="@+id/chipPending" android:layout_width="wrap_content" android:layout_height="32dp" android:layout_marginStart="8dp" android:background="@drawable/bg_chip" android:gravity="center" android:paddingStart="14dp" android:paddingEnd="14dp" android:text="Chờ duyệt" android:textColor="@color/text_primary" android:textSize="12sp" />
-
-            <TextView android:id="@+id/chipConfirmed" android:layout_width="wrap_content" android:layout_height="32dp" android:layout_marginStart="8dp" android:background="@drawable/bg_chip" android:gravity="center" android:paddingStart="14dp" android:paddingEnd="14dp" android:text="Đã chấp nhận" android:textColor="@color/text_primary" android:textSize="12sp" />
-
-            <TextView android:id="@+id/chipRejected" android:layout_width="wrap_content" android:layout_height="32dp" android:layout_marginStart="8dp" android:background="@drawable/bg_chip" android:gravity="center" android:paddingStart="14dp" android:paddingEnd="14dp" android:text="@string/host_rejected" android:textColor="@color/text_primary" android:textSize="12sp" />
-            <TextView android:id="@+id/chipCancelled" android:layout_width="wrap_content" android:layout_height="48dp" android:paddingStart="14dp" android:paddingEnd="14dp" android:gravity="center" android:text="@string/host_cancelled" android:background="@drawable/bg_chip" />
+            <TextView android:id="@+id/chipAll" android:layout_width="wrap_content" android:layout_height="48dp" android:layout_marginEnd="8dp" android:paddingStart="16dp" android:paddingEnd="16dp" android:gravity="center" android:text="Tất cả" android:background="@drawable/bg_chip" android:textColor="@color/text_primary" android:textSize="14sp" android:clickable="true" android:focusable="true"/>
+            <TextView android:id="@+id/chipPending" android:layout_width="wrap_content" android:layout_height="48dp" android:layout_marginEnd="8dp" android:paddingStart="16dp" android:paddingEnd="16dp" android:gravity="center" android:text="Chờ xử lý" android:background="@drawable/bg_chip" android:textColor="@color/text_primary" android:textSize="14sp" android:clickable="true" android:focusable="true"/>
+            <TextView android:id="@+id/chipConfirmed" android:layout_width="wrap_content" android:layout_height="48dp" android:layout_marginEnd="8dp" android:paddingStart="16dp" android:paddingEnd="16dp" android:gravity="center" android:text="Đã xác nhận" android:background="@drawable/bg_chip" android:textColor="@color/text_primary" android:textSize="14sp" android:clickable="true" android:focusable="true"/>
+            <TextView android:id="@+id/chipCheckedIn" android:layout_width="wrap_content" android:layout_height="48dp" android:layout_marginEnd="8dp" android:paddingStart="16dp" android:paddingEnd="16dp" android:gravity="center" android:text="@string/workspace_checked_in" android:background="@drawable/bg_chip" android:textColor="@color/text_primary" android:textSize="14sp" android:clickable="true" android:focusable="true"/>
+            <TextView android:id="@+id/chipCompleted" android:layout_width="wrap_content" android:layout_height="48dp" android:layout_marginEnd="8dp" android:paddingStart="16dp" android:paddingEnd="16dp" android:gravity="center" android:text="@string/workspace_completed" android:background="@drawable/bg_chip" android:textColor="@color/text_primary" android:textSize="14sp" android:clickable="true" android:focusable="true"/>
+            <TextView android:id="@+id/chipRejected" android:layout_width="wrap_content" android:layout_height="48dp" android:layout_marginEnd="8dp" android:paddingStart="16dp" android:paddingEnd="16dp" android:gravity="center" android:text="@string/host_rejected" android:background="@drawable/bg_chip" android:textColor="@color/text_primary" android:textSize="14sp" android:clickable="true" android:focusable="true"/>
+            <TextView android:id="@+id/chipCancelled" android:layout_width="wrap_content" android:layout_height="48dp" android:layout_marginEnd="8dp" android:paddingStart="16dp" android:paddingEnd="16dp" android:gravity="center" android:text="@string/host_cancelled" android:background="@drawable/bg_chip" android:textColor="@color/text_primary" android:textSize="14sp" android:clickable="true" android:focusable="true"/>
         </LinearLayout>
     </HorizontalScrollView>
-
     <LinearLayout android:id="@+id/schedulePanel" android:layout_width="0dp" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone" app:layout_constraintTop_toBottomOf="@id/filterScroll" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent">
-        <Button android:id="@+id/btnScheduleDay" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/host_schedule_day" />
-        <ScrollView android:layout_width="match_parent" android:layout_height="140dp"><TextView android:id="@+id/tvSchedule" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="12dp" android:textSize="14sp" /></ScrollView>
+        <Button android:id="@+id/btnScheduleDay" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/host_schedule_day"/>
+        <ScrollView android:layout_width="match_parent" android:layout_height="140dp">
+            <TextView android:id="@+id/tvSchedule" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="12dp" android:textSize="14sp"/>
+        </ScrollView>
     </LinearLayout>
-
-    <ProgressBar android:id="@+id/progressBar" android:layout_width="wrap_content" android:layout_height="wrap_content" android:visibility="gone" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/schedulePanel" />
-
-
-    <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvBookings" android:layout_width="0dp" android:layout_height="0dp" android:clipToPadding="false" android:padding="16dp" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/schedulePanel" />
-
-
-    <LinearLayout android:id="@+id/layoutEmpty" android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center" android:orientation="vertical" android:visibility="gone" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/schedulePanel">
-
-        <ImageView android:layout_width="64dp" android:layout_height="64dp" android:alpha="0.4" android:src="@drawable/ic_booking" />
-
-        <TextView android:id="@+id/tvEmptyMessage" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Không có yêu cầu đặt phòng nào." android:textColor="@color/text_secondary" android:textSize="14sp" />
+    <include layout="@layout/view_management_navigation" android:id="@+id/managementNavigation" android:layout_width="0dp" android:layout_height="wrap_content" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"/>
+    <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvBookings" android:layout_width="0dp" android:layout_height="0dp" android:clipToPadding="false" android:padding="16dp" app:layout_constraintBottom_toTopOf="@id/managementNavigation" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/schedulePanel"/>
+    <LinearLayout android:id="@+id/layoutEmpty" android:layout_width="0dp" android:layout_height="wrap_content" android:padding="24dp" android:gravity="center" android:orientation="vertical" android:visibility="gone" app:layout_constraintBottom_toTopOf="@id/managementNavigation" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/schedulePanel">
+        <ImageView android:layout_width="64dp" android:layout_height="64dp" android:alpha="0.4" android:src="@drawable/ic_booking" android:importantForAccessibility="no"/>
+        <TextView android:id="@+id/tvEmptyMessage" style="@style/WorkspaceBody" android:layout_marginTop="12dp" android:gravity="center" android:text="@string/workspace_empty_filter"/>
     </LinearLayout>
-
+    <ProgressBar android:id="@+id/progressBar" android:layout_width="32dp" android:layout_height="32dp" android:visibility="gone" app:layout_constraintBottom_toTopOf="@id/managementNavigation" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/schedulePanel"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

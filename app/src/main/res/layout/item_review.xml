@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" android:padding="12dp" android:orientation="vertical" android:background="@drawable/bg_card">
-  <TextView android:id="@+id/title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="" android:textColor="@color/text_primary" android:textSize="18sp" android:padding="8dp" />
-  <ImageView android:id="@+id/cover" android:layout_width="match_parent" android:layout_height="160dp" android:scaleType="centerCrop" android:contentDescription="Chạm để xem ảnh tiếp theo" android:visibility="gone" />
-  <TextView android:id="@+id/details" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="" android:textColor="@color/text_primary" android:textSize="14sp" android:padding="8dp" />
-  <Button android:id="@+id/evidence" android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone" android:text="@string/admin_evidence" />
-  <Button android:id="@+id/approve" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:text="Duyệt" />
-  <Button android:id="@+id/reject" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:text="Từ chối" />
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="16dp" android:padding="16dp" android:orientation="vertical" android:background="@drawable/bg_card">
+    <TextView android:id="@+id/title" style="@style/WorkspaceSection" />
+    <ImageView android:id="@+id/cover" android:layout_width="match_parent" android:layout_height="150dp" android:layout_marginTop="12dp" android:scaleType="centerCrop" android:contentDescription="Chạm để xem ảnh tiếp theo" android:visibility="gone" />
+    <TextView android:id="@+id/details" style="@style/WorkspaceBody" android:layout_marginTop="12dp" android:maxLines="3" android:ellipsize="end" />
+    <com.google.android.material.button.MaterialButton android:id="@+id/viewDetails" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:gravity="start|center_vertical" android:textAllCaps="false" android:text="@string/workspace_view_details" />
+    <com.google.android.material.button.MaterialButton android:id="@+id/evidence" style="@style/WorkspaceAction" android:visibility="gone" android:text="@string/admin_evidence" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+        <com.google.android.material.button.MaterialButton android:id="@+id/reject" style="@style/Widget.MaterialComponents.Button.OutlinedButton" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginEnd="8dp" android:minHeight="52dp" android:textAllCaps="false" android:text="Từ chối" android:textColor="@color/danger" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/approve" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:minHeight="52dp" android:textAllCaps="false" android:text="Duyệt" />
+    </LinearLayout>
 </LinearLayout>

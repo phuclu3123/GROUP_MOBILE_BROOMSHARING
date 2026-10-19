@@ -19,7 +19,8 @@ service firebase.storage {
     }
     // No public download URL is generated for identity evidence by this app.
     match /verification/{uid}/{file} {
-      allow read, delete: if own(uid);
+      allow read: if own(uid); // Admin evidence access is not configured for the named Firestore database.
+      allow delete: if own(uid);
       allow create, update: if own(uid)
         && request.resource.size > 0 && request.resource.size <= 5 * 1024 * 1024
         && request.resource.contentType.matches('(image/(jpeg|png|webp)|application/pdf)');

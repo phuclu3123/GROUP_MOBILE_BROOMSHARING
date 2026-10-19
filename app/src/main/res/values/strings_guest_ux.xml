@@ -1,0 +1,12 @@
+<resources>
+    <string name="guest_home_title">Tìm không gian</string>
+    <string name="guest_filter_title">Lọc không gian</string>
+    <string name="guest_filter_apply">Xem kết quả</string>
+    <string name="guest_filter_capacity_error">Sức chứa tối đa 10.000 người.</string>
+    <string name="guest_filter_price_error">Giá tối đa 1.000 tỷ đồng.</string>
+    <string name="guest_bookings_hint">Xem trạng thái và thông tin từng lượt thuê của bạn.</string>
+    <string name="guest_renter_mode">Host · Đang dùng giao diện người thuê</string>
+    <string name="guest_return_host">Chuyển sang kênh cho thuê</string>
+    <string name="guest_account_tools">Không gian của bạn</string>
+    <string name="guest_detail_booking">Xem chi tiết</string>
+</resources>

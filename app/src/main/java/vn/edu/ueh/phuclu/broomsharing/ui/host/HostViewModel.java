@@ -7,7 +7,6 @@ import androidx.lifecycle.*;
 
 import vn.edu.ueh.phuclu.broomsharing.model.*;
 import vn.edu.ueh.phuclu.broomsharing.repository.*;
-import vn.edu.ueh.phuclu.broomsharing.utils.FirebaseHelper;
 
 import java.util.*;
 
@@ -26,15 +25,31 @@ public class HostViewModel extends AndroidViewModel {
     public void loadHostRoom(String roomId) {
         try {
             hostRoom.setValue(UiState.loading());
-            repository.getRoomsByOwner(FirebaseHelper.getCurrentHostUid(getApplication()), new HostRepository.Callback<List<Room>>() {
-                public void onSuccess(List<Room> rooms) {
-                    for (Room room : rooms) if (roomId.equals(room.getId())) { hostRoom.setValue(UiState.success(room)); return; }
-                    hostRoom.setValue(UiState.error(new Exception("Phòng không tồn tại hoặc không thuộc tài khoản này.")));
-                }
-                public void onError(Exception e) { hostRoom.setValue(UiState.error(e)); }
-            });
-        } catch (Exception e) { hostRoom.setValue(UiState.error(e)); }
+            repository.getRoomsByOwner(
+                    repository.currentUserId(),
+                    new HostRepository.Callback<List<Room>>() {
+                        public void onSuccess(List<Room> rooms) {
+                            for (Room room : rooms)
+                                if (roomId.equals(room.getId())) {
+                                    hostRoom.setValue(UiState.success(room));
+                                    return;
+                                }
+                            hostRoom.setValue(
+                                    UiState.error(
+                                            new Exception(
+                                                    "Phòng không tồn tại hoặc không thuộc tài khoản"
+                                                            + " này.")));
+                        }
+
+                        public void onError(Exception e) {
+                            hostRoom.setValue(UiState.error(e));
+                        }
+                    });
+        } catch (Exception e) {
+            hostRoom.setValue(UiState.error(e));
+        }
     }
+
     public final ArrayList<Uri> photos = new ArrayList<>();
     public Room editingRoom;
     public Building editingBuilding;
@@ -68,8 +83,7 @@ public class HostViewModel extends AndroidViewModel {
 
     public void loadBuildings() {
         try {
-            repository.getBuildingsByOwner(
-                    FirebaseHelper.getCurrentHostUid(getApplication()), into(buildings));
+            repository.getBuildingsByOwner(repository.currentUserId(), into(buildings));
         } catch (Exception e) {
             buildings.setValue(UiState.error(e));
         }
@@ -78,8 +92,7 @@ public class HostViewModel extends AndroidViewModel {
     public void loadDashboard() {
         loadBuildings();
         try {
-            repository.getRoomsByOwner(
-                    FirebaseHelper.getCurrentHostUid(getApplication()), into(rooms));
+            repository.getRoomsByOwner(repository.currentUserId(), into(rooms));
             repository.getStats(into(stats));
         } catch (Exception e) {
             rooms.setValue(UiState.error(e));
@@ -88,8 +101,7 @@ public class HostViewModel extends AndroidViewModel {
 
     public void loadApplication() {
         try {
-            repository.checkHostApplicationStatus(
-                    FirebaseHelper.getCurrentHostUid(getApplication()), into(application));
+            repository.checkHostApplicationStatus(repository.currentUserId(), into(application));
         } catch (Exception e) {
             application.setValue(UiState.error(e));
         }
@@ -210,19 +222,23 @@ public class HostViewModel extends AndroidViewModel {
         if (actionResult.getValue() != null && actionResult.getValue().loading) return;
         actionResult.setValue(UiState.loading());
         try {
-            repository.updateBookingStatus(bookingId, newStatus, reason, new HostRepository.Callback<String>() {
-                @Override
-                public void onSuccess(String id) {
-                    actionResult.setValue(UiState.success(id));
-                    loadBookings();
-                    loadDashboard();
-                }
+            repository.updateBookingStatus(
+                    bookingId,
+                    newStatus,
+                    reason,
+                    new HostRepository.Callback<String>() {
+                        @Override
+                        public void onSuccess(String id) {
+                            actionResult.setValue(UiState.success(id));
+                            loadBookings();
+                            loadDashboard();
+                        }
 
-                @Override
-                public void onError(Exception e) {
-                    actionResult.setValue(UiState.error(e));
-                }
-            });
+                        @Override
+                        public void onError(Exception e) {
+                            actionResult.setValue(UiState.error(e));
+                        }
+                    });
         } catch (Exception e) {
             actionResult.setValue(UiState.error(e));
         }
@@ -232,21 +248,23 @@ public class HostViewModel extends AndroidViewModel {
         if (actionResult.getValue() != null && actionResult.getValue().loading) return;
         actionResult.setValue(UiState.loading());
         try {
-            repository.toggleListingStatus(roomId, newStatus, new HostRepository.Callback<String>() {
-                @Override
-                public void onSuccess(String id) {
-                    actionResult.setValue(UiState.success(id));
-                    loadDashboard();
-                }
+            repository.toggleListingStatus(
+                    roomId,
+                    newStatus,
+                    new HostRepository.Callback<String>() {
+                        @Override
+                        public void onSuccess(String id) {
+                            actionResult.setValue(UiState.success(id));
+                            loadDashboard();
+                        }
 
-                @Override
-                public void onError(Exception e) {
-                    actionResult.setValue(UiState.error(e));
-                }
-            });
+                        @Override
+                        public void onError(Exception e) {
+                            actionResult.setValue(UiState.error(e));
+                        }
+                    });
         } catch (Exception e) {
             actionResult.setValue(UiState.error(e));
         }
     }
-
 }

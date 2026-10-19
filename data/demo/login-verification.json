@@ -1,0 +1,68 @@
+{
+  "verifiedAt": "2026-10-19T17:27:25.624165700Z",
+  "accounts": 10,
+  "passwordsUnchanged": true,
+  "copyableWithoutEscapes": true,
+  "results": [
+    {
+      "alias": "admin",
+      "authUidAndUsernameMatch": true,
+      "role": "ADMIN",
+      "status": "ACTIVE"
+    },
+    {
+      "alias": "guest1",
+      "authUidAndUsernameMatch": true,
+      "role": "GUEST",
+      "status": "ACTIVE"
+    },
+    {
+      "alias": "guest2",
+      "authUidAndUsernameMatch": true,
+      "role": "GUEST",
+      "status": "ACTIVE"
+    },
+    {
+      "alias": "guest3",
+      "authUidAndUsernameMatch": true,
+      "role": "GUEST",
+      "status": "ACTIVE"
+    },
+    {
+      "alias": "guest4",
+      "authUidAndUsernameMatch": true,
+      "role": "GUEST",
+      "status": "ACTIVE"
+    },
+    {
+      "alias": "guest5",
+      "authUidAndUsernameMatch": true,
+      "role": "GUEST",
+      "status": "BLOCKED"
+    },
+    {
+      "alias": "host1",
+      "authUidAndUsernameMatch": true,
+      "role": "HOST",
+      "status": "ACTIVE"
+    },
+    {
+      "alias": "host2",
+      "authUidAndUsernameMatch": true,
+      "role": "HOST",
+      "status": "ACTIVE"
+    },
+    {
+      "alias": "host3",
+      "authUidAndUsernameMatch": true,
+      "role": "HOST",
+      "status": "ACTIVE"
+    },
+    {
+      "alias": "host4",
+      "authUidAndUsernameMatch": true,
+      "role": "HOST",
+      "status": "BLOCKED"
+    }
+  ]
+}

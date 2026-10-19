@@ -19,6 +19,11 @@ public class ProfileActivity extends SessionActivity {
 
     @Override
     protected void onProfileReady(UserProfile profile) {
+        if (profile.getUserRole() == UserRole.ADMIN) {
+            startActivity(new Intent(this, vn.edu.ueh.phuclu.broomsharing.ui.common.RoleAccountActivity.class));
+            finish();
+            return;
+        }
         ActivityProfileBinding binding =
                 ActivityProfileBinding.bind(findViewById(R.id.profileRoot));
         binding.profileName.setText(profile.name);
@@ -35,16 +40,17 @@ public class ProfileActivity extends SessionActivity {
                         ? "B"
                         : profile.name.substring(0, 1));
         boolean isHost = profile.getUserRole() == UserRole.HOST;
-        binding.profileBadge.setText(isHost ? R.string.auth_role_host : R.string.auth_role_guest);
-        binding.profileSignOut.setOnClickListener(v -> signOut());
+        binding.profileBadge.setText(isHost ? R.string.guest_renter_mode : R.string.auth_role_guest);
+        binding.profileSignOut.setOnClickListener(v -> new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle(R.string.workspace_signout_title).setMessage(R.string.workspace_signout_message)
+                .setNegativeButton(android.R.string.cancel, null)
+                .setPositiveButton(R.string.workspace_signout, (dialog, which) -> signOut()).show());
         binding.btnFavorites.setOnClickListener(v -> startActivity(new Intent(this,FavoritesActivity.class)));
 
-        binding.btnMenuCreateSpace.setOnClickListener(
-                v -> startActivity(new Intent(this, CreateSpaceActivity.class)));
+        binding.btnMenuMySpaces.setText(R.string.guest_return_host);
         binding.btnMenuMySpaces.setOnClickListener(
-                v -> startActivity(new Intent(this, HostDashboardActivity.class)));
-        binding.btnMenuAddBuilding.setOnClickListener(
-                v -> startActivity(new Intent(this, AddBuildingActivity.class)));
+                v -> startActivity(new Intent(this, HostDashboardActivity.class)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)));
         binding.btnMenuHostApply.setOnClickListener(
                 v -> startActivity(new Intent(this, HostApplyActivity.class)));
         binding.hostManagementMenu.setVisibility(isHost ? View.VISIBLE : View.GONE);

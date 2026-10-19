@@ -1,54 +1,45 @@
 package vn.edu.ueh.phuclu.broomsharing;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 import androidx.lifecycle.ViewModelProvider;
-
+import androidx.recyclerview.widget.LinearLayoutManager;
 import com.bumptech.glide.Glide;
-
+import vn.edu.ueh.phuclu.broomsharing.adapter.SelectedImageAdapter;
 import vn.edu.ueh.phuclu.broomsharing.databinding.ActivitySpaceDetailBinding;
 import vn.edu.ueh.phuclu.broomsharing.model.*;
-import vn.edu.ueh.phuclu.broomsharing.ui.RoomViewModel;
+import vn.edu.ueh.phuclu.broomsharing.ui.*;
 import vn.edu.ueh.phuclu.broomsharing.ui.auth.SessionActivity;
 import vn.edu.ueh.phuclu.broomsharing.utils.FormatUtils;
+import java.util.*;
 
 public class SpaceDetailActivity extends SessionActivity {
     public static final String ROOM_ID = "ROOM_ID";
     private int scrollY;
-    private ActivitySpaceDetailBinding binding;
-
-    @Override
-    protected void onCreate(android.os.Bundle state) {
-        if (state != null) scrollY = state.getInt("detail.scroll", 0);
+    private ActivitySpaceDetailBinding b;
+    @Override protected void onCreate(Bundle state) {
+        if (state != null) scrollY = state.getInt("detail.scroll",0);
         super.onCreate(state);
     }
-
-    @Override
-    protected void onSaveInstanceState(android.os.Bundle out) {
-        out.putInt("detail.scroll", binding == null ? scrollY : binding.detailScroll.getScrollY());
+    @Override protected void onSaveInstanceState(Bundle out) {
+        out.putInt("detail.scroll", b == null ? scrollY : b.detailScroll.getScrollY());
         super.onSaveInstanceState(out);
     }
-
-    @Override
-    protected int pageLayout() {
-        return R.layout.activity_space_detail;
-    }
-
-    @Override
-    protected void onProfileReady(UserProfile profile) {
-        ActivitySpaceDetailBinding b =
-                ActivitySpaceDetailBinding.bind(
-                        ((android.view.ViewGroup) findViewById(android.R.id.content))
-                                .getChildAt(0));
-        b.gallery.setLayoutManager(
-                new androidx.recyclerview.widget.LinearLayoutManager(
-                        this, androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL, false));
-        RoomViewModel model = new ViewModelProvider(this).get(RoomViewModel.class);
-        binding = b;
-        String id = getIntent().getStringExtra(ROOM_ID);
-        vn.edu.ueh.phuclu.broomsharing.ui.FavoritesViewModel favorites=new ViewModelProvider(this).get(vn.edu.ueh.phuclu.broomsharing.ui.FavoritesViewModel.class);
-        b.btnFavorite.setOnClickListener(v->{
-            UiState<RoomListing> state=model.detail().getValue();
-            if(state!=null&&state.data!=null)favorites.set(id,state.data.room.getRoomName(),!favorites.contains(id));
-        });
+    @Override protected int pageLayout() { return R.layout.activity_space_detail; }
+    @Override protected void onProfileReady(UserProfile profile) {
+        b=ActivitySpaceDetailBinding.bind(((ViewGroup)findViewById(android.R.id.content)).getChildAt(0));
+        b.gallery.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
+        RoomViewModel model=new ViewModelProvider(this).get(RoomViewModel.class);
+        FavoritesViewModel favorites=new ViewModelProvider(this).get(FavoritesViewModel.class);
+        String id=getIntent().getStringExtra(ROOM_ID);
+        b.detailToolbar.setNavigationOnClickListener(v->finish());
+        b.btnBook.setOnClickListener(v->startActivity(new Intent(this,BookingActivity.class).putExtra(ROOM_ID,id)));
+        b.btnDirections.setOnClickListener(v->startActivity(new Intent(this,MapActivity.class).putExtra(ROOM_ID,id)));
+        b.btnRefresh.setOnClickListener(v->model.load(id));
+        b.btnFavorite.setOnClickListener(v->{UiState<RoomListing> state=model.detail().getValue();if(state!=null&&state.data!=null)favorites.set(id,state.data.room.getRoomName(),!favorites.contains(id));});
         favorites.items.observe(this,state->{
             b.btnFavorite.setEnabled(state!=null&&state.data!=null&&!state.loading&&!favorites.busy());
             b.btnFavorite.setText(favorites.contains(id)?"Bỏ lưu phòng":"Lưu phòng");
@@ -56,115 +47,57 @@ public class SpaceDetailActivity extends SessionActivity {
         });
         favorites.saved.observe(this,state->{if(state==null)return;b.btnFavorite.setEnabled(!state.loading);if(state.error!=null)b.tvFeedback.setText(state.error);});
         favorites.load();
-        b.detailToolbar.setNavigationOnClickListener(v -> finish());
-        b.btnBook.setOnClickListener(v -> startActivity(new android.content.Intent(this, BookingActivity.class).putExtra("ROOM_ID", id)));
-        b.btnRefresh.setOnClickListener(v -> model.load(id));
-        model.detail()
-                .observe(
-                        this,
-                        state -> {
-                            b.btnRefresh.setEnabled(!state.loading);
-                            b.btnBook.setEnabled(state.data != null && !state.loading);
-                            b.details.setText("");
-                            b.title.setText("");
-                            com.bumptech.glide.Glide.with(this).clear(b.cover);
-                            b.cover.setImageResource(R.drawable.bg_image_placeholder);
-                            b.gallery.setAdapter(null);
-                            b.tvFeedback.setText(
-                                    state.loading
-                                            ? "Đang tải…"
-                                            : state.error == null ? "" : state.error);
-                            if (state.data == null) return;
-                            Room r = state.data.room;
-                            Building building = state.data.building;
-                            b.title.setText(r.getRoomName());
-                            String price =
-                                    Room.MODE_HOURLY.equals(r.getActiveMode())
-                                            ? FormatUtils.formatCurrency(r.getPricePerHour())
-                                                    + "/giờ"
-                                            : (r.getPricePerMonth() > 0
-                                                            ? FormatUtils.formatCurrency(
-                                                                            r.getPricePerMonth())
-                                                                    + "/tháng"
-                                                            : "")
-                                                    + (r.getPricePerMonth() > 0
-                                                                    && r.getPricePerQuarter() > 0
-                                                            ? " • "
-                                                            : "")
-                                                    + (r.getPricePerQuarter() > 0
-                                                            ? FormatUtils.formatCurrency(
-                                                                            r.getPricePerQuarter())
-                                                                    + "/quý"
-                                                            : "");
-                            b.details.setText(
-                                    safe(r.getAddress())
-                                            + "\n"
-                                            + safe(building.getName())
-                                            + " • "
-                                            + safe(r.getFloor())
-                                            + "\n"
-                                            + r.getCapacity()
-                                            + " người • "
-                                            + r.getArea()
-                                            + " m²\n"
-                                            + price
-                                            + "\nCọc: "
-                                            + FormatUtils.formatCurrency(r.getDeposit())
-                                            + " (cọc demo, chưa có thanh toán thật)\nNgày hoạt động (1=T2…7=CN): " + r.getWorkingDays()
-                                            + "\n"
-                                            + safe(r.getOpenTime())
-                                            + "–"
-                                            + safe(r.getCloseTime())
-                                            + "\n"
-                                            + android.text.TextUtils.join(
-                                                    ", ",
-                                                    r.getAmenities() == null
-                                                            ? java.util.Collections.emptyList()
-                                                            : r.getAmenities())
-                                            + "\n\n"
-                                            + safe(r.getRules())
-                                            + "\n" + safe(r.getRentalPolicy())
-                                            + "\n" + safe(r.getRenewalPolicy())
-                                            + "\n\nNgười cho thuê: "
-                                            + safe(state.data.hostName)
-                                            + "\nLiên hệ tại tòa nhà: "
-                                            + safe(building.getContactName())
-                                            + " • "
-                                            + safe(building.getContactPhone())
-                                            + "\nKhu vực: "
-                                            + safe(building.getDistrict())
-                                            + "\nĐịa chỉ tòa nhà: "
-                                            + safe(building.getAddress())
-                                            + "\nHướng dẫn vào: "
-                                            + safe(building.getDirectionGuide())
-                                            + (building.getLocation() == null
-                                                    ? ""
-                                                    : "\nTọa độ do chủ cung cấp: "
-                                                            + building.getLatitude()
-                                                            + ", "
-                                                            + building.getLongitude())
-                                            + "\n\n"
-                                            + FormatUtils.verificationSummary(r));
-                            if (r.getImageUrls() != null && !r.getImageUrls().isEmpty()) {
-                                Glide.with(this)
-                                        .load(r.getImageUrls().get(0))
-                                        .placeholder(R.drawable.bg_image_placeholder)
-                                        .error(R.drawable.bg_image_placeholder)
-                                        .into(b.cover);
-                                java.util.List<android.net.Uri> photos =
-                                        new java.util.ArrayList<>();
-                                for (String url : r.getImageUrls())
-                                    photos.add(android.net.Uri.parse(url));
-                                b.gallery.setAdapter(
-                                        new vn.edu.ueh.phuclu.broomsharing.adapter
-                                                .SelectedImageAdapter(photos, null));
-                            }
-                            b.detailScroll.post(() -> b.detailScroll.scrollTo(0, scrollY));
-                        });
+        model.detail().observe(this,this::render);
         model.ensureDetail(id);
     }
-
-    private String safe(String value) {
-        return value == null || value.trim().isEmpty() ? getString(R.string.guest_unknown) : value;
+    private void showPhoto(Object uri) {
+        Glide.with(this).load(uri).placeholder(R.drawable.bg_image_placeholder).error(R.drawable.bg_image_placeholder).centerCrop().into(b.cover);
     }
+    private void render(UiState<RoomListing> state) {
+        b.btnRefresh.setVisibility(state.error==null?View.GONE:View.VISIBLE);
+        b.btnRefresh.setEnabled(!state.loading);
+        b.btnBook.setEnabled(state.data!=null&&!state.loading);
+        b.btnDirections.setEnabled(false);
+        for(TextView field:new TextView[]{b.title,b.price,b.summary,b.address,b.details,b.deposit,b.policies,b.location,b.verification})field.setText("");
+        Glide.with(this).clear(b.cover);b.cover.setImageResource(R.drawable.bg_image_placeholder);b.gallery.setAdapter(null);
+        b.tvFeedback.setText(state.loading?"Đang tải thông tin phòng…":state.error==null?"":state.error);
+        if(state.data==null)return;
+        Room room=state.data.room;Building building=state.data.building;
+        b.title.setText(room.getRoomName());
+        String price;
+        if(Room.MODE_HOURLY.equals(room.getActiveMode()))price=FormatUtils.formatCurrency(room.getPricePerHour())+"/giờ";
+        else {
+            List<String> prices=new ArrayList<>();
+            if(room.getPricePerMonth()>0)prices.add(FormatUtils.formatCurrency(room.getPricePerMonth())+"/tháng");
+            if(room.getPricePerQuarter()>0)prices.add(FormatUtils.formatCurrency(room.getPricePerQuarter())+"/quý");
+            price=android.text.TextUtils.join(" • ",prices);
+        }
+        b.price.setText(price);
+        b.summary.setText(safe(room.getRoomType())+" • "+room.getCapacity()+" người • "+java.text.NumberFormat.getNumberInstance(Locale.forLanguageTag("vi-VN")).format(room.getArea())+" m²");
+        b.address.setText(safe(room.getAddress()));
+        b.details.setText("Ngày hoạt động: "+workingDays(room.getWorkingDays())+"\nGiờ mở cửa: "+safe(room.getOpenTime())+"–"+safe(room.getCloseTime())
+            +"\nTiện ích: "+android.text.TextUtils.join(", ",room.getAmenities()==null?Collections.emptyList():room.getAmenities()));
+        b.deposit.setText("Tiền cọc: "+FormatUtils.formatCurrency(room.getDeposit())+"\nThanh toán hiện ở chế độ demo.");
+        b.policies.setText("Nội quy\n"+safe(room.getRules())+"\n\nĐiều kiện thuê\n"+safe(room.getRentalPolicy())+"\n\nGia hạn\n"+safe(room.getRenewalPolicy()));
+        b.location.setText(safe(building.getName())+" • Tầng "+safe(room.getFloor())+"\n"+safe(building.getDistrict())+" • "+safe(building.getAddress())
+            +"\n\nNgười cho thuê: "+safe(state.data.hostName)+"\nLiên hệ: "+safe(building.getContactName())+"\n"+safe(building.getContactPhone())
+            +"\n\nHướng dẫn đến: "+safe(building.getDirectionGuide()));
+        b.verification.setText(FormatUtils.verificationSummary(room));
+        b.btnDirections.setEnabled(building.getLocation()!=null);
+        List<String> urls=room.getImageUrls();
+        b.gallery.setVisibility(urls==null||urls.size()<2?View.GONE:View.VISIBLE);
+        if(urls!=null&&!urls.isEmpty()) {
+            showPhoto(urls.get(0));List<android.net.Uri> photos=new ArrayList<>();
+            for(String url:urls)photos.add(android.net.Uri.parse(url));
+            b.gallery.setAdapter(new SelectedImageAdapter(photos,null,this::showPhoto));
+        }
+        b.detailScroll.post(()->b.detailScroll.scrollTo(0,scrollY));
+    }
+    private String workingDays(List<Integer> days) {
+        if(days==null||days.isEmpty())return "Chưa có lịch";
+        if(days.size()==7&&days.containsAll(Arrays.asList(1,2,3,4,5,6,7)))return "Hằng ngày";
+        List<String> labels=new ArrayList<>();for(Integer day:days)if(day!=null&&day>=1&&day<=7)labels.add(day==7?"Chủ nhật":"Thứ "+(day+1));
+        return android.text.TextUtils.join(", ",labels);
+    }
+    private String safe(String value) {return value==null||value.trim().isEmpty()?getString(R.string.guest_unknown):value;}
 }

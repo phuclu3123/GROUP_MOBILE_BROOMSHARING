@@ -6,20 +6,17 @@ import android.view.View;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
-import vn.edu.ueh.phuclu.broomsharing.AdminDashboardActivity;
-import vn.edu.ueh.phuclu.broomsharing.MainActivity;
-import vn.edu.ueh.phuclu.broomsharing.R;
-import vn.edu.ueh.phuclu.broomsharing.model.UserProfile;
-import vn.edu.ueh.phuclu.broomsharing.model.UserRole;
-import vn.edu.ueh.phuclu.broomsharing.repository.AuthError;
-import vn.edu.ueh.phuclu.broomsharing.repository.AuthRepository;
-import vn.edu.ueh.phuclu.broomsharing.repository.FirebaseAuthRepository;
+import vn.edu.ueh.phuclu.broomsharing.*;
+import vn.edu.ueh.phuclu.broomsharing.model.*;
 
-/** Client navigation guard. Database enforcement is a separate P06 milestone. */
+/**
+ * Shared session screen observes AuthViewModel; no Repository or Firebase calls from Activities.
+ */
 public abstract class SessionActivity extends AppCompatActivity {
-    private AuthRepository repository;
-    private boolean checking;
+    private AuthViewModel model;
+    private boolean shown;
 
     protected abstract int pageLayout();
 
@@ -40,81 +37,78 @@ public abstract class SessionActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
-        repository = new FirebaseAuthRepository(getApplicationContext());
+        model = new ViewModelProvider(this).get(AuthViewModel.class);
         setContentView(R.layout.activity_session_check);
         findViewById(R.id.retryButton).setOnClickListener(v -> checkSession());
-        checkSession();
-    }
-
-    private void checkSession() {
-        if (checking) return;
-        if (!repository.hasSession()) {
+        if (!model.hasSession()) {
             toLogin(0);
             return;
         }
-        checking = true;
-        findViewById(R.id.authProgress).setVisibility(View.VISIBLE);
-        findViewById(R.id.retryButton).setVisibility(View.GONE);
-        ((TextView) findViewById(R.id.authMessage)).setText(R.string.auth_busy);
-        repository.loadSession(
-                new AuthRepository.Callback() {
-                    @Override
-                    public void onSuccess(UserProfile profile) {
-                        if (isFinishing() || isDestroyed()) return;
-                        checking = false;
-                        if (requiresAdmin() && profile.getUserRole() != UserRole.ADMIN) {
-                            toLogin(R.string.auth_role_invalid);
-                            return;
-                        }
-                        if (requiresHost() && profile.getUserRole() != UserRole.HOST) {
-                            android.widget.Toast.makeText(
-                                            SessionActivity.this,
-                                            "Chức năng này dành cho tài khoản Host đã được duyệt.",
-                                            android.widget.Toast.LENGTH_LONG)
-                                    .show();
-                            startActivity(new Intent(SessionActivity.this, MainActivity.class));
-                            finish();
-                            return;
-                        }
-                        if (isGuestHome() && profile.getUserRole() == UserRole.ADMIN) {
-                            Intent admin =
-                                    new Intent(SessionActivity.this, AdminDashboardActivity.class);
-                            admin.addFlags(
-                                    Intent.FLAG_ACTIVITY_NEW_TASK
-                                            | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            startActivity(admin);
-                            finish();
-                            return;
-                        }
-                        setContentView(pageLayout());
-                        onProfileReady(profile);
-                    }
+        model.reloadSession();
+        model.getState()
+                .observe(
+                        this,
+                        value -> {
+                            if (shown || isFinishing() || isDestroyed()) return;
+                            findViewById(R.id.authProgress)
+                                    .setVisibility(value.loading ? View.VISIBLE : View.GONE);
+                            findViewById(R.id.retryButton)
+                                    .setVisibility(value.error == null ? View.GONE : View.VISIBLE);
+                            ((TextView) findViewById(R.id.authMessage))
+                                    .setText(
+                                            value.error == null
+                                                    ? R.string.auth_busy
+                                                    : AuthMessages.resource(value.error));
+                            if (value.profile != null) show(value.profile);
+                        });
+    }
 
-                    @Override
-                    public void onError(AuthError error) {
-                        if (isFinishing() || isDestroyed()) return;
-                        checking = false;
-                        findViewById(R.id.authProgress).setVisibility(View.GONE);
-                        ((TextView) findViewById(R.id.authMessage))
-                                .setText(AuthMessages.resource(error));
-                        findViewById(R.id.retryButton).setVisibility(View.VISIBLE);
-                    }
-                });
+    private void checkSession() {
+        if (!model.hasSession()) toLogin(0);
+        else model.reloadSession();
+    }
+
+    private void show(UserProfile profile) {
+        if (requiresAdmin() && profile.getUserRole() != UserRole.ADMIN) {
+            toLogin(R.string.auth_role_invalid);
+            return;
+        }
+        if (requiresHost() && profile.getUserRole() != UserRole.HOST) {
+            android.widget.Toast.makeText(
+                            this,
+                            "Chức năng này dành cho tài khoản Host đã được duyệt.",
+                            android.widget.Toast.LENGTH_LONG)
+                    .show();
+            startActivity(new Intent(this, MainActivity.class));
+            finish();
+            return;
+        }
+        if (isGuestHome() && profile.getUserRole() == UserRole.ADMIN) {
+            startActivity(
+                    new Intent(this, AdminDashboardActivity.class)
+                            .addFlags(
+                                    Intent.FLAG_ACTIVITY_NEW_TASK
+                                            | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+            finish();
+            return;
+        }
+        shown = true;
+        setContentView(pageLayout());
+        onProfileReady(profile);
     }
 
     protected void signOut() {
-        repository.logout();
+        model.signOut();
         toLogin(0);
     }
 
     private void toLogin(int notice) {
-        Intent login = new Intent(this, LoginActivity.class);
-        login.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        if (notice != 0) {
-            repository.logout();
-            login.putExtra("auth_notice", notice);
-        }
-        startActivity(login);
+        if (notice != 0) model.signOut();
+        Intent intent =
+                new Intent(this, LoginActivity.class)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        if (notice != 0) intent.putExtra("auth_notice", notice);
+        startActivity(intent);
         finish();
     }
 }

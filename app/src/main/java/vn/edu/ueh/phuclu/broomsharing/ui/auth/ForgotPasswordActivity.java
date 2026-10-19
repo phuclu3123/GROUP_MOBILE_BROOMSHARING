@@ -9,10 +9,10 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import vn.edu.ueh.phuclu.broomsharing.R;
 
-/** UI only for this milestone; no reset email is sent. */
+/** Requests the real Firebase password reset through the shared ViewModel. */
 public class ForgotPasswordActivity extends BaseAuthActivity {
     @Override protected int authLayout() { return R.layout.activity_forgot_password; }
-    @Override protected int initialMessage() { return R.string.auth_reset_later; }
+    @Override protected int initialMessage() { return model.passwordResetSent() ? R.string.auth_reset_sent : R.string.auth_reset_help; }
 
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
@@ -24,10 +24,10 @@ public class ForgotPasswordActivity extends BaseAuthActivity {
             submit();
             return true;
         });
-        showMessage(R.string.auth_reset_later);
     }
 
     private void submit() {
+        if (model.isBusy()) return;
         TextInputEditText email = findViewById(R.id.emailInput);
         TextInputLayout layout = findViewById(R.id.emailLayout);
         layout.setError(null);
@@ -39,7 +39,7 @@ public class ForgotPasswordActivity extends BaseAuthActivity {
             layout.setError(getString(R.string.auth_email_invalid));
             email.requestFocus();
         } else {
-            showMessage(R.string.auth_reset_later);
+            model.resetPassword(value);
         }
     }
 }

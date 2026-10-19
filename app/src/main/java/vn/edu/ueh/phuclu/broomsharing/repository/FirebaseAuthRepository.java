@@ -17,7 +17,6 @@ import com.google.firebase.firestore.Source;
 
 import vn.edu.ueh.phuclu.broomsharing.model.UserProfile;
 import vn.edu.ueh.phuclu.broomsharing.utils.AuthValidation;
-import vn.edu.ueh.phuclu.broomsharing.utils.FirebaseConfig;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +31,7 @@ public final class FirebaseAuthRepository implements AuthRepository {
         db =
                 app == null
                         ? null
-                        : FirebaseFirestore.getInstance(app, FirebaseConfig.FIRESTORE_DATABASE_ID);
+                        : vn.edu.ueh.phuclu.broomsharing.utils.FirebaseHelper.getFirestore();
     }
 
     @Override
@@ -43,6 +42,14 @@ public final class FirebaseAuthRepository implements AuthRepository {
     @Override
     public boolean hasSession() {
         return isConfigured() && auth.getCurrentUser() != null;
+    }
+
+    @Override
+    public void resetPassword(String email, ResetCallback callback) {
+        if (!isConfigured()) { callback.onError(AuthError.NOT_CONFIGURED); return; }
+        auth.sendPasswordResetEmail(email.trim())
+                .addOnSuccessListener(unused -> callback.onSuccess())
+                .addOnFailureListener(error -> callback.onError(authenticationError(error)));
     }
 
     public static String normalizeUsername(String username) {
@@ -84,7 +91,12 @@ public final class FirebaseAuthRepository implements AuthRepository {
 
     @Override
     public void register(
-            String name, String username, String email, String phone, String password, Callback callback) {
+            String name,
+            String username,
+            String email,
+            String phone,
+            String password,
+            Callback callback) {
         if (!isConfigured()) {
             callback.onError(AuthError.NOT_CONFIGURED);
             return;
@@ -105,14 +117,20 @@ public final class FirebaseAuthRepository implements AuthRepository {
                             if (doc.exists()) {
                                 callback.onError(AuthError.USERNAME_IN_USE);
                             } else {
-                                createAccount(name.trim(), key, address, number, password, callback);
+                                createAccount(
+                                        name.trim(), key, address, number, password, callback);
                             }
                         })
                 .addOnFailureListener(e -> callback.onError(databaseError(e)));
     }
 
     private void createAccount(
-            String name, String username, String email, String phone, String password, Callback callback) {
+            String name,
+            String username,
+            String email,
+            String phone,
+            String password,
+            Callback callback) {
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener(
                         result -> {
@@ -213,6 +231,16 @@ public final class FirebaseAuthRepository implements AuthRepository {
             callback.onError(AuthError.ACCOUNT_BLOCKED);
         } else if (profile.getUserRole() == null) {
             callback.onError(AuthError.INVALID_ROLE);
+        } else if (profile.getUserRole() == vn.edu.ueh.phuclu.broomsharing.model.UserRole.HOST) {
+            // Only these three public fields are synchronized; private contact/evidence stays
+            // private.
+            db.collection("publicHosts")
+                    .document(user.getUid())
+                    .set(
+                            new vn.edu.ueh.phuclu.broomsharing.model.PublicHost(
+                                    profile.uid, profile.name, profile.status))
+                    .addOnSuccessListener(ignored -> callback.onSuccess(profile))
+                    .addOnFailureListener(error -> callback.onError(databaseError(error)));
         } else {
             callback.onSuccess(profile);
         }
@@ -238,10 +266,14 @@ public final class FirebaseAuthRepository implements AuthRepository {
     private AuthError authenticationError(Exception e) {
         if (e instanceof FirebaseNetworkException) return AuthError.NETWORK;
         if (e instanceof FirebaseTooManyRequestsException) return AuthError.TOO_MANY_REQUESTS;
-        String code = e instanceof FirebaseAuthException ? ((FirebaseAuthException) e).getErrorCode() : null;
+        String code =
+                e instanceof FirebaseAuthException
+                        ? ((FirebaseAuthException) e).getErrorCode()
+                        : null;
         AuthError error = AuthError.fromFirebase(code, e.getMessage());
         // No email, password, token or raw server payload in our diagnostic log.
-        android.util.Log.w("AuthRepository", "Firebase Auth failed: code=" + code + "; mapped=" + error);
+        android.util.Log.w(
+                "AuthRepository", "Firebase Auth failed: code=" + code + "; mapped=" + error);
         return error;
     }
 

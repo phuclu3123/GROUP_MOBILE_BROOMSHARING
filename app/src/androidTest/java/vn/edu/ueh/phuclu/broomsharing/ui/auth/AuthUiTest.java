@@ -88,18 +88,14 @@ public class AuthUiTest {
     }
 
     @Test
-    public void futureSignInMethodsClearlyReportNotImplemented() {
+    public void forgotPasswordValidatesEmailBeforeSending() {
         try (ActivityScenario<LoginActivity> ignored =
                 ActivityScenario.launch(LoginActivity.class)) {
-            onView(withId(R.id.googleButton)).perform(scrollTo(), click());
-            onView(withId(R.id.authMessage)).check(matches(withText(R.string.auth_google_later)));
-            onView(withId(R.id.phoneButton)).perform(scrollTo(), click());
-            onView(withId(R.id.authMessage)).check(matches(withText(R.string.auth_phone_later)));
             onView(withId(R.id.forgotButton)).perform(scrollTo(), click());
-            onView(withId(R.id.emailInput)).perform(replaceText("phuc@example.com"));
+            onView(withId(R.id.emailInput)).perform(replaceText("invalid-email"));
             closeSoftKeyboard();
             onView(withId(R.id.submitButton)).perform(scrollTo(), click());
-            onView(withId(R.id.authMessage)).check(matches(withText(R.string.auth_reset_later)));
+            onView(withText(R.string.auth_email_invalid)).check(matches(isDisplayed()));
             onView(withId(R.id.loginButton)).perform(scrollTo(), click());
             onView(withId(R.id.identifierInput)).check(matches(isDisplayed()));
         }

@@ -66,10 +66,17 @@ public class RoomRepository {
     }
 
     public void room(String id, ResultCallback<Room> cb) {
-        detail(id, new ResultCallback<RoomListing>() {
-            public void onSuccess(RoomListing listing) { cb.onSuccess(listing.room); }
-            public void onError(Exception e) { cb.onError(e); }
-        });
+        detail(
+                id,
+                new ResultCallback<RoomListing>() {
+                    public void onSuccess(RoomListing listing) {
+                        cb.onSuccess(listing.room);
+                    }
+
+                    public void onError(Exception e) {
+                        cb.onError(e);
+                    }
+                });
     }
 
     public void detail(String id, ResultCallback<RoomListing> cb) {
@@ -104,7 +111,7 @@ public class RoomRepository {
     }
 
     private void enrich(List<DocumentSnapshot> documents, ResultCallback<List<RoomListing>> cb) {
-        Map<String, Task<com.google.firebase.functions.HttpsCallableResult>> owners = new HashMap<>();
+        Map<String, Task<DocumentSnapshot>> owners = new HashMap<>();
         Map<String, Task<DocumentSnapshot>> buildings = new HashMap<>();
         List<Room> rooms = new ArrayList<>();
         try {
@@ -120,7 +127,9 @@ public class RoomRepository {
                 if (!owners.containsKey(room.getOwnerUid()))
                     owners.put(
                             room.getOwnerUid(),
-                            vn.edu.ueh.phuclu.broomsharing.utils.FirebaseConfig.functions().getHttpsCallable("getPublicHost").call(Collections.singletonMap("ownerUid", room.getOwnerUid())));
+                            db.collection("publicHosts")
+                                    .document(room.getOwnerUid())
+                                    .get(Source.SERVER));
                 if (!buildings.containsKey(room.getBuildingId()))
                     buildings.put(
                             room.getBuildingId(),
@@ -140,19 +149,21 @@ public class RoomRepository {
                             try {
                                 List<RoomListing> result = new ArrayList<>();
                                 for (Room room : rooms) {
-                                    Map<?, ?> owner = (Map<?, ?>) owners.get(room.getOwnerUid()).getResult().getData();
+                                    PublicHost owner =
+                                            owners.get(room.getOwnerUid())
+                                                    .getResult()
+                                                    .toObject(PublicHost.class);
                                     DocumentSnapshot place =
                                             buildings.get(room.getBuildingId()).getResult();
-                                    if (!Boolean.TRUE.equals(owner.get("active"))
+                                    if (owner == null
+                                            || !"ACTIVE".equals(owner.status)
                                             || !place.exists()
                                             || !"ACTIVE".equals(place.getString("status"))
                                             || !room.getOwnerUid()
                                                     .equals(place.getString("ownerUid"))) continue;
                                     Building building = place.toObject(Building.class);
                                     building.setId(place.getId());
-                                    result.add(
-                                            new RoomListing(
-                                                    room, building, (String) owner.get("name")));
+                                    result.add(new RoomListing(room, building, owner.name));
                                 }
                                 cb.onSuccess(result);
                             } catch (Exception e) {

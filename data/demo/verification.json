@@ -1,0 +1,27 @@
+{
+  "datasetId": "broom-hcm-v1",
+  "verifiedAt": "2026-10-19T18:51:30.641088300Z",
+  "documents": 157,
+  "collections": {
+    "auditLogs": 29,
+    "availabilityMonths": 16,
+    "bookings": 28,
+    "buildings": 8,
+    "favorites": 12,
+    "hostApplications": 6,
+    "propertyVerifications": 4,
+    "publicHosts": 4,
+    "reports": 6,
+    "rooms": 24,
+    "usernames": 10,
+    "users": 10
+  },
+  "allCloudFieldsMatch": true,
+  "bookingRelationsAndCalendarsValid": true,
+  "adminCanReadUsers": true,
+  "adminVisibleUsers": 13,
+  "guestCanReadRoom": true,
+  "guestPrivateProfileDenied": true,
+  "guestOwnBookingCount": 7,
+  "note": "Accounts remain available for demo login. No passwords or access tokens in dataset/report."
+}
