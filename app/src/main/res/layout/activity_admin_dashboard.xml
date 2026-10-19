@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:padding="16dp" android:background="@color/screen_bg">
-  <TextView android:id="@+id/adminTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Quản trị Broom Sharing" android:textColor="@color/text_primary" android:textSize="22sp" android:padding="8dp" />
-  <Button android:id="@+id/tabHosts" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:text="Duyệt hồ sơ Host" />
-  <Button android:id="@+id/tabRooms" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:text="Duyệt không gian" />
-  <Button android:id="@+id/tabReports" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:text="Xử lý báo cáo" />
-  <Button android:id="@+id/btnRefresh" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:text="Tải lại" />
-  <TextView android:id="@+id/tvFeedback" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="" android:textColor="@color/text_primary" android:textSize="14sp" android:padding="8dp" />
+  <TextView android:id="@+id/adminTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/admin_title" android:textColor="@color/text_primary" android:textSize="22sp" android:padding="8dp" />
+  <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/admin_sections" android:labelFor="@id/adminSections" />
+  <Spinner android:id="@+id/adminSections" android:layout_width="match_parent" android:layout_height="56dp" android:entries="@array/admin_section_names" />
+  <Button android:id="@+id/btnRefresh" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/admin_refresh" />
+  <TextView android:id="@+id/tvFeedback" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/text_primary" android:textSize="14sp" android:padding="8dp" android:accessibilityLiveRegion="polite" />
   <ProgressBar android:id="@+id/progressBar" android:layout_width="32dp" android:layout_height="32dp" android:visibility="gone" />
   <androidx.recyclerview.widget.RecyclerView android:id="@+id/reviewList" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" />
-  <Button android:id="@+id/adminSignOut" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:text="Đăng xuất" />
+  <Button android:id="@+id/adminSignOut" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/admin_sign_out" />
 </LinearLayout>

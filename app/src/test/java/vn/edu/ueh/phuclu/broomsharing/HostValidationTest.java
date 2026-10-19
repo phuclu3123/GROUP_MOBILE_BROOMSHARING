@@ -23,6 +23,8 @@ public class HostValidationTest {
         r.setOpenTime("08:00");
         r.setCloseTime("22:00");
         r.setPricePerHour(100000);
+        r.setFixedStartMonth("2026-11");
+        r.setRenewalPolicy("Gia hạn theo thỏa thuận trước khi hết kỳ.");
         r.setImageUrls(Arrays.asList("https://example.com/photo.jpg"));
         return r;
     }

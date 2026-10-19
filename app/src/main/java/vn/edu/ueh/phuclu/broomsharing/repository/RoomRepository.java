@@ -65,6 +65,13 @@ public class RoomRepository {
                 .addOnFailureListener(cb::onError);
     }
 
+    public void room(String id, ResultCallback<Room> cb) {
+        detail(id, new ResultCallback<RoomListing>() {
+            public void onSuccess(RoomListing listing) { cb.onSuccess(listing.room); }
+            public void onError(Exception e) { cb.onError(e); }
+        });
+    }
+
     public void detail(String id, ResultCallback<RoomListing> cb) {
         if (!idValid(id)) {
             cb.onError(new Exception("Mã phòng không hợp lệ."));
@@ -97,7 +104,7 @@ public class RoomRepository {
     }
 
     private void enrich(List<DocumentSnapshot> documents, ResultCallback<List<RoomListing>> cb) {
-        Map<String, Task<DocumentSnapshot>> owners = new HashMap<>();
+        Map<String, Task<com.google.firebase.functions.HttpsCallableResult>> owners = new HashMap<>();
         Map<String, Task<DocumentSnapshot>> buildings = new HashMap<>();
         List<Room> rooms = new ArrayList<>();
         try {
@@ -113,7 +120,7 @@ public class RoomRepository {
                 if (!owners.containsKey(room.getOwnerUid()))
                     owners.put(
                             room.getOwnerUid(),
-                            db.collection("users").document(room.getOwnerUid()).get(Source.SERVER));
+                            vn.edu.ueh.phuclu.broomsharing.utils.FirebaseConfig.functions().getHttpsCallable("getPublicHost").call(Collections.singletonMap("ownerUid", room.getOwnerUid())));
                 if (!buildings.containsKey(room.getBuildingId()))
                     buildings.put(
                             room.getBuildingId(),
@@ -133,12 +140,10 @@ public class RoomRepository {
                             try {
                                 List<RoomListing> result = new ArrayList<>();
                                 for (Room room : rooms) {
-                                    DocumentSnapshot owner =
-                                            owners.get(room.getOwnerUid()).getResult();
+                                    Map<?, ?> owner = (Map<?, ?>) owners.get(room.getOwnerUid()).getResult().getData();
                                     DocumentSnapshot place =
                                             buildings.get(room.getBuildingId()).getResult();
-                                    if (!"HOST".equals(owner.getString("role"))
-                                            || !"ACTIVE".equals(owner.getString("status"))
+                                    if (!Boolean.TRUE.equals(owner.get("active"))
                                             || !place.exists()
                                             || !"ACTIVE".equals(place.getString("status"))
                                             || !room.getOwnerUid()
@@ -147,7 +152,7 @@ public class RoomRepository {
                                     building.setId(place.getId());
                                     result.add(
                                             new RoomListing(
-                                                    room, building, owner.getString("name")));
+                                                    room, building, (String) owner.get("name")));
                                 }
                                 cb.onSuccess(result);
                             } catch (Exception e) {

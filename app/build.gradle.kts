@@ -21,9 +21,15 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "FUNCTIONS_EMULATOR_HOST", "\"\"")
     }
 
     buildTypes {
+        debug {
+            val acceptanceHost = providers.gradleProperty("acceptanceFunctionsHost").orElse("").get()
+            require(acceptanceHost.matches(Regex("[a-zA-Z0-9.:-]*")))
+            buildConfigField("String", "FUNCTIONS_EMULATOR_HOST", "\"$acceptanceHost\"")
+        }
         release {
             optimization {
                 enable = true
@@ -37,6 +43,7 @@ android {
     }
 
     buildFeatures {
+        buildConfig = true
         viewBinding = true
     }
 }
@@ -51,6 +58,7 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage)
+    implementation("com.google.firebase:firebase-functions")
     implementation(libs.lifecycle.viewmodel)
     implementation(libs.lifecycle.livedata)
     implementation(libs.glide)

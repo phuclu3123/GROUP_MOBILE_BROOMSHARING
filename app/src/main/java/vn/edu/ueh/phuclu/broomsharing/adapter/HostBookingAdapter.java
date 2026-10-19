@@ -22,15 +22,19 @@ public class HostBookingAdapter extends RecyclerView.Adapter<HostBookingAdapter.
     public interface OnBookingActionListener {
         void onAccept(Booking booking);
         void onReject(Booking booking);
+        void onProgress(Booking booking, String status);
     }
 
     private final List<Booking> list = new ArrayList<>();
     private final OnBookingActionListener listener;
+    private boolean busy;
+    public void setBusy(boolean value) { busy = value; notifyDataSetChanged(); }
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
     private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
 
     public HostBookingAdapter(OnBookingActionListener listener) {
         this.listener = listener;
+        dateFormat.setTimeZone(java.util.TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
     }
 
     public void setData(List<Booking> data) {
@@ -68,6 +72,10 @@ public class HostBookingAdapter extends RecyclerView.Adapter<HostBookingAdapter.
         }
 
         void bind(Booking item) {
+            binding.btnAccept.setEnabled(!busy);
+            binding.btnReject.setEnabled(!busy);
+            binding.btnProgress.setVisibility(View.GONE);
+            binding.btnProgress.setEnabled(!busy);
             String roomTitle = item.getRoomName() != null && !item.getRoomName().isEmpty()
                     ? item.getRoomName()
                     : "Mã phòng: " + (item.getRoomId() != null ? item.getRoomId() : "---");
@@ -105,6 +113,17 @@ public class HostBookingAdapter extends RecyclerView.Adapter<HostBookingAdapter.
 
             // Total amount
             binding.tvTotalAmount.setText(currencyFormat.format(item.getTotalAmount()));
+            String deposit = "Chưa có snapshot cọc";
+            String policy = "";
+            if (item.priceSnapshot != null) {
+                Object amount = item.priceSnapshot.get("depositAmount");
+                if (amount instanceof Number) deposit = currencyFormat.format(((Number) amount).doubleValue());
+                Object terms = item.priceSnapshot.get("rentalPolicy");
+                if (terms instanceof String) policy = (String) terms;
+            }
+            binding.tvPriceSnapshot.setText("Cọc: " + deposit + "\nThanh toán: "
+                    + vn.edu.ueh.phuclu.broomsharing.utils.FormatUtils.paymentStatus(item.paymentStatus)
+                    + (policy.isEmpty() ? "" : "\nChính sách lúc đặt: " + policy));
 
             // Status Badge & Action buttons
             String status = item.getStatus() != null ? item.getStatus().toUpperCase() : Booking.STATUS_PENDING;
@@ -139,13 +158,23 @@ public class HostBookingAdapter extends RecyclerView.Adapter<HostBookingAdapter.
                     binding.tvRejectionReason.setVisibility(View.GONE);
                     break;
                 default:
-                    binding.tvStatusBadge.setText(status);
+                    binding.tvStatusBadge.setText(vn.edu.ueh.phuclu.broomsharing.utils.FormatUtils.bookingStatus(status));
                     binding.layoutActions.setVisibility(View.GONE);
                     binding.tvRejectionReason.setVisibility(View.GONE);
                     break;
             }
 
             // Click events
+            long now = System.currentTimeMillis();
+            if ((Booking.STATUS_CONFIRMED.equals(status) || Booking.STATUS_CHECKED_IN.equals(status))
+                    && item.startAt != null && item.endAt != null && item.startAt.getTime() <= now) {
+                String next = item.endAt.getTime() <= now ? Booking.STATUS_COMPLETED : Booking.STATUS_CHECKED_IN;
+                if (!next.equals(status)) {
+                    binding.btnProgress.setVisibility(View.VISIBLE);
+                    binding.btnProgress.setText(Booking.STATUS_COMPLETED.equals(next) ? "Hoàn tất lượt thuê" : "Ghi nhận vào phòng (demo)");
+                    binding.btnProgress.setOnClickListener(v -> { if (!busy) listener.onProgress(item, next); });
+                }
+            }
             binding.btnAccept.setOnClickListener(v -> {
                 if (listener != null) listener.onAccept(item);
             });

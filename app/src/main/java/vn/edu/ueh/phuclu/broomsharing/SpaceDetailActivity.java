@@ -45,12 +45,14 @@ public class SpaceDetailActivity extends SessionActivity {
         binding = b;
         String id = getIntent().getStringExtra(ROOM_ID);
         b.detailToolbar.setNavigationOnClickListener(v -> finish());
+        b.btnBook.setOnClickListener(v -> startActivity(new android.content.Intent(this, BookingFormActivity.class).putExtra("ROOM_ID", id)));
         b.btnRefresh.setOnClickListener(v -> model.load(id));
         model.detail()
                 .observe(
                         this,
                         state -> {
                             b.btnRefresh.setEnabled(!state.loading);
+                            b.btnBook.setEnabled(state.data != null && !state.loading);
                             b.details.setText("");
                             b.title.setText("");
                             com.bumptech.glide.Glide.with(this).clear(b.cover);
@@ -108,6 +110,8 @@ public class SpaceDetailActivity extends SessionActivity {
                                                             : r.getAmenities())
                                             + "\n\n"
                                             + safe(r.getRules())
+                                            + "\n" + safe(r.getRentalPolicy())
+                                            + "\n" + safe(r.getRenewalPolicy())
                                             + "\n\nNgười cho thuê: "
                                             + safe(state.data.hostName)
                                             + "\nLiên hệ tại tòa nhà: "
@@ -127,8 +131,7 @@ public class SpaceDetailActivity extends SessionActivity {
                                                             + ", "
                                                             + building.getLongitude())
                                             + "\n\n"
-                                            + "Nội dung được Admin duyệt; địa điểm chưa được xác"
-                                            + " minh độc lập.");
+                                            + FormatUtils.verificationSummary(r));
                             if (r.getImageUrls() != null && !r.getImageUrls().isEmpty()) {
                                 Glide.with(this)
                                         .load(r.getImageUrls().get(0))

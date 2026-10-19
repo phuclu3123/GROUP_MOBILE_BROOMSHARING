@@ -16,10 +16,12 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.Holder> {
 
     private final List<ReviewItem> items;
     private final Action action;
+    private final java.util.function.Consumer<ReviewItem> evidence;
 
-    public ReviewAdapter(List<ReviewItem> items, Action action) {
+    public ReviewAdapter(List<ReviewItem> items, Action action, java.util.function.Consumer<ReviewItem> evidence) {
         this.items = items;
         this.action = action;
+        this.evidence = evidence;
     }
 
     public Holder onCreateViewHolder(ViewGroup parent, int type) {
@@ -31,6 +33,11 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.Holder> {
         ReviewItem item = items.get(position);
         h.b.title.setText(item.title);
         h.b.details.setText(item.details);
+        h.b.evidence.setVisibility("VERIFICATION".equals(item.kind) ? View.VISIBLE : View.GONE);
+        h.b.evidence.setOnClickListener(v -> evidence.accept(item));
+        boolean readonly = "AUDIT".equals(item.kind);
+        h.b.approve.setVisibility(readonly ? View.GONE : View.VISIBLE);
+        h.b.reject.setVisibility(readonly || item.kind.endsWith("_STATUS") ? View.GONE : View.VISIBLE);
         h.b.cover.setVisibility(item.imageUrls.isEmpty() ? View.GONE : View.VISIBLE);
         if (!item.imageUrls.isEmpty()) {
             com.bumptech.glide.Glide.with(h.itemView).load(item.imageUrls.get(0)).into(h.b.cover);
@@ -49,6 +56,9 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.Holder> {
         }
         h.b.approve.setText("REPORT".equals(item.kind) ? "Đã xử lý" : "Duyệt");
         h.b.reject.setText("REPORT".equals(item.kind) ? "Bỏ qua" : "Từ chối");
+        if ("HOST_STATUS".equals(item.kind)) h.b.approve.setText("BLOCKED".equals(item.status) ? "Mở khóa Host" : "Khóa Host");
+        if ("ROOM_STATUS".equals(item.kind)) h.b.approve.setText("SUSPENDED".equals(item.status) ? "Gỡ khóa về ngừng rao" : "Khóa phòng");
+        if ("VERIFICATION".equals(item.kind)) h.b.approve.setText("Duyệt nội bộ");
         h.b.approve.setOnClickListener(v -> action.select(item, true));
         h.b.reject.setOnClickListener(v -> action.select(item, false));
     }

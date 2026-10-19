@@ -12,6 +12,12 @@ public class AdminViewModel extends ViewModel {
     public final MutableLiveData<UiState<List<ReviewItem>>> items = new MutableLiveData<>();
     public final MutableLiveData<UiState<String>> operation = new MutableLiveData<>();
     public String selected = "HOST";
+    public final java.util.Set<String> viewedEvidence = new java.util.HashSet<>();
+
+    public boolean evidenceViewed(ReviewItem item) {
+        return !item.evidenceRefs.isEmpty() && item.evidenceRefs.stream()
+                .allMatch(path -> viewedEvidence.contains(item.id + ":" + path));
+    }
 
     public void load(String kind) {
         if (operation.getValue() != null && operation.getValue().loading) return;
@@ -37,6 +43,7 @@ public class AdminViewModel extends ViewModel {
                 item,
                 approve,
                 reason,
+                evidenceViewed(item),
                 new ResultCallback<String>() {
                     public void onSuccess(String data) {
                         operation.setValue(UiState.success(data));

@@ -1,0 +1,27 @@
+<resources>
+    <string name="admin_sections">Nội dung quản trị</string>
+    <string-array name="admin_section_names">
+        <item>Duyệt hồ sơ Host</item>
+        <item>Duyệt không gian</item>
+        <item>Khóa / mở khóa Host</item>
+        <item>Khóa / gỡ khóa phòng</item>
+        <item>Xác minh nội bộ</item>
+        <item>Lịch sử thao tác</item>
+        <item>Xử lý báo cáo</item>
+    </string-array>
+    <string name="admin_title">Quản trị Broom Sharing</string>
+    <string name="admin_refresh">Tải lại</string>
+    <string name="admin_sign_out">Đăng xuất</string>
+    <string name="admin_evidence">Xem bằng chứng riêng tư</string>
+    <string name="admin_evidence_back">Đóng bằng chứng</string>
+    <string name="admin_previous_page">Trang trước</string>
+    <string name="admin_next_page">Trang sau</string>
+    <string name="admin_reason_hint">Lý do / ghi chú xét duyệt</string>
+    <string name="admin_reason_error">Nhập từ 1 đến 1.000 ký tự.</string>
+    <string name="admin_evidence_required">Cần mở xem tất cả bằng chứng của hồ sơ trước khi duyệt.</string>
+    <string name="admin_loading">Đang tải dữ liệu…</string>
+    <string name="admin_empty">Không có mục phù hợp.</string>
+    <string name="admin_submit">Xác nhận</string>
+    <string name="admin_confirm">Xác nhận xử lý</string>
+    <string name="admin_manual_verification">Xác minh nội bộ; không phải kiểm chứng từ đối tác.</string>
+</resources>

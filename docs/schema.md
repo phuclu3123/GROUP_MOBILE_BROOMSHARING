@@ -23,27 +23,28 @@ Database ID: **`broomsharing`**, dùng `FirebaseConfig`, không fallback sang `(
 | `usernames/{normalizedUsername}` | uid, email; tên 3–24 ký tự `[a-z0-9_]`, lowercase + trim | Transaction cùng user profile |
 | `hostApplications/{uid}` | applicantUid, fullName, phone, email, organizationType INDIVIDUAL/BUSINESS, identityDoc (mô tả demo), status PENDING/APPROVED/REJECTED, rejectionReason, timestamps, reviewedBy khi duyệt | Có; ID theo UID tránh gửi trùng. Đọc được đơn cũ ID ngẫu nhiên |
 | `buildings/{id}` | ownerUid, name, address, district, contactName/contactPhone, directionGuide, coverUrl, latitude/longitude, location GeoPoint hoặc null, status ACTIVE, timestamps | Có |
-| `rooms/{id}` | buildingId/buildingName, ownerUid, roomName/roomType, floor, address, capacity, area, activeMode, các giá/cọc, openTime/closeTime, amenities, rules, imageUrls, approvalStatus/listingStatus, rejectionReason, timestamps | Có |
-| `bookings/{id}` | roomId, ownerUid, guestUid, activeMode, startAt/endAt, status PENDING/CONFIRMED/CANCELLED/COMPLETED/REJECTED, paymentStatus UNPAID/PENDING/PAID/FAILED/REFUNDED, totalAmount | Model + thống kê PENDING; chưa có booking engine |
-| `availabilityDays/{roomId_YYYYMMDD}` | roomId, day (VN), slotsBusy, closedRanges, version | Dự kiến đợt booking |
-| `fixedMonthLocks/{roomId_YYYYMM}` | roomId, month (VN), bookingId, state | Dự kiến đợt booking |
+| `rooms/{id}` | Các field Đợt 1; thêm workingDays (ISO 1–7), slotMinutes 30/60, minBookingMinutes, fixedStartMonth YYYY-MM, renewalPolicy, rentalPolicy, blackoutDates cũ, blackoutRanges(startAt/endAt/reason), bookingRevision, locationVerification/photosVerification; listingStatus ACTIVE/INACTIVE/SUSPENDED | Lưu cấu hình qua saveHostRoom; Host mở/tạm ngừng qua setHostListing, Admin khóa qua moderateRoom |
+| `bookings/{id}` | roomId, roomName, ownerUid, guestUid, guestName/guestPhone, activeMode, startAt/endAt, status PENDING/CONFIRMED/REJECTED/CANCELLED/CHECKED_IN/COMPLETED, priceSnapshot, totalAmount, paymentStatus DEMO_PENDING, lockPlan, requestFingerprint, timestamps | Booking service Đợt 2; client không ghi trực tiếp |
+| `availabilityDays/{roomId_YYYYMMDD}` | roomId, slotsBusy map (phút bắt đầu → bookingId, mỗi slot 30 phút), updatedAt | Day key theo VN; server giữ/nhả slot trong transaction |
+| `fixedMonthLocks/{roomId_YYYYMM}` | roomId, slotsBusy.month = bookingId, updatedAt | Một tháng một lock; quý ba lock trong cùng transaction |
+| `bookingEvents/{id}` | bookingId, actorUid, action, from/to, reason, createdAt | Server ghi cùng booking transaction |
 | `chats/{id}` | participantUids, lastMessage, updatedAt | Contract đợt sau |
 | `messages/{id}` | chatId, senderUid, text, createdAt | Contract đợt sau |
 | `reviews/{id}` | bookingId, roomId, guestUid, rating, comment, createdAt | Contract đợt sau |
 | `reports/{id}` | reporterUid, targetType/targetId, reason/description, status OPEN/RESOLVED/DISMISSED, resolution, reviewedBy, timestamps | Admin đọc/xử lý; form gửi thuộc module sau |
 | `payments/{id}` | bookingId, guestUid, amount, status, providerRef, timestamps | Contract; client không tự đặt PAID |
 | `notifications/{id}` | recipientUid, type, title, body, readAt, createdAt | Contract đợt sau |
-| `propertyVerifications/{id}` | ownerUid, buildingId, evidencePath, status PENDING/VERIFIED/REJECTED, reviewedBy, timestamps | Contract; đợt 1 chỉ mô tả giấy tờ |
-| `auditLogs/{id}` | actorUid, targetPath, action APPROVE/REJECT, reason, createdAt | Ghi cùng transaction duyệt |
+| `propertyVerifications/{id}` | ownerUid, roomId/buildingId khi phù hợp, verificationType IDENTITY/LOCATION/PHOTOS, evidenceRefs (hoặc evidencePath cũ), status PENDING/VERIFIED/REJECTED, method ADMIN_REVIEWED, reviewNote, reviewedBy/reviewedAt, timestamps | Admin xét bằng chứng riêng tư; không tự gán PARTNER_VERIFIED. Host nộp hồ sơ thuộc Đợt 3 |
+| `auditLogs/{id}` | actorUid, targetPath, action, before/after tối thiểu, reason, createdAt | Server ghi cùng transaction review/moderation/booking/sửa phòng; Admin chỉ đọc |
 
-Dùng `propertyVerifications/auditLogs` theo DATA CONTRACT, không tạo `verifications/audit` song song. `availabilityDays/fixedMonthLocks` cụ thể hóa availability, chưa triển khai giữ chỗ.
+Dùng `propertyVerifications/auditLogs` theo hợp đồng chung, không tạo `verifications/audit` song song. Code giữ chỗ và quản trị Đợt 2 đã có; cần triển khai Functions/rules/index trước khi nghiệm thu trên Firebase thật. Xem `review-phuc-dot-2.md`.
 
 ## Giá, ảnh và công khai
 
 - Một phòng chọn `HOURLY` hoặc `FIXED`. Giờ cần `pricePerHour > 0`; FIXED cần ít nhất một `pricePerMonth/pricePerQuarter > 0` khi gửi duyệt. Không suy mode từ giá nữa.
 - Giá của mode không dùng lưu 0. `pricePerDay` giữ để đọc model cũ, không dùng tính tháng/quý; form mới đặt 0. Không tự chuyển giá ngày thành tháng.
 - Mức giá 0–1.000 tỷ; diện tích 0–1.000.000 m²; sức chứa 0–10.000. Gửi duyệt cần giá áp dụng, diện tích, sức chứa >0.
-- Tính tháng lịch, min/max thời lượng, chống trùng và chặn đổi mode khi có booking/lock thuộc đợt 2; chưa coi đã hoàn tất.
+- Booking bắt đầu trong tương lai, tối đa một năm; thuê giờ trong một ngày, khớp bước 30/60 phút và tối thiểu theo phòng. FIXED bắt đầu ngày 1, kỳ một hoặc ba tháng lịch. Server kiểm tra blackout và khóa khi tạo; cấm đổi mode/lịch/tòa nhà khi còn booking chiếm chỗ.
 - `DRAFT → PENDING_REVIEW → APPROVED/REJECTED`. Chủ sửa rồi lưu về DRAFT hoặc PENDING_REVIEW; không tự đặt APPROVED. Có lý do từ chối để nộp lại.
 - Chỉ query công khai khi **APPROVED và ACTIVE**. Nháp/chờ duyệt không công khai.
 - `imageUrls` giữ thứ tự gallery, phần tử đầu làm cover. Tối đa 6 JPEG/PNG/WebP, mỗi ảnh 5 MiB. Không đưa giấy tờ vào gallery.
@@ -51,9 +52,9 @@ Dùng `propertyVerifications/auditLogs` theo DATA CONTRACT, không tạo `verifi
 
 ## Index và ghép nhóm
 
-`firestore.indexes.json` có index phòng approvalStatus/listingStatus và booking ownerUid/status. Chưa deploy. Không tự seed dữ liệu/giá mẫu lên cloud.
+`firestore.indexes.json` có index phòng approvalStatus/listingStatus, booking ownerUid/status và roomId/endAt. Ba index đã được tạo trên database `broomsharing` ngày 19/10/2026. Functions/rules mới chưa phát hành: chủ project yêu cầu tạm dừng service vì chưa nâng Blaze. Không tự seed dữ liệu/giá mẫu lên cloud.
 
-Khi ghép Trúc cần rà package/applicationId, booking model và tên field/collection trên. Dùng `Room`/`Booking` làm DTO, không tạo lớp chỉ đổi tên. Module tương lai phải hoàn thiện schema/Rules của chính nó; file kiểm soát hiện đóng các module chưa triển khai.
+Khi ghép Trúc cần rà package/applicationId, booking model và tên field/collection trên. Dùng trực tiếp Model `Room`/`Booking`, không tạo DTO hoặc lớp chỉ đổi tên. Module tương lai phải hoàn thiện schema/Rules của chính nó; file kiểm soát đóng các module chưa triển khai.
 
 ## Số điện thoại khi đăng ký
 

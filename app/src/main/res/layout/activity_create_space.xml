@@ -316,7 +316,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="+ Thêm ngày khóa lịch"
+                android:text="@string/host_add_blackout"
                 android:textColor="@color/teal"
                 android:textSize="13sp"
                 android:textStyle="bold" />
@@ -363,12 +363,13 @@
           <TextView
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:text="Lịch đang mở hoàn toàn — Khách có thể đặt vào tất cả các ngày hoạt động."
+              android:text="@string/host_blackout_empty"
               android:textColor="@color/text_secondary"
               android:textSize="12sp" />
         </LinearLayout>
       </LinearLayout>
 
+      <include layout="@layout/view_host_schedule" />
       <TextView android:id="@+id/tvFeedback" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="8dp" android:textColor="@color/danger" android:accessibilityLiveRegion="polite" />
       <ProgressBar android:id="@+id/progressBar" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:layout_marginTop="12dp" android:visibility="gone" />
       <View android:layout_width="match_parent" android:layout_height="16dp" />

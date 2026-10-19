@@ -11,6 +11,7 @@ public class Booking implements Serializable {
     public static final String STATUS_CANCELLED = "CANCELLED";
     public static final String STATUS_REJECTED = "REJECTED";
     public static final String STATUS_COMPLETED = "COMPLETED";
+    public static final String STATUS_CHECKED_IN = "CHECKED_IN";
 
     public String id;
     public String roomId;
@@ -26,6 +27,7 @@ public class Booking implements Serializable {
     public Date startAt;
     public Date endAt;
     public double totalAmount;
+    public java.util.Map<String, Object> priceSnapshot = new java.util.HashMap<>();
     public long schemaVersion = 1;
 
     @ServerTimestamp public Date createdAt;

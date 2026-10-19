@@ -1,5 +1,5 @@
 rules_version = '2';
-// Optional controlled mode. The main firestore.rules intentionally stays open for class demo.
+// Deployment rules: booking and room configuration writes are server-only.
 service cloud.firestore {
   match /databases/{database}/documents {
     function signed() { return request.auth != null; }
@@ -41,12 +41,11 @@ service cloud.firestore {
         && request.resource.data.phoneVerified == false && request.resource.data.phone.matches('[+][1-9][0-9]{7,14}')
         && request.resource.data.keys().hasOnly(['uid','schemaVersion','name','username','email','phone','phoneVerified','role','status','createdAt','updatedAt'])
         && getAfter(/databases/$(database)/documents/usernames/$(request.resource.data.username)).data.uid == uid;
-      allow update: if (admin() && request.resource.data.uid == resource.data.uid)
-        || (own(uid) && active() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name','phone','phoneVerified','photoUrl','updatedAt'])
+      allow update: if (own(uid) && active() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name','phone','phoneVerified','photoUrl','updatedAt'])
           && (request.resource.data.get('phoneVerified', false) == false
             || (request.resource.data.get('phoneVerified', false) == resource.data.get('phoneVerified', false)
               && request.resource.data.get('phone', '') == resource.data.get('phone', ''))));
-      allow delete: if admin();
+      allow delete: if false;
     }
     match /usernames/{username} {
       // Required by the chosen username -> email login. No collection listing.
@@ -64,15 +63,15 @@ service cloud.firestore {
         && request.resource.data.applicantUid == request.auth.uid && request.resource.data.status == 'PENDING'
         && request.resource.data.rejectionReason == ''
         && request.resource.data.keys().hasOnly(['id','schemaVersion','applicantUid','fullName','phone','email','organizationType','identityDoc','status','rejectionReason','createdAt','updatedAt']);
-      allow update: if (admin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','rejectionReason','reviewedBy','updatedAt']))
-        || (active() && account().role == 'GUEST' && own(resource.data.applicantUid)
+      allow update: if (active() && account().role == 'GUEST' && own(resource.data.applicantUid)
           && id == request.auth.uid && resource.data.status == 'REJECTED' && request.resource.data.status == 'PENDING'
           && request.resource.data.applicantUid == resource.data.applicantUid && request.resource.data.rejectionReason == ''
           && request.resource.data.keys().hasOnly(['id','schemaVersion','applicantUid','fullName','phone','email','organizationType','identityDoc','status','rejectionReason','createdAt','updatedAt']));
-      allow delete: if admin();
+      allow delete: if false;
     }
     match /buildings/{id} {
-      allow read: if (host() && (own(resource.data.ownerUid) || !exists(/databases/$(database)/documents/buildings/$(id)))) || admin();
+      allow read: if (signed() && resource.data.status == 'ACTIVE')
+        || (host() && (own(resource.data.ownerUid) || !exists(/databases/$(database)/documents/buildings/$(id)))) || admin();
       allow create: if host() && own(request.resource.data.ownerUid) && request.resource.data.id == id
         && request.resource.data.schemaVersion == 1 && request.resource.data.status == 'ACTIVE'
         && request.resource.data.keys().hasOnly(['id','schemaVersion','ownerUid','name','address','district','contactName','contactPhone','latitude','longitude','location','directionGuide','coverUrl','status','createdAt','updatedAt']);
@@ -84,40 +83,32 @@ service cloud.firestore {
       allow delete: if false; // Avoid orphan rooms until deletion/cascade is implemented.
     }
     match /rooms/{id} {
-      allow read: if publicRoom(resource.data) || (host() && (own(resource.data.ownerUid) || !exists(/databases/$(database)/documents/rooms/$(id)))) || admin();
-      allow create: if host() && own(request.resource.data.ownerUid) && request.resource.data.id == id
-        && buildingOwner(request.resource.data.buildingId) && roomFields(request.resource.data) && submittedRoom(request.resource.data)
-        && request.resource.data.approvalStatus in ['DRAFT','PENDING_REVIEW'] && request.resource.data.listingStatus == 'ACTIVE'
-        && request.resource.data.rejectionReason == '' && !('reviewedBy' in request.resource.data);
-      allow update: if (admin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['approvalStatus','rejectionReason','reviewedBy','updatedAt','listingStatus']))
-        || (host() && own(resource.data.ownerUid) && request.resource.data.ownerUid == resource.data.ownerUid
-          && request.resource.data.id == resource.data.id && buildingOwner(request.resource.data.buildingId)
-          && roomFields(request.resource.data) && submittedRoom(request.resource.data)
-          && request.resource.data.approvalStatus in ['DRAFT','PENDING_REVIEW']
-          && request.resource.data.listingStatus == resource.data.listingStatus && request.resource.data.rejectionReason == ''
-          && (!('reviewedBy' in request.resource.data) || request.resource.data.reviewedBy == resource.data.reviewedBy));
-      allow delete: if false;
+      allow read: if publicRoom(resource.data) || own(resource.data.ownerUid) || admin();
+      allow create, delete: if false;
+      allow update: if false;
     }
     match /bookings/{id} {
       allow read: if own(resource.data.guestUid) || own(resource.data.ownerUid) || admin();
-      allow create: if renter() && own(request.resource.data.guestUid)
-        && request.resource.data.status == 'PENDING' && request.resource.data.paymentStatus == 'UNPAID'
-        && request.resource.data.startAt is timestamp && request.resource.data.endAt > request.resource.data.startAt
-        && publicRoom(get(/databases/$(database)/documents/rooms/$(request.resource.data.roomId)).data)
-        && request.resource.data.ownerUid == get(/databases/$(database)/documents/rooms/$(request.resource.data.roomId)).data.ownerUid
-        && request.resource.data.keys().hasOnly(['id','schemaVersion','roomId','ownerUid','guestUid','status','paymentStatus','activeMode','startAt','endAt','createdAt','updatedAt','totalAmount']);
-      // Price/payment verification belongs to the later booking/payment implementation.
-      allow update: if active() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','updatedAt'])
-        && ((own(resource.data.guestUid) && resource.data.status in ['PENDING','CONFIRMED'] && request.resource.data.status == 'CANCELLED')
-          || (host() && own(resource.data.ownerUid) && resource.data.status == 'PENDING' && request.resource.data.status in ['CONFIRMED','REJECTED']));
-      allow delete: if false;
+      allow write: if false;
     }
+    match /availabilityDays/{id} {
+      allow read: if signed() && (publicRoom(get(/databases/$(database)/documents/rooms/$(resource.data.roomId)).data)
+        || own(get(/databases/$(database)/documents/rooms/$(resource.data.roomId)).data.ownerUid) || admin());
+      allow write: if false;
+    }
+    match /fixedMonthLocks/{id} {
+      allow read: if signed() && (publicRoom(get(/databases/$(database)/documents/rooms/$(resource.data.roomId)).data)
+        || own(get(/databases/$(database)/documents/rooms/$(resource.data.roomId)).data.ownerUid) || admin());
+      allow write: if false;
+    }
+    match /bookingEvents/{id} { allow read: if admin(); allow write: if false; }
     match /reports/{id} {
       allow read: if own(resource.data.reporterUid) || admin();
       allow create: if active() && own(request.resource.data.reporterUid) && request.resource.data.status == 'OPEN';
-      allow update: if admin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','resolution','reviewedBy','updatedAt']);
+      allow update: if false;
     }
-    match /auditLogs/{id} { allow read, create: if admin(); allow update, delete: if false; }
+    match /auditLogs/{id} { allow read: if admin(); allow write: if false; }
+    match /propertyVerifications/{id} { allow read: if admin() || own(resource.data.ownerUid); allow write: if false; }
     match /payments/{id} { allow read: if own(resource.data.guestUid) || admin(); allow write: if false; }
     match /notifications/{id} {
       allow read: if own(resource.data.recipientUid);

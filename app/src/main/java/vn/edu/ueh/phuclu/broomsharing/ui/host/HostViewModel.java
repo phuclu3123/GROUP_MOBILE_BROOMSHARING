@@ -21,6 +21,20 @@ public class HostViewModel extends AndroidViewModel {
     public final MutableLiveData<UiState<String>> saved = new MutableLiveData<>();
     public final MutableLiveData<UiState<List<Booking>>> bookings = new MutableLiveData<>();
     public final MutableLiveData<UiState<String>> actionResult = new MutableLiveData<>();
+    public final MutableLiveData<UiState<Room>> hostRoom = new MutableLiveData<>();
+
+    public void loadHostRoom(String roomId) {
+        try {
+            hostRoom.setValue(UiState.loading());
+            repository.getRoomsByOwner(FirebaseHelper.getCurrentHostUid(getApplication()), new HostRepository.Callback<List<Room>>() {
+                public void onSuccess(List<Room> rooms) {
+                    for (Room room : rooms) if (roomId.equals(room.getId())) { hostRoom.setValue(UiState.success(room)); return; }
+                    hostRoom.setValue(UiState.error(new Exception("Phòng không tồn tại hoặc không thuộc tài khoản này.")));
+                }
+                public void onError(Exception e) { hostRoom.setValue(UiState.error(e)); }
+            });
+        } catch (Exception e) { hostRoom.setValue(UiState.error(e)); }
+    }
     public final ArrayList<Uri> photos = new ArrayList<>();
     public Room editingRoom;
     public Building editingBuilding;
@@ -31,7 +45,8 @@ public class HostViewModel extends AndroidViewModel {
     }
 
     public boolean busy() {
-        return saved.getValue() != null && saved.getValue().loading;
+        return saved.getValue() != null && saved.getValue().loading
+                || actionResult.getValue() != null && actionResult.getValue().loading;
     }
 
     public void consumeSave() {
@@ -119,10 +134,7 @@ public class HostViewModel extends AndroidViewModel {
                     }
 
                     public void onError(Exception e) {
-                        android.util.Log.w("HostViewModel", "Storage upload failed (404/unavailable), using demo cover image: " + e.getMessage());
-                        String fallback = previous != null ? previous : "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80";
-                        value.setCoverUrl(fallback);
-                        repository.addBuilding(value, result);
+                        result.onError(e);
                     }
                 });
     }
@@ -154,14 +166,7 @@ public class HostViewModel extends AndroidViewModel {
                     }
 
                     public void onError(Exception e) {
-                        android.util.Log.w("HostViewModel", "Storage upload failed (404/unavailable), using demo room images: " + e.getMessage());
-                        // Fallback theo quy định Đồ án (Sheet 06): Dùng ảnh mẫu demo nếu Firebase Storage chưa kích hoạt/lỗi 404
-                        List<String> fallbackUrls = new ArrayList<>(old);
-                        if (fallbackUrls.isEmpty()) {
-                            fallbackUrls.add("https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80");
-                            fallbackUrls.add("https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=800&q=80");
-                        }
-                        persistRoom(value, old, fallbackUrls, result);
+                        result.onError(e);
                     }
                 });
     }
@@ -184,7 +189,9 @@ public class HostViewModel extends AndroidViewModel {
                     }
 
                     public void onError(Exception e) {
-                        media.removeOwnUrls(finalUrls);
+                        List<String> uploadedOnly = new ArrayList<>(finalUrls);
+                        uploadedOnly.removeAll(old);
+                        media.removeOwnUrls(uploadedOnly);
                         value.setImageUrls(old);
                         result.onError(e);
                     }
@@ -200,6 +207,7 @@ public class HostViewModel extends AndroidViewModel {
     }
 
     public void updateBookingStatus(String bookingId, String newStatus, String reason) {
+        if (actionResult.getValue() != null && actionResult.getValue().loading) return;
         actionResult.setValue(UiState.loading());
         try {
             repository.updateBookingStatus(bookingId, newStatus, reason, new HostRepository.Callback<String>() {
@@ -221,6 +229,7 @@ public class HostViewModel extends AndroidViewModel {
     }
 
     public void toggleListingStatus(String roomId, String newStatus) {
+        if (actionResult.getValue() != null && actionResult.getValue().loading) return;
         actionResult.setValue(UiState.loading());
         try {
             repository.toggleListingStatus(roomId, newStatus, new HostRepository.Callback<String>() {
@@ -240,22 +249,4 @@ public class HostViewModel extends AndroidViewModel {
         }
     }
 
-    public void updateRoomBlackouts(String roomId, List<String> blackoutDates) {
-        actionResult.setValue(UiState.loading());
-        try {
-            repository.updateRoomBlackouts(roomId, blackoutDates, new HostRepository.Callback<String>() {
-                @Override
-                public void onSuccess(String id) {
-                    actionResult.setValue(UiState.success(id));
-                }
-
-                @Override
-                public void onError(Exception e) {
-                    actionResult.setValue(UiState.error(e));
-                }
-            });
-        } catch (Exception e) {
-            actionResult.setValue(UiState.error(e));
-        }
-    }
 }

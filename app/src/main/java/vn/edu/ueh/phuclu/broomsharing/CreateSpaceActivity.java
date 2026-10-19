@@ -32,6 +32,7 @@ public class CreateSpaceActivity extends SessionActivity {
     private SelectedImageAdapter photos;
     private String selectedType = "Bàn làm việc";
     private Bundle restored;
+    private vn.edu.ueh.phuclu.broomsharing.ui.host.HostScheduleEditor scheduleEditor;
     private final ActivityResultLauncher<String[]> picker =
             registerForActivityResult(
                     new ActivityResultContracts.OpenMultipleDocuments(),
@@ -87,8 +88,30 @@ public class CreateSpaceActivity extends SessionActivity {
                 model.photos.clear();
                 model.photos.addAll(restored.getParcelableArrayList("photos"));
             }
+            if (restored != null && restored.containsKey("blackouts")) {
+                model.editingRoom.setBlackoutRanges((ArrayList<RoomBlackout>) restored.getSerializable("blackouts"));
+                model.editingRoom.setBlackoutDates(restored.getStringArrayList("blackoutDates"));
+            }
         }
         Room r = model.editingRoom;
+        scheduleEditor = new vn.edu.ueh.phuclu.broomsharing.ui.host.HostScheduleEditor(this, r, restored);
+        findViewById(R.id.saveListing).setEnabled(r.getId() != null && !"SUSPENDED".equals(r.getListingStatus()));
+        findViewById(R.id.saveListing).setOnClickListener(v -> {
+            if (r.getId() == null || "SUSPENDED".equals(r.getListingStatus())) return;
+            new androidx.appcompat.app.AlertDialog.Builder(this).setMessage(R.string.host_listing_pause_help)
+                    .setPositiveButton(android.R.string.ok, (d, w) -> model.toggleListingStatus(
+                            r.getId(), binding.rbStatusActive.isChecked() ? "ACTIVE" : "INACTIVE"))
+                    .setNegativeButton(android.R.string.cancel, null).show();
+        });
+        model.actionResult.observe(this, state -> {
+            if (state == null) return;
+            UiForms.enabled(binding.getRoot(), !state.loading);
+            pricingMode();
+            binding.progressBar.setVisibility(state.loading ? View.VISIBLE : View.GONE);
+            findViewById(R.id.saveListing).setEnabled(!state.loading && r.getId() != null && !"SUSPENDED".equals(r.getListingStatus()));
+            if (state.error != null) binding.tvFeedback.setText(state.error);
+            else if (state.data != null) { model.actionResult.setValue(null); setResult(RESULT_OK); finish(); }
+        });
         binding.etSpaceName.setText(r.getRoomName());
         binding.etAddress.setText(r.getAddress());
         binding.etFloor.setText(r.getFloor());
@@ -127,6 +150,7 @@ public class CreateSpaceActivity extends SessionActivity {
             binding.chipDesk, binding.chipPrivateRoom, binding.chipMeetingRoom, binding.chipFloor
         };
         if (r.getRoomType() != null) selectedType = r.getRoomType();
+        if (restored != null) selectedType = restored.getString("selectedType", selectedType);
         for (TextView chip : chips)
             chip.setOnClickListener(
                     v -> {
@@ -188,6 +212,7 @@ public class CreateSpaceActivity extends SessionActivity {
         binding.btnAddBlackout.setOnClickListener(v -> showDatePickerForBlackout(r));
         binding.btnClearBlackouts.setOnClickListener(v -> {
             r.getBlackoutDates().clear();
+            r.getBlackoutRanges().clear();
             renderBlackoutDates(r);
             Toast.makeText(this, "Đã xóa toàn bộ ngày khóa lịch.", Toast.LENGTH_SHORT).show();
         });
@@ -234,6 +259,10 @@ public class CreateSpaceActivity extends SessionActivity {
         if (restored != null) {
             SparseArray<Parcelable> form = restored.getSparseParcelableArray("form");
             if (form != null) binding.getRoot().restoreHierarchyState(form);
+        }
+        if ("SUSPENDED".equals(r.getListingStatus())) {
+            binding.rbStatusActive.setEnabled(false);
+            binding.cardStatusActive.setEnabled(false);
         }
         model.saved.observe(
                 this,
@@ -305,6 +334,7 @@ public class CreateSpaceActivity extends SessionActivity {
         r.setOpenTime(binding.tvOpenTime.getText().toString().replaceAll("[^0-9:]", ""));
         r.setCloseTime(binding.tvCloseTime.getText().toString().replaceAll("[^0-9:]", ""));
         try {
+            scheduleEditor.read(r);
             r.setArea(UiForms.number(binding.etArea));
             double capacity = UiForms.number(binding.etCapacity);
             if (capacity != Math.rint(capacity) || capacity < 0 || capacity > 10000)
@@ -331,7 +361,9 @@ public class CreateSpaceActivity extends SessionActivity {
 
         r.setPricePerDay(0);
         r.setActiveMode(binding.rbHourly.isChecked() ? Room.MODE_HOURLY : Room.MODE_FIXED);
-        r.setListingStatus(binding.rbStatusActive.isChecked() ? "ACTIVE" : "SUSPENDED");
+        // SUSPENDED is an Admin restriction; Host pauses using INACTIVE.
+        if (!"SUSPENDED".equals(r.getListingStatus()))
+            r.setListingStatus(binding.rbStatusActive.isChecked() ? "ACTIVE" : "INACTIVE");
         r.setApprovalStatus(submit ? Room.STATUS_PENDING_REVIEW : Room.STATUS_DRAFT);
         List<String> old = r.getImageUrls();
         List<String> preview = new ArrayList<>();
@@ -389,19 +421,66 @@ public class CreateSpaceActivity extends SessionActivity {
                 binding.chipGroupBlackouts.addView(chip);
             }
         }
+        if (r.getBlackoutRanges() != null) for (RoomBlackout range : r.getBlackoutRanges()) {
+            com.google.android.material.chip.Chip chip = new com.google.android.material.chip.Chip(this);
+            chip.setText(TimeUtils.formatVietnam(range.getStartAt()) + " – "
+                    + TimeUtils.formatVietnam(range.getEndAt()) + " • " + range.getReason());
+            chip.setCloseIconVisible(true);
+            chip.setOnCloseIconClickListener(v -> {
+                if (model.busy()) return;
+                r.getBlackoutRanges().remove(range);
+                renderBlackoutDates(r);
+            });
+            binding.chipGroupBlackouts.addView(chip);
+        }
+        int total = dates.size() + (r.getBlackoutRanges() == null ? 0 : r.getBlackoutRanges().size());
+        binding.layoutEmptyBlackouts.setVisibility(total == 0 ? View.VISIBLE : View.GONE);
+        binding.btnClearBlackouts.setVisibility(total == 0 ? View.GONE : View.VISIBLE);
+        binding.tvBlackoutCountBadge.setText(total + " khung khóa");
     }
 
     private void showDatePickerForBlackout(Room r) {
-        Calendar c = Calendar.getInstance();
-        new DatePickerDialog(this, (picker, year, month, dayOfMonth) -> {
-            String dateStr = String.format(Locale.US, "%02d/%02d/%d", dayOfMonth, month + 1, year);
-            if (!r.getBlackoutDates().contains(dateStr)) {
-                r.getBlackoutDates().add(dateStr);
-                renderBlackoutDates(r);
-            } else {
-                Toast.makeText(this, "Ngày này đã có trong danh sách khóa lịch.", Toast.LENGTH_SHORT).show();
-            }
-        }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
+        if (model.busy()) return;
+        java.time.LocalDate now = java.time.LocalDate.now(HostSchedule.ZONE);
+        DatePickerDialog date = new DatePickerDialog(this, (picker, year, month, day) -> {
+            java.time.LocalDate selected = java.time.LocalDate.of(year, month + 1, day);
+            LinearLayout form = new LinearLayout(this);
+            form.setOrientation(LinearLayout.VERTICAL);
+            int padding = (int) (20 * getResources().getDisplayMetrics().density);
+            form.setPadding(padding, padding, padding, padding);
+            CheckBox allDay = new CheckBox(this);
+            allDay.setText("Khóa cả ngày");
+            allDay.setChecked(true);
+            TextView start = new Button(this), end = new Button(this);
+            start.setText("08:00"); end.setText("09:00");
+            start.setEnabled(false); end.setEnabled(false);
+            start.setOnClickListener(v -> time(start)); end.setOnClickListener(v -> time(end));
+            allDay.setOnCheckedChangeListener((v, checked) -> { start.setEnabled(!checked); end.setEnabled(!checked); });
+            EditText reason = new EditText(this);
+            reason.setHint("Lý do khóa lịch (bắt buộc)");
+            reason.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+            form.addView(allDay); form.addView(start); form.addView(end); form.addView(reason);
+            androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("Khóa lịch " + selected).setView(form)
+                    .setPositiveButton("Thêm", null).setNegativeButton("Hủy", null).create();
+            dialog.setOnShowListener(d -> dialog.getButton(-1).setOnClickListener(v -> {
+                String why = reason.getText().toString().trim();
+                if (why.isEmpty()) { reason.setError("Cần nhập lý do"); return; }
+                java.time.ZonedDateTime from = allDay.isChecked() ? selected.atStartOfDay(HostSchedule.ZONE)
+                        : selected.atTime(java.time.LocalTime.parse(start.getText())).atZone(HostSchedule.ZONE);
+                java.time.ZonedDateTime to = allDay.isChecked() ? selected.plusDays(1).atStartOfDay(HostSchedule.ZONE)
+                        : selected.atTime(java.time.LocalTime.parse(end.getText())).atZone(HostSchedule.ZONE);
+                if (!from.isBefore(to) || to.toInstant().isBefore(java.time.Instant.now())) {
+                    reason.setError("Giờ kết thúc phải sau bắt đầu, không thuộc quá khứ"); return;
+                }
+                if (r.getBlackoutRanges() == null) r.setBlackoutRanges(new ArrayList<>());
+                r.getBlackoutRanges().add(new RoomBlackout(Date.from(from.toInstant()), Date.from(to.toInstant()), why));
+                renderBlackoutDates(r); dialog.dismiss();
+            }));
+            dialog.show();
+        }, now.getYear(), now.getMonthValue() - 1, now.getDayOfMonth());
+        date.getDatePicker().setMinDate(now.atStartOfDay(HostSchedule.ZONE).toInstant().toEpochMilli());
+        date.show();
     }
 
     @Override
@@ -411,6 +490,10 @@ public class CreateSpaceActivity extends SessionActivity {
             binding.getRoot().saveHierarchyState(form);
             state.putSparseParcelableArray("form", form);
             state.putParcelableArrayList("photos", new ArrayList<>(model.photos));
+            state.putString("selectedType", selectedType);
+            state.putSerializable("blackouts", new ArrayList<>(model.editingRoom.getBlackoutRanges()));
+            state.putStringArrayList("blackoutDates", new ArrayList<>(model.editingRoom.getBlackoutDates()));
+            if (scheduleEditor != null) scheduleEditor.saveState(state);
         }
         super.onSaveInstanceState(state);
     }

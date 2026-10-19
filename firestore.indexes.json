@@ -1,7 +1,47 @@
 {
   "indexes": [
-    {"collectionGroup":"rooms","queryScope":"COLLECTION","fields":[{"fieldPath":"approvalStatus","order":"ASCENDING"},{"fieldPath":"listingStatus","order":"ASCENDING"}]},
-    {"collectionGroup":"bookings","queryScope":"COLLECTION","fields":[{"fieldPath":"ownerUid","order":"ASCENDING"},{"fieldPath":"status","order":"ASCENDING"}]}
+    {
+      "collectionGroup": "rooms",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "approvalStatus",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "listingStatus",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "bookings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "ownerUid",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "bookings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "roomId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "endAt",
+          "order": "ASCENDING"
+        }
+      ]
+    }
   ],
   "fieldOverrides": []
 }

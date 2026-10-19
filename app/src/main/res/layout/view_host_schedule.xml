@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/hostSchedule" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:background="@drawable/bg_card">
+<TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/host_schedule_title" android:textSize="18sp" android:textStyle="bold" />
+<TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="@string/host_weekdays" />
+<com.google.android.material.chip.ChipGroup android:layout_width="match_parent" android:layout_height="wrap_content">
+<com.google.android.material.chip.Chip android:id="@+id/day1" android:layout_width="wrap_content" android:layout_height="48dp" android:text="T2" android:checkable="true" />
+<com.google.android.material.chip.Chip android:id="@+id/day2" android:layout_width="wrap_content" android:layout_height="48dp" android:text="T3" android:checkable="true" />
+<com.google.android.material.chip.Chip android:id="@+id/day3" android:layout_width="wrap_content" android:layout_height="48dp" android:text="T4" android:checkable="true" />
+<com.google.android.material.chip.Chip android:id="@+id/day4" android:layout_width="wrap_content" android:layout_height="48dp" android:text="T5" android:checkable="true" />
+<com.google.android.material.chip.Chip android:id="@+id/day5" android:layout_width="wrap_content" android:layout_height="48dp" android:text="T6" android:checkable="true" />
+<com.google.android.material.chip.Chip android:id="@+id/day6" android:layout_width="wrap_content" android:layout_height="48dp" android:text="T7" android:checkable="true" />
+<com.google.android.material.chip.Chip android:id="@+id/day7" android:layout_width="wrap_content" android:layout_height="48dp" android:text="CN" android:checkable="true" />
+</com.google.android.material.chip.ChipGroup>
+<TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="@string/host_slot_step" />
+<RadioGroup android:id="@+id/slotGroup" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal"><RadioButton android:id="@+id/slot30" android:layout_width="wrap_content" android:layout_height="48dp" android:text="@string/host_slot_30" /><RadioButton android:id="@+id/slot60" android:layout_width="wrap_content" android:layout_height="48dp" android:text="@string/host_slot_60" /></RadioGroup>
+<EditText android:id="@+id/minMinutes" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:hint="@string/host_min_minutes" android:inputType="number" />
+<TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="@string/host_fixed_help" />
+<Button android:id="@+id/fixedMonth" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/host_fixed_month" />
+<EditText android:id="@+id/renewalPolicy" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:hint="@string/host_renewal" android:inputType="textMultiLine" />
+<EditText android:id="@+id/rentalPolicy" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:hint="@string/host_rental_policy" android:inputType="textMultiLine" />
+<TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="@string/host_policy_help" />
+<Button android:id="@+id/viewSchedule" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/host_view_schedule" />
+<TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/host_listing_pause_help"/><Button android:id="@+id/saveListing" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/host_save_listing"/></LinearLayout>

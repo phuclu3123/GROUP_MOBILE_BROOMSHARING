@@ -12,7 +12,7 @@ public final class HostValidation {
     }
 
     public static boolean money(double value) {
-        return Double.isFinite(value) && value >= 0 && value <= 1_000_000_000_000d;
+        return Double.isFinite(value) && value == Math.rint(value) && value >= 0 && value <= 1_000_000_000_000d;
     }
 
     public static boolean phone(String value) {
@@ -32,6 +32,11 @@ public final class HostValidation {
     }
 
     public static String room(Room r, boolean submit) {
+        String scheduleError = HostSchedule.validate(r);
+        if (scheduleError != null) return scheduleError;
+        if (submit && Room.MODE_FIXED.equals(r.getActiveMode())
+                && (empty(r.getFixedStartMonth()) || empty(r.getRenewalPolicy())))
+            return "Gửi duyệt thuê cố định cần tháng bắt đầu và điều khoản gia hạn.";
         if (empty(r.getRoomName())) return "Vui lòng nhập tên không gian.";
         if (empty(r.getBuildingId())) return "Vui lòng tạo và chọn tòa nhà của bạn trước.";
         if (!money(r.getDeposit())

@@ -2,7 +2,10 @@ package vn.edu.ueh.phuclu.broomsharing.model;
 
 public class ReviewItem {
     public java.util.List<String> imageUrls = java.util.Collections.emptyList();
-    public final String kind, id, title, details;
+    public final String kind, id, title;
+    public String details;
+    public String status = "";
+    public java.util.List<String> evidenceRefs = java.util.Collections.emptyList();
 
     public ReviewItem(String kind, String id, String title, String details) {
         this.kind = kind;
