@@ -1,5 +1,7 @@
 # Nghiệm thu tích hợp Firebase Đợt 2 — 19/10/2026
 
+Biên bản này ghi lượt Host/Phúc trước khi ghép Trúc. Lượt kiểm tra Guest sau đó nằm trong `review-truc-dot-2.md`; các file kết quả tạm trong `build/acceptance/` được dùng lại cho lượt mới, không phải bản lưu bất biến của lượt cũ.
+
 Phạm vi: Firebase Auth thật và Firestore thật của project `broom-sharing-firebase-mobile`, database `broomsharing`; 10 callable chạy trên Functions Emulator tại máy. Không nâng Blaze, không triển khai Functions hoặc thay rules đang chạy trên cloud.
 
 ## Kết quả service

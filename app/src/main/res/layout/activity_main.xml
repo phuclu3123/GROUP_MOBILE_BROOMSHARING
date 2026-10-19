@@ -9,6 +9,7 @@
             <com.google.android.material.button.MaterialButton style="@style/Widget.BroomSharing.AuthLink" android:id="@+id/toggleFilters" android:layout_width="0dp" android:layout_weight="1" android:text="@string/home_filter" />
             <com.google.android.material.button.MaterialButton style="@style/Widget.BroomSharing.AuthLink" android:id="@+id/btnRefresh" android:layout_width="0dp" android:layout_weight="1" android:text="@string/guest_refresh" />
         </LinearLayout>
+        <TextView android:id="@+id/activeFilters" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingVertical="6dp" android:visibility="gone" />
         <LinearLayout android:id="@+id/filterPanel" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone" android:background="@drawable/bg_card" android:padding="12dp">
             <com.google.android.material.textfield.TextInputLayout style="@style/Widget.BroomSharing.AuthField" android:hint="@string/home_area_hint" android:layout_marginTop="8dp">
                 <com.google.android.material.textfield.TextInputEditText android:id="@+id/area" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:inputType="text" android:singleLine="true" android:maxLength="100" android:textSize="14sp" />
@@ -17,6 +18,10 @@
             <Spinner android:id="@+id/typeFilter" android:layout_width="match_parent" android:layout_height="48dp" android:background="@drawable/bg_input" android:entries="@array/guest_types" android:contentDescription="@string/home_type_label" />
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="@string/home_mode_label" android:textColor="@color/text_secondary" android:textSize="12sp" />
             <Spinner android:id="@+id/modeFilter" android:layout_width="match_parent" android:layout_height="48dp" android:background="@drawable/bg_input" android:entries="@array/guest_modes" android:contentDescription="@string/home_mode_label" />
+            <EditText android:id="@+id/capacityFilter" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:hint="Sức chứa tối thiểu (người)" android:inputType="number" android:maxLength="5" />
+            <EditText android:id="@+id/priceFilter" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:hint="Giá tối đa theo đơn vị trên thẻ (đ)" android:inputType="number" android:maxLength="13" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Sắp xếp giá theo từng nhóm giờ/tháng/quý; lọc trên các phòng đã tải." />
+            <Spinner android:id="@+id/sortFilter" android:layout_width="match_parent" android:layout_height="48dp" android:entries="@array/guest_sort_options" android:contentDescription="Sắp xếp phòng" />
             <com.google.android.material.button.MaterialButton style="@style/Widget.BroomSharing.AuthLink" android:id="@+id/clearFilters" android:text="@string/guest_clear" />
         </LinearLayout>
     </LinearLayout>

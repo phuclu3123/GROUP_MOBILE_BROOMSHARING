@@ -54,6 +54,10 @@ async function check(name,fn) {
 async function denied(fn,code) {await assert.rejects(fn,e=>e.code===code);}
 async function discover() {
   const actors = new Set(Object.values(state.accounts).map(a=>a.localId));
+  for(const uid of actors) {
+    const favorites=await db.collection('users/'+uid+'/favorites').get();
+    for(const doc of favorites.docs) if(!state.paths.includes(doc.ref.path))state.paths.push(doc.ref.path);
+  }
   for(const group of ['bookings','bookingEvents','auditLogs','availabilityDays','fixedMonthLocks']) {
     const rows=await db.collection(group).get();
     for(const doc of rows.docs) {
@@ -103,6 +107,10 @@ async function verify() {
     assert.equal(r.find(x=>x.status==='rejected').reason.code,'ALREADY_EXISTS');persist();
   });
   await check('retry returns same booking',async()=>assert.equal((await call('createBooking',state.winner,req(state.winnerKey))).bookingId,state.bookingId));
+  await check('public availability contains only busy intervals',async()=>{
+    const result=await call('getRoomAvailability','guest',{roomId:state.roomId,startAt:state.start,endAt:state.end+3600000});
+    assert.deepEqual(result,{intervals:[{startAt:state.start,endAt:state.end}]});
+  });
   await check('wrong role cannot confirm booking',()=>denied(()=>call('transitionBooking','guest',{bookingId:state.bookingId,status:'CONFIRMED'}),'PERMISSION_DENIED'));
   await check('Host confirms; Firestore persists payment demo',async()=>{await call('transitionBooking','host',{bookingId:state.bookingId,status:'CONFIRMED'});const d=(await db.doc('bookings/'+state.bookingId).get()).data();assert.equal(d.status,'CONFIRMED');assert.equal(d.paymentStatus,'DEMO_PENDING');assert.equal(d.totalAmount,100000);});
   await check('Guest cancels and releases slots',async()=>{await call('transitionBooking',state.winner,{bookingId:state.bookingId,status:'CANCELLED'});const r=await call('createBooking','guest',req('replacement'));state.replacementId=r.bookingId;persist();});

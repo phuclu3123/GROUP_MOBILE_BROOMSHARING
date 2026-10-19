@@ -20,6 +20,7 @@ exports.transitionBooking = callable(api.transition);
 exports.saveHostRoom = callable(api.saveRoom);
 exports.setHostListing = callable(api.listing);
 exports.quoteBooking = callable(api.quote);
+exports.getRoomAvailability = callable(api.availability);
 exports.reviewAdminItem = callable(adminApi.review);
 exports.moderateHost = callable(adminApi.moderateHost);
 exports.moderateRoom = callable(adminApi.moderateRoom);

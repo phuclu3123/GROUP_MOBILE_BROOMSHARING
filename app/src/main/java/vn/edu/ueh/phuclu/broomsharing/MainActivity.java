@@ -52,10 +52,16 @@ public class MainActivity extends SessionActivity {
             model.area = restored.getString("guest.area", model.area);
             model.type = restored.getString("guest.type", model.type);
             model.mode = restored.getString("guest.mode", model.mode);
+            model.minCapacity=restored.getInt("guest.capacity",model.minCapacity);
+            model.maxPrice=restored.getLong("guest.price",model.maxPrice);
+            model.sort=restored.getInt("guest.sort",model.sort);
             pendingScroll = restored.getParcelable("guest.scroll");
         }
         b.search.setText(model.search);
         b.area.setText(model.area);
+        b.capacityFilter.setText(model.minCapacity>0?String.valueOf(model.minCapacity):"");
+        b.priceFilter.setText(model.maxPrice>0?String.valueOf(model.maxPrice):"");
+        b.sortFilter.setSelection(model.sort);
         String[] types = getResources().getStringArray(R.array.guest_types);
         for (int i = 1; i < types.length; i++)
             if (types[i].equals(model.type)) b.typeFilter.setSelection(i);
@@ -82,6 +88,7 @@ public class MainActivity extends SessionActivity {
                     b.area.setText("");
                     b.typeFilter.setSelection(0);
                     b.modeFilter.setSelection(0);
+                    b.capacityFilter.setText("");b.priceFilter.setText("");b.sortFilter.setSelection(0);
                 });
         GuestNavigation.attach(this, R.id.nav_home);
         b.filterPanel.setVisibility(
@@ -108,6 +115,7 @@ public class MainActivity extends SessionActivity {
                 };
         b.search.addTextChangedListener(watcher);
         b.area.addTextChangedListener(watcher);
+        b.capacityFilter.addTextChangedListener(watcher);b.priceFilter.addTextChangedListener(watcher);
         AdapterView.OnItemSelectedListener selected =
                 new AdapterView.OnItemSelectedListener() {
                     public void onItemSelected(
@@ -119,6 +127,7 @@ public class MainActivity extends SessionActivity {
                 };
         b.typeFilter.setOnItemSelectedListener(selected);
         b.modeFilter.setOnItemSelectedListener(selected);
+        b.sortFilter.setOnItemSelectedListener(selected);
         model.rooms()
                 .observe(
                         this,
@@ -145,7 +154,7 @@ public class MainActivity extends SessionActivity {
                                         !model.search.trim().isEmpty()
                                                 || !model.area.trim().isEmpty()
                                                 || !model.type.isEmpty()
-                                                || !model.mode.isEmpty();
+                                                || !model.mode.isEmpty() || model.minCapacity>0 || model.maxPrice>0;
                                 feedback =
                                         getString(
                                                         filtered
@@ -188,11 +197,19 @@ public class MainActivity extends SessionActivity {
         int count =
                 (model.area.trim().isEmpty() ? 0 : 1)
                         + (model.type.isEmpty() ? 0 : 1)
-                        + (model.mode.isEmpty() ? 0 : 1);
+                        + (model.mode.isEmpty() ? 0 : 1) + (model.minCapacity>0?1:0) + (model.maxPrice>0?1:0) + (model.sort>0?1:0);
         b.toggleFilters.setText(
                 count == 0
                         ? getString(R.string.home_filter)
                         : getString(R.string.home_filter_count, count));
+        java.util.List<String> labels=new java.util.ArrayList<>();
+        if(!model.area.trim().isEmpty())labels.add("Khu vực: "+model.area);
+        if(!model.type.isEmpty())labels.add(model.type);
+        if(!model.mode.isEmpty())labels.add(Room.MODE_HOURLY.equals(model.mode)?"Thuê giờ":"Thuê cố định");
+        if(model.minCapacity>0)labels.add("Từ "+model.minCapacity+" người");
+        if(model.maxPrice>0)labels.add("Tối đa "+vn.edu.ueh.phuclu.broomsharing.utils.FormatUtils.formatCurrency(model.maxPrice)+" / đơn vị trên thẻ");
+        if(model.sort>0)labels.add(getResources().getStringArray(R.array.guest_sort_options)[model.sort]);
+        b.activeFilters.setText(android.text.TextUtils.join(" • ",labels));b.activeFilters.setVisibility(labels.isEmpty()?View.GONE:View.VISIBLE);
     }
 
     private void applyFilters() {
@@ -205,12 +222,16 @@ public class MainActivity extends SessionActivity {
                 b.modeFilter.getSelectedItemPosition() == 1
                         ? Room.MODE_HOURLY
                         : b.modeFilter.getSelectedItemPosition() == 2 ? Room.MODE_FIXED : "";
-        if (search.equals(model.search)
+        int capacity=(int)number(b.capacityFilter.getText().toString());
+        long price=number(b.priceFilter.getText().toString());int sort=b.sortFilter.getSelectedItemPosition();
+        if (capacity==model.minCapacity && price==model.maxPrice && sort==model.sort && search.equals(model.search)
                 && area.equals(model.area)
                 && type.equals(model.type)
                 && mode.equals(model.mode)) return;
         pendingScroll = null;
+        model.minCapacity=capacity;model.maxPrice=price;model.sort=sort;
         model.filter(search, area, type, mode);
+        updateFilterLabel();
         b.publicRooms.scrollToPosition(0);
     }
 
@@ -222,6 +243,7 @@ public class MainActivity extends SessionActivity {
             out.putString("guest.area", model.area);
             out.putString("guest.type", model.type);
             out.putString("guest.mode", model.mode);
+            out.putInt("guest.capacity",model.minCapacity);out.putLong("guest.price",model.maxPrice);out.putInt("guest.sort",model.sort);
             out.putParcelable(
                     "guest.scroll",
                     pendingScroll != null
@@ -230,4 +252,5 @@ public class MainActivity extends SessionActivity {
         } else if (restored != null) out.putAll(restored);
         super.onSaveInstanceState(out);
     }
+    private long number(String value) {try{return Long.parseLong(value);}catch(NumberFormatException e){return 0;}}
 }

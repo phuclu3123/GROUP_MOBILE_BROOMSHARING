@@ -8,6 +8,7 @@
     <TextView android:id="@+id/details" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="" android:textColor="@color/text_primary" android:textSize="14sp" android:padding="8dp" />
     <TextView android:id="@+id/tvFeedback" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="" android:textColor="@color/text_primary" android:textSize="14sp" android:padding="8dp" />
     <Button android:id="@+id/btnBook" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/booking_title" android:enabled="false" />
+    <Button android:id="@+id/btnFavorite" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Lưu phòng" android:enabled="false" />
     <Button android:id="@+id/btnRefresh" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:text="Tải lại" />
   </LinearLayout>
 </ScrollView>

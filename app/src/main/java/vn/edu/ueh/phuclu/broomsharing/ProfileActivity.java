@@ -37,6 +37,7 @@ public class ProfileActivity extends SessionActivity {
         boolean isHost = profile.getUserRole() == UserRole.HOST;
         binding.profileBadge.setText(isHost ? R.string.auth_role_host : R.string.auth_role_guest);
         binding.profileSignOut.setOnClickListener(v -> signOut());
+        binding.btnFavorites.setOnClickListener(v -> startActivity(new Intent(this,FavoritesActivity.class)));
 
         binding.btnMenuCreateSpace.setOnClickListener(
                 v -> startActivity(new Intent(this, CreateSpaceActivity.class)));

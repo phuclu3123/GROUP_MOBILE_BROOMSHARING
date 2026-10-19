@@ -57,6 +57,15 @@ service cloud.firestore {
         && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.email == request.resource.data.email;
       allow update, delete: if admin();
     }
+    match /users/{uid}/favorites/{roomId} {
+      allow read, delete: if own(uid) && active();
+      allow create, update: if own(uid) && active()
+        && request.resource.data.keys().hasOnly(['roomId','roomName','createdAt'])
+        && request.resource.data.roomId == roomId
+        && request.resource.data.roomName is string && request.resource.data.roomName.size() <= 200
+        && request.resource.data.createdAt == request.time
+        && publicRoom(get(/databases/$(database)/documents/rooms/$(roomId)).data);
+    }
     match /hostApplications/{id} {
       allow read: if own(id) || own(resource.data.applicantUid) || admin();
       allow create: if active() && account().role == 'GUEST' && id == request.auth.uid

@@ -44,8 +44,20 @@ public class SpaceDetailActivity extends SessionActivity {
         RoomViewModel model = new ViewModelProvider(this).get(RoomViewModel.class);
         binding = b;
         String id = getIntent().getStringExtra(ROOM_ID);
+        vn.edu.ueh.phuclu.broomsharing.ui.FavoritesViewModel favorites=new ViewModelProvider(this).get(vn.edu.ueh.phuclu.broomsharing.ui.FavoritesViewModel.class);
+        b.btnFavorite.setOnClickListener(v->{
+            UiState<RoomListing> state=model.detail().getValue();
+            if(state!=null&&state.data!=null)favorites.set(id,state.data.room.getRoomName(),!favorites.contains(id));
+        });
+        favorites.items.observe(this,state->{
+            b.btnFavorite.setEnabled(state!=null&&state.data!=null&&!state.loading&&!favorites.busy());
+            b.btnFavorite.setText(favorites.contains(id)?"Bỏ lưu phòng":"Lưu phòng");
+            if(state!=null&&state.error!=null)b.tvFeedback.setText(state.error);
+        });
+        favorites.saved.observe(this,state->{if(state==null)return;b.btnFavorite.setEnabled(!state.loading);if(state.error!=null)b.tvFeedback.setText(state.error);});
+        favorites.load();
         b.detailToolbar.setNavigationOnClickListener(v -> finish());
-        b.btnBook.setOnClickListener(v -> startActivity(new android.content.Intent(this, BookingFormActivity.class).putExtra("ROOM_ID", id)));
+        b.btnBook.setOnClickListener(v -> startActivity(new android.content.Intent(this, BookingActivity.class).putExtra("ROOM_ID", id)));
         b.btnRefresh.setOnClickListener(v -> model.load(id));
         model.detail()
                 .observe(
@@ -98,6 +110,7 @@ public class SpaceDetailActivity extends SessionActivity {
                                             + price
                                             + "\nCọc: "
                                             + FormatUtils.formatCurrency(r.getDeposit())
+                                            + " (cọc demo, chưa có thanh toán thật)\nNgày hoạt động (1=T2…7=CN): " + r.getWorkingDays()
                                             + "\n"
                                             + safe(r.getOpenTime())
                                             + "–"

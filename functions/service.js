@@ -51,7 +51,7 @@ function service(db, clock = Date.now) {
         for (const slot of lock.slots) slotsBusy[slot] = bookingId;
         tx.set(lref, {roomId: input.roomId, slotsBusy, updatedAt: stamp()});
       }
-      const booking = {id: bookingId, schemaVersion: 1, roomId: input.roomId, roomName: room.roomName,
+      const booking = {id: bookingId, schemaVersion: 1, roomId: input.roomId, roomName: room.roomName, roomAddress: room.address || '',
         ownerUid: room.ownerUid, guestUid: uid, guestName: guest.name || '', guestPhone: guest.phone || '',
         status: 'PENDING', paymentStatus: 'DEMO_PENDING', activeMode: p.mode, startAt: Timestamp.fromMillis(p.start),
         endAt: Timestamp.fromMillis(p.end), totalAmount: p.priceSnapshot.totalAmount, priceSnapshot: p.priceSnapshot,
@@ -181,6 +181,21 @@ function service(db, clock = Date.now) {
       return {priceSnapshot: p.priceSnapshot, startAt: p.start, endAt: p.end, activeMode: p.mode};
     });
   }
-  return {create, transition, saveRoom, listing, quote};
+  async function availability(uid, input) {
+    id(input.roomId);
+    const start=Number(input.startAt),end=Number(input.endAt);
+    R.requireThat(Number.isSafeInteger(start)&&Number.isSafeInteger(end)&&start<end
+      &&end-start<=100*86400000, 'Khoảng xem lịch tối đa 100 ngày.', 'invalid-argument');
+    return db.runTransaction(async tx=>{
+      await user(tx,uid,['GUEST','HOST']);
+      const snap=await tx.get(db.doc('rooms/'+input.roomId)),room=snap.data();
+      R.requireThat(room&&room.approvalStatus==='APPROVED'&&room.listingStatus==='ACTIVE','Phòng hiện không nhận đặt.');
+      await user(tx,id(room.ownerUid),['HOST']);
+      const live=await future(tx,input.roomId,clock());
+      return {intervals:live.filter(b=>R.overlaps(start,end,R.millis(b.startAt),R.millis(b.endAt)))
+        .map(b=>({startAt:R.millis(b.startAt),endAt:R.millis(b.endAt)}))};
+    });
+  }
+  return {create, transition, saveRoom, listing, quote, availability};
 }
 module.exports = {service};

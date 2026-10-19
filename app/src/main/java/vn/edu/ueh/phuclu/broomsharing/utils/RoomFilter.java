@@ -9,6 +9,20 @@ import java.util.Locale;
 public final class RoomFilter {
     private RoomFilter() {}
 
+    public static double unitPrice(RoomListing item) {
+        return "HOURLY".equals(item.room.getActiveMode()) ? item.room.getPricePerHour()
+            : item.room.getPricePerMonth()>0 ? item.room.getPricePerMonth() : item.room.getPricePerQuarter();
+    }
+    private static int priceGroup(RoomListing item) {
+        return "HOURLY".equals(item.room.getActiveMode())?0:item.room.getPricePerMonth()>0?1:2;
+    }
+    public static java.util.Comparator<RoomListing> order(int sort) {
+        if(sort==3)return java.util.Comparator.comparingInt((RoomListing item)->item.room.getCapacity()).reversed();
+        java.util.Comparator<RoomListing> price=java.util.Comparator.comparingDouble(RoomFilter::unitPrice);
+        if(sort==2)price=price.reversed();
+        return java.util.Comparator.comparingInt(RoomFilter::priceGroup).thenComparing(price);
+    }
+
     public static String normalize(String value) {
         if (value == null) return "";
         return Normalizer.normalize(value, Normalizer.Form.NFD)

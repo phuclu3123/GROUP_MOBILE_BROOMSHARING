@@ -16,6 +16,7 @@ public class Booking implements Serializable {
     public String id;
     public String roomId;
     public String roomName;
+    public String roomAddress;
     public String ownerUid;
     public String guestUid;
     public String guestName;

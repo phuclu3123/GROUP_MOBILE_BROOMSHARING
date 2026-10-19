@@ -1,6 +1,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@color/screen_bg">
     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp" android:text="@string/booking_mine" android:textSize="22sp" android:textStyle="bold" />
     <Button android:id="@+id/refresh" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/booking_refresh" />
+    <Spinner android:id="@+id/bookingFilter" android:layout_width="match_parent" android:layout_height="48dp" android:entries="@array/booking_filter_options" android:contentDescription="Lọc trạng thái đặt chỗ" />
     <TextView android:id="@+id/feedback" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp" android:accessibilityLiveRegion="polite" />
     <androidx.recyclerview.widget.RecyclerView android:id="@+id/bookings" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:padding="12dp" />
     <include layout="@layout/view_guest_navigation" />

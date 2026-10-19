@@ -52,6 +52,12 @@ Dùng `propertyVerifications/auditLogs` theo hợp đồng chung, không tạo `
 
 ## Index và ghép nhóm
 
+Ghép Trúc Đợt 2: booking mới lưu thêm `roomAddress` từ Room tại thời điểm tạo, để confirmation không lấy địa chỉ/giá từ Intent. `priceSnapshot` vẫn là map chung, không dùng field số cùng tên của nhánh Trúc cũ. Không tự migration các booking cũ.
+
+`getRoomAvailability({roomId,startAt,endAt})` trả `{intervals:[{startAt,endAt}]}` cho tối đa 100 ngày; chỉ khoảng chiếm chỗ của phòng đang công bố/chủ ACTIVE, không UID/tên/điện thoại/mã booking. Blackout/ngày hoạt động đọc từ Room; createBooking vẫn kiểm tra lại atomically.
+
+Favorites: `users/{uid}/favorites/{roomId}` gồm `roomId`, `roomName` (snapshot tên lúc lưu), `createdAt` (server timestamp). Client chỉ sửa favorites của chính mình; không lưu role/giá/quyền ở đây. Không cần composite index mới. Danh sách giới hạn 100 mục; mở chi tiết sẽ kiểm tra lại phòng còn công bố.
+
 `firestore.indexes.json` có index phòng approvalStatus/listingStatus, booking ownerUid/status và roomId/endAt. Ba index đã được tạo trên database `broomsharing` ngày 19/10/2026. Functions/rules mới chưa phát hành: chủ project yêu cầu tạm dừng service vì chưa nâng Blaze. Không tự seed dữ liệu/giá mẫu lên cloud.
 
 Khi ghép Trúc cần rà package/applicationId, booking model và tên field/collection trên. Dùng trực tiếp Model `Room`/`Booking`, không tạo DTO hoặc lớp chỉ đổi tên. Module tương lai phải hoàn thiện schema/Rules của chính nó; file kiểm soát đóng các module chưa triển khai.

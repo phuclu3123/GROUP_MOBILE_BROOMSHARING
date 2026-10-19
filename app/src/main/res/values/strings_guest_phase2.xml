@@ -1,0 +1,3 @@
+<resources>
+    <string-array name="guest_sort_options"><item>Thứ tự tải</item><item>Giá tăng theo nhóm giờ/tháng/quý</item><item>Giá giảm theo nhóm giờ/tháng/quý</item><item>Sức chứa giảm dần</item></string-array>
+</resources>

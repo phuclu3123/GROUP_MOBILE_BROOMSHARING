@@ -13,7 +13,36 @@ public class BookingViewModel extends ViewModel {
     public final MutableLiveData<UiState<String>> saved = new MutableLiveData<>();
     public final MutableLiveData<UiState<List<Booking>>> bookings = new MutableLiveData<>();
     public String requestKey = UUID.randomUUID().toString();
-    private String lastRequest = "";
+    public String lastRequest = "";
+    public final MutableLiveData<UiState<List<Booking>>> availability = new MutableLiveData<>();
+    public final MutableLiveData<UiState<Booking>> detail = new MutableLiveData<>();
+    public int filterPosition;
+    private int availabilityRequest;
+    private com.google.firebase.firestore.ListenerRegistration watcher;
+
+    public void loadDetail(String id) {
+        detail.setValue(UiState.loading());
+        repository.get(id,new ResultCallback<Booking>() {
+            public void onSuccess(Booking value) { detail.setValue(UiState.success(value)); }
+            public void onError(Exception e) { detail.setValue(UiState.error(e)); }
+        });
+    }
+    public void loadAvailability(String roomId,long from,long to) {
+        final int token=++availabilityRequest; availability.setValue(UiState.loading());
+        repository.availability(roomId,from,to,new ResultCallback<List<Booking>>() {
+            public void onSuccess(List<Booking> value) { if(token==availabilityRequest)availability.setValue(UiState.success(value)); }
+            public void onError(Exception e) { if(token==availabilityRequest)availability.setValue(UiState.error(e)); }
+        });
+    }
+    public void watchMine(String uid) {
+        stopWatching(); bookings.setValue(UiState.loading());
+        watcher=repository.watchMine(uid,new ResultCallback<List<Booking>>() {
+            public void onSuccess(List<Booking> value) { bookings.setValue(UiState.success(value)); }
+            public void onError(Exception e) { bookings.setValue(UiState.error(e)); }
+        });
+    }
+    public void stopWatching() { if(watcher!=null) { watcher.remove(); watcher=null; } }
+    @Override protected void onCleared() { stopWatching(); availabilityRequest++; }
 
     public boolean busy() { return saved.getValue() != null && saved.getValue().loading
             || quote.getValue() != null && quote.getValue().loading; }

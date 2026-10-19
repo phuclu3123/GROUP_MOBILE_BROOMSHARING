@@ -23,6 +23,8 @@ public class RoomViewModel extends ViewModel {
     }
 
     public String search = "", area = "", type = "", mode = "";
+    public int minCapacity, sort;
+    public long maxPrice;
     private String cursor, detailId;
     private boolean loading, hasMore = true;
     private int request;
@@ -54,7 +56,9 @@ public class RoomViewModel extends ViewModel {
     private void publish() {
         List<RoomListing> result = new ArrayList<>();
         for (RoomListing item : loaded.values())
-            if (RoomFilter.matches(item, search, area, type, mode)) result.add(item);
+            if (RoomFilter.matches(item, search, area, type, mode) && item.room.getCapacity()>=minCapacity
+                    && (maxPrice<=0||RoomFilter.unitPrice(item)<=maxPrice)) result.add(item);
+        if(sort>0)result.sort(RoomFilter.order(sort));
         rooms.setValue(UiState.success(result));
     }
 

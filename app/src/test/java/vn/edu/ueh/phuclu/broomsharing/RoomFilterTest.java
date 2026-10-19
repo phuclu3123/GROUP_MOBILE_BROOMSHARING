@@ -48,4 +48,19 @@ public class RoomFilterTest {
         i.room.setAddress(null);
         assertTrue(RoomFilter.matches(i, "", "", "", ""));
     }
+    @Test public void sortKeepsDifferentPriceUnitsInSeparateGroups() {
+        RoomListing hour=item(),month=item(),quarter=item();
+        hour.room.setActiveMode("HOURLY");hour.room.setPricePerHour(100000);
+        month.room.setPricePerMonth(3000000);
+        quarter.room.setPricePerMonth(0);quarter.room.setPricePerQuarter(8000000);
+        java.util.List<RoomListing> rows=new java.util.ArrayList<>(java.util.Arrays.asList(quarter,month,hour));
+        rows.sort(RoomFilter.order(1));
+        assertEquals(java.util.Arrays.asList(hour,month,quarter),rows);
+    }
+    @Test public void sortUsesCurrentModePriceAndSupportsDescending() {
+        RoomListing low=item(),high=item();low.room.setPricePerMonth(1000000);high.room.setPricePerMonth(3000000);
+        low.room.setPricePerHour(9999999);high.room.setPricePerHour(1);
+        assertTrue(RoomFilter.order(1).compare(low,high)<0);
+        assertTrue(RoomFilter.order(2).compare(low,high)>0);
+    }
 }

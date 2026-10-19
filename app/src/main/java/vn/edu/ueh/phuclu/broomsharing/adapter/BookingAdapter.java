@@ -12,8 +12,9 @@ import java.util.function.Consumer;
 public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.Holder> {
     private final List<Booking> items = new ArrayList<>();
     private final Consumer<Booking> cancel;
+    private final Consumer<Booking> open;
     private boolean busy;
-    public BookingAdapter(Consumer<Booking> cancel) { this.cancel = cancel; }
+    public BookingAdapter(Consumer<Booking> cancel, Consumer<Booking> open) { this.cancel = cancel; this.open = open; }
     public void setData(List<Booking> data) { items.clear(); items.addAll(data); notifyDataSetChanged(); }
     public void setBusy(boolean value) { busy = value; notifyDataSetChanged(); }
     @NonNull @Override public Holder onCreateViewHolder(@NonNull ViewGroup parent, int type) {
@@ -22,6 +23,8 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.Holder> 
     @Override public int getItemCount() { return items.size(); }
     @Override public void onBindViewHolder(@NonNull Holder h, int position) {
         Booking item = items.get(position);
+        h.b.open.setOnClickListener(v -> open.accept(item));
+        h.b.info.setContentDescription("Xem chi tiết đặt chỗ " + (item.roomName == null ? item.roomId : item.roomName));
         String deposit = item.priceSnapshot != null && item.priceSnapshot.get("depositAmount") instanceof Number
                 ? FormatUtils.formatCurrency(((Number) item.priceSnapshot.get("depositAmount")).doubleValue()) : "Chưa có dữ liệu";
         h.b.info.setText((item.roomName == null ? item.roomId : item.roomName) + "\nMã: " + item.id + "\n"

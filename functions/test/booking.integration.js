@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const {initializeApp, deleteApp} = require('firebase-admin/app');
 const {getFirestore} = require('firebase-admin/firestore');
 const {initializeTestEnvironment, assertFails, assertSucceeds} = require('@firebase/rules-unit-testing');
-const {doc, setDoc, updateDoc, getDoc, collection, query, where, getDocs} = require('firebase/firestore');
+const {doc, setDoc, updateDoc, getDoc, deleteDoc, serverTimestamp, collection, query, where, getDocs} = require('firebase/firestore');
 const {service} = require('../service');
 const {adminService} = require('../admin-service');
 let app, db, api, env;
@@ -38,6 +38,37 @@ test('two guests racing for one slot: one booking and one lock owner',async()=>{
   assert.equal((await db.collection('bookings').get()).size,1);
   const locks=await db.collection('availabilityDays').get();assert.equal(locks.size,1);
   assert.equal(new Set(Object.values(locks.docs[0].get('slotsBusy'))).size,1);
+});
+
+test('guest availability returns only busy intervals and respects active room/owner',async()=>{
+  await api.create('g1',request('availability'));
+  const result=await api.availability('g2',{roomId:'r',startAt:start,endAt:end+3600000});
+  assert.deepEqual(result,{intervals:[{startAt:start,endAt:end}]});
+  assert.deepEqual(await api.availability('g2',{roomId:'r',startAt:end,endAt:end+3600000}),{intervals:[]});
+  await assert.rejects(api.availability('g2',{roomId:'r',startAt:start,endAt:start+101*86400000}));
+  await db.doc('users/h').update({status:'BLOCKED'});
+  await assert.rejects(api.availability('g2',{roomId:'r',startAt:start,endAt:end}));
+});
+
+test('favorites rules isolate owners, validate fields and permit removal of unpublished rooms',async()=>{
+  await env.withSecurityRulesDisabled(async context=>{
+    const store=context.firestore();
+    for(const uid of ['g1','g2'])await setDoc(doc(store,'users/'+uid),{uid,role:'GUEST',status:'ACTIVE'});
+    await setDoc(doc(store,'rooms/r'),{approvalStatus:'APPROVED',listingStatus:'ACTIVE'});
+  });
+  const g1=env.authenticatedContext('g1').firestore(),g2=env.authenticatedContext('g2').firestore();
+  const favorite=doc(g1,'users/g1/favorites/r');
+  await assertSucceeds(setDoc(favorite,{roomId:'r',roomName:'Room',createdAt:serverTimestamp()}));
+  await assertSucceeds(getDoc(favorite));
+  await assertFails(getDoc(doc(g2,'users/g1/favorites/r')));
+  await assertFails(setDoc(doc(g2,'users/g1/favorites/r'),{roomId:'r',roomName:'X',createdAt:serverTimestamp()}));
+  await assertFails(setDoc(favorite,{roomId:'different',roomName:'X',createdAt:serverTimestamp()}));
+  await assertFails(setDoc(favorite,{roomId:'r',roomName:'X',totalAmount:1,createdAt:serverTimestamp()}));
+  await env.withSecurityRulesDisabled(async context=>{
+    await setDoc(doc(context.firestore(),'rooms/r'),{approvalStatus:'DRAFT',listingStatus:'INACTIVE'});
+  });
+  await assertFails(setDoc(favorite,{roomId:'r',roomName:'X',createdAt:serverTimestamp()}));
+  await assertSucceeds(deleteDoc(favorite));
 });
 test('idempotent retries return same booking; reused key with different input rejected',async()=>{
   const [a,b]=await Promise.all([api.create('g1',request('retry')),api.create('g1',request('retry'))]);

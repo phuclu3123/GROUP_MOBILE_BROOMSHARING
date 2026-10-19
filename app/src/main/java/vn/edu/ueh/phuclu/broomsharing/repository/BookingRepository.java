@@ -96,6 +96,55 @@ public class BookingRepository {
                 }).addOnFailureListener(cb::onError);
     }
 
+    public void get(String id, ResultCallback<Booking> cb) {
+        if (id == null || !id.matches("[a-zA-Z0-9_-]{1,128}")) { cb.onError(new Exception("Mã đặt chỗ không hợp lệ.")); return; }
+        FirebaseHelper.getFirestore().collection("bookings").document(id)
+            .get(com.google.firebase.firestore.Source.SERVER).addOnSuccessListener(doc -> {
+                try {
+                    Booking booking = doc.toObject(Booking.class);
+                    String uid = com.google.firebase.auth.FirebaseAuth.getInstance().getUid();
+                    if (booking == null || uid == null || !uid.equals(booking.guestUid)) throw new Exception("Không tìm thấy đặt chỗ của bạn.");
+                    booking.id = doc.getId(); cb.onSuccess(booking);
+                } catch (Exception e) { cb.onError(e); }
+            }).addOnFailureListener(cb::onError);
+    }
+
+    public com.google.firebase.firestore.ListenerRegistration watchMine(String uid, ResultCallback<List<Booking>> cb) {
+        return FirebaseHelper.getFirestore().collection("bookings").whereEqualTo("guestUid", uid)
+            .addSnapshotListener(com.google.firebase.firestore.MetadataChanges.INCLUDE, (rows,error) -> {
+                if (error != null) { cb.onError(error); return; }
+                if (rows == null || rows.getMetadata().isFromCache()) return;
+                try {
+                    List<Booking> list = new ArrayList<>();
+                    for (com.google.firebase.firestore.DocumentSnapshot doc : rows) {
+                        Booking booking = doc.toObject(Booking.class);
+                        if (booking != null) { booking.id = doc.getId(); list.add(booking); }
+                    }
+                    list.sort(Comparator.comparing(Booking::getStartAt, Comparator.nullsLast(Comparator.reverseOrder())));
+                    cb.onSuccess(list);
+                } catch (Exception e) { cb.onError(e); }
+            });
+    }
+
+    public void availability(String roomId, long start, long end, ResultCallback<List<Booking>> cb) {
+        Map<String,Object> data = new HashMap<>(); data.put("roomId",roomId); data.put("startAt",start); data.put("endAt",end);
+        call("getRoomAvailability",data,new ResultCallback<Map<String,Object>>() {
+            public void onSuccess(Map<String,Object> value) {
+                try {
+                    List<Booking> result = new ArrayList<>();
+                    for (Object raw : (List<?>)value.get("intervals")) {
+                        Map<?,?> range = (Map<?,?>)raw; Booking booking = new Booking();
+                        booking.startAt = new Date(((Number)range.get("startAt")).longValue());
+                        booking.endAt = new Date(((Number)range.get("endAt")).longValue());
+                        booking.status = Booking.STATUS_CONFIRMED; result.add(booking);
+                    }
+                    cb.onSuccess(result);
+                } catch (Exception e) { cb.onError(new Exception("Chưa đọc được lịch trống.",e)); }
+            }
+            public void onError(Exception e) { cb.onError(e); }
+        });
+    }
+
     private ResultCallback<Map<String, Object>> result(ResultCallback<String> cb, String key) {
         return new ResultCallback<Map<String, Object>>() {
             public void onSuccess(Map<String, Object> value) {

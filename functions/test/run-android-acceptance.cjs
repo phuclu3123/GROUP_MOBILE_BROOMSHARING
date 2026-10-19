@@ -14,10 +14,10 @@ function run(args,log) {
 }
 run(['install','-r',path.join(root,'app/build/outputs/apk/debug/app-debug.apk')],'install-app.log');
 run(['install','-r',path.join(root,'app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk')],'install-test.log');
-const args=['shell','am','instrument','-w','-r','-e','class','vn.edu.ueh.phuclu.broomsharing.LiveBookingAcceptanceTest','-e','runLiveBooking','true','-e','roomId',state.roomId,'-e','startAt',String(state.start+state.androidAttempts*7200000),'-e','runId',state.run+'_'+Date.now()];
+const args=['shell','am','instrument','-w','-r','-e','class','vn.edu.ueh.phuclu.broomsharing.LiveBookingAcceptanceTest,vn.edu.ueh.phuclu.broomsharing.LiveGuestUiAcceptanceTest','-e','runLiveBooking','true','-e','roomId',state.roomId,'-e','startAt',String(state.start+state.androidAttempts*7200000),'-e','runId',state.run+'_'+Date.now()];
 for(const label of ['guest','host','admin'])args.push('-e',label+'Email',state.accounts[label].email,'-e',label+'Password',state.accounts[label].password);
 args.push('vn.edu.ueh.phuclu.broomsharing.test/androidx.test.runner.AndroidJUnitRunner');
 const result=run(args,'android-instrumentation.log');
-if(!/OK \(1 test\)/.test(result))throw new Error('Android acceptance failed; see sanitized instrumentation log');
-for(const name of ['guest','host'])run(['pull','/sdcard/Android/data/vn.edu.ueh.phuclu.broomsharing/files/acceptance-'+name+'.png',path.join(folder,'android-'+name+'.png')],'pull-'+name+'.log');
+if(!/OK \(2 tests\)/.test(result))throw new Error('Android acceptance failed; see sanitized instrumentation log');
+for(const name of ['guest','host','guest-form','guest-confirmation','guest-favorites'])run(['pull','/sdcard/Android/data/vn.edu.ueh.phuclu.broomsharing/files/acceptance-'+name+'.png',path.join(folder,'android-'+name+'.png')],'pull-'+name+'.log');
 console.log('PASS Android real Auth, local Functions, real named Firestore; Guest/Host lists and Admin actions');
