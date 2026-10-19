@@ -25,47 +25,154 @@
     </LinearLayout>
 
     <ScrollView
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"
+        app:layout_constraintTop_toBottomOf="@id/topBar"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/topBar">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+        app:layout_constraintEnd_toEndOf="parent">
 
-            <ImageView android:layout_width="64dp" android:layout_height="64dp" android:layout_gravity="center_horizontal" android:contentDescription="Thành công" android:src="@drawable/ic_check" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center" android:text="Đặt chỗ thành công" android:textColor="@color/text_primary" android:textSize="22sp" android:textStyle="bold" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:gravity="center" android:text="Mã đặt chỗ: BR-290926-1024" android:textColor="@color/teal_dark" android:textSize="12sp" android:textStyle="bold" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
 
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:background="@drawable/bg_card" android:orientation="vertical">
-                <ImageView android:layout_width="match_parent" android:layout_height="150dp" android:contentDescription="Nova Shared Office" android:scaleType="centerCrop" android:src="@drawable/booking_hero" />
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp">
-                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Nova Shared Office" android:textColor="@color/text_primary" android:textSize="17sp" android:textStyle="bold" />
-                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:drawableStart="@drawable/ic_location" android:drawablePadding="5dp" android:text="90 Nguyễn Hữu Cảnh, P.22, Bình Thạnh, TP.HCM" android:textColor="@color/text_secondary" android:textSize="11sp" />
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:orientation="horizontal">
-                        <LinearLayout android:layout_width="0dp" android:layout_height="64dp" android:layout_weight="1" android:background="@drawable/bg_soft_panel" android:gravity="center" android:orientation="vertical"><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="13:00–17:00" android:textColor="@color/text_primary" android:textSize="13sp" android:textStyle="bold"/><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Thứ Ba, 29/09/2026" android:textColor="@color/text_secondary" android:textSize="10sp"/></LinearLayout>
-                        <LinearLayout android:layout_width="0dp" android:layout_height="64dp" android:layout_marginStart="8dp" android:layout_weight="1" android:background="@drawable/bg_soft_panel" android:gravity="center" android:orientation="vertical"><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="03 Bàn Zone A" android:textColor="@color/text_primary" android:textSize="13sp" android:textStyle="bold"/><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="View ban công thoáng" android:textColor="@color/text_secondary" android:textSize="10sp"/></LinearLayout>
-                    </LinearLayout>
-                </LinearLayout>
+            <ImageView
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_gravity="center_horizontal"
+                android:contentDescription="Đã gửi yêu cầu"
+                android:src="@drawable/ic_check" />
+
+            <TextView
+                android:id="@+id/tvConfirmationTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:text="@string/booking_success_title"
+                android:textColor="@color/text_primary"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvConfirmationCode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:textColor="@color/teal_dark"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:background="@drawable/bg_card"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/tvConfirmationRoom"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_primary"
+                    android:textSize="17sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvConfirmationAddress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/tvConfirmationRange"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:textColor="@color/text_primary"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/tvConfirmationMode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="14dp"
+                    android:background="@color/border" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/booking_total_label"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/tvConfirmationTotal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textColor="@color/teal_dark"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/booking_deposit_unpaid"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/tvConfirmationDeposit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textColor="@color/text_primary"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/booking_pending_explanation"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
             </LinearLayout>
 
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:background="@drawable/bg_card" android:gravity="center_horizontal" android:orientation="vertical" android:padding="16dp">
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_status" android:paddingStart="10dp" android:paddingTop="5dp" android:paddingEnd="10dp" android:paddingBottom="5dp" android:text="Mã QR đặt chỗ" android:textColor="@color/teal_dark" android:textSize="11sp" android:textStyle="bold" />
-                <ImageView android:layout_width="190dp" android:layout_height="190dp" android:layout_marginTop="8dp" android:contentDescription="QR đặt chỗ" android:src="@drawable/booking_qr" />
-                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center" android:text="Xuất trình mã QR khi check-in tại không gian." android:textColor="@color/text_secondary" android:textSize="11sp" />
-                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:gravity="center" android:text="Mã PIN: 8392" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold" />
-            </LinearLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnGoBookings"
+                style="@style/Widget.BroomSharing.AuthButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/booking_to_my_bookings" />
 
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:background="@drawable/bg_card" android:orientation="vertical" android:padding="14dp">
-                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Biên lai thanh toán" android:textColor="@color/text_primary" android:textSize="16sp" android:textStyle="bold" />
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:orientation="horizontal"><TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Giá thuê (120.000đ × 4 giờ)" android:textColor="@color/text_secondary" android:textSize="12sp"/><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="480.000đ" android:textColor="@color/text_primary" android:textSize="12sp" android:textStyle="bold"/></LinearLayout>
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="7dp" android:orientation="horizontal"><TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Phí nền tảng &amp; tiện ích" android:textColor="@color/text_secondary" android:textSize="12sp"/><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="24.000đ" android:textColor="@color/text_primary" android:textSize="12sp" android:textStyle="bold"/></LinearLayout>
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:layout_marginTop="10dp" android:background="@color/border" />
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:orientation="horizontal"><TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Tổng thanh toán" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold"/><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="504.000đ" android:textColor="@color/teal_dark" android:textSize="16sp" android:textStyle="bold"/></LinearLayout>
-            </LinearLayout>
-
-            <TextView android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="16dp" android:layout_marginBottom="12dp" android:background="@drawable/bg_button_primary" android:gravity="center" android:text="Về danh sách đặt chỗ của tôi" android:textColor="@color/white" android:textSize="13sp" android:textStyle="bold" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnBackExplore"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                android:text="@string/booking_continue_explore" />
         </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

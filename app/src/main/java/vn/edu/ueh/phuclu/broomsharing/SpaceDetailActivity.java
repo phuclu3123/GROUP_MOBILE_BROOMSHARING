@@ -1,9 +1,8 @@
 package vn.edu.ueh.phuclu.broomsharing;
 
+import android.content.Intent;
 import androidx.lifecycle.ViewModelProvider;
-
 import com.bumptech.glide.Glide;
-
 import vn.edu.ueh.phuclu.broomsharing.databinding.ActivitySpaceDetailBinding;
 import vn.edu.ueh.phuclu.broomsharing.model.*;
 import vn.edu.ueh.phuclu.broomsharing.ui.RoomViewModel;
@@ -46,11 +45,22 @@ public class SpaceDetailActivity extends SessionActivity {
         String id = getIntent().getStringExtra(ROOM_ID);
         b.detailToolbar.setNavigationOnClickListener(v -> finish());
         b.btnRefresh.setOnClickListener(v -> model.load(id));
+        b.btnBook.setOnClickListener(v -> {
+            if (id == null || id.trim().isEmpty()) {
+                return;
+            }
+            Intent intent = new Intent(
+                    SpaceDetailActivity.this,
+                    BookingActivity.class);
+            intent.putExtra(BookingActivity.ROOM_ID, id);
+            startActivity(intent);
+        });
         model.detail()
                 .observe(
                         this,
                         state -> {
                             b.btnRefresh.setEnabled(!state.loading);
+                            b.btnBook.setEnabled(!state.loading && state.data != null);
                             b.details.setText("");
                             b.title.setText("");
                             com.bumptech.glide.Glide.with(this).clear(b.cover);
@@ -67,21 +77,21 @@ public class SpaceDetailActivity extends SessionActivity {
                             String price =
                                     Room.MODE_HOURLY.equals(r.getActiveMode())
                                             ? FormatUtils.formatCurrency(r.getPricePerHour())
-                                                    + "/giờ"
+                                            + "/giờ"
                                             : (r.getPricePerMonth() > 0
-                                                            ? FormatUtils.formatCurrency(
-                                                                            r.getPricePerMonth())
-                                                                    + "/tháng"
-                                                            : "")
-                                                    + (r.getPricePerMonth() > 0
-                                                                    && r.getPricePerQuarter() > 0
-                                                            ? " • "
-                                                            : "")
-                                                    + (r.getPricePerQuarter() > 0
-                                                            ? FormatUtils.formatCurrency(
-                                                                            r.getPricePerQuarter())
-                                                                    + "/quý"
-                                                            : "");
+                                            ? FormatUtils.formatCurrency(
+                                            r.getPricePerMonth())
+                                            + "/tháng"
+                                            : "")
+                                            + (r.getPricePerMonth() > 0
+                                            && r.getPricePerQuarter() > 0
+                                            ? " • "
+                                            : "")
+                                            + (r.getPricePerQuarter() > 0
+                                            ? FormatUtils.formatCurrency(
+                                            r.getPricePerQuarter())
+                                            + "/quý"
+                                            : "");
                             b.details.setText(
                                     safe(r.getAddress())
                                             + "\n"
@@ -102,10 +112,10 @@ public class SpaceDetailActivity extends SessionActivity {
                                             + safe(r.getCloseTime())
                                             + "\n"
                                             + android.text.TextUtils.join(
-                                                    ", ",
-                                                    r.getAmenities() == null
-                                                            ? java.util.Collections.emptyList()
-                                                            : r.getAmenities())
+                                            ", ",
+                                            r.getAmenities() == null
+                                                    ? java.util.Collections.emptyList()
+                                                    : r.getAmenities())
                                             + "\n\n"
                                             + safe(r.getRules())
                                             + "\n\nNgười cho thuê: "
@@ -121,11 +131,11 @@ public class SpaceDetailActivity extends SessionActivity {
                                             + "\nHướng dẫn vào: "
                                             + safe(building.getDirectionGuide())
                                             + (building.getLocation() == null
-                                                    ? ""
-                                                    : "\nTọa độ do chủ cung cấp: "
-                                                            + building.getLatitude()
-                                                            + ", "
-                                                            + building.getLongitude())
+                                            ? ""
+                                            : "\nTọa độ do chủ cung cấp: "
+                                            + building.getLatitude()
+                                            + ", "
+                                            + building.getLongitude())
                                             + "\n\n"
                                             + "Nội dung được Admin duyệt; địa điểm chưa được xác"
                                             + " minh độc lập.");

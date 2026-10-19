@@ -18,29 +18,72 @@
                 <TextView android:layout_width="wrap_content" android:layout_height="36dp" android:layout_marginStart="7dp" android:background="@drawable/bg_chip" android:gravity="center" android:paddingStart="14dp" android:paddingEnd="14dp" android:text="Đã hủy" android:textColor="@color/text_primary" android:textSize="11sp" />
             </LinearLayout>
         </HorizontalScrollView>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <Spinner
+                android:id="@+id/spinnerBookingFilter"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_input"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRefreshBookings"
+                style="@style/Widget.BroomSharing.AuthButton"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="0dp"
+                android:gravity="center"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:minHeight="48dp"
+                android:text="Tải lại" />
+
+        </LinearLayout>
     </LinearLayout>
 
-    <ScrollView android:layout_width="0dp" android:layout_height="0dp" android:fillViewport="true" app:layout_constraintBottom_toTopOf="@+id/bottomNav" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/header">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Tuần này" android:textColor="@color/text_primary" android:textSize="16sp" android:textStyle="bold" />
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:padding="16dp"
+        app:layout_constraintTop_toBottomOf="@id/header"
+        app:layout_constraintBottom_toTopOf="@id/bottomNav"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:background="@drawable/bg_card" android:orientation="vertical">
-                <ImageView android:layout_width="match_parent" android:layout_height="145dp" android:contentDescription="Nova Shared Office" android:scaleType="centerCrop" android:src="@drawable/booking_hero" />
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp">
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal"><TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Nova Shared Office" android:textColor="@color/text_primary" android:textSize="16sp" android:textStyle="bold"/><TextView android:layout_width="wrap_content" android:layout_height="28dp" android:background="@drawable/bg_status" android:gravity="center" android:paddingStart="10dp" android:paddingEnd="10dp" android:text="Đã xác nhận" android:textColor="@color/teal_dark" android:textSize="10sp" android:textStyle="bold"/></LinearLayout>
-                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Thứ Ba, 29/09 • 13:00–17:00 • 03 Bàn Zone A" android:textColor="@color/text_secondary" android:textSize="11sp" />
-                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="Mã đặt chỗ: BR-290926-1024" android:textColor="@color/text_primary" android:textSize="11sp" android:textStyle="bold" />
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:orientation="horizontal"><TextView android:layout_width="0dp" android:layout_height="38dp" android:layout_weight="1" android:background="@drawable/bg_button_outline" android:gravity="center" android:text="Xem mã QR" android:textColor="@color/teal" android:textSize="11sp" android:textStyle="bold"/><TextView android:layout_width="0dp" android:layout_height="38dp" android:layout_marginStart="8dp" android:layout_weight="1" android:background="@drawable/bg_button_primary" android:gravity="center" android:text="Xem chi tiết" android:textColor="@color/white" android:textSize="11sp" android:textStyle="bold"/></LinearLayout>
-                </LinearLayout>
-            </LinearLayout>
+        <ProgressBar
+            android:id="@+id/progressBookings"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center_horizontal"
+            android:visibility="gone" />
 
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:text="Tháng sau" android:textColor="@color/text_primary" android:textSize="16sp" android:textStyle="bold" />
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:background="@drawable/bg_card" android:gravity="center_vertical" android:orientation="horizontal" android:padding="10dp">
-                <ImageView android:layout_width="92dp" android:layout_height="88dp" android:contentDescription="The Hive" android:scaleType="centerCrop" android:src="@drawable/nearby_hive" />
-                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="10dp" android:layout_weight="1" android:orientation="vertical"><TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="The Hive Nguyễn Huệ" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold"/><TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="05/10 • 09:00–12:00 • Phòng họp 6 người" android:textColor="@color/text_secondary" android:textSize="11sp"/><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="360.000đ" android:textColor="@color/teal_dark" android:textSize="13sp" android:textStyle="bold"/></LinearLayout>
-            </LinearLayout>
-        </LinearLayout>
-    </ScrollView>
+        <TextView
+            android:id="@+id/tvBookingsFeedback"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:accessibilityLiveRegion="polite"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerBookings"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clipToPadding="false"
+            android:paddingBottom="12dp" />
+    </LinearLayout>
 
     <LinearLayout android:id="@+id/bottomNav" android:layout_width="0dp" android:layout_height="66dp" android:background="@color/white" android:gravity="center" android:orientation="horizontal" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent">
         <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_home" android:contentDescription="Trang chủ"/><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Trang chủ" android:textColor="@color/text_secondary" android:textSize="10sp"/></LinearLayout>
