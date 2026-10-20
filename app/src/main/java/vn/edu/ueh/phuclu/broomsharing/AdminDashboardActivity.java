@@ -141,6 +141,11 @@ public class AdminDashboardActivity extends SessionActivity {
             .setNegativeButton(android.R.string.cancel,null).show();
     }
     private void select(ReviewItem item,boolean approve){
+        if("REPORT".equals(item.kind)){
+            String[] labels=approve?new String[]{"Đóng báo cáo, ghi kết luận","Ẩn phòng khỏi danh sách công khai","Khóa Host, chặn nhận đặt mới"}:new String[]{"Bỏ qua báo cáo, ghi lý do"};
+            String[] actions={"NO_ACTION","SUSPEND_ROOM","BLOCK_HOST"};
+            new AlertDialog.Builder(this).setTitle("Xử lý báo cáo").setItems(labels,(d,index)->reportReason(item,approve,actions[index])).setNegativeButton(android.R.string.cancel,null).show();return;
+        }
         if("VERIFICATION".equals(item.kind)&&approve&&!model.evidenceViewed(item)){
             b.tvFeedback.setText(R.string.admin_evidence_required);viewEvidence(item);return;
         }
@@ -161,5 +166,10 @@ public class AdminDashboardActivity extends SessionActivity {
         state.putInt("group", currentGroup);
         if (model != null) state.putString("section", model.selected);
         super.onSaveInstanceState(state);
+    }
+    private void reportReason(ReviewItem item,boolean resolve,String action){
+        EditText note=new EditText(this);note.setHint("Kết luận và lý do (10–1.000 ký tự)");note.setInputType(android.text.InputType.TYPE_CLASS_TEXT|android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+        AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Xác nhận xử lý").setMessage(item.title+"\nKhông tự hủy booking hoặc chuyển tiền. Lịch sử và nhật ký được giữ lại.").setView(note).setNegativeButton(android.R.string.cancel,null).setPositiveButton("Xác nhận",null).create();
+        dialog.setOnShowListener(d->dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v->{String reason=note.getText().toString().trim();if(reason.length()<10||reason.length()>1000){note.setError("Nhập từ 10 đến 1.000 ký tự.");return;}model.resolveReport(item,resolve,action,reason);dialog.dismiss();}));dialog.show();
     }
 }

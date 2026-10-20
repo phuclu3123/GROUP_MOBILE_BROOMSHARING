@@ -54,4 +54,11 @@ public class AdminViewModel extends ViewModel {
                     }
                 });
     }
+    public void resolveReport(ReviewItem item,boolean resolve,String action,String reason){
+        if(operation.getValue()!=null&&operation.getValue().loading)return;
+        operation.setValue(UiState.loading());new ReportRepository().resolve(item.id,resolve?"RESOLVED":"DISMISSED",action,reason,new ResultCallback<String>(){
+            public void onSuccess(String value){operation.setValue(UiState.success(value));}
+            public void onError(Exception e){operation.setValue(UiState.error(e));}
+        });
+    }
 }

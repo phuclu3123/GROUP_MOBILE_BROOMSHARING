@@ -270,7 +270,7 @@ public class AdminRepository {
                             + text(d, "reason");
         } else {
             title = text(d, "reason");
-            details = text(d, "description");
+            details = text(d, "description")+"\n\nPhòng: "+text(d,"roomId")+"\nChủ: "+text(d,"ownerUid")+"\nNgười gửi: "+text(d,"reporterUid")+"\nTrạng thái: "+status+"\nTệp bằng chứng: đang phát triển; không coi mô tả là kết luận vi phạm.";
         }
         ReviewItem item =
                 new ReviewItem(
@@ -340,6 +340,9 @@ public class AdminRepository {
             String reason,
             boolean evidenceReviewed,
             ResultCallback<String> cb) {
+        if("REPORT".equals(item.kind)){
+            new ReportRepository().resolve(item.id,approve?"RESOLVED":"DISMISSED","NO_ACTION",reason,cb);return;
+        }
         final String actor;
         String note = reason == null ? "" : reason.trim();
         try {
@@ -379,9 +382,6 @@ public class AdminRepository {
                                     break;
                                 case "VERIFICATION":
                                     collection = "propertyVerifications";
-                                    break;
-                                case "REPORT":
-                                    collection = "reports";
                                     break;
                                 default:
                                     throw new IllegalStateException("Nhóm duyệt không hợp lệ.");
@@ -439,23 +439,17 @@ public class AdminRepository {
                                 String pending =
                                         "ROOM".equals(item.kind)
                                                 ? "PENDING_REVIEW"
-                                                : "REPORT".equals(item.kind) ? "OPEN" : "PENDING";
+                                                : "PENDING";
                                 BookingPolicy.require(
                                         pending.equals(before),
                                         "Hồ sơ đã được xử lý. Vui lòng tải lại.");
                                 action = approve ? "APPROVE" : "REJECT";
                                 after =
-                                        "REPORT".equals(item.kind)
-                                                ? approve ? "RESOLVED" : "DISMISSED"
-                                                : "VERIFICATION".equals(item.kind)
+                                        "VERIFICATION".equals(item.kind)
                                                         ? approve ? "VERIFIED" : "REJECTED"
                                                         : approve ? "APPROVED" : "REJECTED";
                                 changes.put("reviewedBy", actor);
-                                changes.put(
-                                        "REPORT".equals(item.kind)
-                                                ? "resolution"
-                                                : "rejectionReason",
-                                        note);
+                                changes.put("rejectionReason", note);
                                 if ("HOST".equals(item.kind)) {
                                     hostRef =
                                             db.collection("users")

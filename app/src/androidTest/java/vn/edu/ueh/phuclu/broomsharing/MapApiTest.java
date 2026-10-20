@@ -37,7 +37,7 @@ public class MapApiTest {
                         }
 
                         public void onError(Exception e) {
-                            errors.add(e);
+                            errors.add(new Exception("Geocoding: "+e.getMessage()));
                             done.countDown();
                         }
                     });
@@ -52,12 +52,12 @@ public class MapApiTest {
                         }
 
                         public void onError(Exception e) {
-                            errors.add(e);
+                            errors.add(new Exception("Directions: "+e.getMessage()));
                             done.countDown();
                         }
                     });
             assertTrue(done.await(60, TimeUnit.SECONDS));
-            assertTrue("Provider request failed", errors.isEmpty());
+            assertTrue("Provider request failed: "+errors, errors.isEmpty());
         } finally {
             maps.close();
         }

@@ -52,14 +52,16 @@ public class MapViewModel extends AndroidViewModel {
     public void openRoom(String roomId) {
         if (roomId == null || roomId.equals(openedRoomId)) return;
         openedRoomId = roomId;
+        final int opening=++request;
         rooms.detail(roomId, new ResultCallback<RoomListing>() {
             public void onSuccess(RoomListing room) {
+                if(opening!=request)return;
                 MapPoint target = point(room);
                 if (target == null) { message.setValue("Phòng chưa có tọa độ để chỉ đường."); return; }
                 select(target, room);
                 directions();
             }
-            public void onError(Exception error) { message.setValue("Chưa tải được địa điểm của phòng. Hãy thử lại."); }
+            public void onError(Exception error) { if(opening==request)message.setValue("Chưa tải được địa điểm của phòng. Hãy thử lại."); }
         });
     }
     public String styleUrl() {

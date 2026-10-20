@@ -54,6 +54,13 @@ public class MapActivity extends SessionActivity {
     private boolean pickMode, firstRender=true;
     private String renderedMarkers, renderedRadius;
     private MapRoute renderedRoute;
+    private final ActivityResultLauncher<Intent> nearbyPicker=registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),result->{
+                Intent data=result.getData();if(result.getResultCode()!=RESULT_OK||data==null)return;
+                getIntent().putExtra("placeLat",data.getDoubleExtra("placeLat",Double.NaN)).putExtra("placeLon",data.getDoubleExtra("placeLon",Double.NaN)).putExtra("placeName",data.getStringExtra("placeName"))
+                        .putExtra("originLat",data.getDoubleExtra("originLat",Double.NaN)).putExtra("originLon",data.getDoubleExtra("originLon",Double.NaN));
+                consumePlaceSelection();
+            });
     private final ActivityResultLauncher<String[]> permission =
             registerForActivityResult(
                     new ActivityResultContracts.RequestMultiplePermissions(),
@@ -97,7 +104,13 @@ public class MapActivity extends SessionActivity {
         binding.mapCredits.setMovementMethod(android.text.method.LinkMovementMethod.getInstance());
         officeAdapter = new MapOfficeAdapter(this::chooseOffice,p->{closeResults();model.selectReference(p);});
         binding.mapList.setOnClickListener(v->showResults());
-        binding.mapToolbar.setOnMenuItemClickListener(item->{if(item.getItemId()==R.id.map_reload){model.refreshPlaces();return true;}return false;});
+        binding.mapToolbar.setOnMenuItemClickListener(item->{
+            if(item.getItemId()==R.id.map_reload){model.refreshPlaces();return true;}
+            if(item.getItemId()==R.id.map_places){
+                MapPoint center=model.destination.getValue()==null?model.origin.getValue():model.destination.getValue();
+                nearbyPicker.launch(NearbyPlacesActivity.intent(this,center).putExtra("originLat",model.origin.getValue().latitude).putExtra("originLon",model.origin.getValue().longitude));return true;
+            }return false;
+        });
         binding.mapPick.setOnClickListener(v->{pickMode=!pickMode;binding.mapPick.setText(pickMode?"Hủy chọn điểm":getString(R.string.map_pick));binding.mapMessage.setText(pickMode?"Chạm vào vị trí muốn tìm. Bạn có thể kéo và phóng to bản đồ trước khi chọn.":model.message.getValue());});
         binding.mapSearch.setOnClickListener(v -> search());
         binding.mapAddress.setOnEditorActionListener(
@@ -190,9 +203,21 @@ public class MapActivity extends SessionActivity {
                             .show();
                 });
         model.googleUrl.observe(this, value -> consumeFallback());
+        consumePlaceSelection();
         createMap();
         model.start();
         model.openRoom(getIntent().getStringExtra(SpaceDetailActivity.ROOM_ID));
+    }
+
+    private void consumePlaceSelection(){
+        if(model!=null&&getIntent().hasExtra("placeLat")){
+            MapPoint point=new MapPoint(getIntent().getDoubleExtra("placeLat",Double.NaN),getIntent().getDoubleExtra("placeLon",Double.NaN),getIntent().getStringExtra("placeName"));
+            MapPoint origin=new MapPoint(getIntent().getDoubleExtra("originLat",Double.NaN),getIntent().getDoubleExtra("originLon",Double.NaN),"Điểm xuất phát đã chọn");
+            if(MapArea.contains(origin))model.setOrigin(origin);
+            if(MapArea.contains(point)){model.select(point,null);model.directions();}
+            getIntent().removeExtra("placeLat");
+            getIntent().removeExtra(SpaceDetailActivity.ROOM_ID);
+        }
     }
 
     private void search() {

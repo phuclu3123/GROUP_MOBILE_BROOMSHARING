@@ -1,5 +1,37 @@
 # Build và kiểm thử
 
+## Phúc giai đoạn 3 — phạm vi đối chiếu
+
+Đối chiếu sheet `03 PHÚC ADMIN API`, hàng 47–55 (P22–P30), dùng làm sườn. Các lựa chọn đã thống nhất với chủ dự án được ưu tiên hơn công nghệ gợi ý trong Excel. Chưa bắt đầu P31 trở đi hoặc tích hợp phần giai đoạn 3 của các thành viên khác.
+
+| Mục | Cách xử lý trong phạm vi đã chốt |
+| --- | --- |
+| P22 định vị | LocationManager foreground, xin quyền, kiểm tra tuổi/độ chính xác và vùng TP.HCM; không Fused/GPS nền. Đã có nghiệm thu bản đồ trước đó. |
+| P23 tuyến thật | openrouteservice Directions + MapLibre, khoảng cách/thời gian và cache; lỗi mới mở Google Maps. |
+| P24 tiện ích | Màn Java/XML và Repository MapTiler reverse POI, lọc nhóm từ 10 POI gần nhất trong 1 km, kiểm tra bán kính/cap/cache/ghi công. Không cam kết tìm toàn bộ dịch vụ. Overpass bị timeout đã bỏ khỏi mã ứng dụng. |
+| P25 key/chi phí | Key đọc từ `.env`, không commit hoặc log; không có khóa Firebase Admin trong APK. Key bản đồ phía client vẫn trích xuất được từ APK; giới hạn quota/quyền tại provider, chưa có proxy/backend theo phạm vi đã chọn. Không tuyên bố đã bảo mật secret phía server. |
+| P26 chat | Hai bên thật, transaction gửi tin, server timestamp, bộ đếm đã đọc và Rules riêng tư; không cho Admin đọc chat. |
+| P27 cập nhật | Dùng chung Guest/Host, booking hiện tại + tin nhắn cuối; booking có receipt Firestore, chat có read counter. Notification cục bộ opt-in; không FCM, không lịch sử bất biến của mọi event. |
+| P28 tiền cọc | **Hoãn theo yêu cầu**; “Chức năng đang phát triển”, không tự ghi PAID/đã hoàn. |
+| P29 báo cáo | Form báo phòng → hàng chờ Admin → kết luận/bỏ qua, ẩn phòng hoặc khóa Host và audit cùng transaction. Ảnh/PDF riêng tư và thông báo cảnh cáo chuyên biệt chưa triển khai. |
+| P30 offline | Chờ server ack, loại cache/pending writes ở luồng cần đồng bộ mới; tháo listener theo lifecycle, thử lại có trạng thái rõ. Kiểm thử ngắt mạng emulator thật, không suy ra offline từ SDK disableNetwork. |
+
+Các phần môn học dùng trực tiếp: Activity/Intent/lifecycle (02.1–02.3), Menu/Picker/RecyclerView (04.3–04.5), async/Internet (07.1–07.2), Notifications (08.1), ViewModel/LiveData (10.1). Java/XML + MVVM + Repository + Model; không thêm JS, DTO, Functions hoặc backend riêng. Excel/slide gốc không bị sửa.
+
+### Kết quả nghiệm thu giai đoạn 3 (20/10/2026)
+
+[Báo cáo có số liệu, thời gian và SHA APK](../../data/demo/phuc-phase3-verification.json): build APK và AndroidTest APK đạt; **56 unit test**, **9 bài Android** trong các cohort riêng đều đạt; lint **0 lỗi, 494 cảnh báo**. Không gộp thành một lượt chạy toàn bộ ứng dụng hoặc tuyên bố đã kiểm hết mọi thiết bị.
+
+- 4 bài UI: form gửi báo cáo và xử lý Admin có lý do bắt buộc; danh sách POI thật giữ qua recreate và trả Activity Result; quay về cùng MapView và nhận tuyến thật; một cập nhật chưa đọc chuyển sang đã đọc và màn hình thật vẫn hiển thị đúng sau recreate. Đã xem ảnh màn hình báo cáo, hàng chờ Admin, danh sách tiện ích, tuyến và hộp cập nhật.
+- 2 bài cloud/provider: Guest gửi đúng chủ phòng/thời gian server và retry không trùng, kể cả sau khi phòng bị ẩn; chặn giả chủ, tự kết luận, đọc/ghi chéo tài khoản. Admin lưu kết luận/audit, từ chối xử lý lặp, ẩn phòng và khóa Host/PublicHost trong transaction. Ngắt Wi-Fi/data emulator thật: transaction báo lỗi, document offline không được tạo; phục hồi mạng trước khi đọc lại. Parser lọc ngoài bán kính và JSON lỗi; MapTiler trả 7 tiện ích phù hợp quanh Bùi Minh Trực Q8 trong 1 km.
+- 3 bài hồi quy: chat realtime/đồng thời/retry/read counter và quyền riêng tư; geocoding + Directions thật tại TP.HCM; ưu tiên tuyến trong app trước khi fallback. Bài UI tới POI nhận tuyến ô tô **168,4 m**, giữ cùng MapView và điểm xuất phát. Lượt cuối không tái hiện ANR; chưa đo FPS hoặc thử ngoài thực địa.
+- Rules cloud được ghép giữ contract Host của phiên làm việc song song, kiểm tra cú pháp đạt và đọc lại khớp local. Lần deploy có kiểm tra phiên bản trước khi ghi; thông tin ruleset/hash nằm trong báo cáo.
+- Đã xóa đúng fixture QA: Auth/Host/phòng/tòa nhà, 4 báo cáo cùng audit và receipt thử riêng; đọc lại xác nhận đã dọn. **157 document demo gốc vẫn khớp toàn bộ trường**, Admin thấy 13 users, liên kết booking/lịch vẫn hợp lệ. Tin nhắn QA và trạng thái đã đọc của tài khoản demo được giữ làm dấu vết nghiệm thu.
+
+Các lượt trước từng thất bại vì Overpass timeout, openrouteservice timeout/502 tạm thời, Rules cloud bị phiên khác thay trong khi chạy, và chuyển focus/đóng bản đồ khi kiểm thử. Bản cuối dùng MapTiler reverse POI, ghép Rules đã được chủ dự án duyệt và trả lựa chọn về bản đồ cũ bằng Activity Result. Harness đợi cả View sau recreate thay vì chỉ nhìn dữ liệu ViewModel giữ lại, tránh chụp nhầm màn kiểm tra phiên. Các lượt thất bại này không được tính thành lượt đạt; các cohort cuối ở báo cáo đều đạt.
+
+P28 thanh toán/hoàn tiền và ảnh/PDF riêng tư tiếp tục hoãn theo yêu cầu. Hộp cập nhật là trạng thái hiện tại/tin cuối; không có FCM hoặc lịch sử mọi event. Key client vẫn có thể trích xuất từ APK. Các giới hạn và việc cần trao đổi khi ghép phần Host/Trúc được giữ trong bảng phạm vi; giai đoạn 4 chưa bắt đầu.
+
 Mặc định ứng dụng kết nối **Firestore cloud `broomsharing`** của project hiện có. Emulator chỉ là lựa chọn kiểm thử để kiểm tra tranh chỗ và thao tác bị từ chối trước khi phát hành Rules.
 
 ## Chạy bản dùng cloud

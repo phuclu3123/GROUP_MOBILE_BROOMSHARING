@@ -360,7 +360,7 @@ public class BookingRepository {
                                 callback.onError(error);
                                 return;
                             }
-                            if (rows != null && !rows.getMetadata().isFromCache())
+                            if (rows != null && !rows.getMetadata().isFromCache() && !rows.getMetadata().hasPendingWrites())
                                 deliver(rows, callback);
                         });
     }

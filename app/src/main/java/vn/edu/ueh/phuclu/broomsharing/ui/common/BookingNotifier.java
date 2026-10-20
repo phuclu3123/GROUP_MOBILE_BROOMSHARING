@@ -23,7 +23,7 @@ public final class BookingNotifier {
         if(Build.VERSION.SDK_INT>=33&&ContextCompat.checkSelfPermission(c,Manifest.permission.POST_NOTIFICATIONS)!=PackageManager.PERMISSION_GRANTED)return;
         if(!NotificationManagerCompat.from(c).areNotificationsEnabled())return;
         int count=0;BookingNotice newest=null;
-        for(BookingNotice n:notices)if(!prefs.getBoolean("delivered:"+n.id,false)){count++;if(newest==null)newest=n;}
+        for(BookingNotice n:notices)if(n.conversationId.isEmpty()&&n.unread&&!prefs.getBoolean("delivered:"+n.id,false)){count++;if(newest==null)newest=n;}
         if(count==0)return;
         NotificationManager manager=c.getSystemService(NotificationManager.class);
         manager.createNotificationChannel(new NotificationChannel(CHANNEL,"Cập nhật đặt chỗ",NotificationManager.IMPORTANCE_DEFAULT));
@@ -34,6 +34,6 @@ public final class BookingNotifier {
             .setContentText("Mở ứng dụng để xem trạng thái và chính sách hiện tại.")
             .setContentIntent(pending).setAutoCancel(true).setVisibility(NotificationCompat.VISIBILITY_PRIVATE);
         NotificationManagerCompat.from(c).notify(uid.hashCode(),builder.build());
-        android.content.SharedPreferences.Editor edit=prefs.edit();for(BookingNotice n:notices)edit.putBoolean("delivered:"+n.id,true);edit.apply();
+        android.content.SharedPreferences.Editor edit=prefs.edit();for(BookingNotice n:notices)if(n.conversationId.isEmpty()&&n.unread)edit.putBoolean("delivered:"+n.id,true);edit.apply();
     }
 }

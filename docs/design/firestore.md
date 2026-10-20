@@ -28,6 +28,16 @@ Host sửa phòng đọc lịch đang giữ chỗ trước khi đổi mode, ngà
 
 Booking theo mẫu cũ không có `monthKeys`/schemaVersion 2 vẫn đọc được nhưng không tự nhả khóa bằng cơ chế mới. Cần rà soát/chuyển dữ liệu có thật trước khi hỗ trợ thay đổi các booking đó; không tự chuyển booking cũ khi chưa đối soát. Tại lần kiểm tra trước khi nạp dataset 19/10/2026 chưa có booking nào; dataset bổ sung sau đó dùng toàn bộ schemaVersion 2. Collection lịch ngày/tháng cũ không được dùng cho booking Java mới. Nếu cloud có booking còn hiệu lực theo mẫu cũ, chưa được mở đặt mới trên cùng phòng trước khi đối soát/chuyển khóa lịch; nếu bỏ qua bước này có thể trùng với dữ liệu cũ.
 
+## Báo cáo và trạng thái đã đọc — giai đoạn 3
+
+`reports/{id}` nhận `RoomReport` gồm người báo, phòng, chủ phòng lấy từ dữ liệu phòng, loại vấn đề, mô tả, trạng thái OPEN và thời gian server. Người báo chỉ đọc báo cáo của mình; không sửa kết luận. Admin chuyển OPEN sang RESOLVED/DISMISSED, bắt buộc lý do, người duyệt và thời gian server. NO_ACTION ghi kết luận; SUSPEND_ROOM ẩn phòng; BLOCK_HOST khóa Host và đồng bộ PublicHost. Transaction ghi kết luận, chế tài và audit cùng lúc. Không thay booking hoặc trạng thái tiền. Bằng chứng tệp vẫn hoãn; không tuyên bố đã kiểm chứng ảnh/PDF riêng tư.
+
+Trong lúc nghiệm thu, một phiên khác phát hành Rules bổ sung Host đọc/phản hồi báo cáo thuộc mình (`hostResponse/updatedAt`) và tạo hồ sơ xác minh PENDING. Bản Phúc giữ nguyên hai contract đang có trên cloud, ghép thêm kiểm tra báo cáo và receipt; không ghi đè mất phần Host. UI phản hồi Host của nhánh thành viên khác chưa được tích hợp trong lượt Phúc. Cần rà lại validation nội dung/thời gian phản hồi cùng nhóm khi ghép phần Host; lượt này không tự sửa contract đó. Phát hành Rules đã được chủ dự án xác nhận riêng; có kiểm tra phiên bản trước khi ghi để tránh đè thay đổi đồng thời.
+
+`users/{uid}/noticeReads/{eventId}` chỉ chứa `readAt` là thời gian server. Chỉ chủ tài khoản đang hoạt động được đọc/ghi; không cho ghi trạng thái của người khác hoặc thêm nội dung thông báo giả. Event ID dựa trên booking/trạng thái/mốc chính sách; có trạng thái mới thì có mục chưa đọc mới. Nội dung thông báo không được sao chép thành một collection cho client tự gửi thay người khác. Chat tiếp tục dùng read counter bảo vệ trong conversation.
+
+Repository chỉ phát thành công khi có xác nhận server, bỏ snapshot cache/pending writes ở luồng yêu cầu dữ liệu mới. Màn cập nhật có trạng thái đồng bộ, lỗi và thử lại; listener được tháo khi dừng màn hình. `disableNetwork()` của SDK không được dùng làm bằng chứng mạng thiết bị đã ngắt đối với transaction; kiểm thử offline phải ngắt kết nối emulator thật.
+
 ## Rules và triển khai
 
 Chỉ giữ một bộ Firestore Rules: `firestore.rules`, được `firebase.json` tham chiếu. `.rules` là ngôn ngữ phân quyền của Firebase, không phải mã JavaScript.

@@ -211,8 +211,40 @@ service cloud.firestore {
                   && n.slotsBusy.toSet()==old.slotsBusy.toSet().difference(b.slotKeys.toSet()))));
       }
     }
-    match /propertyVerifications/{id} { allow read: if admin()||own(resource.data.ownerUid); allow update: if admin(); }
-    match /reports/{id} { allow read: if admin()||own(resource.data.reporterUid); allow create: if active()&&own(request.resource.data.reporterUid)&&request.resource.data.status=='OPEN'; allow update: if admin(); }
+    match /propertyVerifications/{id} {
+      allow read: if admin()||own(resource.data.ownerUid);
+      allow create: if host()&&own(request.resource.data.ownerUid)&&request.resource.data.status=='PENDING'&&request.resource.data.verificationType in ['LOCATION','PHOTOS','IDENTITY']&&request.resource.data.createdAt==request.time;
+      allow update: if admin();
+    }
+    match /users/{uid}/noticeReads/{id} {
+      allow read: if own(uid)&&active();
+      allow create,update: if own(uid)&&active()&&id.matches('[a-zA-Z0-9:_-]{1,256}')
+        && request.resource.data.keys().hasOnly(['readAt'])&&request.resource.data.readAt==request.time;
+    }
+    match /reports/{id} {
+      // Idempotent transactions must be able to check an unused ID before creating it.
+      allow get: if renter()&&!exists(/databases/$(database)/documents/reports/$(id));
+      allow read: if admin()||(active()&&own(resource.data.reporterUid))||(host()&&own(resource.data.get('ownerUid','')));
+      allow create: if renter()&&validReport();
+      // Preserve the Host reply contract already deployed by the parallel Host work.
+      allow update: if (admin()&&validResolution())||(host()&&own(resource.data.get('ownerUid',''))&&request.resource.data.diff(resource.data).affectedKeys().hasOnly(['hostResponse','updatedAt']));
+      function validReport(){
+        let r=request.resource.data;let room=get(/databases/$(database)/documents/rooms/$(r.roomId)).data;
+        return r.keys().hasOnly(['schemaVersion','id','reporterUid','roomId','ownerUid','reason','description','status','createdAt','updatedAt'])
+          && r.schemaVersion==1&&r.id==id&&own(r.reporterUid)&&r.ownerUid==room.ownerUid&&!own(r.ownerUid)&&publicRoom(room)
+          && r.reason in ['Sai thông tin','Ảnh không khớp','Nghi ngờ gian lận','Khác']&&r.description is string&&r.description.size()>=20&&r.description.size()<=2000
+          && r.status=='OPEN'&&r.createdAt==request.time&&r.updatedAt==request.time;
+      }
+      function validResolution(){
+        let r=request.resource.data;
+        return resource.data.status=='OPEN'&&r.status in ['RESOLVED','DISMISSED']
+          && r.diff(resource.data).affectedKeys().hasOnly(['status','action','resolution','reviewedBy','reviewedAt','updatedAt'])
+          && own(r.reviewedBy)&&r.reviewedAt==request.time&&r.updatedAt==request.time&&r.resolution is string&&r.resolution.size()>=10&&r.resolution.size()<=1000
+          && r.action in ['NO_ACTION','SUSPEND_ROOM','BLOCK_HOST']&&(r.status!='DISMISSED'||r.action=='NO_ACTION')
+          && (r.action!='SUSPEND_ROOM'||getAfter(/databases/$(database)/documents/rooms/$(r.roomId)).data.listingStatus=='SUSPENDED')
+          && (r.action!='BLOCK_HOST'||getAfter(/databases/$(database)/documents/users/$(r.ownerUid)).data.status=='BLOCKED');
+      }
+    }
     match /auditLogs/{id} {
       allow read: if admin();
       allow create: if active()&&own(request.resource.data.actorUid)&&request.resource.data.createdAt==request.time

@@ -29,7 +29,10 @@ public class BookingNoticesActivity extends SessionActivity {
             if(BookingNotifier.preferences(this,uid).getBoolean("enabled",false)){BookingNotifier.preferences(this,uid).edit().putBoolean("enabled",false).apply();renderButton();return;}
             if(Build.VERSION.SDK_INT>=33)permission.launch(Manifest.permission.POST_NOTIFICATIONS);else enable();
         });renderButton();
-        model.notices.observe(this,state->{if(state==null)return;b.noticeStatus.setText(state.loading?"Đang đồng bộ…":state.error!=null?state.error:state.data==null||state.data.isEmpty()?"Chưa có cập nhật đặt chỗ.":"");if(state.data!=null){adapter.rows=state.data;adapter.notifyDataSetChanged();}});
+        b.noticeRetry.setOnClickListener(v->model.retry());
+        model.notices.observe(this,state->b.noticeRetry.setVisibility(state!=null&&state.error!=null?View.VISIBLE:View.GONE));
+        model.notices.observe(this,state->{if(state==null)return;b.noticeStatus.setText(state.loading?"Đang đồng bộ…":state.error!=null?state.error:state.data==null||state.data.isEmpty()?"Chưa có cập nhật đặt chỗ.":"");adapter.rows=state.data==null?Collections.emptyList():state.data;adapter.notifyDataSetChanged();});
+        model.readError.observe(this,error->{if(error!=null)b.noticeStatus.setText(error);});
         model.start(profile.getUserRole()==UserRole.HOST);
     }
     private void renderButton(){b.noticePermission.setText(BookingNotifier.preferences(this,uid).getBoolean("enabled",false)?"Tắt thông báo trên thiết bị":"Bật thông báo trên thiết bị");}
@@ -38,7 +41,11 @@ public class BookingNoticesActivity extends SessionActivity {
         List<BookingNotice> rows=Collections.emptyList();
         @Override public int getItemCount(){return rows.size();}
         @Override public NoticeHolder onCreateViewHolder(ViewGroup p,int type){return new NoticeHolder(ItemConversationBinding.inflate(LayoutInflater.from(p.getContext()),p,false));}
-        @Override public void onBindViewHolder(NoticeHolder h,int pos){BookingNotice n=rows.get(pos);h.b.conversationName.setText(n.title);h.b.conversationPreview.setMaxLines(6);h.b.conversationPreview.setText(n.body);h.b.conversationUnread.setVisibility(View.GONE);h.b.getRoot().setOnClickListener(v->startActivity(new Intent(BookingNoticesActivity.this,n.forHost?vn.edu.ueh.phuclu.broomsharing.ui.host.HostBookingsActivity.class:BookingSuccessActivity.class).putExtra("bookingId",n.bookingId)));}
+        @Override public void onBindViewHolder(NoticeHolder h,int pos){BookingNotice n=rows.get(pos);h.b.conversationName.setText(n.title);h.b.conversationPreview.setMaxLines(6);h.b.conversationPreview.setText(n.body);h.b.conversationUnread.setVisibility(n.unread?View.VISIBLE:View.GONE);h.b.conversationUnread.setText("Mới");h.b.getRoot().setOnClickListener(v->{
+            model.markRead(n);
+            Intent target=!n.conversationId.isEmpty()?new Intent(BookingNoticesActivity.this,ChatActivity.class).putExtra("conversationId",n.conversationId):new Intent(BookingNoticesActivity.this,n.forHost?vn.edu.ueh.phuclu.broomsharing.ui.host.HostBookingsActivity.class:BookingSuccessActivity.class).putExtra("bookingId",n.bookingId);
+            startActivity(target);
+        });}
     }
     private static class NoticeHolder extends RecyclerView.ViewHolder{final ItemConversationBinding b;NoticeHolder(ItemConversationBinding b){super(b.getRoot());this.b=b;}}
 }

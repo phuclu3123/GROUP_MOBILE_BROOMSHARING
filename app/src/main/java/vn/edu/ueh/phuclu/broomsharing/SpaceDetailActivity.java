@@ -20,6 +20,7 @@ public class SpaceDetailActivity extends SessionActivity {
     public static final String ROOM_ID = "ROOM_ID";
     private int scrollY;
     private ActivitySpaceDetailBinding b;
+    private UserProfile viewer;
     @Override protected void onCreate(Bundle state) {
         if (state != null) scrollY = state.getInt("detail.scroll",0);
         super.onCreate(state);
@@ -30,6 +31,7 @@ public class SpaceDetailActivity extends SessionActivity {
     }
     @Override protected int pageLayout() { return R.layout.activity_space_detail; }
     @Override protected void onProfileReady(UserProfile profile) {
+        viewer=profile;
         b=ActivitySpaceDetailBinding.bind(((ViewGroup)findViewById(android.R.id.content)).getChildAt(0));
         b.gallery.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
         RoomViewModel model=new ViewModelProvider(this).get(RoomViewModel.class);
@@ -40,6 +42,7 @@ public class SpaceDetailActivity extends SessionActivity {
         b.btnDirections.setOnClickListener(v->startActivity(new Intent(this,MapActivity.class).putExtra(ROOM_ID,id)));
         b.btnChat.setOnClickListener(v->startActivity(new Intent(this,ChatActivity.class).putExtra(ROOM_ID,id).putExtra("roomName",b.title.getText().toString())));
         b.btnRefresh.setOnClickListener(v->model.load(id));
+        b.btnReport.setOnClickListener(v->startActivity(new Intent(this,RoomReportActivity.class).putExtra(ROOM_ID,id)));
         b.btnFavorite.setOnClickListener(v->{UiState<RoomListing> state=model.detail().getValue();if(state!=null&&state.data!=null)favorites.set(id,state.data.room.getRoomName(),!favorites.contains(id));});
         favorites.items.observe(this,state->{
             b.btnFavorite.setEnabled(state!=null&&state.data!=null&&!state.loading&&!favorites.busy());
@@ -60,11 +63,14 @@ public class SpaceDetailActivity extends SessionActivity {
         b.btnBook.setEnabled(state.data!=null&&!state.loading);
         b.btnDirections.setEnabled(false);
         b.btnChat.setEnabled(false); b.btnCall.setEnabled(false);
+        b.btnReport.setEnabled(false);
         for(TextView field:new TextView[]{b.title,b.price,b.summary,b.address,b.details,b.deposit,b.policies,b.location,b.verification})field.setText("");
         Glide.with(this).clear(b.cover);b.cover.setImageResource(R.drawable.bg_image_placeholder);b.gallery.setAdapter(null);
         b.tvFeedback.setText(state.loading?"Đang tải thông tin phòng…":state.error==null?"":state.error);
         if(state.data==null)return;
         Room room=state.data.room;Building building=state.data.building;
+        b.btnReport.setVisibility(viewer.getUserRole()==UserRole.ADMIN||viewer.uid.equals(room.getOwnerUid())?View.GONE:View.VISIBLE);
+        b.btnReport.setEnabled(true);
         b.title.setText(room.getRoomName());
         String price;
         if(Room.MODE_HOURLY.equals(room.getActiveMode()))price=FormatUtils.formatCurrency(room.getPricePerHour())+"/giờ";

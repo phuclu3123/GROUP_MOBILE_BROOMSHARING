@@ -9,6 +9,8 @@
     <activity android:name=".BookingActivity" android:exported="false" />
     <activity android:name=".ConversationsActivity" android:exported="false" />
     <activity android:name=".BookingNoticesActivity" android:exported="false" />
+    <activity android:name=".RoomReportActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+    <activity android:name=".NearbyPlacesActivity" android:exported="false" />
     <activity android:name=".ChatActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
     <activity android:name=".FavoritesActivity" android:exported="false" />
     <activity android:name=".CreateSpaceActivity" android:exported="false" />
