@@ -16,15 +16,19 @@ import java.util.function.Consumer;
 public class MapOfficeAdapter extends RecyclerView.Adapter<MapOfficeAdapter.Holder> {
     private final List<RoomListing> items = new ArrayList<>();
     private final Consumer<RoomListing> click;
+    private final List<RentalPlace> references=new ArrayList<>();
+    private final Consumer<RentalPlace> referenceClick;
     private MapPoint origin = MapArea.CENTER;
 
-    public MapOfficeAdapter(Consumer<RoomListing> click) {
+    public MapOfficeAdapter(Consumer<RoomListing> click,Consumer<RentalPlace> referenceClick) {
         this.click = click;
+        this.referenceClick=referenceClick;
     }
 
-    public void submit(List<RoomListing> rooms, MapPoint point) {
+    public void submit(List<RoomListing> rooms, List<RentalPlace> publicPlaces, MapPoint point) {
         items.clear();
         items.addAll(rooms);
+        references.clear();references.addAll(publicPlaces);
         origin = point;
         notifyDataSetChanged();
     }
@@ -34,11 +38,18 @@ public class MapOfficeAdapter extends RecyclerView.Adapter<MapOfficeAdapter.Hold
     public Holder onCreateViewHolder(@NonNull ViewGroup parent, int type) {
         return new Holder(
                 LayoutInflater.from(parent.getContext())
-                        .inflate(android.R.layout.simple_list_item_2, parent, false));
+                        .inflate(vn.edu.ueh.phuclu.broomsharing.R.layout.item_map_office, parent, false));
     }
 
     @Override
     public void onBindViewHolder(@NonNull Holder holder, int position) {
+        if(position>=items.size()){
+            RentalPlace p=references.get(position-items.size());
+            double meters=MapArea.distance(origin,new MapPoint(p.location.getLatitude(),p.location.getLongitude(),p.name));
+            holder.title.setText(p.name);
+            holder.subtitle.setText(String.format(Locale.getDefault(),"%.0f m · %s\nTham khảo từ tin công khai · Chưa xác nhận còn trống",meters,p.address));
+            holder.itemView.setOnClickListener(v->referenceClick.accept(p));return;
+        }
         RoomListing room = items.get(position);
         com.google.firebase.firestore.GeoPoint coordinate = room.building.getLocation();
         double meters =
@@ -53,7 +64,7 @@ public class MapOfficeAdapter extends RecyclerView.Adapter<MapOfficeAdapter.Hold
 
     @Override
     public int getItemCount() {
-        return items.size();
+        return items.size()+references.size();
     }
 
     static class Holder extends RecyclerView.ViewHolder {
@@ -61,8 +72,8 @@ public class MapOfficeAdapter extends RecyclerView.Adapter<MapOfficeAdapter.Hold
 
         Holder(View view) {
             super(view);
-            title = view.findViewById(android.R.id.text1);
-            subtitle = view.findViewById(android.R.id.text2);
+            title = view.findViewById(vn.edu.ueh.phuclu.broomsharing.R.id.mapOfficeTitle);
+            subtitle = view.findViewById(vn.edu.ueh.phuclu.broomsharing.R.id.mapOfficeSubtitle);
             view.setFocusable(true);
         }
     }

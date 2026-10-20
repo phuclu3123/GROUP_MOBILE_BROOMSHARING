@@ -9,6 +9,7 @@ import android.os.*;
 import androidx.core.content.ContextCompat;
 
 import vn.edu.ueh.phuclu.broomsharing.model.MapPoint;
+import vn.edu.ueh.phuclu.broomsharing.utils.MapArea;
 
 /** Foreground, one-shot location request, cancelled on screen stop. */
 public class LocationRepository {
@@ -48,9 +49,11 @@ public class LocationRepository {
                 return;
             }
             Location cached = manager.getLastKnownLocation(provider);
+            long age=cached==null?Long.MAX_VALUE:SystemClock.elapsedRealtimeNanos()-cached.getElapsedRealtimeNanos();
             if (cached != null
-                    && SystemClock.elapsedRealtimeNanos() - cached.getElapsedRealtimeNanos()
-                            <= 120_000_000_000L) {
+                    && age>=0 && age<=30_000_000_000L
+                    && cached.hasAccuracy() && cached.getAccuracy()<=150
+                    && MapArea.contains(point(cached))) {
                 callback.onSuccess(point(cached));
                 return;
             }

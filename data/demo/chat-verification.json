@@ -37,5 +37,28 @@
     "errors": 0,
     "warnings": 488
   },
-  "rulesSha256": "7e58e42cda054367e7c1bbc68df3cb4e787385d5aa0bece5136fd6b1fe479e58"
+  "rulesSha256": "7e58e42cda054367e7c1bbc68df3cb4e787385d5aa0bece5136fd6b1fe479e58",
+  "finalUiCohort": {
+    "verifiedAt": "2026-10-20T05:05:04.506Z",
+    "passed": true,
+    "tests": 13,
+    "seconds": 410.359,
+    "classes": [
+      "ChatUiTest",
+      "AuthUiTest",
+      "RoleWorkspaceTest",
+      "MapExperienceTest",
+      "AuthFormValidationTest"
+    ],
+    "softKeyboardSendVisible": true,
+    "deviceApi": 31,
+    "resolution": "1440x3120"
+  },
+  "finalBuild": {
+    "unitTests": 56,
+    "unitFailures": 0,
+    "lintErrors": 0,
+    "lintWarnings": 476,
+    "rulesSourceSha256": "5f0ef3d6a193d20cd18fa40aea4ccfaf2edd8bb9707a8d48782867a47c675c14"
+  }
 }

@@ -14,11 +14,13 @@ import androidx.lifecycle.*;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import org.maplibre.android.MapLibre;
-import org.maplibre.android.annotations.*;
 import org.maplibre.android.camera.CameraUpdateFactory;
 import org.maplibre.android.geometry.*;
 import org.maplibre.android.maps.*;
 import org.maplibre.android.style.layers.LineLayer;
+import org.maplibre.android.style.layers.FillLayer;
+import org.maplibre.android.style.layers.CircleLayer;
+import org.maplibre.android.style.expressions.Expression;
 import org.maplibre.android.style.layers.Property;
 import org.maplibre.android.style.layers.PropertyFactory;
 import org.maplibre.android.style.sources.GeoJsonSource;
@@ -45,7 +47,13 @@ public class MapActivity extends SessionActivity {
     private boolean mapStarted, mapResumed, mapLoaded;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Runnable mapTimeout = this::failed;
-    private final Map<Long, RoomListing> offices = new HashMap<>();
+    private final Map<String, List<RoomListing>> offices = new HashMap<>();
+    private final Map<String,RentalPlace> referenceMarkers=new HashMap<>();
+    private MapOfficeAdapter officeAdapter;
+    private com.google.android.material.bottomsheet.BottomSheetDialog resultsDialog;
+    private boolean pickMode, firstRender=true;
+    private String renderedMarkers, renderedRadius;
+    private MapRoute renderedRoute;
     private final ActivityResultLauncher<String[]> permission =
             registerForActivityResult(
                     new ActivityResultContracts.RequestMultiplePermissions(),
@@ -87,10 +95,10 @@ public class MapActivity extends SessionActivity {
                             + " contributors</a>",
                         android.text.Html.FROM_HTML_MODE_LEGACY));
         binding.mapCredits.setMovementMethod(android.text.method.LinkMovementMethod.getInstance());
-        MapOfficeAdapter adapter =
-                new MapOfficeAdapter(room -> model.select(model.point(room), room));
-        binding.mapRooms.setLayoutManager(new LinearLayoutManager(this));
-        binding.mapRooms.setAdapter(adapter);
+        officeAdapter = new MapOfficeAdapter(this::chooseOffice,p->{closeResults();model.selectReference(p);});
+        binding.mapList.setOnClickListener(v->showResults());
+        binding.mapToolbar.setOnMenuItemClickListener(item->{if(item.getItemId()==R.id.map_reload){model.refreshPlaces();return true;}return false;});
+        binding.mapPick.setOnClickListener(v->{pickMode=!pickMode;binding.mapPick.setText(pickMode?"Hủy chọn điểm":getString(R.string.map_pick));binding.mapMessage.setText(pickMode?"Chạm vào vị trí muốn tìm. Bạn có thể kéo và phóng to bản đồ trước khi chọn.":model.message.getValue());});
         binding.mapSearch.setOnClickListener(v -> search());
         binding.mapAddress.setOnEditorActionListener(
                 (v, action, event) -> {
@@ -108,7 +116,7 @@ public class MapActivity extends SessionActivity {
                                     Manifest.permission.ACCESS_COARSE_LOCATION
                                 }));
         binding.mapRoute.setOnClickListener(v -> model.directions());
-        binding.mapMore.setOnClickListener(v -> model.loadMore());
+        binding.mapMore.setOnClickListener(v -> model.refreshPlaces());
         binding.mapRetry.setOnClickListener(
                 v -> {
                     model.allowRetry();
@@ -117,6 +125,12 @@ public class MapActivity extends SessionActivity {
         binding.mapDetail.setOnClickListener(
                 v -> {
                     RoomListing selected = model.selectedRoom();
+                    RentalPlace reference=model.selectedReference();
+                    if(reference!=null){
+                        new AlertDialog.Builder(this).setTitle(reference.name).setMessage(reference.address+"\n\n"+reference.locationNote+"\n\n"+getString(R.string.map_reference_note))
+                            .setPositiveButton("Mở tin nguồn",(d,w)->{if(reference.sourceUrl.startsWith("https://"))openUrl(reference.sourceUrl,false);})
+                            .setNegativeButton(android.R.string.cancel,null).show();return;
+                    }
                     if (selected != null)
                         startActivity(
                                 new Intent(this, SpaceDetailActivity.class)
@@ -128,16 +142,15 @@ public class MapActivity extends SessionActivity {
         model.origin.observe(
                 this,
                 value -> {
+                    pickMode=false;binding.mapPick.setText(R.string.map_pick);
                     binding.mapOrigin.setText(
                             String.format(
                                     Locale.getDefault(),
-                                    "Xuất phát: %s (%.5f, %.5f)",
-                                    value.name,
-                                    value.latitude,
-                                    value.longitude));
+                                    "Tìm quanh: %s",
+                                    value.name));
                     render();
                     if (map != null)
-                        map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng(value), 14));
+                        centerRadius(value);
                 });
         model.destination.observe(
                 this,
@@ -148,21 +161,21 @@ public class MapActivity extends SessionActivity {
                 });
         model.route.observe(this, value -> render());
         model.message.observe(this, value -> binding.mapMessage.setText(value));
-        model.roomMessage.observe(this, value -> binding.mapRoomMessage.setText(value));
+        model.roomMessage.observe(this, value -> {binding.mapRoomMessage.setText(value);binding.mapMore.setVisibility(model.loadFailed()?View.VISIBLE:View.GONE);});
         model.busy.observe(this, value -> controls());
         model.roomBusy.observe(
                 this,
                 value -> {
                     binding.mapMore.setEnabled(!Boolean.TRUE.equals(value));
-                    binding.mapMore.setVisibility(model.hasMore() ? View.VISIBLE : View.GONE);
+                    binding.mapMore.setVisibility(model.loadFailed() ? View.VISIBLE : View.GONE);
                 });
         model.nearby.observe(
                 this,
                 value -> {
-                    adapter.submit(value, model.origin.getValue());
-                    binding.mapRooms.setVisibility(value.isEmpty() ? View.GONE : View.VISIBLE);
+                    updateResults();
                     render();
                 });
+        model.referenceNearby.observe(this,value->{updateResults();render();});
         model.candidates.observe(
                 this,
                 points -> {
@@ -195,7 +208,31 @@ public class MapActivity extends SessionActivity {
         binding.mapSearch.setEnabled(!busy);
         binding.mapGps.setEnabled(!busy);
         binding.mapRoute.setEnabled(!busy && model.destination.getValue() != null);
-        binding.mapDetail.setVisibility(model.selectedRoom() == null ? View.GONE : View.VISIBLE);
+        binding.mapSelection.setVisibility(model.destination.getValue()==null?View.GONE:View.VISIBLE);
+        binding.mapDetail.setVisibility(model.selectedRoom() == null&&model.selectedReference()==null ? View.GONE : View.VISIBLE);
+        binding.mapDetail.setText(model.selectedReference()==null?R.string.map_view_room:R.string.map_view_source);
+        binding.mapReferenceNote.setVisibility(model.selectedReference()==null?View.GONE:View.VISIBLE);
+    }
+    private void updateResults(){
+        List<RoomListing> rooms=model.nearby.getValue();List<RentalPlace> refs=model.referenceNearby.getValue();
+        if(rooms==null)rooms=Collections.emptyList();if(refs==null)refs=Collections.emptyList();
+        officeAdapter.submit(rooms,refs,model.origin.getValue());binding.mapList.setEnabled(!rooms.isEmpty()||!refs.isEmpty());
+    }
+    private void showResults(){
+        if(resultsDialog!=null)return;
+        View view=getLayoutInflater().inflate(R.layout.view_map_results,null);
+        androidx.recyclerview.widget.RecyclerView list=view.findViewById(R.id.mapRooms);
+        list.setLayoutManager(new LinearLayoutManager(this));list.setAdapter(officeAdapter);
+        resultsDialog=new com.google.android.material.bottomsheet.BottomSheetDialog(this);
+        resultsDialog.setContentView(view);resultsDialog.setOnDismissListener(d->{list.setAdapter(null);resultsDialog=null;});resultsDialog.show();
+    }
+    private void closeResults(){if(resultsDialog!=null)resultsDialog.dismiss();}
+    private void chooseOffice(RoomListing room){closeResults();model.select(model.point(room),room);model.directions();}
+    private void centerRadius(MapPoint origin){
+        if(map==null||canvas==null)return;
+        if(canvas.getWidth()==0){canvas.post(()->centerRadius(origin));return;}
+        double lat=3000d/111320,lon=lat/Math.cos(Math.toRadians(origin.latitude));
+        map.animateCamera(CameraUpdateFactory.newLatLngBounds(new LatLngBounds.Builder().include(new LatLng(origin.latitude-lat,origin.longitude-lon)).include(new LatLng(origin.latitude+lat,origin.longitude+lon)).build(),32));
     }
 
     private LatLng latLng(MapPoint point) {
@@ -208,6 +245,7 @@ public class MapActivity extends SessionActivity {
             org.maplibre.android.log.Logger.setVerbosity(org.maplibre.android.log.Logger.NONE);
             canvas = (MapView) ((ViewStub) findViewById(R.id.mapStub)).inflate();
             canvas.onCreate(mapState);
+            canvas.setMaximumFps(30);
             if (getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED)) {
                 canvas.onStart();
                 mapStarted = true;
@@ -236,17 +274,16 @@ public class MapActivity extends SessionActivity {
                                         .build());
                         map.setMinZoomPreference(10.5);
                         map.setMaxZoomPreference(18);
-                        map.moveCamera(
-                                CameraUpdateFactory.newLatLngZoom(
-                                        latLng(model.origin.getValue()), 14));
+                        if(mapState==null)centerRadius(model.origin.getValue());
                         map.addOnMapClickListener(
                                 point -> {
-                                    model.select(
+                                    if(!pickMode)return selectMarker(point);
+                                    model.setOrigin(
                                             new MapPoint(
                                                     point.getLatitude(),
                                                     point.getLongitude(),
-                                                    "Điểm chọn tại TP.HCM"),
-                                            null);
+                                                    "Vị trí đã chọn trên bản đồ"));
+                                    pickMode=false;binding.mapPick.setText(R.string.map_pick);
                                     return true;
                                 });
                         map.addOnMapLongClickListener(
@@ -256,12 +293,6 @@ public class MapActivity extends SessionActivity {
                                                     point.getLatitude(),
                                                     point.getLongitude(),
                                                     "Điểm xuất phát đã chọn"));
-                                    return true;
-                                });
-                        map.setOnMarkerClickListener(
-                                marker -> {
-                                    RoomListing room = offices.get(marker.getId());
-                                    if (room != null) model.select(model.point(room), room);
                                     return true;
                                 });
                         loadStyle();
@@ -283,6 +314,7 @@ public class MapActivity extends SessionActivity {
         handler.postDelayed(mapTimeout, 30000);
         try {
             map.setStyle(model.styleUrl(), style -> {
+                renderedMarkers=renderedRadius=null;renderedRoute=null;firstRender=true;
                 mapLoaded = true;
                 handler.removeCallbacks(mapTimeout);
                 binding.mapProgress.setVisibility(View.GONE);
@@ -303,27 +335,12 @@ public class MapActivity extends SessionActivity {
 
     private void render() {
         if (map == null || map.getStyle() == null || !map.getStyle().isFullyLoaded()) return;
-        map.clear();
-        offices.clear();
-        map.addMarker(
-                new MarkerOptions()
-                        .position(latLng(model.origin.getValue()))
-                        .title("Xuất phát: " + model.origin.getValue().name));
-        List<RoomListing> rooms = model.nearby.getValue();
-        if (rooms != null)
-            for (RoomListing room : rooms) {
-                Marker marker =
-                        map.addMarker(
-                                new MarkerOptions()
-                                        .position(latLng(model.point(room)))
-                                        .title(room.room.getRoomName())
-                                        .snippet("Văn phòng trong 3 km"));
-                offices.put(marker.getId(), room);
-            }
-        MapPoint end = model.destination.getValue();
-        if (end != null)
-            map.addMarker(new MarkerOptions().position(latLng(end)).title("Đích: " + end.name));
+        renderRadius();renderMarkers();
         MapRoute route = model.route.getValue();
+        Style style = map.getStyle();
+        GeoJsonSource source = style.getSourceAs("pilot-route-source");
+        if(source!=null&&renderedRoute==route)return;
+        renderedRoute=route;
         List<Point> points = new ArrayList<>();
         if (route != null)
             for (MapPoint point : route.points)
@@ -335,24 +352,83 @@ public class MapActivity extends SessionActivity {
                                 new Feature[] {
                                     Feature.fromGeometry(LineString.fromLngLats(points))
                                 });
-        Style style = map.getStyle();
-        GeoJsonSource source = style.getSourceAs("pilot-route-source");
         if (source == null) {
             style.addSource(new GeoJsonSource("pilot-route-source", geometry));
-            style.addLayer(
+            style.addLayerBelow(
                     new LineLayer("pilot-route-line", "pilot-route-source")
                             .withProperties(
                                     PropertyFactory.lineColor("#0069D2"),
                                             PropertyFactory.lineWidth(5f),
                                     PropertyFactory.lineCap(Property.LINE_CAP_ROUND),
-                                            PropertyFactory.lineJoin(Property.LINE_JOIN_ROUND)));
+                                            PropertyFactory.lineJoin(Property.LINE_JOIN_ROUND)), "pilot-office-dots");
         } else source.setGeoJson(geometry);
-        if (route != null) {
+        if (route != null && (!firstRender||mapState==null)) {
             LatLngBounds.Builder bounds = new LatLngBounds.Builder();
             for (MapPoint point : route.points) bounds.include(latLng(point));
+            MapPoint origin=model.origin.getValue();double lat=3000d/111320,lon=lat/Math.cos(Math.toRadians(origin.latitude));
+            bounds.include(new LatLng(origin.latitude-lat,origin.longitude-lon)).include(new LatLng(origin.latitude+lat,origin.longitude+lon));
             int padding = Math.round(56 * getResources().getDisplayMetrics().density);
-            map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), padding));
+            int card= Math.min(binding.mapSelection.getHeight()+Math.round(32*getResources().getDisplayMetrics().density),canvas.getHeight()/3);
+            map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(),padding,padding,padding,Math.max(padding,card)));
         }
+        firstRender=false;
+    }
+
+    private boolean selectMarker(LatLng position){
+        android.graphics.PointF pixel=map.getProjection().toScreenLocation(position);float tolerance=16*getResources().getDisplayMetrics().density;
+        List<Feature> hits=map.queryRenderedFeatures(new android.graphics.RectF(pixel.x-tolerance,pixel.y-tolerance,pixel.x+tolerance,pixel.y+tolerance),"pilot-office-dots","pilot-reference-dots");
+        if(hits.isEmpty())return false;
+        Feature nearest=Collections.min(hits,Comparator.comparingDouble(feature->{Point p=(Point)feature.geometry();return new LatLng(p.latitude(),p.longitude()).distanceTo(position);}));
+        String id=nearest.getStringProperty("placeId");RentalPlace reference=referenceMarkers.get(id);
+        if(reference!=null){model.selectReference(reference);return true;}
+        List<RoomListing> rooms=offices.get(id);if(rooms==null)return false;
+        if(rooms.size()==1)chooseOffice(rooms.get(0));
+        else{String[] labels=new String[rooms.size()];for(int i=0;i<labels.length;i++)labels[i]=rooms.get(i).room.getRoomName();
+            new AlertDialog.Builder(this).setTitle("Chọn không gian trong tòa nhà").setItems(labels,(d,index)->chooseOffice(rooms.get(index))).setNegativeButton(android.R.string.cancel,null).show();}
+        return true;
+    }
+    private Feature marker(MapPoint point,String id,String kind){Feature f=Feature.fromGeometry(Point.fromLngLat(point.longitude,point.latitude));f.addStringProperty("placeId",id);f.addStringProperty("kind",kind);return f;}
+    private String key(MapPoint p){return p==null?"":p.latitude+","+p.longitude;}
+    private void renderMarkers(){
+        List<RoomListing> rooms=model.nearby.getValue();List<RentalPlace> refs=model.referenceNearby.getValue();
+        StringBuilder signature=new StringBuilder(key(model.origin.getValue())).append(':').append(key(model.destination.getValue()));
+        if(rooms!=null)for(RoomListing r:rooms)signature.append('|').append(r.room.getId()).append(key(model.point(r)));
+        if(refs!=null)for(RentalPlace p:refs)signature.append('|').append(p.id).append(key(model.point(p)));
+        if(signature.toString().equals(renderedMarkers))return;
+        renderedMarkers=signature.toString();offices.clear();referenceMarkers.clear();List<Feature> features=new ArrayList<>();
+        features.add(marker(model.origin.getValue(),"origin","origin"));
+        Map<String,List<RoomListing>> grouped=new LinkedHashMap<>();
+        if(rooms!=null)for(RoomListing r:rooms)grouped.computeIfAbsent(r.building.getId(),id->new ArrayList<>()).add(r);
+        for(List<RoomListing> group:grouped.values()){
+            RoomListing r=group.get(0);String id="room:"+r.building.getId();features.add(marker(model.point(r),id,"office"));offices.put(id,group);
+        }
+        if(refs!=null)for(RentalPlace p:refs){String id="reference:"+p.id;features.add(marker(model.point(p),id,"reference"));referenceMarkers.put(id,p);}
+        MapPoint end=model.destination.getValue();if(end!=null)features.add(marker(end,"destination","destination"));
+        Style style=map.getStyle();GeoJsonSource source=style.getSourceAs("pilot-marker-source");FeatureCollection geometry=FeatureCollection.fromFeatures(features);
+        if(source==null){
+            style.addSource(new GeoJsonSource("pilot-marker-source",geometry));
+            String[] kinds={"office","reference","origin","destination"};String[] colors={"#2F7D78","#D97924","#1677D2","#A83540"};
+            for(int i=0;i<kinds.length;i++)style.addLayer(new CircleLayer("pilot-"+kinds[i]+"-dots","pilot-marker-source")
+                .withFilter(Expression.eq(Expression.get("kind"),Expression.literal(kinds[i])))
+                .withProperties(PropertyFactory.circleColor(colors[i]),PropertyFactory.circleRadius(i==3?9f:8f),PropertyFactory.circleStrokeColor("#FFFFFF"),PropertyFactory.circleStrokeWidth(2f)));
+        }else source.setGeoJson(geometry);
+    }
+    private void renderRadius(){
+        MapPoint origin=model.origin.getValue();if(key(origin).equals(renderedRadius))return;renderedRadius=key(origin);
+        List<Point> ring=new ArrayList<>();double lat=Math.toRadians(origin.latitude),lon=Math.toRadians(origin.longitude),distance=3000d/6371000;
+        for(int i=0;i<64;i++){
+            double bearing=2*Math.PI*i/64;
+            double nextLat=Math.asin(Math.sin(lat)*Math.cos(distance)+Math.cos(lat)*Math.sin(distance)*Math.cos(bearing));
+            double nextLon=lon+Math.atan2(Math.sin(bearing)*Math.sin(distance)*Math.cos(lat),Math.cos(distance)-Math.sin(lat)*Math.sin(nextLat));
+            ring.add(Point.fromLngLat(Math.toDegrees(nextLon),Math.toDegrees(nextLat)));
+        }ring.add(ring.get(0));
+        FeatureCollection geometry=FeatureCollection.fromFeatures(new Feature[]{Feature.fromGeometry(org.maplibre.geojson.Polygon.fromLngLats(Collections.singletonList(ring)))});
+        Style style=map.getStyle();GeoJsonSource source=style.getSourceAs("pilot-radius-source");
+        if(source==null){
+            style.addSource(new GeoJsonSource("pilot-radius-source",geometry));
+            style.addLayer(new FillLayer("pilot-radius-fill","pilot-radius-source").withProperties(PropertyFactory.fillColor("#2F7D78"),PropertyFactory.fillOpacity(0.08f)));
+            style.addLayer(new LineLayer("pilot-radius-line","pilot-radius-source").withProperties(PropertyFactory.lineColor("#2F7D78"),PropertyFactory.lineWidth(1.5f)));
+        }else source.setGeoJson(geometry);
     }
 
     private void consumeFallback() {
@@ -426,6 +502,7 @@ public class MapActivity extends SessionActivity {
 
     @Override
     protected void onDestroy() {
+        closeResults();
         handler.removeCallbacks(mapTimeout);
         if (canvas != null) canvas.onDestroy();
         canvas = null;

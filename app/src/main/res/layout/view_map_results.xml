@@ -1,0 +1,5 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/map_results_title" android:textColor="@color/navy" android:textStyle="bold" android:textSize="20sp" android:paddingBottom="12dp" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/map_legend" android:textColor="@color/text_secondary" android:paddingBottom="8dp" />
+    <androidx.recyclerview.widget.RecyclerView android:id="@+id/mapRooms" android:layout_width="match_parent" android:layout_height="360dp" />
+</LinearLayout>

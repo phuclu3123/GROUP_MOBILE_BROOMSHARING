@@ -1,0 +1,21 @@
+{
+  "verifiedAt": "2026-10-20T04:23:09.229826Z",
+  "project": "broom-sharing-firebase-mobile",
+  "database": "broomsharing",
+  "passed": true,
+  "count": 8,
+  "ids": [
+    "ref_hcm_can_giuoc_2_4",
+    "ref_hcm_duong_quang_dong_108",
+    "ref_hcm_pham_the_hien_3086",
+    "ref_hcm_hung_phu_783",
+    "ref_hcm_da_nam_195",
+    "ref_hcm_green_river_2225",
+    "ref_hcm_ta_quang_buu_547_549",
+    "ref_hcm_ta_quang_buu_849"
+  ],
+  "ruleset": "projects/broom-sharing-firebase-mobile/rulesets/e953c5d9-35a2-4721-922f-b089df8e197a",
+  "rulesRelease": "cloud.firestore/broomsharing",
+  "cloudRulesMatchLocal": true,
+  "rulesSourceSha256": "5f0ef3d6a193d20cd18fa40aea4ccfaf2edd8bb9707a8d48782867a47c675c14"
+}

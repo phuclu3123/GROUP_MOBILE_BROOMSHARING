@@ -19,9 +19,15 @@ import java.util.concurrent.*;
 public class MapRepository {
     private final ExecutorService worker = Executors.newFixedThreadPool(2);
     private final Handler main = new Handler(Looper.getMainLooper());
+    private final Map<String,MapRoute> routeCache=Collections.synchronizedMap(new LinkedHashMap<String,MapRoute>(16,0.75f,true){
+        @Override protected boolean removeEldestEntry(Map.Entry<String,MapRoute> e){return size()>12;}
+    });
+    private final Map<String,List<MapPoint>> searchCache=Collections.synchronizedMap(new LinkedHashMap<String,List<MapPoint>>(16,0.75f,true){
+        @Override protected boolean removeEldestEntry(Map.Entry<String,List<MapPoint>> e){return size()>12;}
+    });
 
     private static String encode(String text) throws UnsupportedEncodingException {
-        return URLEncoder.encode(text, StandardCharsets.UTF_8.name());
+        return URLEncoder.encode(text, StandardCharsets.UTF_8.name()).replace("+","%20");
     }
 
     public String styleUrl() {
@@ -70,6 +76,9 @@ public class MapRepository {
     }
 
     public void geocode(String query, ResultCallback<List<MapPoint>> callback) {
+        geocode(query,MapArea.CENTER,callback);
+    }
+    public void geocode(String query, MapPoint bias, ResultCallback<List<MapPoint>> callback) {
         worker.execute(
                 () -> {
                     try {
@@ -77,12 +86,15 @@ public class MapRepository {
                         String text = query == null ? "" : query.trim();
                         if (text.length() < 3 || text.length() > 200)
                             throw new IllegalArgumentException();
+                        String cacheKey=text.toLowerCase(Locale.ROOT)+":"+bias.latitude+":"+bias.longitude;
+                        List<MapPoint> cached=searchCache.get(cacheKey);
+                        if(cached!=null){main.post(()->callback.onSuccess(new ArrayList<>(cached)));return;}
                         String url =
                                 "https://api.maptiler.com/geocoding/"
                                         + encode(text)
                                         + ".json?key="
                                         + BuildConfig.MAPTILER_API_KEY
-                                        + "&country=vn&language=vi&limit=5&bbox="
+                                        + "&country=vn&language=vi&limit=5&autocomplete=false&proximity="+bias.longitude+","+bias.latitude+"&bbox="
                                         + MapArea.WEST
                                         + ","
                                         + MapArea.SOUTH
@@ -103,6 +115,7 @@ public class MapRepository {
                                             feature.optString("place_name", text));
                             if (MapArea.contains(point)) result.add(point);
                         }
+                        if(!result.isEmpty())searchCache.put(cacheKey,new ArrayList<>(result));
                         main.post(() -> callback.onSuccess(result));
                     } catch (Exception error) {
                         // Raw exceptions / provider URLs can contain API keys; never forward or log
@@ -124,6 +137,9 @@ public class MapRepository {
                         if (BuildConfig.HEIGIT_API_KEY.isEmpty()
                                 || !MapArea.contains(origin)
                                 || !MapArea.contains(destination)) throw new IOException();
+                        String cacheKey=origin.latitude+","+origin.longitude+":"+destination.latitude+","+destination.longitude;
+                        MapRoute cached=routeCache.get(cacheKey);
+                        if(cached!=null){main.post(()->callback.onSuccess(cached));return;}
                         JSONArray coordinates =
                                 new JSONArray()
                                         .put(
@@ -159,6 +175,7 @@ public class MapRepository {
                                         points,
                                         summary.getDouble("distance"),
                                         summary.getDouble("duration"));
+                        routeCache.put(cacheKey,route);
                         main.post(() -> callback.onSuccess(route));
                     } catch (Exception error) {
                         main.post(

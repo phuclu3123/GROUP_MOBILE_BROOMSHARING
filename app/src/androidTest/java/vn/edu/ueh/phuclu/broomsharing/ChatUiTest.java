@@ -50,7 +50,11 @@ public class ChatUiTest {
             await(ConversationsActivity.class,a->a.findViewById(R.id.conversationList)!=null&&((androidx.recyclerview.widget.RecyclerView)a.findViewById(R.id.conversationList)).getAdapter().getItemCount()>0);capture("chat-guest-inbox");
             open(ChatActivity.class,new Intent().putExtra("conversationId",id));
             await(ChatActivity.class,a->a.findViewById(R.id.chatSend)!=null&&a.findViewById(R.id.chatSend).isEnabled());
-            act(ChatActivity.class,a->{((TextView)a.findViewById(R.id.chatInput)).setText("[QA UI] Guest asks Host about room availability.");a.findViewById(R.id.chatSend).performClick();});
+            androidx.test.espresso.Espresso.onView(androidx.test.espresso.matcher.ViewMatchers.withId(R.id.chatInput)).perform(androidx.test.espresso.action.ViewActions.click(),androidx.test.espresso.action.ViewActions.typeText("[QA UI] Guest asks Host about room availability."));
+            androidx.test.espresso.Espresso.onView(androidx.test.espresso.matcher.ViewMatchers.withId(R.id.chatSend)).check(androidx.test.espresso.assertion.ViewAssertions.matches(androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed()));
+            capture("chat-keyboard");
+            androidx.test.espresso.Espresso.closeSoftKeyboard();
+            act(ChatActivity.class,a->a.findViewById(R.id.chatSend).performClick());
             await(ChatActivity.class,a->a.findViewById(R.id.chatSend).isEnabled()&&((TextView)a.findViewById(R.id.chatInput)).getText().length()==0);capture("chat-thread");
             act(ChatActivity.class,a->{((TextView)a.findViewById(R.id.chatInput)).setText("Draft retained");a.recreate();});
             await(ChatActivity.class,a->a.findViewById(R.id.chatInput)!=null&&"Draft retained".contentEquals(((TextView)a.findViewById(R.id.chatInput)).getText())&&a.findViewById(R.id.chatSend).isEnabled());

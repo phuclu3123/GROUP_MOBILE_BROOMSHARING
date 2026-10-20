@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "verifiedAt": "2026-10-20T05:05:04.506Z",
+  "nearbyReferences": 6,
+  "checks": [
+    "MapTiler geocodes Bui Minh Truc Q8; all nearby source addresses inside 3000m are rendered; distant 3086 Pham The Hien excluded",
+    "Native marker tap chooses actual source location, road route rendered, all nearby markers retained",
+    "Repeated render preserves user camera instead of refitting route on every update",
+    "Choose-on-map changes search center, recalculates 3km results and clears stale route",
+    "Android LocationManager GPS returns Q8 position and re-filters nearby places",
+    "Destination card keeps native map size; recreate and stop\/resume preserve position and all markers"
+  ]
+}

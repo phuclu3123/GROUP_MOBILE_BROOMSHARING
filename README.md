@@ -34,12 +34,15 @@ APK: `app/build/outputs/apk/debug/app-debug.apk`. Mặc định dùng Firestore 
 
 - Auth/phiên đăng nhập, hồ sơ Host, tòa nhà/phòng và duyệt Admin.
 - Guest xem/lọc phòng, lưu quan tâm, đặt giờ/tháng/quý, xem yêu cầu và hủy.
-- Transaction Java giữ chỗ, giá/snapshot, xác nhận/từ chối, check-in/hoàn tất demo và audit.
+- Transaction Java giữ chỗ, giá/snapshot, xác nhận/từ chối, ghi nhận vào phòng/hoàn tất thủ công và audit; chưa có QR/PIN ra vào.
 - Dữ liệu cloud có [dataset TP.HCM](data/demo/README.md): thêm 10 tài khoản demo, 8 tòa nhà, 24 phòng, 28 booking cùng lịch giữ chỗ, yêu thích và hàng chờ quản trị; giữ lại hai phòng demo trước đó.
-- Bản đồ thử TP.HCM: MapLibre + MapTiler + LocationManager + openrouteservice; lỗi dịch vụ tự mở Google Maps.
-- Thanh toán mới là demo; Storage/bằng chứng cần nghiệm thu trên bucket thật. Chat/thông báo chưa hoàn thiện.
+- Bản đồ TP.HCM: GPS/nhập địa chỉ/chọn điểm → tìm trong 3 km → chọn marker và vẽ tuyến thật bằng MapLibre + MapTiler + openrouteservice; Google Maps dự phòng khi lỗi dịch vụ. Có thêm [8 địa chỉ cho thuê công khai](data/reference/README.md), tách thành dữ liệu tham khảo chưa nhận booking.
+- Chat văn bản Guest–Host qua Firestore, inbox/badge chưa đọc và lịch sử đồng bộ khi mở lại app. Liên hệ điện thoại mở trình quay số, không gọi trong app.
+- Booking mới lưu chính sách hủy v1 và trả trước dự kiến 40%. Guest hủy thông thường không cần Admin; Host hủy phải có lý do. Hủy và nhả lịch cùng transaction, không gộp với việc hoàn tiền.
+- Có trang thông báo đặt chỗ và notification Android cục bộ khi bật quyền; cập nhật khi mở/đang dùng app, chưa có push khi app đóng.
+- Theo quyết định người dùng, thanh toán/hoàn tiền hiện hiển thị “Chức năng đang phát triển”, không ghi nhận thu/hoàn tiền giả. Lưu/xem bằng chứng ảnh/PDF riêng tư để sau khi chốt dịch vụ lưu tệp.
 
-Firestore Rules đã phát hành cho database cloud `broomsharing` ngày 19/10/2026 và đọc lại xác nhận khớp file local. Các lần sửa tiếp theo cần phát hành lại. Chỉ giữ `firestore.rules`, `storage.rules` và `firestore.indexes.json` với đường dẫn trong `firebase.json`. Không cần nâng Blaze để chạy phần nghiệp vụ Java/Firestore này.
+Firestore Rules cập nhật cho database cloud `broomsharing` ngày 20/10/2026 và đọc lại xác nhận khớp file local, bao gồm quyền chat, chính sách hủy và địa chỉ tham khảo. Các lần sửa tiếp theo cần phát hành lại. Chỉ giữ `firestore.rules`, `storage.rules` và `firestore.indexes.json` với đường dẫn trong `firebase.json`. Không thêm Functions hoặc yêu cầu nâng gói trong phạm vi này.
 
 Đọc [mục lục tài liệu](docs/README.md), đặc biệt [các giới hạn kiến trúc](docs/design/architecture.md) và [kết quả kiểm thử](docs/testing/verification.md).
 

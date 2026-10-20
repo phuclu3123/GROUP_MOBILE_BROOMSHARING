@@ -22,7 +22,7 @@
     <activity android:name=".ProfileActivity" android:exported="false" />
     <activity android:name=".MyBookingsActivity" android:exported="false" />
     <activity android:name=".BookingSuccessActivity" android:exported="false" />
-    <activity android:name=".MapActivity" android:exported="false" />
+    <activity android:name=".MapActivity" android:exported="false" android:windowSoftInputMode="adjustNothing" />
     <activity android:name=".SpaceDetailActivity" android:exported="false" />
     <activity android:name=".MainActivity" android:exported="false" />
     <activity android:name=".ui.auth.RegisterActivity" android:exported="false" android:theme="@style/Theme.BroomSharing.Auth" android:windowSoftInputMode="adjustResize" />

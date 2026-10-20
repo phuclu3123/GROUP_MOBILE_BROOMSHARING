@@ -1,0 +1,17 @@
+<resources>
+    <string name="map_explore">Khám phá quanh bạn</string>
+    <string name="map_scope">TP.HCM · Bán kính 3 km</string>
+    <string name="map_address_hint">Tìm gần nhà, nơi làm việc…</string>
+    <string name="map_search">Tìm</string>
+    <string name="map_my_location">Vị trí của tôi</string>
+    <string name="map_pick">Chọn trên bản đồ</string>
+    <string name="map_retry">Thử lại bản đồ</string>
+    <string name="map_route">Chỉ đường ô tô</string>
+    <string name="map_view_room">Xem phòng</string>
+    <string name="map_view_source">Xem nguồn</string>
+    <string name="map_reference_note">Tin công khai để tham khảo vị trí; chưa xác nhận còn trống, chưa nhận đặt trong app.</string>
+    <string name="map_list">Danh sách</string>
+    <string name="map_results_title">Địa điểm trong 3 km</string>
+    <string name="map_legend">Xanh lá: không gian trong app · Cam: địa chỉ tham khảo · Xanh dương: tâm tìm kiếm. Khoảng cách tính theo đường thẳng.</string>
+    <string name="map_reload">Làm mới địa điểm</string>
+</resources>

@@ -135,3 +135,15 @@ Giới hạn cũ còn giữ rõ: Rules chưa chứng minh bao phủ mọi blacko
 - Notification cục bộ được post thật vào NotificationManager khi bật trong app; không dùng FCM/push, không bảo đảm thông báo khi app đóng. Nhắc chính sách tính từ booking hiện tại khi app mở/đang hoạt động. Nhánh cấp quyền Android 13 có trong code nhưng chưa thử trên thiết bị API 33 trở lên. Lỗi harness cấp quyền API 33 trên emulator API 31 đã sửa điều kiện phiên bản trước suite đạt.
 - Theo quyết định người dùng, thanh toán và hoàn tiền để sau: UI ghi “Chức năng đang phát triển”; không có nút giả nhận đã chuyển tiền hoặc xác nhận đã hoàn. Booking mới snapshot trả trước dự kiến 40% và chính sách v1. Hủy chưa thanh toán ghi 0 tiền hoàn/NOT_REQUIRED, nhả lịch ngay không chờ Admin; Rules kiểm tra tỷ lệ bằng thời gian server. P19 lưu/xem tệp bằng chứng tiếp tục để sau theo thống nhất, không chặn phần chat/hủy.
 - Thuê đã bắt đầu, đổi lịch có chênh lệch tiền, xử lý tranh chấp và đối soát thanh toán chưa có luồng tự động. Không tuyên bố đã tích hợp cổng tiền thật hoặc mọi nghiệp vụ production đã hoàn tất.
+
+### Chốt kiểm tra chat/hủy và bản đồ (20/10/2026)
+
+Bản Java/XML hiện tại: build APK và AndroidTest APK đạt; 56 unit test đạt, lint 0 lỗi/476 cảnh báo. Firestore Rules cloud khớp nguồn local, ruleset và SHA256 tại `data/reference/verification.json`; không triển khai Functions hoặc dịch vụ JS.
+
+Bộ UI cuối có 13 bài đạt/0 lỗi trong 410,359 giây trên emulator API 31, 1440×3120: ChatUiTest, AuthUiTest (5), RoleWorkspaceTest (2), MapExperienceTest và AuthFormValidationTest (3). Đã nhập bằng bàn phím mềm và xem ảnh: nút Gửi không bị che; gửi/nhận, badge và notification cục bộ đạt. Cloud chat và hủy đã được kiểm chứng riêng như mục trên; đây là các cohort riêng, không gộp thành một lần chạy toàn bộ.
+
+MapApiTest, DemoFlowCheckTest và MapPriorityTest đạt trên cùng bản ứng dụng dùng TextureView, xác nhận API geocoding/Directions thật, đăng nhập demo và ưu tiên vẽ tuyến trong app. MapExperienceTest cuối đạt: Bùi Minh Trực Q8 trả 6 địa chỉ nguồn trong 3 km, hiện đủ marker, chạm marker vẽ tuyến thật 2,05 km, giữ marker khi chỉ đường, đổi tâm bằng chạm/GPS, giữ kết quả sau recreate và stop/resume. GPS là vị trí bơm vào LocationManager của emulator; chưa phải nghiệm thu điện thoại ngoài thực địa. [Báo cáo bản đồ](../../data/reference/map-experience-verification.json).
+
+Các lần trước gặp ANR khi đổi focus với SurfaceView; đã giữ kích thước khung ổn định, chuyển TextureView và giới hạn 30 FPS. Lần cuối không tái hiện ANR, nhưng chưa có số đo FPS hoặc đảm bảo trên mọi thiết bị. Harness từng chạm trong lúc camera chuyển động và từng nhận screenshot null; đã cố định camera trước phép chạm và thử lại screenshot có giới hạn. Không ghi các lượt thất bại này thành bài đạt.
+
+Đã nạp và đọc lại 8 địa chỉ nguồn thật vào Firestore `rentalPlaces`, tách khỏi phòng Host và không nhận booking. 157 document demo gốc vẫn khớp snapshot. Thanh toán/hoàn tiền và lưu tệp riêng tư P19 được hoãn theo yêu cầu; không đánh dấu hai phần này là đã vận hành. Các giới hạn khác trong báo cáo vẫn áp dụng.

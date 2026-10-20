@@ -4,9 +4,9 @@ import vn.edu.ueh.phuclu.broomsharing.model.MapPoint;
 
 /** Pilot search window in HCMC, not an administrative boundary of the city. */
 public final class MapArea {
-    public static final double WEST = 106.45, SOUTH = 10.60, EAST = 106.95, NORTH = 10.95;
+    public static final double WEST = 106.35, SOUTH = 10.35, EAST = 107.05, NORTH = 11.20;
     public static final double RADIUS_METERS = 3000;
-    public static final MapPoint CENTER = new MapPoint(10.7769, 106.6908, "Điểm thử TP.HCM");
+    public static final MapPoint CENTER = new MapPoint(10.7769, 106.6908, "Tâm mặc định TP.HCM");
 
     private MapArea() {}
 

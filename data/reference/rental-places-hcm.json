@@ -1,0 +1,114 @@
+[
+  {
+    "id": "ref_hcm_can_giuoc_2_4",
+    "name": "Văn phòng 2-4 Cần Giuộc",
+    "address": "2-4 Cần Giuộc, Phú Định, Hồ Chí Minh 700000, Việt Nam",
+    "location": {
+      "latitude": 10.745966659758658,
+      "longitude": 106.65798117316903
+    },
+    "sourceUrl": "https://connectland.vn/cho-thue-van-phong-2-4-can-giuoc-phuong-1-quan-8",
+    "mapSourceUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.8509737602494!2d106.65798117316903!3d10.745966659758658!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752e58eee97c81%3A0x5823b7267c0a83a!2zMi00IEPhuqduIEdpdeG7mWMsIFBow7ogxJDhu4tuaCwgSOG7kyBDaMOtIE1pbmggNzAwMDAwLCBWaeG7h3QgTmFt!5e0!3m2!1svi!2s!4v1791165339764!5m2!1svi!2s",
+    "sourceCoordinateLabel": "2-4 Cần Giuộc, Phú Định, Hồ Chí Minh 700000, Việt Nam",
+    "locationNote": "Tọa độ từ bản đồ tin nguồn; cần xác nhận lối vào thực tế.",
+    "checkedAt": "2026-10-20T04:10:38Z"
+  },
+  {
+    "id": "ref_hcm_duong_quang_dong_108",
+    "name": "Văn phòng 108 Dương Quang Đông",
+    "address": "108 Dương Quang Đông, Chánh Hưng, Hồ Chí Minh 760000, Việt Nam",
+    "location": {
+      "latitude": 10.736317859936081,
+      "longitude": 106.66478077316886
+    },
+    "sourceUrl": "https://connectland.vn/cho-thue-van-phong-108-110-112-duong-quang-dong-phuong-5-quan-8",
+    "mapSourceUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.9761969607334!2d106.66478077316886!3d10.736317859936081!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752e4fd4e7565d%3A0xc105661a3661fac9!2zMTA4IETGsMahbmcgUXVhbmcgxJDDtG5nLCBDaMOhbmggSMawbmcsIEjhu5MgQ2jDrSBNaW5oIDc2MDAwMCwgVmnhu4d0IE5hbQ!5e0!3m2!1svi!2s!4v1791166563635!5m2!1svi!2s",
+    "sourceCoordinateLabel": "108 Dương Quang Đông, Chánh Hưng, Hồ Chí Minh 760000, Việt Nam",
+    "locationNote": "Tọa độ từ bản đồ tin nguồn; cần xác nhận lối vào thực tế.",
+    "checkedAt": "2026-10-20T04:10:38Z"
+  },
+  {
+    "id": "ref_hcm_pham_the_hien_3086",
+    "name": "Văn phòng 3086 Phạm Thế Hiển",
+    "address": "3086 Phạm Thế Hiển, Bình Đông, Hồ Chí Minh, Việt Nam",
+    "location": {
+      "latitude": 10.706057560491558,
+      "longitude": 106.6201187731683
+    },
+    "sourceUrl": "https://connectland.vn/cho-thue-van-phong-3086-pham-the-hien-phuong-7-quan-8",
+    "mapSourceUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3920.368197456307!2d106.6201187731683!3d10.706057560491558!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3175320756e5ab13%3A0xc241fbab960ad4b6!2zMzA4NiBQaOG6oW0gVGjhur8gSGnhu4NuLCBCw6xuaCDEkMO0bmcsIEjhu5MgQ2jDrSBNaW5oLCBWaeG7h3QgTmFt!5e0!3m2!1svi!2s!4v1791540446849!5m2!1svi!2s",
+    "sourceCoordinateLabel": "3086 Phạm Thế Hiển, Bình Đông, Hồ Chí Minh, Việt Nam",
+    "locationNote": "Tọa độ từ bản đồ tin nguồn; cần xác nhận lối vào thực tế.",
+    "checkedAt": "2026-10-20T04:10:38Z"
+  },
+  {
+    "id": "ref_hcm_hung_phu_783",
+    "name": "Văn phòng 783 Đ. Hưng Phú",
+    "address": "783 Đ. Hưng Phú, Chánh Hưng, Hồ Chí Minh 70000, Việt Nam",
+    "location": {
+      "latitude": 10.74554615976638,
+      "longitude": 106.66362217316896
+    },
+    "sourceUrl": "https://connectland.vn/cho-thue-van-phong-783-hung-phu-phuong-9-quan-8",
+    "mapSourceUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.85643337285!2d106.66362217316896!3d10.74554615976638!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752e57bcf00d23%3A0xa461537dacaafd88!2zNzgzIMSQLiBIxrBuZyBQaMO6LCBDaMOhbmggSMawbmcsIEjhu5MgQ2jDrSBNaW5oIDcwMDAwLCBWaeG7h3QgTmFt!5e0!3m2!1svi!2s!4v1791597765264!5m2!1svi!2s",
+    "sourceCoordinateLabel": "783 Đ. Hưng Phú, Chánh Hưng, Hồ Chí Minh 70000, Việt Nam",
+    "locationNote": "Tọa độ từ bản đồ tin nguồn; cần xác nhận lối vào thực tế.",
+    "checkedAt": "2026-10-20T04:10:38Z"
+  },
+  {
+    "id": "ref_hcm_da_nam_195",
+    "name": "Văn phòng 195 Dạ Nam",
+    "address": "195 Dạ Nam, Chánh Hưng, Hồ Chí Minh, Việt Nam",
+    "location": {
+      "latitude": 10.748627859709664,
+      "longitude": 106.68074157316896
+    },
+    "sourceUrl": "https://connectland.vn/cho-thue-van-phong-195-da-nam-phuong-3-quan-8",
+    "mapSourceUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.8164168520075!2d106.68074157316896!3d10.748627859709664!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f07234d2ef7%3A0xc9b965bfea253ad2!2zMTk1IEThuqEgTmFtLCBDaMOhbmggSMawbmcsIEjhu5MgQ2jDrSBNaW5oLCBWaeG7h3QgTmFt!5e0!3m2!1svi!2s!4v1791602520411!5m2!1svi!2s",
+    "sourceCoordinateLabel": "195 Dạ Nam, Chánh Hưng, Hồ Chí Minh, Việt Nam",
+    "locationNote": "Tọa độ từ bản đồ tin nguồn; cần xác nhận lối vào thực tế.",
+    "checkedAt": "2026-10-20T04:10:38Z"
+  },
+  {
+    "id": "ref_hcm_green_river_2225",
+    "name": "Văn phòng Toà Nhà Green River",
+    "address": "Toà Nhà Green River, 2225 Phạm Thế Hiển, Bình Đông, Hồ Chí Minh 70000, Việt Nam",
+    "location": {
+      "latitude": 10.73237896000848,
+      "longitude": 106.6410723731688
+    },
+    "sourceUrl": "https://connectland.vn/cho-thue-van-phong-2225-pham-the-hien-phuong-6-quan-8",
+    "mapSourceUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3920.0272844893234!2d106.6410723731688!3d10.73237896000848!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752e6e7f7cf739%3A0x82872af1df4a4e40!2zVG_DoCBOaMOgIEdyZWVuIFJpdmVyLCAyMjI1IFBo4bqhbSBUaOG6vyBIaeG7g24sIELDrG5oIMSQw7RuZywgSOG7kyBDaMOtIE1pbmggNzAwMDAsIFZp4buHdCBOYW0!5e0!3m2!1svi!2s!4v1791606130676!5m2!1svi!2s",
+    "sourceCoordinateLabel": "Toà Nhà Green River, 2225 Phạm Thế Hiển, Bình Đông, Hồ Chí Minh 70000, Việt Nam",
+    "locationNote": "Tọa độ từ bản đồ tin nguồn; cần xác nhận lối vào thực tế.",
+    "checkedAt": "2026-10-20T04:10:38Z"
+  },
+  {
+    "id": "ref_hcm_ta_quang_buu_547_549",
+    "name": "Văn phòng 547-549 Tạ Quang Bửu",
+    "address": "547-549 Tạ Quang Bửu, Chánh Hưng, Hồ Chí Minh, Việt Nam",
+    "location": {
+      "latitude": 10.740631009856788,
+      "longitude": 106.67573777316888
+    },
+    "sourceUrl": "https://connectland.vn/cho-thue-van-phong-toa-nha-so-547-549-duong-ta-quang-buu-phuong-4-quan-8",
+    "mapSourceUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.920234159796!2d106.67573777316888!3d10.740631009856788!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752fac9a7afeab%3A0x9968f98af2332ded!2zNTQ3LTU0OSBU4bqhIFF1YW5nIELhu611LCBDaMOhbmggSMawbmcsIEjhu5MgQ2jDrSBNaW5oLCBWaeG7h3QgTmFt!5e0!3m2!1svi!2s!4v1791599617796!5m2!1svi!2s",
+    "sourceCoordinateLabel": "547-549 Tạ Quang Bửu, Chánh Hưng, Hồ Chí Minh, Việt Nam",
+    "locationNote": "Tọa độ từ bản đồ tin nguồn; cần xác nhận lối vào thực tế.",
+    "checkedAt": "2026-10-20T04:10:38Z"
+  },
+  {
+    "id": "ref_hcm_ta_quang_buu_849",
+    "name": "Văn phòng 849 Đ. Tạ Quang Bửu",
+    "address": "849 Đ. Tạ Quang Bửu, Phường 5, Quận 8, Thành phố Hồ Chí Minh, Việt Nam",
+    "location": {
+      "latitude": 10.735189689411078,
+      "longitude": 106.66512687390558
+    },
+    "sourceUrl": "https://kimquanggroup.vn/cho-thue-nguyen-toa-nha-849-ta-quang-buu-quan-8-bds4242.htm",
+    "mapSourceUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.990831224683!2d106.66512687390558!3d10.735189689411078!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752e4e3596471f%3A0x14da201b76762052!2zODQ5IMSQLiBU4bqhIFF1YW5nIELhu611LCBQaMaw4budbmcgNSwgUXXhuq1uIDgsIFRow6BuaCBwaOG7kSBI4buTIENow60gTWluaCwgVmnhu4d0IE5hbQ!5e0!3m2!1svi!2s!4v1713671854933!5m2!1svi!2s",
+    "sourceCoordinateLabel": "849 Đ. Tạ Quang Bửu, Phường 5, Quận 8, Thành phố Hồ Chí Minh, Việt Nam",
+    "locationNote": "Tọa độ từ bản đồ tin nguồn; cần xác nhận lối vào thực tế.",
+    "checkedAt": "2026-10-20T04:10:38Z"
+  }
+]

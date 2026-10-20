@@ -1,29 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@color/white">
-    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Văn phòng gần bạn · TP.HCM" android:textSize="20sp" android:textStyle="bold" android:padding="12dp" />
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingHorizontal="8dp" android:gravity="center_vertical">
-        <EditText android:id="@+id/mapAddress" android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp" android:hint="Địa chỉ xuất phát tại TP.HCM" android:inputType="textPostalAddress" android:maxLength="200" android:maxLines="1" android:imeOptions="actionSearch" android:textSize="14sp" />
-        <Button android:id="@+id/mapSearch" android:layout_width="wrap_content" android:layout_height="48dp" android:text="Tìm" />
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@color/white">
+    <com.google.android.material.appbar.MaterialToolbar android:id="@+id/mapToolbar" android:layout_width="match_parent" android:layout_height="?attr/actionBarSize" app:title="@string/map_explore" app:subtitle="@string/map_scope" app:titleTextColor="@color/navy" app:menu="@menu/menu_map" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingHorizontal="12dp" android:gravity="center_vertical">
+        <com.google.android.material.textfield.TextInputLayout style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:hint="@string/map_address_hint">
+            <com.google.android.material.textfield.TextInputEditText android:id="@+id/mapAddress" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textPostalAddress" android:maxLength="200" android:maxLines="1" android:imeOptions="actionSearch" android:textSize="14sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.button.MaterialButton android:id="@+id/mapSearch" android:layout_width="wrap_content" android:layout_height="48dp" android:layout_marginStart="8dp" android:text="@string/map_search" android:textAllCaps="false" />
     </LinearLayout>
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingHorizontal="8dp">
-        <Button android:id="@+id/mapGps" android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp" android:text="Vị trí của tôi" />
-        <Button android:id="@+id/mapRetry" android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp" android:text="Thử lại bản đồ" android:visibility="gone" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingHorizontal="12dp">
+        <com.google.android.material.button.MaterialButton android:id="@+id/mapGps" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp" android:text="@string/map_my_location" android:textAllCaps="false" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/mapPick" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp" android:text="@string/map_pick" android:textAllCaps="false" />
     </LinearLayout>
-    <TextView android:id="@+id/mapOrigin" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingHorizontal="12dp" android:textSize="12sp" />
+    <TextView android:id="@+id/mapOrigin" android:layout_width="match_parent" android:layout_height="36dp" android:paddingHorizontal="12dp" android:paddingBottom="6dp" android:maxLines="2" android:ellipsize="end" android:textSize="12sp" android:textColor="@color/text_secondary" />
     <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:minHeight="160dp">
         <ViewStub android:id="@+id/mapStub" android:layout_width="match_parent" android:layout_height="match_parent" android:layout="@layout/view_map_canvas" />
         <ProgressBar android:id="@+id/mapProgress" android:layout_width="40dp" android:layout_height="40dp" android:layout_gravity="center" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/mapRetry" android:layout_width="wrap_content" android:layout_height="48dp" android:layout_gravity="center" android:text="@string/map_retry" android:textAllCaps="false" android:visibility="gone" />
         <ImageView android:id="@+id/mapTilerLogo" android:layout_width="100dp" android:layout_height="30dp" android:layout_gravity="top|end" android:layout_margin="8dp" android:background="#DDFFFFFF" android:src="@drawable/maptiler_logo" android:contentDescription="MapTiler" />
         <TextView android:id="@+id/mapCredits" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="bottom|end" android:background="#EEFFFFFF" android:padding="3dp" android:textSize="10sp" android:textColor="#333333" />
-    </FrameLayout>
-    <TextView android:id="@+id/mapMessage" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingHorizontal="12dp" android:textSize="12sp" android:accessibilityLiveRegion="polite" />
-    <TextView android:id="@+id/mapDestination" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingHorizontal="12dp" android:textSize="12sp" />
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingHorizontal="8dp">
-        <Button android:id="@+id/mapRoute" android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp" android:text="Chỉ đường ô tô" android:enabled="false" />
-        <Button android:id="@+id/mapDetail" android:layout_width="wrap_content" android:layout_height="48dp" android:text="Xem phòng" android:visibility="gone" />
+    <LinearLayout android:id="@+id/mapSelection" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_gravity="bottom" android:layout_marginHorizontal="12dp" android:layout_marginBottom="24dp" android:background="@drawable/bg_card" android:elevation="4dp" android:padding="12dp" android:visibility="gone">
+        <TextView android:id="@+id/mapDestination" android:layout_width="match_parent" android:layout_height="wrap_content" android:maxLines="2" android:textSize="16sp" android:textColor="@color/navy" android:textStyle="bold" />
+        <TextView android:id="@+id/mapReferenceNote" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/map_reference_note" android:textSize="12sp" android:textColor="@color/text_secondary" android:visibility="gone" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+            <com.google.android.material.button.MaterialButton android:id="@+id/mapRoute" android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp" android:text="@string/map_route" android:textAllCaps="false" android:enabled="false" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/mapDetail" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="wrap_content" android:layout_height="48dp" android:text="@string/map_view_room" android:textAllCaps="false" android:visibility="gone" />
+        </LinearLayout>
     </LinearLayout>
-    <TextView android:id="@+id/mapRoomMessage" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingHorizontal="12dp" android:textSize="12sp" />
-    <androidx.recyclerview.widget.RecyclerView android:id="@+id/mapRooms" android:layout_width="match_parent" android:layout_height="120dp" android:visibility="gone" />
-    <Button android:id="@+id/mapMore" android:layout_width="match_parent" android:layout_height="48dp" android:text="Tải văn phòng" />
+    </FrameLayout>
+    <TextView android:id="@+id/mapMessage" android:layout_width="match_parent" android:layout_height="48dp" android:maxLines="2" android:ellipsize="end" android:paddingHorizontal="12dp" android:paddingTop="4dp" android:textSize="12sp" android:textColor="@color/text_secondary" android:accessibilityLiveRegion="polite" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingHorizontal="12dp" android:gravity="center_vertical">
+        <TextView android:id="@+id/mapRoomMessage" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:textSize="12sp" android:textColor="@color/text_secondary" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/mapList" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="wrap_content" android:layout_height="48dp" android:text="@string/map_list" android:textAllCaps="false" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/mapMore" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="wrap_content" android:layout_height="48dp" android:text="@string/workspace_retry" android:textAllCaps="false" android:visibility="gone" />
+    </LinearLayout>
     <include layout="@layout/view_guest_navigation" />
 </LinearLayout>

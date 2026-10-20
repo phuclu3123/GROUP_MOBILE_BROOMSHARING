@@ -13,6 +13,13 @@ import java.util.*;
 public class RoomRepository {
     public static final int PAGE_SIZE = 20;
     private final FirebaseFirestore db = FirebaseHelper.getFirestore();
+    public void referencePlaces(ResultCallback<List<RentalPlace>> cb) {
+        db.collection("rentalPlaces").limit(100).get(Source.SERVER).addOnSuccessListener(rows->{
+            List<RentalPlace> values=new ArrayList<>();
+            for(DocumentSnapshot doc:rows){RentalPlace p=doc.toObject(RentalPlace.class);if(p!=null&&p.location!=null){p.id=doc.getId();values.add(p);}}
+            cb.onSuccess(values);
+        }).addOnFailureListener(cb::onError);
+    }
 
     public static final class Page {
         public final List<RoomListing> items;

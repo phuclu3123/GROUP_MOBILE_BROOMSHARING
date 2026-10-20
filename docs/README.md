@@ -6,7 +6,8 @@ Chỉ giữ tài liệu phản ánh code hiện tại. Ứng dụng dùng **Java
 | --- | --- |
 | Luồng code, ranh giới các lớp và các điểm cần lưu ý | [Thiết kế](design/architecture.md) |
 | Collection, giữ chỗ và phân quyền | [Firestore](design/firestore.md) |
-| Bản đồ thử TP.HCM và Google Maps dự phòng | [Bản đồ](features/maps.md) |
+| GPS/địa chỉ/chọn điểm, tìm 3 km và Google Maps dự phòng | [Bản đồ](features/maps.md) |
+| Địa chỉ công khai đã đối chiếu và nạp Firestore | [Địa điểm tham khảo](../data/reference/README.md) |
 | Dataset giả định đã nạp cloud và tài khoản demo | [Dataset TP.HCM](../data/demo/README.md) |
 | Build, kiểm thử, kết quả và giới hạn | [Kiểm thử](testing/verification.md) |
 

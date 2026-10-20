@@ -22,15 +22,18 @@ public class MapViewModel extends AndroidViewModel {
     public final MutableLiveData<List<RoomListing>> nearby =
             new MutableLiveData<>(Collections.emptyList());
     public final MutableLiveData<List<MapPoint>> candidates = new MutableLiveData<>();
+    public final MutableLiveData<List<RentalPlace>> referenceNearby = new MutableLiveData<>(Collections.emptyList());
     public final MutableLiveData<String> message =
             new MutableLiveData<>(
-                    "Điểm thử cố định tại TP.HCM. Chạm để chọn đích; nhấn giữ để đổi điểm xuất"
-                        + " phát.");
+                    "Chọn vị trí, nhập địa chỉ hoặc chọn điểm trên bản đồ để tìm trong 3 km.");
     public final MutableLiveData<String> roomMessage = new MutableLiveData<>();
     public final MutableLiveData<Boolean> busy = new MutableLiveData<>(false);
     public final MutableLiveData<Boolean> roomBusy = new MutableLiveData<>(false);
     public final MutableLiveData<String> googleUrl = new MutableLiveData<>();
     private final List<RoomListing> loaded = new ArrayList<>();
+    private final List<RentalPlace> references = new ArrayList<>();
+    private RentalPlace selectedReference;
+    private boolean roomsFailed, referencesFailed;
     private String cursor, query = "", openedRoomId;
     private boolean started, hasMore = true, fallback, locating;
     private int request;
@@ -67,6 +70,7 @@ public class MapViewModel extends AndroidViewModel {
         if (!started) {
             started = true;
             loadMore();
+            loadReferences();
         }
     }
 
@@ -82,10 +86,27 @@ public class MapViewModel extends AndroidViewModel {
     public RoomListing selectedRoom() {
         return selectedRoom;
     }
+    public RentalPlace selectedReference(){return selectedReference;}
+    public boolean loadFailed(){return roomsFailed||referencesFailed;}
+    public void refreshPlaces(){
+        if(Boolean.TRUE.equals(roomBusy.getValue()))return;
+        cursor=null;hasMore=true;loaded.clear();references.clear();
+        roomsFailed=referencesFailed=false;loadMore();loadReferences();
+    }
+    private void loadReferences(){
+        rooms.referencePlaces(new ResultCallback<List<RentalPlace>>(){
+            public void onSuccess(List<RentalPlace> values){referencesFailed=false;references.clear();references.addAll(values);filter();}
+            public void onError(Exception e){referencesFailed=true;filter();}
+        });
+    }
+    public MapPoint point(RentalPlace p){return new MapPoint(p.location.getLatitude(),p.location.getLongitude(),p.name);}
+    public void selectReference(RentalPlace p){
+        select(point(p),null);selectedReference=p;destination.setValue(point(p));directions();
+    }
 
     public void setOrigin(MapPoint point) {
         if (!MapArea.contains(point)) {
-            message.setValue("Bản thử chỉ hỗ trợ khu vực TP.HCM. Điểm xuất phát được giữ nguyên.");
+            message.setValue("Vị trí nằm ngoài khu vực TP.HCM đang hỗ trợ. Hãy chọn điểm khác trên bản đồ.");
             return;
         }
         allowRetry();
@@ -94,17 +115,18 @@ public class MapViewModel extends AndroidViewModel {
         locations.cancel();
         locating = false;
         selectedRoom = null;
+        selectedReference=null;
         origin.setValue(point);
         destination.setValue(null);
         route.setValue(null);
         filter();
         message.setValue(
-                "Đã chọn điểm xuất phát. Chọn văn phòng hoặc chạm bản đồ để thử tuyến đường.");
+                "Đã đổi tâm tìm kiếm. Chọn một địa điểm để xem tuyến đường.");
     }
 
     public void select(MapPoint point, RoomListing room) {
         if (!MapArea.contains(point)) {
-            message.setValue("Hãy chọn đích trong khu vực thử TP.HCM.");
+            message.setValue("Hãy chọn đích trong khu vực TP.HCM đang hỗ trợ.");
             return;
         }
         allowRetry();
@@ -113,6 +135,7 @@ public class MapViewModel extends AndroidViewModel {
         locations.cancel();
         locating = false;
         selectedRoom = room;
+        selectedReference=null;
         destination.setValue(point);
         route.setValue(null);
         message.setValue(
@@ -137,18 +160,18 @@ public class MapViewModel extends AndroidViewModel {
                 cursor,
                 new ResultCallback<RoomRepository.Page>() {
                     public void onSuccess(RoomRepository.Page page) {
+                        roomsFailed=false;
                         loaded.addAll(page.items);
                         cursor = page.cursor;
                         hasMore = page.hasMore;
                         roomBusy.setValue(false);
                         filter();
+                        if(hasMore)loadMore();
                     }
 
                     public void onError(Exception error) {
                         roomBusy.setValue(false);
-                        roomMessage.setValue(
-                                "Chưa tải được văn phòng. Kiểm tra kết nối dịch vụ rồi thử tải lại;"
-                                    + " vẫn có thể thử bản đồ và tuyến đường.");
+                        roomsFailed=true;filter();
                     }
                 });
     }
@@ -168,13 +191,15 @@ public class MapViewModel extends AndroidViewModel {
                 Comparator.comparingDouble(
                         room -> MapArea.distance(origin.getValue(), point(room))));
         nearby.setValue(found);
+        List<RentalPlace> publicFound=new ArrayList<>();
+        for(RentalPlace p:references)if(MapArea.nearby(origin.getValue(),point(p)))publicFound.add(p);
+        publicFound.sort(Comparator.comparingDouble(p->MapArea.distance(origin.getValue(),point(p))));
+        referenceNearby.setValue(publicFound);
         roomMessage.setValue(
                 found.size()
-                        + " văn phòng trong 3 km / "
-                        + loaded.size()
-                        + " phòng đã tải"
-                        + (missing > 0 ? " · " + missing + " thiếu tọa độ" : "")
-                        + (hasMore ? " · Có thể tải tiếp" : ""));
+                        + " không gian · "+publicFound.size()+" tham khảo trong 3 km"
+                        + (hasMore ? " · Đang tải tiếp" : "")
+                        + (loadFailed()?" · Chưa tải đủ dữ liệu, hãy thử lại":""));
     }
 
     public void search(String text) {
@@ -191,12 +216,13 @@ public class MapViewModel extends AndroidViewModel {
         message.setValue("Đang tìm địa chỉ tại TP.HCM…");
         maps.geocode(
                 query,
+                origin.getValue(),
                 new ResultCallback<List<MapPoint>>() {
                     public void onSuccess(List<MapPoint> points) {
                         if (id != request) return;
                         busy.setValue(false);
                         if (points.isEmpty()) {
-                            message.setValue("Không có địa chỉ phù hợp trong khu vực thử TP.HCM.");
+                            message.setValue("Chưa tìm thấy địa chỉ phù hợp. Thêm tên đường, khu vực hoặc chọn điểm trên bản đồ.");
                             return;
                         }
                         if (points.size() == 1) setOrigin(points.get(0));

@@ -287,6 +287,8 @@ service cloud.firestore {
         }
       }
     }
+    // Curated public-source addresses, read only in app; no pricing or invented Host ownership.
+    match /rentalPlaces/{id} { allow read: if active(); }
     match /payments/{id} { allow read: if admin()||own(resource.data.guestUid); }
     match /notifications/{id} { allow read: if own(resource.data.recipientUid); allow update: if own(resource.data.recipientUid)&&request.resource.data.diff(resource.data).affectedKeys().hasOnly(['readAt']); }
     match /{other=**} { allow read,write: if false; }

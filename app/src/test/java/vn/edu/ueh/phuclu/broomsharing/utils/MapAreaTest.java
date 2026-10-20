@@ -7,6 +7,12 @@ import org.junit.Test;
 import vn.edu.ueh.phuclu.broomsharing.model.MapPoint;
 
 public class MapAreaTest {
+    @Test public void q8SourceAddressesAreFilteredAroundChosenOrigin(){
+        MapPoint origin=new MapPoint(10.737316559278344,106.65579043328762,"Bùi Minh Trực");
+        assertTrue(MapArea.contains(origin));
+        assertTrue(MapArea.nearby(origin,new MapPoint(10.735189689411078,106.66512687390558,"849 Tạ Quang Bửu")));
+        assertFalse(MapArea.nearby(origin,new MapPoint(10.706057560491558,106.6201187731683,"3086 Phạm Thế Hiển")));
+    }
     @Test
     public void pilotIsHcmcAndExcludesOtherCities() {
         assertTrue(MapArea.contains(MapArea.CENTER));
