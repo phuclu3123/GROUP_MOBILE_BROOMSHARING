@@ -276,4 +276,71 @@ public class HostViewModel extends AndroidViewModel {
             actionResult.setValue(UiState.error(e));
         }
     }
+
+    public final MutableLiveData<UiState<List<PropertyVerification>>> verifications = new MutableLiveData<>();
+    public final MutableLiveData<UiState<String>> verificationSubmitted = new MutableLiveData<>();
+    public final MutableLiveData<UiState<List<ReviewItem>>> reports = new MutableLiveData<>();
+    public final MutableLiveData<UiState<Void>> reportResponseSubmitted = new MutableLiveData<>();
+
+    public void loadVerifications() {
+        verifications.setValue(UiState.loading());
+        repository.getPropertyVerifications(new HostRepository.Callback<List<PropertyVerification>>() {
+            @Override
+            public void onSuccess(List<PropertyVerification> data) {
+                verifications.setValue(UiState.success(data));
+            }
+
+            @Override
+            public void onError(Exception e) {
+                verifications.setValue(UiState.error(e));
+            }
+        });
+    }
+
+    public void submitVerification(PropertyVerification verification, Uri fileUri, android.content.Context context) {
+        verificationSubmitted.setValue(UiState.loading());
+        repository.submitPropertyVerification(verification, fileUri, context, new HostRepository.Callback<String>() {
+            @Override
+            public void onSuccess(String id) {
+                verificationSubmitted.setValue(UiState.success(id));
+                loadVerifications();
+            }
+
+            @Override
+            public void onError(Exception e) {
+                verificationSubmitted.setValue(UiState.error(e));
+            }
+        });
+    }
+
+    public void loadReports() {
+        reports.setValue(UiState.loading());
+        repository.getReportsForHost(new HostRepository.Callback<List<ReviewItem>>() {
+            @Override
+            public void onSuccess(List<ReviewItem> data) {
+                reports.setValue(UiState.success(data));
+            }
+
+            @Override
+            public void onError(Exception e) {
+                reports.setValue(UiState.error(e));
+            }
+        });
+    }
+
+    public void submitReportResponse(String reportId, String responseText) {
+        reportResponseSubmitted.setValue(UiState.loading());
+        repository.submitHostReportResponse(reportId, responseText, new HostRepository.Callback<Void>() {
+            @Override
+            public void onSuccess(Void data) {
+                reportResponseSubmitted.setValue(UiState.success(null));
+                loadReports();
+            }
+
+            @Override
+            public void onError(Exception e) {
+                reportResponseSubmitted.setValue(UiState.error(e));
+            }
+        });
+    }
 }

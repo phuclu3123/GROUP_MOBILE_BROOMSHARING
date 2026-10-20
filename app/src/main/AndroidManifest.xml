@@ -17,6 +17,8 @@
     <activity android:name=".ui.host.HostApplyActivity" android:exported="false" />
     <activity android:name=".ui.host.AddBuildingActivity" android:exported="false" />
     <activity android:name=".ui.host.HostBookingsActivity" android:exported="false" />
+    <activity android:name=".ui.host.PropertyVerificationActivity" android:exported="false" />
+    <activity android:name=".ui.host.HostReportsActivity" android:exported="false" />
     <activity android:name=".ui.admin.EvidencePreviewActivity" android:exported="false" />
     <activity android:name=".AdminDashboardActivity" android:exported="false" />
     <activity android:name=".ProfileActivity" android:exported="false" />

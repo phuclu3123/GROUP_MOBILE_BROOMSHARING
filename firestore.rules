@@ -211,8 +211,16 @@ service cloud.firestore {
                   && n.slotsBusy.toSet()==old.slotsBusy.toSet().difference(b.slotKeys.toSet()))));
       }
     }
-    match /propertyVerifications/{id} { allow read: if admin()||own(resource.data.ownerUid); allow update: if admin(); }
-    match /reports/{id} { allow read: if admin()||own(resource.data.reporterUid); allow create: if active()&&own(request.resource.data.reporterUid)&&request.resource.data.status=='OPEN'; allow update: if admin(); }
+    match /propertyVerifications/{id} {
+      allow read: if admin()||own(resource.data.ownerUid);
+      allow create: if host()&&own(request.resource.data.ownerUid)&&request.resource.data.status=='PENDING'&&request.resource.data.verificationType in ['LOCATION','PHOTOS','IDENTITY']&&request.resource.data.createdAt==request.time;
+      allow update: if admin();
+    }
+    match /reports/{id} {
+      allow read: if admin()||own(resource.data.reporterUid)||(host()&&own(resource.data.get('ownerUid','')));
+      allow create: if active()&&own(request.resource.data.reporterUid)&&request.resource.data.status=='OPEN';
+      allow update: if admin()||(host()&&own(resource.data.get('ownerUid',''))&&request.resource.data.diff(resource.data).affectedKeys().hasOnly(['hostResponse','updatedAt']));
+    }
     match /auditLogs/{id} {
       allow read: if admin();
       allow create: if active()&&own(request.resource.data.actorUid)&&request.resource.data.createdAt==request.time

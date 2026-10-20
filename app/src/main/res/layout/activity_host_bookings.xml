@@ -20,12 +20,66 @@
             <TextView android:id="@+id/chipCancelled" android:layout_width="wrap_content" android:layout_height="48dp" android:layout_marginEnd="8dp" android:paddingStart="16dp" android:paddingEnd="16dp" android:gravity="center" android:text="@string/host_cancelled" android:background="@drawable/bg_chip" android:textColor="@color/text_primary" android:textSize="14sp" android:clickable="true" android:focusable="true"/>
         </LinearLayout>
     </HorizontalScrollView>
-    <LinearLayout android:id="@+id/schedulePanel" android:layout_width="0dp" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone" app:layout_constraintTop_toBottomOf="@id/filterScroll" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent">
-        <Button android:id="@+id/btnScheduleDay" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/host_schedule_day"/>
-        <ScrollView android:layout_width="match_parent" android:layout_height="140dp">
-            <TextView android:id="@+id/tvSchedule" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="12dp" android:textSize="14sp"/>
-        </ScrollView>
-    </LinearLayout>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/schedulePanel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp"
+        app:strokeColor="@color/border"
+        app:strokeWidth="1dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/filterScroll">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvScheduleRoomTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cuốn lịch đặt phòng"
+                    android:textColor="@color/teal_dark"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvScheduleCurrentDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Bấm để mở cuốn lịch tháng và xem chi tiết theo ngày"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnOpenMonthCalendar"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/teal"
+                android:text="Xem lịch tháng"
+                android:textAllCaps="false"
+                android:textSize="13sp" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
     <include layout="@layout/view_management_navigation" android:id="@+id/managementNavigation" android:layout_width="0dp" android:layout_height="wrap_content" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"/>
     <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvBookings" android:layout_width="0dp" android:layout_height="0dp" android:clipToPadding="false" android:padding="16dp" app:layout_constraintBottom_toTopOf="@id/managementNavigation" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/schedulePanel"/>
     <LinearLayout android:id="@+id/layoutEmpty" android:layout_width="0dp" android:layout_height="wrap_content" android:padding="24dp" android:gravity="center" android:orientation="vertical" android:visibility="gone" app:layout_constraintBottom_toTopOf="@id/managementNavigation" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/schedulePanel">

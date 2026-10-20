@@ -494,4 +494,169 @@ public class HostRepository {
                 .addOnSuccessListener(cb::onSuccess)
                 .addOnFailureListener(cb::onError);
     }
+
+    public void submitPropertyVerification(
+            PropertyVerification verification,
+            android.net.Uri fileUri,
+            android.content.Context context,
+            Callback<String> cb) {
+        asHost(cb, actor -> {
+            try {
+                if (HostValidation.empty(verification.verificationType)) {
+                    cb.onError(new Exception("Vui lòng chọn loại xác minh (Địa điểm hoặc Ảnh)."));
+                    return;
+                }
+                if (HostValidation.empty(verification.roomId) && HostValidation.empty(verification.buildingId)) {
+                    cb.onError(new Exception("Vui lòng chọn Phòng hoặc Tòa nhà cần xác minh."));
+                    return;
+                }
+                verification.ownerUid = actor;
+                verification.status = "PENDING";
+                final String docId = db.collection("propertyVerifications").document().getId();
+                verification.id = docId;
+
+                if (fileUri != null && context != null) {
+                    com.google.firebase.storage.FirebaseStorage storage = com.google.firebase.storage.FirebaseStorage.getInstance();
+                    String fileName = docId + ".jpg";
+                    String storagePath = "verification/" + actor + "/" + fileName;
+                    com.google.firebase.storage.StorageReference ref = storage.getReference().child(storagePath);
+
+                    try (java.io.InputStream in = context.getContentResolver().openInputStream(fileUri)) {
+                        if (in == null) {
+                            cb.onError(new Exception("Không thể đọc tệp đã chọn."));
+                            return;
+                        }
+                        byte[] bytes = readAllBytes(in);
+                        if (bytes.length > 5 * 1024 * 1024) {
+                            cb.onError(new Exception("Tệp đính kèm không vượt quá 5MB."));
+                            return;
+                        }
+                        com.google.firebase.storage.StorageMetadata metadata = new com.google.firebase.storage.StorageMetadata.Builder()
+                                .setContentType("image/jpeg")
+                                .build();
+                        ref.putBytes(bytes, metadata)
+                                .addOnSuccessListener(taskSnapshot -> {
+                                    verification.evidencePaths = Collections.singletonList(storagePath);
+                                    saveVerificationDoc(verification, docId, cb);
+                                })
+                                .addOnFailureListener(cb::onError);
+                    } catch (Exception e) {
+                        cb.onError(e);
+                    }
+                } else {
+                    saveVerificationDoc(verification, docId, cb);
+                }
+            } catch (Exception e) {
+                cb.onError(e);
+            }
+        });
+    }
+
+    private void saveVerificationDoc(PropertyVerification verification, String docId, Callback<String> cb) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("id", docId);
+        data.put("ownerUid", verification.ownerUid);
+        data.put("roomId", verification.roomId != null ? verification.roomId : "");
+        data.put("buildingId", verification.buildingId != null ? verification.buildingId : "");
+        data.put("roomName", verification.roomName != null ? verification.roomName : "");
+        data.put("buildingName", verification.buildingName != null ? verification.buildingName : "");
+        data.put("verificationType", verification.verificationType);
+        data.put("description", verification.description != null ? verification.description : "");
+        data.put("evidencePaths", verification.evidencePaths != null ? verification.evidencePaths : Collections.emptyList());
+        data.put("status", "PENDING");
+        data.put("rejectionReason", "");
+        data.put("reviewedBy", "");
+        data.put("createdAt", FieldValue.serverTimestamp());
+        data.put("updatedAt", FieldValue.serverTimestamp());
+
+        db.collection("propertyVerifications")
+                .document(docId)
+                .set(data)
+                .addOnSuccessListener(aVoid -> cb.onSuccess(docId))
+                .addOnFailureListener(cb::onError);
+    }
+
+    private byte[] readAllBytes(java.io.InputStream in) throws java.io.IOException {
+        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+        byte[] buffer = new byte[8192];
+        int read;
+        while ((read = in.read(buffer)) != -1) {
+            out.write(buffer, 0, read);
+        }
+        return out.toByteArray();
+    }
+
+    public void getPropertyVerifications(Callback<List<PropertyVerification>> cb) {
+        asHost(cb, actor -> {
+            db.collection("propertyVerifications")
+                    .whereEqualTo("ownerUid", actor)
+                    .get(Source.SERVER)
+                    .addOnSuccessListener(querySnapshot -> {
+                        List<PropertyVerification> list = new ArrayList<>();
+                        for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                            PropertyVerification item = doc.toObject(PropertyVerification.class);
+                            if (item != null) {
+                                item.id = doc.getId();
+                                list.add(item);
+                            }
+                        }
+                        list.sort((a, b) -> {
+                            if (a.createdAt == null && b.createdAt == null) return 0;
+                            if (a.createdAt == null) return 1;
+                            if (b.createdAt == null) return -1;
+                            return b.createdAt.compareTo(a.createdAt);
+                        });
+                        cb.onSuccess(list);
+                    })
+                    .addOnFailureListener(cb::onError);
+        });
+    }
+
+    public void getReportsForHost(Callback<List<ReviewItem>> cb) {
+        asHost(cb, actor -> {
+            db.collection("reports")
+                    .whereEqualTo("ownerUid", actor)
+                    .get(Source.SERVER)
+                    .addOnSuccessListener(querySnapshot -> {
+                        List<ReviewItem> list = new ArrayList<>();
+                        for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                            String id = doc.getId();
+                            String title = doc.getString("reason");
+                            String details = "Mô tả: " + (doc.getString("description") != null ? doc.getString("description") : "")
+                                    + (doc.getString("resolution") != null && !doc.getString("resolution").isEmpty()
+                                        ? "\nKết luận Admin: " + doc.getString("resolution") : "")
+                                    + (doc.getString("hostResponse") != null && !doc.getString("hostResponse").isEmpty()
+                                        ? "\nGiải trình của Host: " + doc.getString("hostResponse") : "");
+                            ReviewItem item = new ReviewItem("REPORT", id, title != null ? title : id, details);
+                            item.status = doc.getString("status");
+                            list.add(item);
+                        }
+                        cb.onSuccess(list);
+                    })
+                    .addOnFailureListener(cb::onError);
+        });
+    }
+
+    public void submitHostReportResponse(String reportId, String responseText, Callback<Void> cb) {
+        asHost(cb, actor -> {
+            if (reportId == null || reportId.trim().isEmpty()) {
+                cb.onError(new Exception("Mã báo cáo không hợp lệ."));
+                return;
+            }
+            if (responseText == null || responseText.trim().isEmpty()) {
+                cb.onError(new Exception("Vui lòng nhập nội dung giải trình."));
+                return;
+            }
+
+            Map<String, Object> update = new HashMap<>();
+            update.put("hostResponse", responseText.trim());
+            update.put("updatedAt", FieldValue.serverTimestamp());
+
+            db.collection("reports")
+                    .document(reportId)
+                    .update(update)
+                    .addOnSuccessListener(aVoid -> cb.onSuccess(null))
+                    .addOnFailureListener(cb::onError);
+        });
+    }
 }

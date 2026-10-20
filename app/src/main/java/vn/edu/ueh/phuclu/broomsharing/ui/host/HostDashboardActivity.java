@@ -43,6 +43,8 @@ public class HostDashboardActivity extends SessionActivity {
         b.btnRefresh.setOnClickListener(v -> model.loadDashboard());
         b.cardBookingRequests.setOnClickListener(v -> startActivity(new Intent(this, HostBookingsActivity.class)));
         b.btnManageSpaces.setOnClickListener(v -> showTab(R.id.host_spaces));
+        b.btnPropertyVerification.setOnClickListener(v -> startActivity(new Intent(this, PropertyVerificationActivity.class)));
+        b.btnHostReports.setOnClickListener(v -> startActivity(new Intent(this, HostReportsActivity.class)));
         b.btnAddBuilding.setOnClickListener(v -> startActivity(new Intent(this, AddBuildingActivity.class)));
         b.btnAddRoom.setOnClickListener(v -> startActivity(new Intent(this, CreateSpaceActivity.class)));
         RoomAdapter roomAdapter = new RoomAdapter(rooms, room -> startActivity(
