@@ -159,6 +159,8 @@
                     android:textSize="12sp" />
             </LinearLayout>
 
+            <com.google.android.material.button.MaterialButton android:id="@+id/bookingChat" style="@style/Widget.MaterialComponents.Button.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/chat_contact" android:enabled="false" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/bookingPayment" style="@style/Widget.MaterialComponents.Button.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Thanh toán · Đang phát triển" android:textAllCaps="false" />
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnGoBookings"
                 style="@style/Widget.BroomSharing.AuthButton"

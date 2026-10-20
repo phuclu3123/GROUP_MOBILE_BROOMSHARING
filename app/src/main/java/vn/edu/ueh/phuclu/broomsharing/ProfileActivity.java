@@ -46,6 +46,7 @@ public class ProfileActivity extends SessionActivity {
                 .setNegativeButton(android.R.string.cancel, null)
                 .setPositiveButton(R.string.workspace_signout, (dialog, which) -> signOut()).show());
         binding.btnFavorites.setOnClickListener(v -> startActivity(new Intent(this,FavoritesActivity.class)));
+        binding.btnNotices.setOnClickListener(v -> startActivity(new Intent(this,BookingNoticesActivity.class)));
 
         binding.btnMenuMySpaces.setText(R.string.guest_return_host);
         binding.btnMenuMySpaces.setOnClickListener(

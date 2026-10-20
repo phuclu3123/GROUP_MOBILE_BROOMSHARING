@@ -15,6 +15,7 @@
             </LinearLayout>
             <TextView android:id="@+id/accountNote" style="@style/WorkspaceBody" android:text="" android:layout_marginTop="24dp"/>
             <com.google.android.material.button.MaterialButton android:id="@+id/switchToRenter" style="@style/WorkspaceAction" android:text="@string/workspace_renter_switch"/>
+            <com.google.android.material.button.MaterialButton android:id="@+id/accountNotices" style="@style/WorkspaceAction" android:text="Thông báo đặt chỗ"/>
             <com.google.android.material.button.MaterialButton android:id="@+id/accountSignOut" style="@style/WorkspaceAction" android:text="@string/workspace_signout"/>
         </LinearLayout>
     </ScrollView>

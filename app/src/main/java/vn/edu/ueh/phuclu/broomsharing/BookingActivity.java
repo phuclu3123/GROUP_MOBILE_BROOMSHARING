@@ -237,8 +237,8 @@ public class BookingActivity extends SessionActivity {
                                         + "\nThuê + phí: "
                                         + amount(p, "totalAmount")
                                         + "\n"
-                                        + "Tổng dự kiến gồm thuê, phí và cọc riêng. Cọc demo chưa"
-                                        + " thanh toán.\n"
+                                        + "Trả trước dự kiến 40%, được trừ vào tiền thuê. Chức năng thanh toán đang phát triển; chưa thu tiền.\n"
+                                        + vn.edu.ueh.phuclu.broomsharing.utils.CancellationPolicy.terms(state.data.activeMode) + "\n"
                                         + p.get("rentalPolicy"));
                     }
                     enabled();

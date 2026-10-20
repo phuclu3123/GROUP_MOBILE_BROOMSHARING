@@ -1,0 +1,10 @@
+<resources>
+    <string name="chat_title">Tin nhắn</string>
+    <string name="chat_hint">Nhập tin nhắn</string>
+    <string name="chat_send">Gửi</string>
+    <string name="chat_older">Xem tin trước</string>
+    <string name="chat_empty">Chưa có hội thoại. Mở một phòng và chọn “Nhắn người cho thuê” để bắt đầu.</string>
+    <string name="chat_loading">Đang đồng bộ tin nhắn…</string>
+    <string name="chat_contact">Nhắn người cho thuê</string>
+    <string name="chat_call">Gọi điện</string>
+</resources>

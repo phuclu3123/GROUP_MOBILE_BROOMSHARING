@@ -196,6 +196,10 @@ public class BookingRepository {
 
     public void transition(
             String id, String target, String reason, ResultCallback<String> callback) {
+        transition(id, target, reason, null, callback);
+    }
+
+    public void transition(String id, String target, String reason, Integer expectedRefundPercent, ResultCallback<String> callback) {
         final String uid;
         try {
             uid = actor();
@@ -218,14 +222,22 @@ public class BookingRepository {
                             BookingPolicy.require(booking != null, "Không tìm thấy booking.");
                             booking.id = id;
                             BookingPolicy.require(
-                                    uid.equals(
-                                            "CANCELLED".equals(target)
-                                                    ? booking.guestUid
-                                                    : booking.ownerUid),
+                                    "CANCELLED".equals(target) ? uid.equals(booking.guestUid)||uid.equals(booking.ownerUid) : uid.equals(booking.ownerUid),
                                     "Không được xử lý booking này.");
                             BookingPolicy.transition(
                                     booking, target, note, System.currentTimeMillis());
                             if (target.equals(booking.status)) return id;
+                            int refundPercent = 0;
+                            if ("CANCELLED".equals(target)) {
+                                if(uid.equals(booking.ownerUid))BookingPolicy.require(!note.isEmpty(),"Host cần nhập lý do hủy.");
+                                BookingPolicy.require(Arrays.asList("UNAVAILABLE", "DEMO_PENDING", "UNPAID").contains(booking.paymentStatus),
+                                        "Booking có thông tin thanh toán cần được đối soát; chức năng này đang phát triển.");
+                                if (CancellationPolicy.versioned(booking)) {
+                                    refundPercent = uid.equals(booking.ownerUid)?100:CancellationPolicy.percent(booking, System.currentTimeMillis());
+                                    BookingPolicy.require(expectedRefundPercent == null || expectedRefundPercent == refundPercent,
+                                            "Đã qua mốc chính sách. Vui lòng mở lại xác nhận hủy để xem mức hoàn hiện tại.");
+                                }
+                            }
                             BookingPolicy.require(
                                     booking.schemaVersion == 2 && !booking.monthKeys.isEmpty(),
                                     "Booking mẫu cũ chưa có lịch Java; không thể tự thay đổi giữ"
@@ -267,9 +279,15 @@ public class BookingRepository {
                                     "status",
                                     target,
                                     "rejectionReason",
-                                    "REJECTED".equals(target) ? note : "",
+                                    Arrays.asList("REJECTED","CANCELLED").contains(target) ? note : "",
                                     "updatedAt",
                                     FieldValue.serverTimestamp());
+                            if ("CANCELLED".equals(target)) tx.update(ref,
+                                    "cancelledAt", FieldValue.serverTimestamp(),
+                                    "cancelledByUid", uid,
+                                    "cancellationRefundPercent", refundPercent,
+                                    "refundAmount", 0,
+                                    "refundStatus", "NOT_REQUIRED");
                             tx.update(
                                     roomRef,
                                     "bookingRevision",
@@ -321,6 +339,12 @@ public class BookingRepository {
     }
 
     public ListenerRegistration watchMine(String uid, ResultCallback<List<Booking>> callback) {
+        return watchParticipant(uid, "guestUid", callback);
+    }
+    public ListenerRegistration watchOwner(String uid, ResultCallback<List<Booking>> callback) {
+        return watchParticipant(uid, "ownerUid", callback);
+    }
+    private ListenerRegistration watchParticipant(String uid, String field, ResultCallback<List<Booking>> callback) {
         try {
             BookingPolicy.require(actor().equals(uid), "Không được xem đặt chỗ của người khác.");
         } catch (Exception e) {
@@ -328,7 +352,7 @@ public class BookingRepository {
             return null;
         }
         return db.collection("bookings")
-                .whereEqualTo("guestUid", uid)
+                .whereEqualTo(field, uid)
                 .addSnapshotListener(
                         MetadataChanges.INCLUDE,
                         (rows, error) -> {
@@ -368,6 +392,16 @@ public class BookingRepository {
                             }
                         })
                 .addOnFailureListener(callback::onError);
+    }
+    public ListenerRegistration watchOne(String id, ResultCallback<Booking> callback) {
+        try { BookingPolicy.id(id); actor(); } catch(Exception e){callback.onError(e);return null;}
+        return db.collection("bookings").document(id).addSnapshotListener(MetadataChanges.INCLUDE,(doc,e)->{
+            if(e!=null){callback.onError(e);return;}
+            if(doc==null||doc.getMetadata().isFromCache()||doc.getMetadata().hasPendingWrites())return;
+            Booking b=doc.toObject(Booking.class);
+            if(b==null||!java.util.Objects.equals(auth.getUid(),b.guestUid)){callback.onError(new Exception("Không tìm thấy đặt chỗ của bạn."));return;}
+            b.id=doc.getId();callback.onSuccess(b);
+        });
     }
 
     public void availability(

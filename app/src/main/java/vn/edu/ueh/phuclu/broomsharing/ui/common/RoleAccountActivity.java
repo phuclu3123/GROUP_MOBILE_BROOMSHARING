@@ -31,6 +31,8 @@ public class RoleAccountActivity extends SessionActivity {
         b.accountPhone.setText(profile.phoneVerified ? profile.phone : getString(R.string.auth_phone_unverified, profile.phone == null ? "" : profile.phone));
         b.accountNote.setText(role == UserRole.ADMIN ? R.string.workspace_admin_account_note : R.string.workspace_renter_hint);
         b.switchToRenter.setVisibility(role == UserRole.HOST ? View.VISIBLE : View.GONE);
+        b.accountNotices.setVisibility(role==UserRole.HOST?View.VISIBLE:View.GONE);
+        b.accountNotices.setOnClickListener(v->startActivity(new Intent(this,vn.edu.ueh.phuclu.broomsharing.BookingNoticesActivity.class)));
         b.switchToRenter.setOnClickListener(v -> startActivity(new Intent(this, MainActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)));
         b.accountSignOut.setOnClickListener(v -> new AlertDialog.Builder(this)

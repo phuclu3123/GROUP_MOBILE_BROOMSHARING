@@ -23,6 +23,7 @@ public class FormatUtils {
         return "Trạng thái: " + value;
     }
     public static String paymentStatus(String value) {
+        if ("UNAVAILABLE".equals(value)) return "Thanh toán đang phát triển • Chưa thu tiền";
         if ("DEMO_PENDING".equals(value)) return "Cọc demo • Chưa thanh toán";
         if ("UNPAID".equals(value)) return "Chưa thanh toán";
         if ("PENDING".equals(value)) return "Chờ xử lý";

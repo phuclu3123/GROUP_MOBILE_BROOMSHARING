@@ -33,6 +33,7 @@ public final class ManagementNavigation {
             if (id == current) return true;
             Class<?> target;
             if (id == R.id.host_account || id == R.id.admin_account) target = RoleAccountActivity.class;
+            else if (id == R.id.host_messages) target = vn.edu.ueh.phuclu.broomsharing.ConversationsActivity.class;
             else if (role == UserRole.ADMIN) target = AdminDashboardActivity.class;
             else if (id == R.id.host_bookings) target = HostBookingsActivity.class;
             else target = HostDashboardActivity.class;

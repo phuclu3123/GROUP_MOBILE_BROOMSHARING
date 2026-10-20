@@ -1,0 +1,41 @@
+{
+  "verifiedAt": "2026-10-20T03:50:34.558Z",
+  "checks": [
+    "cloud realtime with independent guest-host sessions",
+    "one thread per pair",
+    "idempotent retry",
+    "concurrent sends preserve counters",
+    "recipient read receipts",
+    "stranger and admin denied private chat",
+    "peer read and forged receipts denied",
+    "messages immutable"
+  ],
+  "passed": true,
+  "project": "broom-sharing-firebase-mobile",
+  "database": "broomsharing",
+  "deviceApi": 31,
+  "uiSuite": {
+    "passed": true,
+    "tests": 5,
+    "seconds": 182.144,
+    "checks": [
+      "guest/host inbox navigation",
+      "send/reply through UI",
+      "draft survives recreation",
+      "unread badge appears then clears after reading",
+      "local Android booking notification posted",
+      "role workspace regression"
+    ]
+  },
+  "additionalHostCancellation": {
+    "passed": true,
+    "tests": 1,
+    "seconds": 50.066
+  },
+  "unitTests": 55,
+  "lint": {
+    "errors": 0,
+    "warnings": 488
+  },
+  "rulesSha256": "7e58e42cda054367e7c1bbc68df3cb4e787385d5aa0bece5136fd6b1fe479e58"
+}

@@ -30,9 +30,11 @@ public final class GuestNavigation {
                     else if (item.getItemId() == R.id.nav_bookings)
                         target = MyBookingsActivity.class;
                     else if (item.getItemId() == R.id.nav_profile) target = ProfileActivity.class;
+                    else if (item.getItemId() == R.id.nav_messages) target = ConversationsActivity.class;
                     else return false;
                     activity.startActivity(
                             new Intent(activity, target)
+                                    .putExtra("renterMode", true)
                                     .addFlags(
                                             Intent.FLAG_ACTIVITY_CLEAR_TOP
                                                     | Intent.FLAG_ACTIVITY_SINGLE_TOP));

@@ -30,7 +30,7 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.Holder> 
         h.b.info.setText(item.roomName == null ? item.roomId : item.roomName);
         h.b.bookingStatus.setText(FormatUtils.bookingStatus(item.status) + " · " + ("FIXED".equals(item.activeMode) ? "Thuê tháng/quý" : "Thuê giờ"));
         h.b.bookingTime.setText(TimeUtils.formatVietnam(item.startAt) + "\nđến " + TimeUtils.formatVietnam(item.endAt));
-        h.b.bookingPrice.setText("Thuê và phí: " + FormatUtils.formatCurrency(item.totalAmount) + "\nCọc: " + deposit);
+        h.b.bookingPrice.setText("Thuê và phí: " + FormatUtils.formatCurrency(item.totalAmount) + "\n" + (CancellationPolicy.versioned(item) ? "Trả trước dự kiến (40%): " : "Cọc theo booking cũ: ") + deposit);
         h.b.bookingPayment.setText(FormatUtils.paymentStatus(item.paymentStatus));
         h.b.bookingReason.setVisibility(item.rejectionReason == null || item.rejectionReason.isEmpty() ? View.GONE : View.VISIBLE);
         h.b.bookingReason.setText(item.rejectionReason == null ? "" : "Lý do: " + item.rejectionReason);

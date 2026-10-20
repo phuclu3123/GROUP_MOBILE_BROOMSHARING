@@ -23,6 +23,8 @@ public class HostBookingAdapter extends RecyclerView.Adapter<HostBookingAdapter.
         void onAccept(Booking booking);
         void onReject(Booking booking);
         void onProgress(Booking booking, String status);
+        void onChat(Booking booking);
+        void onCancel(Booking booking);
     }
 
     private final List<Booking> list = new ArrayList<>();
@@ -72,6 +74,10 @@ public class HostBookingAdapter extends RecyclerView.Adapter<HostBookingAdapter.
         }
 
         void bind(Booking item) {
+            binding.btnChatGuest.setOnClickListener(v->listener.onChat(item));
+            binding.btnCancelByHost.setVisibility(Booking.STATUS_CONFIRMED.equals(item.status)&&item.startAt!=null&&item.startAt.after(new java.util.Date())?View.VISIBLE:View.GONE);
+            binding.btnCancelByHost.setEnabled(!busy);
+            binding.btnCancelByHost.setOnClickListener(v->{if(!busy)listener.onCancel(item);});
             binding.btnAccept.setEnabled(!busy);
             binding.btnReject.setEnabled(!busy);
             binding.btnProgress.setVisibility(View.GONE);

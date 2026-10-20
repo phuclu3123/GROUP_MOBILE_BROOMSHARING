@@ -38,6 +38,7 @@ public class SpaceDetailActivity extends SessionActivity {
         b.detailToolbar.setNavigationOnClickListener(v->finish());
         b.btnBook.setOnClickListener(v->startActivity(new Intent(this,BookingActivity.class).putExtra(ROOM_ID,id)));
         b.btnDirections.setOnClickListener(v->startActivity(new Intent(this,MapActivity.class).putExtra(ROOM_ID,id)));
+        b.btnChat.setOnClickListener(v->startActivity(new Intent(this,ChatActivity.class).putExtra(ROOM_ID,id).putExtra("roomName",b.title.getText().toString())));
         b.btnRefresh.setOnClickListener(v->model.load(id));
         b.btnFavorite.setOnClickListener(v->{UiState<RoomListing> state=model.detail().getValue();if(state!=null&&state.data!=null)favorites.set(id,state.data.room.getRoomName(),!favorites.contains(id));});
         favorites.items.observe(this,state->{
@@ -58,6 +59,7 @@ public class SpaceDetailActivity extends SessionActivity {
         b.btnRefresh.setEnabled(!state.loading);
         b.btnBook.setEnabled(state.data!=null&&!state.loading);
         b.btnDirections.setEnabled(false);
+        b.btnChat.setEnabled(false); b.btnCall.setEnabled(false);
         for(TextView field:new TextView[]{b.title,b.price,b.summary,b.address,b.details,b.deposit,b.policies,b.location,b.verification})field.setText("");
         Glide.with(this).clear(b.cover);b.cover.setImageResource(R.drawable.bg_image_placeholder);b.gallery.setAdapter(null);
         b.tvFeedback.setText(state.loading?"Đang tải thông tin phòng…":state.error==null?"":state.error);
@@ -77,13 +79,22 @@ public class SpaceDetailActivity extends SessionActivity {
         b.address.setText(safe(room.getAddress()));
         b.details.setText("Ngày hoạt động: "+workingDays(room.getWorkingDays())+"\nGiờ mở cửa: "+safe(room.getOpenTime())+"–"+safe(room.getCloseTime())
             +"\nTiện ích: "+android.text.TextUtils.join(", ",room.getAmenities()==null?Collections.emptyList():room.getAmenities()));
-        b.deposit.setText("Tiền cọc: "+FormatUtils.formatCurrency(room.getDeposit())+"\nThanh toán hiện ở chế độ demo.");
-        b.policies.setText("Nội quy\n"+safe(room.getRules())+"\n\nĐiều kiện thuê\n"+safe(room.getRentalPolicy())+"\n\nGia hạn\n"+safe(room.getRenewalPolicy()));
+        b.deposit.setText("Trả trước dự kiến: 40% tiền thuê, tính theo kỳ đã chọn.\nThanh toán đang phát triển; hiện chưa thu tiền.");
+        b.policies.setText("Chính sách hủy cho booking mới\n"+vn.edu.ueh.phuclu.broomsharing.utils.CancellationPolicy.terms(room.getActiveMode())+"\n\nNội quy\n"+safe(room.getRules())+"\n\nĐiều kiện thuê\n"+safe(room.getRentalPolicy())+"\n\nGia hạn\n"+safe(room.getRenewalPolicy()));
         b.location.setText(safe(building.getName())+" • Tầng "+safe(room.getFloor())+"\n"+safe(building.getDistrict())+" • "+safe(building.getAddress())
             +"\n\nNgười cho thuê: "+safe(state.data.hostName)+"\nLiên hệ: "+safe(building.getContactName())+"\n"+safe(building.getContactPhone())
             +"\n\nHướng dẫn đến: "+safe(building.getDirectionGuide()));
         b.verification.setText(FormatUtils.verificationSummary(room));
         b.btnDirections.setEnabled(building.getLocation()!=null);
+        b.btnChat.setEnabled(!room.getOwnerUid().equals(new ViewModelProvider(this).get(ChatViewModel.class).uid()));
+        String phone=building.getContactPhone();
+        b.btnCall.setEnabled(phone!=null&&phone.replaceAll("[^+0-9]", "").matches("[+]?[0-9]{8,15}"));
+        b.btnCall.setOnClickListener(v->{
+            Intent dial=new Intent(Intent.ACTION_DIAL,android.net.Uri.fromParts("tel",phone.replaceAll("[^+0-9]", ""),null));
+            try { startActivity(dial); } catch(android.content.ActivityNotFoundException e) {
+                android.widget.Toast.makeText(this,"Thiết bị chưa có ứng dụng gọi điện.",android.widget.Toast.LENGTH_LONG).show();
+            }
+        });
         List<String> urls=room.getImageUrls();
         b.gallery.setVisibility(urls==null||urls.size()<2?View.GONE:View.VISIBLE);
         if(urls!=null&&!urls.isEmpty()) {

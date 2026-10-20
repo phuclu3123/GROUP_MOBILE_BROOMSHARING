@@ -70,8 +70,9 @@ service cloud.firestore {
       let rental=b.activeMode=='HOURLY'?math.round(r.pricePerHour*(b.endAt.toMillis()-b.startAt.toMillis()) / 3600000):b.rentalMonths==1?r.pricePerMonth:r.pricePerQuarter;
       let p=b.priceSnapshot;
       return rental>0 && b.totalAmount==rental && p.totalAmount==rental && p.rentalAmount==rental
-        && p.currency=='VND' && p.feeAmount==0 && p.depositAmount==r.deposit
-        && p.paymentDueAmount==rental+r.deposit && p.rentalPolicy==r.rentalPolicy && p.renewalPolicy==r.renewalPolicy;
+        && p.currency=='VND' && p.feeAmount==0 && p.cancellationPolicyVersion==1 && p.advancePercent==40
+        && p.depositAmount==math.round(rental*0.4) && p.paymentDueAmount==p.depositAmount
+        && p.rentalPolicy==r.rentalPolicy && p.renewalPolicy==r.renewalPolicy;
     }
     function roomValid(r) {
       return r.id is string && r.schemaVersion==1 && r.roomName is string && r.roomName.size()>0 && r.roomName.size()<=200
@@ -156,24 +157,36 @@ service cloud.firestore {
         let r=get(/databases/$(database)/documents/rooms/$(b.roomId)).data;
         let owner=get(/databases/$(database)/documents/users/$(r.ownerUid)).data;
         let building=get(/databases/$(database)/documents/buildings/$(r.buildingId)).data;
-        return b.keys().hasOnly(['id','schemaVersion','roomId','roomName','roomAddress','ownerUid','guestUid','guestName','guestPhone','status','paymentStatus','activeMode','rejectionReason','startAt','endAt','totalAmount','priceSnapshot','rentalMonths','slotStart','slotCount','monthKeys','slotKeys','requestFingerprint','createdAt','updatedAt'])
+        return b.keys().hasOnly(['id','schemaVersion','roomId','roomName','roomAddress','ownerUid','guestUid','guestName','guestPhone','status','paymentStatus','activeMode','rejectionReason','startAt','endAt','totalAmount','priceSnapshot','rentalMonths','slotStart','slotCount','monthKeys','slotKeys','requestFingerprint','createdAt','updatedAt','cancelledAt','cancelledByUid','cancellationRefundPercent','refundAmount','refundStatus'])
           && b.id==id&&id.matches('[a-f0-9]{64}')&&b.schemaVersion==2&&own(b.guestUid)&&!own(b.ownerUid)
           && b.ownerUid==r.ownerUid&&owner.role=='HOST'&&owner.status=='ACTIVE'&&publicRoom(r)
           && building.ownerUid==r.ownerUid&&building.status=='ACTIVE'
           && b.roomName==r.roomName&&b.roomAddress==r.address&&b.guestName==account().name&&b.guestPhone==account().phone
-          && b.status=='PENDING'&&b.paymentStatus=='DEMO_PENDING'&&b.rejectionReason==''&&b.createdAt==request.time&&b.updatedAt==request.time
+          && b.status=='PENDING'&&b.paymentStatus=='UNAVAILABLE'&&b.rejectionReason==''&&b.createdAt==request.time&&b.updatedAt==request.time
+          && b.cancelledAt==null && b.get('cancelledByUid','')=='' && b.cancellationRefundPercent==0 && b.refundAmount==0 && b.refundStatus=='NOT_REQUIRED'
           && b.requestFingerprint.matches('[a-f0-9]{64}')&&validPeriod(b,r)&&validPrice(b,r)&&held(b);
       }
       function bookingTransition() {
         let before=resource.data;let after=request.resource.data;
-        return before.schemaVersion==2&&after.diff(before).affectedKeys().hasOnly(['status','rejectionReason','updatedAt'])&&after.updatedAt==request.time
+        return before.schemaVersion==2&&after.updatedAt==request.time
           && after.rejectionReason is string&&after.rejectionReason.size()<=500
-          && ((own(before.guestUid)&&renter()&&before.status in ['PENDING','CONFIRMED']&&after.status=='CANCELLED'&&before.startAt>request.time&&released(after))
-            || (own(before.ownerUid)&&host()&&(
+          && (((own(before.guestUid)&&renter()||own(before.ownerUid)&&host())&&before.status in ['PENDING','CONFIRMED']&&after.status=='CANCELLED'&&before.startAt>request.time&&released(after)&&cancellation())
+            || (own(before.ownerUid)&&host()&&after.diff(before).affectedKeys().hasOnly(['status','rejectionReason','updatedAt'])&&(
               (before.status=='PENDING'&&before.startAt>request.time&&after.status=='CONFIRMED'&&publicRoom(get(/databases/$(database)/documents/rooms/$(before.roomId)).data)&&held(after))
               ||(before.status=='PENDING'&&before.startAt>request.time&&after.status=='REJECTED'&&after.rejectionReason.size()>0&&released(after))
               ||(before.status=='CONFIRMED'&&after.status=='CHECKED_IN'&&before.startAt<=request.time&&before.endAt>request.time&&held(after))
               ||(before.status in ['CONFIRMED','CHECKED_IN']&&after.status=='COMPLETED'&&before.endAt<=request.time&&released(after)))));
+      }
+      function cancellation() {
+        let b=resource.data; let n=request.resource.data;
+        let remaining=b.startAt.toMillis()-request.time.toMillis();
+        let full=b.activeMode=='HOURLY'?86400000:604800000;
+        let partial=b.activeMode=='HOURLY'?21600000:172800000;
+        let rate=b.priceSnapshot.get('cancellationPolicyVersion',0)==1?(own(b.ownerUid)?100:remaining>=full?100:remaining>=partial?50:0):0;
+        return n.diff(b).affectedKeys().hasOnly(['status','rejectionReason','updatedAt','cancelledAt','cancelledByUid','cancellationRefundPercent','refundAmount','refundStatus'])
+          && b.paymentStatus in ['UNAVAILABLE','DEMO_PENDING','UNPAID'] && n.cancelledAt==request.time
+          && n.cancelledByUid==request.auth.uid && (!own(b.ownerUid)||n.rejectionReason.size()>0)
+          && n.cancellationRefundPercent==rate && n.refundAmount==0 && n.refundStatus=='NOT_REQUIRED';
       }
     }
     match /availabilityMonths/{id} {
@@ -210,6 +223,69 @@ service cloud.firestore {
             && own(getAfter(/databases/$(database)/documents/$(request.resource.data.targetPath.split("/")[0])/$(request.resource.data.targetPath.split("/")[1])).data.ownerUid)
             && getAfter(/databases/$(database)/documents/$(request.resource.data.targetPath.split("/")[0])/$(request.resource.data.targetPath.split("/")[1])).data.updatedAt==request.time
             && request.resource.data.action in ['SAVE_ROOM','SET_LISTING']));
+    }
+    match /conversations/{id} {
+      function member(c) { return active() && request.auth.uid in c.memberUids; }
+      function peerActive(c) {
+        let guest=get(/databases/$(database)/documents/users/$(c.guestUid)).data;
+        let owner=get(/databases/$(database)/documents/users/$(c.hostUid)).data;
+        return guest.status=='ACTIVE' && guest.role in ['GUEST','HOST'] && owner.status=='ACTIVE' && owner.role=='HOST';
+      }
+      function shape(c) {
+        return c.keys().hasOnly(['id','guestUid','hostUid','guestName','hostName','memberUids','roomId','roomName','bookingId','lastText','lastSenderUid','lastMessageId','sequence','guestReceived','hostReceived','guestRead','hostRead','createdAt','updatedAt'])
+          && c.id==id && id==c.guestUid+':'+c.hostUid && c.guestUid!=c.hostUid && c.memberUids==[c.guestUid,c.hostUid];
+      }
+      allow get: if active() && (!exists(/databases/$(database)/documents/conversations/$(id)) || member(resource.data));
+      allow list: if member(resource.data);
+      function fromRoom(c) {
+        return c.bookingId=='' && own(c.guestUid) && c.guestName==account().name
+          && get(/databases/$(database)/documents/rooms/$(c.roomId)).data.ownerUid==c.hostUid
+          && publicRoom(get(/databases/$(database)/documents/rooms/$(c.roomId)).data)
+          && c.roomName==get(/databases/$(database)/documents/rooms/$(c.roomId)).data.roomName;
+      }
+      function fromBooking(c) {
+        let b=get(/databases/$(database)/documents/bookings/$(c.bookingId)).data;
+        return (own(c.guestUid)||own(c.hostUid)) && b.guestUid==c.guestUid && b.ownerUid==c.hostUid
+          && b.roomId==c.roomId && b.roomName==c.roomName && b.guestName==c.guestName;
+      }
+      allow create: if renter() && shape(request.resource.data) && peerActive(request.resource.data)
+        && (request.resource.data.bookingId==''?fromRoom(request.resource.data):fromBooking(request.resource.data))
+        && request.resource.data.hostName==get(/databases/$(database)/documents/publicHosts/$(request.resource.data.hostUid)).data.name
+        && request.resource.data.sequence==0 && request.resource.data.guestReceived==0 && request.resource.data.hostReceived==0
+        && request.resource.data.guestRead==0 && request.resource.data.hostRead==0
+        && request.resource.data.lastText=='' && request.resource.data.lastSenderUid=='' && request.resource.data.lastMessageId==''
+        && request.resource.data.createdAt==request.time && request.resource.data.updatedAt==request.time;
+      allow update: if member(resource.data) && (receipt() || append());
+      function receipt() {
+        let n=request.resource.data; let o=resource.data;
+        return own(o.guestUid)
+          ? n.diff(o).affectedKeys().hasOnly(['guestRead']) && n.guestRead is int && n.guestRead>=o.guestRead && n.guestRead<=o.guestReceived
+          : n.diff(o).affectedKeys().hasOnly(['hostRead']) && n.hostRead is int && n.hostRead>=o.hostRead && n.hostRead<=o.hostReceived;
+      }
+      function append() {
+        let n=request.resource.data; let o=resource.data;
+        let m=getAfter(/databases/$(database)/documents/conversations/$(id)/messages/$(n.lastMessageId)).data;
+        return peerActive(o) && n.diff(o).affectedKeys().hasOnly(['sequence','lastText','lastSenderUid','lastMessageId','guestReceived','hostReceived','updatedAt'])
+          && n.sequence==o.sequence+1 && n.lastSenderUid==request.auth.uid && n.updatedAt==request.time
+          && m.id==n.lastMessageId && m.senderUid==request.auth.uid && m.sequence==n.sequence && m.text==n.lastText && m.createdAt==request.time
+          && !exists(/databases/$(database)/documents/conversations/$(id)/messages/$(n.lastMessageId))
+          && (own(o.guestUid) ? n.hostReceived==o.hostReceived+1 && n.guestReceived==o.guestReceived
+            : n.guestReceived==o.guestReceived+1 && n.hostReceived==o.hostReceived);
+      }
+      match /messages/{messageId} {
+        function parent() { return get(/databases/$(database)/documents/conversations/$(id)).data; }
+        allow read: if member(parent());
+        allow create: if member(parent()) && peerActive(parent()) && message(messageId);
+        function message(messageId) {
+          let m=request.resource.data; let c=getAfter(/databases/$(database)/documents/conversations/$(id)).data;
+          return m.keys().hasOnly(['id','senderUid','text','roomId','roomName','sequence','createdAt'])
+            && m.id==messageId && messageId.matches('[a-zA-Z0-9_-]{1,128}') && own(m.senderUid)
+            && m.text is string && m.text.size()>0 && m.text.size()<=2000 && m.createdAt==request.time
+            && c.lastMessageId==messageId && c.sequence==m.sequence && c.lastSenderUid==m.senderUid && c.lastText==m.text && c.updatedAt==request.time
+            && ((m.roomId=='' && m.roomName=='') || (get(/databases/$(database)/documents/rooms/$(m.roomId)).data.ownerUid==c.hostUid
+              && m.roomName==get(/databases/$(database)/documents/rooms/$(m.roomId)).data.roomName));
+        }
+      }
     }
     match /payments/{id} { allow read: if admin()||own(resource.data.guestUid); }
     match /notifications/{id} { allow read: if own(resource.data.recipientUid); allow update: if own(resource.data.recipientUid)&&request.resource.data.diff(resource.data).affectedKeys().hasOnly(['readAt']); }

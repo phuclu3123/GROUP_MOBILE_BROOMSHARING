@@ -212,11 +212,20 @@ public class HostViewModel extends AndroidViewModel {
 
     public void loadBookings() {
         try {
-            repository.getBookings(into(bookings));
+            stopBookings();
+            bookings.setValue(UiState.loading());
+            bookingListener = new vn.edu.ueh.phuclu.broomsharing.repository.BookingRepository().watchOwner(repository.currentUserId(),
+                new vn.edu.ueh.phuclu.broomsharing.repository.ResultCallback<List<Booking>>() {
+                    public void onSuccess(List<Booking> values) { bookings.setValue(UiState.success(values)); }
+                    public void onError(Exception e) { bookings.setValue(UiState.error(e)); }
+                });
         } catch (Exception e) {
             bookings.setValue(UiState.error(e));
         }
     }
+    private com.google.firebase.firestore.ListenerRegistration bookingListener;
+    public void stopBookings() { if(bookingListener!=null)bookingListener.remove();bookingListener=null; }
+    @Override protected void onCleared() { stopBookings(); }
 
     public void updateBookingStatus(String bookingId, String newStatus, String reason) {
         if (actionResult.getValue() != null && actionResult.getValue().loading) return;

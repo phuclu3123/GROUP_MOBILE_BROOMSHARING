@@ -197,4 +197,6 @@
             android:textStyle="bold" />
     </LinearLayout>
 
+    <com.google.android.material.button.MaterialButton android:id="@+id/btnChatGuest" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Nhắn khách thuê" android:textAllCaps="false" />
+    <com.google.android.material.button.MaterialButton android:id="@+id/btnCancelByHost" style="@style/Widget.MaterialComponents.Button.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Hủy đặt chỗ của khách" android:textAllCaps="false" android:visibility="gone" />
 </LinearLayout>

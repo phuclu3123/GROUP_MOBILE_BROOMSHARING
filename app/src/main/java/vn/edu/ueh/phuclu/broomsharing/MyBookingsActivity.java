@@ -23,10 +23,15 @@ public class MyBookingsActivity extends SessionActivity {
         b = ActivityMyBookingsLiveBinding.bind(((android.view.ViewGroup) findViewById(android.R.id.content)).getChildAt(0));
         model = new ViewModelProvider(this).get(BookingViewModel.class);
         if(restoredFilter!=null)model.filterPosition=restoredFilter;
-        BookingAdapter adapter = new BookingAdapter(item -> new AlertDialog.Builder(this)
-                .setTitle(R.string.booking_cancel).setMessage(R.string.booking_cancel_help)
-                .setPositiveButton(R.string.booking_cancel, (d, w) -> model.cancel(item.id, uid))
-                .setNegativeButton(android.R.string.cancel, null).show(), item -> startActivity(new android.content.Intent(this,BookingSuccessActivity.class).putExtra("bookingId",item.id)));
+        BookingAdapter adapter = new BookingAdapter(item -> {
+            long now=System.currentTimeMillis();
+            Integer rate=vn.edu.ueh.phuclu.broomsharing.utils.CancellationPolicy.versioned(item)
+                    ? vn.edu.ueh.phuclu.broomsharing.utils.CancellationPolicy.percent(item,now):null;
+            new AlertDialog.Builder(this).setTitle(R.string.booking_cancel)
+                .setMessage(vn.edu.ueh.phuclu.broomsharing.utils.CancellationPolicy.preview(item,now))
+                .setPositiveButton(R.string.booking_cancel,(d,w)->model.cancel(item.id,uid,rate))
+                .setNegativeButton("Giữ đặt chỗ",null).show();
+        }, item -> startActivity(new android.content.Intent(this,BookingSuccessActivity.class).putExtra("bookingId",item.id)));
         b.bookings.setLayoutManager(new LinearLayoutManager(this)); b.bookings.setAdapter(adapter);
         b.refresh.setOnClickListener(v -> model.watchMine(uid));
         b.bookingFilter.setSelection(model.filterPosition);

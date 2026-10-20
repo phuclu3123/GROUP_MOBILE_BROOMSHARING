@@ -9,7 +9,7 @@
     <string name="host_fixed_month">Chọn tháng bắt đầu nhận thuê</string>
     <string name="host_renewal">Điều khoản gia hạn thuê cố định</string>
     <string name="host_rental_policy">Check-in, đổi/hủy lịch, cọc, phụ phí, bãi xe và thiết bị</string>
-    <string name="host_policy_help">Chính sách do chủ cung cấp; hoàn cọc theo quyết định xử lý booking.</string>
+    <string name="host_policy_help">Điều kiện sử dụng do Host cung cấp. Chính sách hủy chung được lưu cùng booking mới.</string>
     <string name="host_view_schedule">Xem lịch đặt của phòng</string>
     <string name="booking_title">Đặt thuê không gian</string>
     <string name="booking_date">Chọn ngày bắt đầu</string>
@@ -23,7 +23,7 @@
     <string name="booking_mine">Đặt chỗ của tôi</string>
     <string name="booking_back">Quay lại</string>
     <string name="booking_cancel">Hủy yêu cầu này</string>
-    <string name="booking_help">Giờ Việt Nam. Chọn ngày 1 khi thuê tháng/quý. Yêu cầu chờ duyệt sẽ giữ chỗ; cọc demo chưa phải thanh toán thật.</string>
+    <string name="booking_help">Giờ Việt Nam. Chọn ngày 1 khi thuê tháng/quý. Yêu cầu chờ Host xác nhận sẽ giữ chỗ. Thanh toán đang phát triển; chưa thu tiền.</string>
     <string name="booking_cancel_help">Hủy trước giờ bắt đầu sẽ nhả chỗ. Bản demo không thực hiện hoàn tiền thật.</string>
     <string name="booking_loading">Đang tải đặt chỗ…</string>
     <string name="booking_sending">Đang gửi thao tác…</string>

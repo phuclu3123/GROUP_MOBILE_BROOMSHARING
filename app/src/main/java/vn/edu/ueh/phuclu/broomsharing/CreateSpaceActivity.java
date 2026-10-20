@@ -129,8 +129,6 @@ public class CreateSpaceActivity extends SessionActivity {
                 r.getPricePerQuarter() > 0
                         ? String.format(Locale.US, "%.0f", r.getPricePerQuarter())
                         : "");
-        binding.etDeposit.setText(
-                r.getDeposit() > 0 ? String.format(Locale.US, "%.0f", r.getDeposit()) : "");
         binding.etDescription.setText(r.getRules());
         binding.tvOpenTime.setText(r.getOpenTime() == null ? "08:00" : r.getOpenTime());
         binding.tvCloseTime.setText(r.getCloseTime() == null ? "22:00" : r.getCloseTime());
@@ -340,7 +338,6 @@ public class CreateSpaceActivity extends SessionActivity {
             if (capacity != Math.rint(capacity) || capacity < 0 || capacity > 10000)
                 throw new NumberFormatException();
             r.setCapacity((int) capacity);
-            r.setDeposit(UiForms.number(binding.etDeposit));
             r.setPricePerHour(
                     binding.rbHourly.isChecked() ? UiForms.number(binding.etPriceHour) : 0);
             r.setPricePerMonth(

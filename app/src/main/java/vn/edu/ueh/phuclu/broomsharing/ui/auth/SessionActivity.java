@@ -17,6 +17,8 @@ import vn.edu.ueh.phuclu.broomsharing.model.*;
 public abstract class SessionActivity extends AppCompatActivity {
     private AuthViewModel model;
     private boolean shown;
+    private vn.edu.ueh.phuclu.broomsharing.ui.ChatViewModel chat;
+    private vn.edu.ueh.phuclu.broomsharing.ui.BookingNoticeViewModel notices;
 
     protected abstract int pageLayout();
 
@@ -95,9 +97,36 @@ public abstract class SessionActivity extends AppCompatActivity {
         shown = true;
         setContentView(pageLayout());
         onProfileReady(profile);
+        if (profile.getUserRole() != UserRole.ADMIN && !(this instanceof ChatActivity)) {
+            chat = new ViewModelProvider(this).get(vn.edu.ueh.phuclu.broomsharing.ui.ChatViewModel.class);
+            chat.inbox.observe(this, state -> {
+                if (state == null || state.data == null) return;
+                long unread = 0;
+                for (Conversation c : state.data) unread += c.unread(profile.uid);
+                updateBadge(R.id.bottomNavigation, R.id.nav_messages, unread);
+                updateBadge(R.id.managementNavigation, R.id.host_messages, unread);
+            });
+            chat.watchInbox();
+        }
+        if (profile.getUserRole()!=UserRole.ADMIN) {
+            notices=new ViewModelProvider(this).get(vn.edu.ueh.phuclu.broomsharing.ui.BookingNoticeViewModel.class);
+            notices.notices.observe(this,state->{if(!isFinishing()&&model.hasSession()&&model.getState().getValue()!=null&&model.getState().getValue().profile!=null&&state!=null&&state.data!=null)vn.edu.ueh.phuclu.broomsharing.ui.common.BookingNotifier.deliver(this,profile.uid,state.data);});
+            notices.start(profile.getUserRole()==UserRole.HOST);
+        }
     }
 
+    private void updateBadge(int viewId, int itemId, long unread) {
+        com.google.android.material.bottomnavigation.BottomNavigationView nav = findViewById(viewId);
+        if (nav == null || nav.getMenu().findItem(itemId) == null) return;
+        if (unread == 0) nav.removeBadge(itemId);
+        else nav.getOrCreateBadge(itemId).setNumber((int)Math.min(unread, 999));
+    }
+    @Override protected void onStart() { super.onStart(); if (chat != null) chat.watchInbox(); if(notices!=null)notices.resume(); }
+    @Override protected void onStop() { if (chat != null) chat.stop(); if(notices!=null)notices.stop(); super.onStop(); }
+
     protected void signOut() {
+        if(chat!=null)chat.stop();if(notices!=null)notices.stop();
+        androidx.core.app.NotificationManagerCompat.from(this).cancelAll();
         model.signOut();
         toLogin(0);
     }

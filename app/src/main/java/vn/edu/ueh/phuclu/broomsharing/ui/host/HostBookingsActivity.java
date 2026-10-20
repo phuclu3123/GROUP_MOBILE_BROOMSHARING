@@ -82,6 +82,7 @@ public class HostBookingsActivity extends vn.edu.ueh.phuclu.broomsharing.ui.auth
         if (scheduleRoom != null && bookingsLoaded) binding.tvSchedule.setText(vn.edu.ueh.phuclu.broomsharing.utils.HostSchedule.daySummary(scheduleRoom, fullList, scheduleDay));
     }
     @Override protected void onResume() { super.onResume(); if (binding != null && viewModel != null) refresh(); }
+    @Override protected void onStop() { if(viewModel!=null)viewModel.stopBookings();super.onStop(); }
     @Override protected void onNewIntent(android.content.Intent intent) {
         super.onNewIntent(intent);
         boolean changedRoom = !java.util.Objects.equals(roomId, intent.getStringExtra("ROOM_ID"));
@@ -99,6 +100,10 @@ public class HostBookingsActivity extends vn.edu.ueh.phuclu.broomsharing.ui.auth
     private void setupRecyclerView() {
         binding.rvBookings.setLayoutManager(new LinearLayoutManager(this));
         adapter = new HostBookingAdapter(new HostBookingAdapter.OnBookingActionListener() {
+            @Override public void onCancel(Booking booking) { showReasonDialog(booking,"CANCELLED"); }
+            @Override public void onChat(Booking booking) {
+                startActivity(new android.content.Intent(HostBookingsActivity.this,vn.edu.ueh.phuclu.broomsharing.ChatActivity.class).putExtra("bookingId",booking.id).putExtra(vn.edu.ueh.phuclu.broomsharing.SpaceDetailActivity.ROOM_ID,booking.roomId).putExtra("roomName",booking.roomName));
+            }
             @Override
             public void onAccept(Booking booking) {
                 confirmAcceptDialog(booking);
@@ -213,18 +218,21 @@ public class HostBookingsActivity extends vn.edu.ueh.phuclu.broomsharing.ui.auth
     }
 
     private void showRejectDialog(Booking booking) {
+        showReasonDialog(booking,"REJECTED");
+    }
+    private void showReasonDialog(Booking booking,String target) {
         final EditText etReason = new EditText(this);
-        etReason.setHint("Nhập lý do từ chối (bắt buộc)...");
+        etReason.setHint("Nhập lý do (bắt buộc). Host hủy sẽ nhả lịch; booking chưa thanh toán không phát sinh hoàn tiền.");
         etReason.setPadding(40, 30, 40, 30);
 
         AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle(R.string.host_rejected).setView(etReason)
-                .setPositiveButton(R.string.host_rejected, null)
+                .setTitle("CANCELLED".equals(target)?"Hủy đặt chỗ của khách":"Từ chối yêu cầu").setView(etReason)
+                .setPositiveButton("Xác nhận", null)
                 .setNegativeButton(android.R.string.cancel, null).create();
         dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
             String reason = etReason.getText().toString().trim();
             if (reason.isEmpty() || reason.length() > 500) { etReason.setError(getString(R.string.host_reason_required)); return; }
-            viewModel.updateBookingStatus(booking.getId(), Booking.STATUS_REJECTED, reason); dialog.dismiss();
+            viewModel.updateBookingStatus(booking.getId(), target, reason); dialog.dismiss();
         }));
         dialog.show();
     }

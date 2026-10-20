@@ -37,6 +37,11 @@ public class Booking implements Serializable {
     public java.util.List<String> monthKeys = new java.util.ArrayList<>();
     public java.util.List<Integer> slotKeys = new java.util.ArrayList<>();
     public String requestFingerprint = "";
+    public Date cancelledAt;
+    public String cancelledByUid = "";
+    public int cancellationRefundPercent;
+    public double refundAmount;
+    public String refundStatus = "NOT_REQUIRED";
     @com.google.firebase.firestore.Exclude public String requestKey = "";
 
     @ServerTimestamp public Date createdAt;

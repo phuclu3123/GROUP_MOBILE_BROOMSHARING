@@ -57,10 +57,12 @@ public class BookingPolicyTest {
     }
 
     @Test
-    public void quoteUsesCurrentRoomPriceAndSeparateDeposit() {
+    public void quoteUsesCurrentRoomPriceAndFortyPercentAdvance() {
         Booking b = hourly();
         assertEquals(100001, b.totalAmount, 0);
-        assertEquals(300001, ((Number) b.priceSnapshot.get("paymentDueAmount")).doubleValue(), 0);
+        assertEquals(40000, ((Number) b.priceSnapshot.get("paymentDueAmount")).doubleValue(), 0);
+        assertEquals("UNAVAILABLE", b.paymentStatus);
+        assertTrue(CancellationPolicy.versioned(b));
         assertEquals(Arrays.asList("room_202611"), b.monthKeys);
         assertEquals(Arrays.asList(66, 67), b.slotKeys);
     }

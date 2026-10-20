@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/workspaceRoot" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@color/screen_bg">
+    <com.google.android.material.appbar.MaterialToolbar android:id="@+id/chatToolbar" android:layout_width="match_parent" android:layout_height="?attr/actionBarSize" app:navigationIcon="@drawable/ic_arrow_back" app:navigationContentDescription="@string/guest_detail_back" app:title="@string/chat_title" />
+    <com.google.android.material.button.MaterialButton android:id="@+id/chatRoom" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:textAllCaps="false" android:maxLines="2" />
+    <TextView android:id="@+id/chatStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingHorizontal="16dp" android:accessibilityLiveRegion="polite" android:textColor="@color/text_secondary" />
+    <com.google.android.material.button.MaterialButton android:id="@+id/chatRetry" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/workspace_retry" android:visibility="gone" />
+    <com.google.android.material.button.MaterialButton android:id="@+id/chatOlder" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/chat_older" android:visibility="gone" />
+    <androidx.recyclerview.widget.RecyclerView android:id="@+id/messageList" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:padding="12dp" android:clipToPadding="false" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="12dp" android:gravity="bottom" android:background="@color/white">
+        <com.google.android.material.textfield.TextInputLayout style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:hint="@string/chat_hint" app:boxBackgroundColor="@color/white">
+            <com.google.android.material.textfield.TextInputEditText android:id="@+id/chatInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textCapSentences|textMultiLine" android:maxLength="2000" android:maxLines="4" android:minHeight="48dp" />
+        </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.button.MaterialButton android:id="@+id/chatSend" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="@string/chat_send" android:textAllCaps="false" />
+    </LinearLayout>
+</LinearLayout>

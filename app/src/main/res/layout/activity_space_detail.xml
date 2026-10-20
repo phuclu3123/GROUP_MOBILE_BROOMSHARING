@@ -24,6 +24,8 @@
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_margin="16dp" android:padding="16dp" android:background="@color/white">
                 <TextView style="@style/DetailSectionTitle" android:text="Địa điểm và liên hệ" />
                 <TextView android:id="@+id/location" style="@style/DetailBody" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnChat" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/chat_contact" android:textAllCaps="false" android:enabled="false" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnCall" style="@style/Widget.MaterialComponents.Button.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/chat_call" android:textAllCaps="false" android:enabled="false" />
                 <com.google.android.material.button.MaterialButton android:id="@+id/btnDirections" style="@style/Widget.MaterialComponents.Button.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:text="Xem bản đồ và chỉ đường" android:textAllCaps="false" android:enabled="false" />
             </LinearLayout>
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginHorizontal="16dp" android:padding="16dp" android:background="@color/white">

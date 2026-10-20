@@ -317,7 +317,7 @@ public class FirestoreRepositoryTest {
                     task(winner.db.collection("bookings").document(bookingId).get(Source.SERVER))
                             .toObject(Booking.class);
             assertEquals(100000, persisted.totalAmount, 0);
-            assertEquals("DEMO_PENDING", persisted.paymentStatus);
+            assertEquals("UNAVAILABLE", persisted.paymentStatus);
             assertEquals(bookingId, create(winning, winningRequest));
             Answer<String> cannotConfirm = new Answer<>();
             winning.transition(bookingId, "CONFIRMED", "", cannotConfirm);

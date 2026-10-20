@@ -124,13 +124,15 @@ public final class BookingPolicy {
                 "Giá thuê/cọc không hợp lệ.");
         validateBlackouts(room, booking.startAt, booking.endAt);
         booking.totalAmount = rental;
-        booking.paymentStatus = "DEMO_PENDING";
+        booking.paymentStatus = "UNAVAILABLE";
         booking.priceSnapshot.put("currency", "VND");
         booking.priceSnapshot.put("rentalAmount", rental);
         booking.priceSnapshot.put("feeAmount", 0L);
-        booking.priceSnapshot.put("depositAmount", room.getDeposit());
+        booking.priceSnapshot.put("depositAmount", Math.round(rental * 0.4));
+        booking.priceSnapshot.put("advancePercent", 40L);
+        booking.priceSnapshot.put("cancellationPolicyVersion", CancellationPolicy.VERSION);
         booking.priceSnapshot.put("totalAmount", rental);
-        booking.priceSnapshot.put("paymentDueAmount", rental + room.getDeposit());
+        booking.priceSnapshot.put("paymentDueAmount", Math.round(rental * 0.4));
         booking.priceSnapshot.put("rentalPolicy", room.getRentalPolicy());
         booking.priceSnapshot.put("renewalPolicy", room.getRenewalPolicy());
         return booking;

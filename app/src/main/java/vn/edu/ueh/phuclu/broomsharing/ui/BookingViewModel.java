@@ -21,6 +21,15 @@ public class BookingViewModel extends ViewModel {
     public int filterPosition;
     private int availabilityRequest;
     private com.google.firebase.firestore.ListenerRegistration watcher;
+    private com.google.firebase.firestore.ListenerRegistration detailWatcher;
+    public void watchDetail(String id) {
+        stopDetail();detail.setValue(UiState.loading());
+        detailWatcher=repository.watchOne(id,new ResultCallback<Booking>(){
+            public void onSuccess(Booking value){detail.setValue(UiState.success(value));}
+            public void onError(Exception e){detail.setValue(UiState.error(e));}
+        });
+    }
+    public void stopDetail(){if(detailWatcher!=null)detailWatcher.remove();detailWatcher=null;}
 
     public void loadDetail(String id) {
         detail.setValue(UiState.loading());
@@ -83,6 +92,7 @@ public class BookingViewModel extends ViewModel {
     @Override
     protected void onCleared() {
         stopWatching();
+        stopDetail();
         availabilityRequest++;
     }
 
@@ -169,12 +179,16 @@ public class BookingViewModel extends ViewModel {
     }
 
     public void cancel(String bookingId, String uid) {
+        cancel(bookingId, uid, null);
+    }
+    public void cancel(String bookingId, String uid, Integer expectedPercent) {
         if (busy()) return;
         saved.setValue(UiState.loading());
         repository.transition(
                 bookingId,
                 Booking.STATUS_CANCELLED,
                 "",
+                expectedPercent,
                 new ResultCallback<String>() {
                     public void onSuccess(String id) {
                         saved.setValue(UiState.success(id));

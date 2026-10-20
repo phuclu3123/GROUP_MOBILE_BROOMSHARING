@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" app:cardCornerRadius="16dp" app:cardElevation="0dp" app:strokeColor="@color/text_secondary" app:strokeWidth="0.5dp" android:clickable="true" android:focusable="true" android:foreground="?attr/selectableItemBackground">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp" android:orientation="vertical">
+        <TextView android:id="@+id/conversationName" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/navy" android:textSize="17sp" android:textStyle="bold" />
+        <TextView android:id="@+id/conversationPreview" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:maxLines="2" android:ellipsize="end" android:textColor="@color/text_secondary" />
+        <TextView android:id="@+id/conversationUnread" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:textColor="@color/teal_dark" android:textStyle="bold" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

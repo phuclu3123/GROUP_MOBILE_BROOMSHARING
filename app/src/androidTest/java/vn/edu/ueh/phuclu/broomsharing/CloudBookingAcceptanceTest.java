@@ -144,7 +144,9 @@ public class CloudBookingAcceptanceTest {
             String id = raceA.error == null ? raceA.value : raceB.value; created.put(id, hourlyId);
             assertEquals(id, create(winner, request));
             Booking persisted = task(db.collection("bookings").document(id).get(Source.SERVER)).toObject(Booking.class);
-            assertEquals(100000, persisted.totalAmount, 0); assertEquals("DEMO_PENDING", persisted.paymentStatus);
+            assertEquals(100000, persisted.totalAmount, 0); assertEquals("UNAVAILABLE", persisted.paymentStatus);
+            assertEquals(40000, ((Number)persisted.priceSnapshot.get("depositAmount")).doubleValue(), 0);
+            assertTrue(CancellationPolicy.versioned(persisted));
             checks.add("Two authenticated guests race: one hold; retry returns same booking; server price and payment state match");
             Answer<String> illegal = new Answer<>(); winner.transition(id, "CONFIRMED", "", illegal); illegal.denied();
             signIn("host1"); transition(new BookingRepository(), id, "CONFIRMED");
@@ -152,9 +154,22 @@ public class CloudBookingAcceptanceTest {
             changed.setId(hourlyId); changed.setActiveMode(Room.MODE_FIXED); changed.setApprovalStatus("PENDING_REVIEW");
             Answer<String> sensitiveEdit = new Answer<>(); hosts.saveRoom(changed, sensitiveEdit); sensitiveEdit.denied();
             transition(winner, id, "CANCELLED");
+            Booking cancelled = task(db.collection("bookings").document(id).get(Source.SERVER)).toObject(Booking.class);
+            assertEquals("CANCELLED", cancelled.status);assertNotNull(cancelled.cancelledAt);
+            assertEquals(100, cancelled.cancellationRefundPercent);assertEquals(0, cancelled.refundAmount, 0);
+            assertEquals("NOT_REQUIRED", cancelled.refundStatus);
+            checks.add("Versioned 40% advance quote; unpaid cancellation records server time and policy rate, releases hold without Admin, never fabricates a refund");
             String replacement = create(guest, request(hourlyId, first.atDay(3), 9, 0));
             transition(new BookingRepository(), replacement, "REJECTED");
             checks.add("Guest cannot confirm; Host confirms; occupied room cannot switch mode; cancel/reject release slots");
+            String hostCancelled=create(guest,request(hourlyId,first.atDay(3),10,0));
+            transition(new BookingRepository(),hostCancelled,"CONFIRMED");
+            Answer<String> noReason=new Answer<>();new BookingRepository().transition(hostCancelled,"CANCELLED","",noReason);noReason.denied();
+            transition(new BookingRepository(),hostCancelled,"CANCELLED");
+            Booking cancelledByHost=task(db.collection("bookings").document(hostCancelled).get(Source.SERVER)).toObject(Booking.class);
+            assertEquals(auth.getUid(),cancelledByHost.cancelledByUid);assertEquals(100,cancelledByHost.cancellationRefundPercent);
+            assertEquals(0,cancelledByHost.refundAmount,0);assertFalse(cancelledByHost.rejectionReason.isEmpty());
+            checks.add("Host cancels confirmed unpaid booking with a mandatory reason; policy rate is 100%, no fake refund, schedule released atomically");
 
             String quarter = create(guest, request(fixedId, first.atDay(1), 0, 3));
             Answer<String> overlap = new Answer<>(); other.create(request(fixedId, first.plusMonths(1).atDay(1), 0, 1), overlap); overlap.denied();

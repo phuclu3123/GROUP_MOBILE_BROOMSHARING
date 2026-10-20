@@ -7,7 +7,9 @@
     "Pending listing cannot be booked",
     "Admin approves both listings on cloud",
     "Two authenticated guests race: one hold; retry returns same booking; server price and payment state match",
+    "Versioned 40% advance quote; unpaid cancellation records server time and policy rate, releases hold without Admin, never fabricates a refund",
     "Guest cannot confirm; Host confirms; occupied room cannot switch mode; cancel\/reject release slots",
+    "Host cancels confirmed unpaid booking with a mandatory reason; policy rate is 100%, no fake refund, schedule released atomically",
     "Quarter locks three calendar months; overlapping month rejected; cancellation releases all months",
     "Host saves blackout dates; real quotes reject closed days and hours outside opening schedule",
     "Host pauses and resumes new bookings without deleting booking history",
@@ -16,10 +18,11 @@
     "Blocked demo Host cannot access active Host operations"
   ],
   "bookingIds": [
-    "6e013def2482ade63d181b8de9f9858d8484e4f2c2f35a9616b9dd094c1791fa",
-    "96365439efc6ba5f03f77307d237310699bdaf214e8a2f57ed4e3704cfa862fe",
-    "db0f387b386e5aae621a11029fac168bb66c61f0c37f17aebaafa7e3953861fe",
-    "edcceddbb411285c1c27f87e56e7444682c313ca7c4aa08f12dd5daf9cb360bb"
+    "dc3229aea5722ea851e676a1833397b3e787c23b728474d541bcde1196e7f082",
+    "0410fb23e141ad65db973111e8b1464a57157d6295da74f3f303b9720da5cf3c",
+    "0708e2a85e0538d73612f864df2dc2a1f1a2005dd580ac62ec9f3b8995dcea3e",
+    "fccb7361903716ff65633d4d233c2ee254f0e38de7f743fb689e7e7046e7ec55",
+    "12d18f5489e5682785886cd585aee7c17586c51a76ec057fbd263fa5771700c7"
   ],
   "fixturesHidden": true,
   "holdsReleased": true,

@@ -66,3 +66,13 @@ MapLibre/MapTiler/openrouteservice thay Google SDK, Java transaction + Rules tha
 - Gradle `.kts`, JSON cấu hình và `.rules` phân quyền là cấu hình; mã ứng dụng và kiểm thử nghiệp vụ viết bằng Java. Không thêm ngôn ngữ/backend nghiệp vụ khác.
 
 Chỉ bổ sung lớp/model khi có trách nhiệm thực tế; không tạo wrapper cho từng thao tác, không nhân bản validation hoặc thêm framework vì “sau này có thể cần”. Thay đổi kiến trúc/ngôn ngữ phải trao đổi với người dùng trước.
+
+## Bổ sung theo thảo luận chat/hủy
+
+`ChatActivity/ConversationsActivity → ChatViewModel → ChatRepository → Conversation/ChatMessage`, hoàn toàn Java/XML và Firestore Android SDK. Guest và Host có mục Tin nhắn trong menu riêng; số chưa đọc lấy từ dữ liệu trên server. Chỉ đánh dấu đọc sau khi snapshot tin mới nhất đã tải và màn hình đang ở cuối hội thoại. Dừng listener khi rời màn hình; ViewModel gắn với phiên đăng nhập để không ghi trạng thái sang tài khoản khác. Tải 50 tin gần nhất, chủ động xem thêm từng 50 tin.
+
+`CancellationPolicy` là quy tắc Java thuần, không I/O hoặc Activity. BookingRepository thực hiện transaction hủy và nhả lịch; Rules kiểm chứng lại chính sách theo thời gian server. Booking Guest và danh sách Host đều dùng snapshot để nhận thay đổi. Thanh toán hiển thị “Chức năng đang phát triển” theo quyết định người dùng.
+
+`BookingNoticeViewModel` theo dõi booking của người thuê và booking Host sở hữu, tính lời nhắc hiện tại khi app mở/đang hoạt động. `BookingNoticesActivity` trình bày trong app; `BookingNotifier` phát notification cục bộ khi người dùng bật và cấp quyền. Áp dụng bài `08.1 Notifications.pptx`: NotificationChannel, NotificationCompat, PendingIntent mở trang cập nhật. Nhắc trước mốc đổi mức hoàn và hiển thị mức hiện tại; bỏ qua các mốc trung gian đã qua khi mở lại app. Không dùng FCM, dịch vụ push, AlarmManager, hoặc hứa nhận thông báo lúc app đã đóng. Thiết lập bật/tắt và mã sự kiện đã báo lưu SharedPreferences theo UID; dữ liệu booking/chat chính vẫn ở Firestore.
+
+Liên hệ điện thoại dùng implicit Intent `ACTION_DIAL` với số đã làm sạch, không cần quyền gọi trực tiếp hoặc chức năng nghe/gọi trong app. Nội dung notification không quyết định quyền hủy hay trạng thái thanh toán.
