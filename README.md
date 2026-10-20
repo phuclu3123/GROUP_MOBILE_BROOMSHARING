@@ -32,7 +32,7 @@ APK: `app/build/outputs/apk/debug/app-debug.apk`. Mặc định dùng Firestore 
 
 ## Phạm vi hiện tại
 
-- Auth/phiên đăng nhập, hồ sơ Host, tòa nhà/phòng và duyệt Admin.
+- Auth/phiên đăng nhập, quên mật khẩu bằng liên kết email Firebase, hồ sơ Host, tòa nhà/phòng và duyệt Admin.
 - Guest xem/lọc phòng, lưu quan tâm, đặt giờ/tháng/quý, xem yêu cầu và hủy.
 - Transaction Java giữ chỗ, giá/snapshot, xác nhận/từ chối, ghi nhận vào phòng/hoàn tất thủ công và audit; chưa có QR/PIN ra vào.
 - Dữ liệu cloud có [dataset TP.HCM](data/demo/README.md): thêm 10 tài khoản demo, 8 tòa nhà, 24 phòng, 28 booking cùng lịch giữ chỗ, yêu thích và hàng chờ quản trị; giữ lại hai phòng demo trước đó.

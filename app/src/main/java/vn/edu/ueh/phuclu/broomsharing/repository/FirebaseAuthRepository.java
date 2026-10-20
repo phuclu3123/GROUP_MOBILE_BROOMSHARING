@@ -47,9 +47,17 @@ public final class FirebaseAuthRepository implements AuthRepository {
     @Override
     public void resetPassword(String email, ResetCallback callback) {
         if (!isConfigured()) { callback.onError(AuthError.NOT_CONFIGURED); return; }
+        auth.setLanguageCode("vi");
         auth.sendPasswordResetEmail(email.trim())
                 .addOnSuccessListener(unused -> callback.onSuccess())
-                .addOnFailureListener(error -> callback.onError(authenticationError(error)));
+                .addOnFailureListener(error -> {
+                    String code = error instanceof FirebaseAuthException
+                            ? ((FirebaseAuthException) error).getErrorCode() : null;
+                    // Keep the same message even on projects without enumeration protection.
+                    if ("ERROR_USER_NOT_FOUND".equals(code) || "ERROR_USER_DISABLED".equals(code))
+                        callback.onSuccess();
+                    else callback.onError(authenticationError(error));
+                });
     }
 
     public static String normalizeUsername(String username) {

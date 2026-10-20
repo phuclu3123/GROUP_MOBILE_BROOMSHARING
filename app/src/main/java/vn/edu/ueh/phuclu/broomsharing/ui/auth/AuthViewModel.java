@@ -30,15 +30,23 @@ public class AuthViewModel extends AndroidViewModel {
             new MutableLiveData<>(new State(false, null, null));
     private boolean restored;
     private boolean resetSent;
+    private long resetRetryAt;
 
     public boolean passwordResetSent() { return resetSent; }
+    public long passwordResetWaitSeconds() {
+        return Math.max(0, (resetRetryAt - android.os.SystemClock.elapsedRealtime() + 999) / 1000);
+    }
 
     public void resetPassword(String email) {
-        if (isBusy()) return;
+        if (isBusy() || passwordResetWaitSeconds() > 0) return;
         resetSent = false;
         state.setValue(new State(true, null, null));
         repository.resetPassword(email, new AuthRepository.ResetCallback() {
-            public void onSuccess() { resetSent = true; state.setValue(new State(false, null, null)); }
+            public void onSuccess() {
+                resetSent = true;
+                resetRetryAt = android.os.SystemClock.elapsedRealtime() + 60_000;
+                state.setValue(new State(false, null, null));
+            }
             public void onError(AuthError error) { state.setValue(new State(false, null, error)); }
         });
     }

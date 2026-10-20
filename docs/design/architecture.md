@@ -76,3 +76,9 @@ Chỉ bổ sung lớp/model khi có trách nhiệm thực tế; không tạo wra
 `BookingNoticeViewModel` theo dõi booking của người thuê và booking Host sở hữu, tính lời nhắc hiện tại khi app mở/đang hoạt động. `BookingNoticesActivity` trình bày trong app; `BookingNotifier` phát notification cục bộ khi người dùng bật và cấp quyền. Áp dụng bài `08.1 Notifications.pptx`: NotificationChannel, NotificationCompat, PendingIntent mở trang cập nhật. Nhắc trước mốc đổi mức hoàn và hiển thị mức hiện tại; bỏ qua các mốc trung gian đã qua khi mở lại app. Không dùng FCM, dịch vụ push, AlarmManager, hoặc hứa nhận thông báo lúc app đã đóng. Thiết lập bật/tắt và mã sự kiện đã báo lưu SharedPreferences theo UID; dữ liệu booking/chat chính vẫn ở Firestore.
 
 Liên hệ điện thoại dùng implicit Intent `ACTION_DIAL` với số đã làm sạch, không cần quyền gọi trực tiếp hoặc chức năng nghe/gọi trong app. Nội dung notification không quyết định quyền hủy hay trạng thái thanh toán.
+
+## Quên mật khẩu qua Firebase (20/10/2026)
+
+Giữ luồng đơn giản `ForgotPasswordActivity/XML → AuthViewModel → AuthRepository/FirebaseAuthRepository → Firebase Authentication`. SDK gọi `sendPasswordResetEmail` với ngôn ngữ `vi`. Người dùng mở liên kết Firebase trong email, tự đặt mật khẩu mới trên trang Firebase, rồi quay lại đăng nhập. Không gửi mật khẩu hoặc OTP qua app, không lưu mật khẩu trong Firestore, không tự đăng nhập sau khi gửi thư.
+
+Kiểm tra email trước khi gửi, có loading/lỗi mạng/giới hạn yêu cầu và phản hồi không tiết lộ email có tồn tại. Nút gửi lại chờ 60 giây trong phiên ViewModel, giữ khi recreate; đây là hỗ trợ UX, không thay thế giới hạn phía Firebase. Đăng nhập điền sẵn email hợp lệ sang trang quên mật khẩu. Không cần thêm API key, server, Resend, Render hoặc dịch vụ chạy nền. Phần OTP/server thử trước đó đã bỏ theo quyết định cuối của người dùng.

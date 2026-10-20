@@ -40,7 +40,13 @@ public class LoginActivity extends BaseAuthActivity {
                 .setOnClickListener(v -> startActivity(new Intent(this, RegisterActivity.class)));
         findViewById(R.id.forgotButton)
                 .setOnClickListener(
-                        v -> startActivity(new Intent(this, ForgotPasswordActivity.class)));
+                        v -> {
+                            String email = text(identifierInput).trim();
+                            Intent intent = new Intent(this, ForgotPasswordActivity.class);
+                            if (Patterns.EMAIL_ADDRESS.matcher(email).matches())
+                                intent.putExtra("reset_email", email);
+                            startActivity(intent);
+                        });
         passwordInput.setOnEditorActionListener(
                 (v, actionId, event) -> {
                     if (actionId != EditorInfo.IME_ACTION_DONE) return false;

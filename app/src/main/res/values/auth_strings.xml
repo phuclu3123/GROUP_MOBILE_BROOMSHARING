@@ -41,9 +41,11 @@
     <string name="auth_phone_unverified">%1$s · Chưa xác minh số điện thoại</string>
     <string name="auth_google_later">Đăng nhập Google sẽ được tích hợp trong giai đoạn tiếp theo.</string>
     <string name="auth_phone_later">Đăng nhập bằng số điện thoại sẽ được tích hợp trong giai đoạn tiếp theo.</string>
-    <string name="auth_reset">Gửi yêu cầu đặt lại mật khẩu</string>
-    <string name="auth_reset_help">Nhập email tài khoản để yêu cầu gửi hướng dẫn đặt lại mật khẩu.</string>
-    <string name="auth_reset_sent">Nếu email thuộc một tài khoản đã đăng ký, bạn sẽ nhận được thư hướng dẫn đặt lại mật khẩu. Hãy kiểm tra cả thư mục Spam.</string>
+    <string name="auth_reset">Gửi email đặt lại mật khẩu</string>
+    <string name="auth_reset_help">Bạn sẽ nhận được liên kết để tự đặt mật khẩu mới. Sau khi đổi xong, quay lại ứng dụng để đăng nhập. Mật khẩu không được gửi qua email.</string>
+    <string name="auth_reset_sent">Nếu email thuộc một tài khoản đã đăng ký, bạn sẽ nhận được liên kết đặt lại mật khẩu. Hãy kiểm tra Hộp thư đến và Spam, mở liên kết rồi tự đặt mật khẩu mới. Sau đó quay lại ứng dụng để đăng nhập.</string>
+    <string name="auth_reset_again">Gửi lại email</string>
+    <string name="auth_reset_wait">Gửi lại sau %1$d giây</string>
     <string name="auth_busy">Đang xử lý…</string>
     <string name="auth_retry">Thử lại</string>
     <string name="auth_sign_out">Đăng xuất</string>
