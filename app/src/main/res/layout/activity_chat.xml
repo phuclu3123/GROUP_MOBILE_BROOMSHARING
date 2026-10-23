@@ -1,0 +1,67 @@
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/screen_bg">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/chatToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/white"
+        app:titleTextColor="@color/navy" />
+
+    <TextView
+        android:id="@+id/chatStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:textColor="@color/text_secondary"
+        android:textSize="12sp" />
+
+    <ScrollView
+        android:id="@+id/chatScroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:id="@+id/chatMessageList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="12dp" />
+
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="8dp"
+        android:background="@color/white">
+
+        <EditText
+            android:id="@+id/chatInput"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Nhập tin nhắn..."
+            android:inputType="textCapSentences|textMultiLine"
+            android:maxLines="4" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/chatSend"
+            style="@style/Widget.BroomSharing.AuthButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Gửi" />
+
+    </LinearLayout>
+
+</LinearLayout>
