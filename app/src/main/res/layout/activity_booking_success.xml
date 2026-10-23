@@ -156,6 +156,13 @@
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
             </LinearLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAddCalendar"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Thêm vào lịch" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnGoBookings"
@@ -173,6 +180,9 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="16dp"
                 android:text="@string/booking_continue_explore" />
+
+
+
         </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
