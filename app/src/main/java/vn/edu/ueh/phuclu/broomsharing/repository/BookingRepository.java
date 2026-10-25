@@ -330,7 +330,8 @@ public class BookingRepository {
                                 }
                             }
                             BookingPolicy.require(
-                                    booking.schemaVersion == 2 && !booking.monthKeys.isEmpty(),
+                                    booking.schemaVersion == Booking.CURRENT_SCHEMA_VERSION
+                                            && !booking.monthKeys.isEmpty(),
                                     "Booking mẫu cũ chưa có lịch Java; không thể tự thay đổi giữ"
                                             + " chỗ.");
                             DocumentReference roomRef =
@@ -448,7 +449,7 @@ public class BookingRepository {
     public void reconcileExpired(List<Booking> values, ResultCallback<?> cb) {
         long now = System.currentTimeMillis();
         for (Booking b : values)
-            if (b.schemaVersion == 2
+            if (b.schemaVersion == Booking.CURRENT_SCHEMA_VERSION
                     && "PENDING".equals(b.status)
                     && b.startAt != null
                     && b.startAt.getTime() <= now

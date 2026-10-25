@@ -1,6 +1,8 @@
 # Kiểm thử nghiệp vụ
 
-Ứng dụng vẫn dùng Java/XML. Các script Python ở đây chỉ tạo fixture và gửi yêu cầu kiểm thử đến Firestore emulator trên `127.0.0.1:8085`, database `broomsharing`. Không dùng chúng để kết luận đã thử trên cloud hay xác thực chữ ký token của Firebase Authentication.
+Ứng dụng vẫn dùng Java/XML. Các probe Rules dùng fixture và Firestore emulator trên `127.0.0.1:8085`, database `broomsharing`; không dùng kết quả emulator để kết luận đã thử cloud hoặc đã xác thực chữ ký token Firebase Auth. Các lượt cloud có opt-in và biên bản riêng bên dưới.
+
+[Công cụ đối soát phòng cũ](../maintenance/README.md) chạy cloud bằng tài khoản Admin thật sau khi được chấp thuận. `test_room_counter_migration.py` kiểm dữ liệu và database emulator riêng `counter_compatibility_qa`; `RoomCounterCompatibilityCloudTest` chỉ đọc cloud khi có `runRoomCounterReadChecks=true`. Không chạy công cụ apply như một phần của bộ test mặc định.
 
 ## Rules trực tiếp
 

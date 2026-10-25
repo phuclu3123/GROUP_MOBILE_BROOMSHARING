@@ -16,6 +16,8 @@ import java.util.Map;
     Thông tin tỷ lệ hủy không xác nhận đã thu hoặc hoàn tiền.
  */
 public class Booking implements Serializable {
+    public static final long CURRENT_SCHEMA_VERSION = 2;
+    public static final long LEGACY_SCHEMA_VERSION = 1;
     public static final String STATUS_PENDING = "PENDING";
     public static final String STATUS_CONFIRMED = "CONFIRMED";
     public static final String STATUS_CANCELLED = "CANCELLED";
@@ -40,7 +42,9 @@ public class Booking implements Serializable {
     public Date endAt;
     public double totalAmount;
     public Map<String, Object> priceSnapshot = new HashMap<>();
-    public long schemaVersion = 1;
+    // Khi đọc document thiếu version, giữ dấu hiệu dữ liệu cũ để không tự nhận là hợp lệ.
+    // BookingPolicy luôn gán CURRENT_SCHEMA_VERSION khi tạo booking mới.
+    public long schemaVersion = LEGACY_SCHEMA_VERSION;
     public int rentalMonths;
     public int slotStart;
     public int slotCount;

@@ -63,7 +63,7 @@ public final class BookingPolicy {
         ZonedDateTime local = request.startAt.toInstant().atZone(HostSchedule.ZONE);
         require(local.getSecond() == 0 && local.getNano() == 0, "Thời gian phải tròn phút.");
         Booking booking = new Booking();
-        booking.schemaVersion = 2;
+        booking.schemaVersion = Booking.CURRENT_SCHEMA_VERSION;
         booking.roomId = id(room.getId());
         booking.roomName = room.getRoomName();
         booking.roomAddress = room.getAddress();

@@ -60,6 +60,7 @@ public class BookingPolicyTest {
     @Test
     public void quoteUsesCurrentRoomPriceAndFortyPercentAdvance() {
         Booking b = hourly();
+        assertEquals(2, b.schemaVersion);
         assertEquals(100001, b.totalAmount, 0);
         assertEquals(40000, ((Number) b.priceSnapshot.get("paymentDueAmount")).doubleValue(), 0);
         assertEquals("UNAVAILABLE", b.paymentStatus);

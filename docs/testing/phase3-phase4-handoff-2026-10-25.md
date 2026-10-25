@@ -4,17 +4,21 @@ Ngày đối chiếu: 25/10/2026. Mốc hoàn thành app dự kiến của nhóm
 
 Nguồn: workbook `BroomSharing_PhanCong_4Dot_Android_Java_Firebase.xlsx`, sheet Trúc `A44:J62`, Hoàng `A44:J61`, Phúc `A47:J68`; [nghiệm thu cloud 24/10](cloud-business-acceptance-2026-10-24.md); [đối chiếu nhánh](upstream-members-review-2026-10-25.md) và [nghiệm thu bản hợp nhất](member-integration-2026-10-25.md). Workbook không bị sửa trong lượt này.
 
+Đã hoàn tất [tương thích dữ liệu phòng cũ](room-counter-compatibility-2026-10-25.md): 29 phòng thiếu bộ đếm đã được bổ sung theo booking/lịch, cả 32 phòng đã có giá trị khớp. Không giao thành viên tự đặt counter về 0 hoặc bỏ guard để mở form. Schema booking không thay đổi do merge; số 1/2 không phân biệt code của các thành viên.
+
 ## Phân công phần còn lại
 
 ### Phúc: API thanh toán, ảnh/tệp và tích hợp chung
 
 Chủ dự án đã nhận cả payment và lưu ảnh qua dịch vụ bên thứ ba vì nhóm không chọn phương án Firebase Storage trả phí ở bước này. Chưa chốt nhà cung cấp hoặc phạm vi thu tiền/hoàn tiền. Không tự ghi một provider, endpoint hoặc luồng tiền là đã triển khai.
 
+Phúc cũng nhận phần mapping API vào Repository/ViewModel và luồng Host. Hoàng không phải viết thêm dịch vụ upload hoặc payment song song; Hoàng tiếp tục UI và nghiệm thu luồng Host sau khi mapping chung được bàn giao. Trúc nối cách hiển thị/trạng thái Guest theo contract do Phúc cung cấp.
+
 | Việc cần hoàn thiện | Mã liên quan | Kết quả cần bàn giao |
 | --- | --- | --- |
-| Tích hợp ảnh phòng/tòa nhà | P07, phối hợp H06/H29/U30 | API dùng chung cho chọn/tải/thay/xóa ảnh; loại/kích thước, lỗi giữa chừng, phiên thay đổi và dọn tệp. Hoàng/Trúc nhận kết quả để hiển thị, không viết thêm API upload khác. |
+| Tích hợp ảnh phòng/tòa nhà và mapping Host | P07, phối hợp H06/H29/U30 | Phúc thực hiện API dùng chung và mapping Host cho chọn/tải/thay/xóa ảnh; loại/kích thước, lỗi giữa chừng, phiên thay đổi và dọn tệp. Hoàng/Trúc hoàn thiện UI và tự kiểm, không viết thêm API upload khác. |
 | Tệp bằng chứng riêng tư | P19/P29, phối hợp H22/U31 | Chốt tên field/ID tệp, Host gửi và Admin đọc đúng quyền; không công khai giấy tờ. Chốt lỗi ghi document sau upload và xử lý tệp mồ côi. |
-| Payment | P28/P39, phối hợp H23/U13/U26 | Chốt scope với nhóm trước; có nguồn xác nhận đáng tin cậy, chống callback lặp, xử lý hủy/hết hạn/lỗi và trạng thái đối soát theo scope. Không để client tự xác nhận PAID hoặc hoàn tiền. |
+| Payment và mapping Host | P28/P39, phối hợp H23/U13/U26 | Chốt thứ tự duyệt/thu tiền, khoản 60% còn lại và tiền về đâu; Phúc nối trạng thái tin cậy, chống callback lặp/đến muộn, hủy/hết hạn/lỗi/hoàn tiền và mapping Host. Không để client tự xác nhận PAID hoặc hoàn tiền. |
 | Ghép và nghiệm thu chung | P30/P33–P37 | Giữ schema và lịch sử Git; rà Rules/quyền tệp sau API; build/cài mới/nâng cấp, release có ký và cập nhật setup cuối. |
 
 Phần đã có không giao viết lại: booking engine, EXPIRED tại giờ bắt đầu, can thiệp từng booking của Host bị khóa, audit, giá và lịch transaction, review, phản hồi báo cáo, chat và receipt thông báo. Các luồng này đã có bằng chứng cloud riêng. Tích hợp payment mới vẫn phải kiểm lại ảnh hưởng đến vòng đời booking.
@@ -35,9 +39,9 @@ U25 Settings/sort/theme và dark mode là tùy chọn theo thời gian; không c
 | Việc cần làm tiếp | Mã liên quan | Phần đã có và cách tiếp tục |
 | --- | --- | --- |
 | Nghiệm thu lịch tháng trên điện thoại | H20 | Dialog/lưới đã ghép, sửa đầu cuối loại trừ, EXPIRED, lọc phòng và chú giải. Tự kiểm font lớn/màn nhỏ, đổi tháng/phòng và thay đổi booking từ máy Guest; không viết lại bộ giữ chỗ. |
-| Hoàn tất hồ sơ có bằng chứng | H22, phối hợp P19 | Form/list/model và gửi metadata đã ghép, `evidenceRefs` thống nhất với Admin. Tích hợp chọn/tải tệp sau khi Phúc chốt API, xử lý upload/lưu lỗi và Admin đọc đúng quyền. Chưa coi gửi metadata là đã xác minh. |
+| Hoàn tất UI hồ sơ có bằng chứng | H22, phối hợp P19 | Form/list/model và gửi metadata đã ghép. Phúc chốt API và mapping; Hoàng hoàn thiện UI chọn tệp, trạng thái gửi/lỗi/duyệt/từ chối và tự kiểm với Admin. Chưa coi gửi metadata là đã xác minh. |
 | Nghiệm thu giải trình Host | H25 | Thẻ RecyclerView của Hoàng đã ghép qua `ReportRepository.reply`, có `hostRespondedAt` server và chỉ OPEN mới phản hồi. Tự kiểm Admin xử lý đồng thời, lỗi/retry và cập nhật danh sách trên điện thoại. |
-| Ảnh và biên nhận | H23/H29 | Ghép form tải/thay/xóa qua API chung của Phúc, kiểm lỗi và rollback. UI payment/biên nhận chỉ theo trạng thái đã được dịch vụ xác nhận, không suy từ tiền dự kiến hoặc phần trăm hủy. |
+| UI ảnh và biên nhận | H23/H29 | Phúc chịu phần API và mapping Host; Hoàng hoàn thiện form/preview/trạng thái và kiểm thành công/lỗi/thay/xóa. Biên nhận chỉ theo trạng thái đã xác nhận, không suy từ tiền dự kiến hoặc phần trăm hủy. |
 | Chốt Host end-to-end | H18/H19/H21/H26/H27/H30/H31 | Tự kiểm chat, inbox, check-in/hoàn tất, bị khóa khi đang mở màn hình, danh sách đồng bộ và toàn chuỗi xin Host → duyệt → tạo phòng → duyệt → nhận đơn. Các phần lõi đã có, không viết lại. |
 
 H24 hủy đã có; đề nghị đổi lịch/phần chênh lệch tiền chưa có scope riêng, không tự thêm cơ chế sửa thẳng khoảng thuê. H28 dashboard cơ bản đã có số thật; KPI tài chính nâng cao không được coi tiền dự kiến là doanh thu.
@@ -65,5 +69,14 @@ Mỗi người ghi commit/APK, thiết bị và phiên bản Android, ID dữ li
 | Phúc | P22–P24/P26/P27/P29, phần booking của P33/P34 | P25/P30/P35–P37 cần kiểm bản cuối; P28/P39 payment; quyền tệp P07/P19 | P31 KPI nâng cao, phần tiền/tranh chấp mở rộng P32; P38 đối tác xác minh |
 
 P32 đã có xử lý báo cáo, đình chỉ phòng/khóa Host, audit và Admin xử lý từng booking; chưa coi đó là hệ phân xử tiền hoàn chỉnh. Không tự thêm QR/PIN giả, push lúc app đóng, collection trùng hoặc partner verification để bám chữ trong sheet. Quyết định hiện tại là thông báo trong app/foreground, chưa có FCM nền.
+
+## Những nhánh cần bàn tiếp, chưa tự thay đổi
+
+- Host bị khóa khi booking đã CHECKED_IN: Admin hiện xem riêng, chưa có thao tác khép vụ việc trong Repository/UI. Cần chốt quyền xử lý từng đơn, thời điểm và lý do; không tự hủy hàng loạt hoặc mở khóa Host để đi vòng.
+- Khách không đến: CONFIRMED hiện có thể chuyển COMPLETED sau giờ kết thúc, rồi đủ điều kiện review. Cần quyết định phân biệt với lượt đã sử dụng trước khi thay trạng thái hoặc điều kiện đánh giá.
+- Payment chưa có scope về khoản 60% còn lại, thời hạn thanh toán, callback đến sau hủy/hết hạn, hoàn tiền và quyết toán cho Host. Phúc trao đổi với nhóm trước khi triển khai.
+- Hồ sơ cá nhân hiện chủ yếu xem thông tin; sửa tên/số điện thoại là bổ sung nhỏ có thể cân nhắc, chưa giao thành hạng mục bắt buộc.
+
+Các điểm này là phần domain còn mở, không giao Trúc/Hoàng tự thay chính sách trong lúc polish UI. Việc đối soát bộ đếm phòng là cập nhật dữ liệu tương thích; không thay điều kiện HOURLY/FIXED, đầu cuối kỳ thuê hoặc quyền của người dùng.
 
 Ngày 25/10 chốt bản hợp nhất làm nền và contract API. Ngày 26/10 nối API, sửa lỗi xuyên vai trò và tự nghiệm thu từng phần. Ngày 27/10 dành cho nghiệm thu chung và bản chốt. Đây là thứ tự công việc, không phải cam kết hai API chưa chọn nhà cung cấp chắc chắn kịp hoàn tất.
