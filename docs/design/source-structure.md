@@ -34,10 +34,10 @@ broomsharing/
 | `ui.chat` | ConversationsActivity, ChatActivity | ChatViewModel |
 | `ui.favorites` | FavoritesActivity | FavoritesViewModel |
 | `ui.map` | MapActivity, NearbyPlacesActivity | MapViewModel, NearbyPlacesViewModel |
-| `ui.host` | HostDashboardActivity, HostApplyActivity, AddBuildingActivity, CreateSpaceActivity, HostBookingsActivity, HostScheduleEditor | HostViewModel |
+| `ui.host` | HostDashboardActivity, HostApplyActivity, AddBuildingActivity, CreateSpaceActivity, HostBookingsActivity, HostScheduleEditor, HostMonthCalendarDialog, HostReportsActivity, PropertyVerificationActivity | HostViewModel, PropertyVerificationViewModel; giải trình dùng ReportCenterViewModel |
 | `ui.admin` | AdminDashboardActivity, EvidencePreviewActivity | AdminViewModel, AdminEvidenceViewModel |
 | `ui.profile` | ProfileActivity | Dùng hồ sơ từ SessionActivity |
-| `ui.report` | RoomReportActivity | ReportViewModel |
+| `ui.report` | RoomReportActivity, ReportCenterActivity | ReportViewModel, ReportCenterViewModel |
 | `ui.common` | GuestNavigation, ManagementNavigation, RoleAccountActivity, BookingNotifier | Dùng ViewModel của chức năng tương ứng khi cần |
 
 Package theo chức năng không thay thế phân quyền. Ví dụ: `ui.booking` được nhiều vai trò sử dụng; quyền truy cập vẫn do kiểm tra phiên, nghiệp vụ và Firestore Rules quyết định.

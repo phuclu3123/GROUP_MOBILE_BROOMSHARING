@@ -113,6 +113,15 @@ public class HostViewModel extends AndroidViewModel {
         }
     }
 
+    // Form hồ sơ/lịch chỉ cần danh sách phòng, không phải tải toàn bộ KPI dashboard.
+    public void loadRooms() {
+        try {
+            repository.getRoomsByOwner(repository.currentUserId(), into(rooms));
+        } catch (Exception e) {
+            rooms.setValue(UiState.error(e));
+        }
+    }
+
     private final List<ListenerRegistration> dashboardListeners = new ArrayList<>();
     private int dashboardGeneration;
     private List<Room> dashboardRooms;

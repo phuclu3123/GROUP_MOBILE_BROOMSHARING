@@ -1,6 +1,12 @@
 # Đối chiếu nhánh thành viên trước khi push, 25/10/2026
 
-Đã fetch và đọc nguồn từ GitHub, chưa merge/pull vào working tree và chưa push trong lượt kiểm tra này theo yêu cầu tạm dừng để đối chiếu. Bản local dùng HEAD `9a2c214` cộng các thay đổi đã nghiệm thu ngày 24/10. `origin/main` là `3c39dcf`, `origin/truc` là `693688e`, `origin/lam-hoang` là `c74d963`. Bản ghi có hash từng file tại [receipt](evidence/upstream-truc-sprint3-2026-10-25.json).
+Đã fetch và đọc nguồn từ GitHub: `main` tại `3c39dcf`, `truc` tại `693688e`, `lam-hoang` tại `c74d963`. Bản ghi có hash từng file tại [receipt](evidence/upstream-truc-sprint3-2026-10-25.json). Bảng dưới ghi nhận chênh lệch khi đối chiếu, trước khi chỉnh contract và ghép. Sau đó chủ dự án đã chốt hợp nhất trước, nghiệm thu rồi mới push.
+
+## Kết quả ghép
+
+Giữ lịch sử Git của cả hai thành viên. Bản nghiệp vụ đã nghiệm thu được lưu tại `0039aac`; merge lịch sử Trúc qua `main` tại `a528879`. Lấy lối tắt inbox nhưng nối vào `BookingNoticesActivity` hiện có. Lấy lịch tháng, model/form/danh sách hồ sơ và thẻ giải trình của Hoàng; chuyển sang ViewModel/Repository chung, sửa khoảng ngày loại trừ, lọc đúng phòng, EXPIRED, timestamp và `evidenceRefs`. Không đưa các màn gốc hoặc cơ chế ghi cũ quay lại song song.
+
+Hồ sơ mới chỉ gửi metadata; upload bằng chứng và quyền đọc tệp Admin còn chờ API chung của Phúc. H20 đã tích hợp lịch tháng; H22 mới hoàn thiện form/list/metadata, chưa hoàn tất luồng xác minh có tệp. Kết quả kiểm thử cuối được ghi tại [nghiệm thu tích hợp](member-integration-2026-10-25.md).
 
 ## Nhánh Trúc: 12 file Sprint 3
 
@@ -26,7 +32,7 @@ Các chức năng Trúc đang triển khai ở commit này đã có bản tươn
 | Check-in, biên nhận, hủy | Có thêm phần trình bày nghiệp vụ phía Host | Giữ kiểm thời gian, EXPIRED, khóa quyền và transaction của bản hiện tại. Tỷ lệ chính sách không phải bằng chứng đã hoàn tiền; chưa nối payment thì không coi biên nhận là đã thu tiền. |
 | Rules/Repository | Có thêm quyền tạo hồ sơ và phản hồi báo cáo | Không thay toàn bộ Rules bằng bản nhánh; bản tích hợp có thêm validation, audit, vòng đời booking và counter đã kiểm thử. |
 
-Phần lịch tháng và form hồ sơ xác minh là bổ sung thực sự so với UI local. Nên lấy có chọn lọc sau khi cập nhật các hợp đồng ở trên. Không đánh dấu H20/H22 hoàn tất chỉ vì đã có file nguồn; cũng không ghi là Hoàng chưa làm các màn này. Chưa chạy thiết bị/cloud cho riêng nhánh Hoàng trong lượt đọc nguồn này.
+Phần lịch tháng và form hồ sơ xác minh là bổ sung thực sự so với UI trước khi ghép. Các hợp đồng trên đã được chỉnh trong bản hợp nhất và kiểm bằng bộ test của bản hợp nhất, không phải kết quả chạy nguyên trạng nhánh Hoàng. Phần tệp của H22 vẫn chưa hoàn tất.
 
 ## Chốt trước khi cập nhật GitHub
 

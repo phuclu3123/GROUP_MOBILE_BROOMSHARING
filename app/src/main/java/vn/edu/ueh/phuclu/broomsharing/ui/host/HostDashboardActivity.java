@@ -21,7 +21,6 @@ import vn.edu.ueh.phuclu.broomsharing.model.UserProfile;
 import vn.edu.ueh.phuclu.broomsharing.model.UserRole;
 import vn.edu.ueh.phuclu.broomsharing.ui.auth.SessionActivity;
 import vn.edu.ueh.phuclu.broomsharing.ui.common.ManagementNavigation;
-import vn.edu.ueh.phuclu.broomsharing.ui.report.ReportCenterActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,10 +68,9 @@ public class HostDashboardActivity extends SessionActivity {
                 v -> startActivity(new Intent(this, HostBookingsActivity.class)));
         b.btnManageSpaces.setOnClickListener(v -> showTab(R.id.host_spaces));
         b.btnHostReports.setOnClickListener(
-                v ->
-                        startActivity(
-                                new Intent(this, ReportCenterActivity.class)
-                                        .putExtra("received", true)));
+                v -> startActivity(new Intent(this, HostReportsActivity.class)));
+        b.btnPropertyVerification.setOnClickListener(
+                v -> startActivity(new Intent(this, PropertyVerificationActivity.class)));
         b.btnAddBuilding.setOnClickListener(
                 v -> startActivity(new Intent(this, AddBuildingActivity.class)));
         b.btnAddRoom.setOnClickListener(

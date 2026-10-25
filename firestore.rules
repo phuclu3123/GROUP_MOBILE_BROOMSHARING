@@ -266,8 +266,31 @@ service cloud.firestore {
     }
     match /propertyVerifications/{id} {
       allow read: if admin()||own(resource.data.ownerUid);
-      allow create: if host()&&own(request.resource.data.ownerUid)&&request.resource.data.status=='PENDING'&&request.resource.data.verificationType in ['LOCATION','PHOTOS','IDENTITY']&&request.resource.data.createdAt==request.time;
+      allow create: if host()&&validVerification();
       allow update: if admin();
+      function validVerification() {
+        let v=request.resource.data;
+        return v.keys().hasOnly(['id','schemaVersion','ownerUid','roomId','buildingId','roomName','buildingName','verificationType','description','evidenceRefs','status','createdAt','updatedAt'])
+          && v.id==id && v.schemaVersion==1 && own(v.ownerUid) && v.status=='PENDING'
+          && v.verificationType in ['LOCATION','PHOTOS','IDENTITY']
+          && v.description is string && v.description.size()>=20 && v.description.size()<=2000
+          && v.evidenceRefs is list && v.evidenceRefs.size()<=10
+          && validRef(v,0)&&validRef(v,1)&&validRef(v,2)&&validRef(v,3)&&validRef(v,4)
+          && validRef(v,5)&&validRef(v,6)&&validRef(v,7)&&validRef(v,8)&&validRef(v,9)
+          && v.roomId is string && v.roomId.matches('[A-Za-z0-9_-]{0,120}')
+          && v.buildingId is string && v.buildingId.matches('[A-Za-z0-9_-]{0,120}')
+          && v.roomName is string && v.buildingName is string
+          && (v.verificationType=='IDENTITY' || (v.roomId!=''
+            ? own(get(/databases/$(database)/documents/rooms/$(v.roomId)).data.ownerUid)
+              && get(/databases/$(database)/documents/rooms/$(v.roomId)).data.buildingId==v.buildingId
+            : v.buildingId!=''&&own(get(/databases/$(database)/documents/buildings/$(v.buildingId)).data.ownerUid)))
+          && v.createdAt==request.time && v.updatedAt==request.time;
+      }
+      function validRef(v,i) {
+        return v.evidenceRefs.size()<=i || (v.evidenceRefs[i] is string
+          && v.evidenceRefs[i].matches('verification/'+request.auth.uid+'/[^/]{1,120}')
+          && !v.evidenceRefs[i].matches('.*[.][.].*'));
+      }
     }
     match /users/{uid}/noticeReads/{id} {
       allow read: if own(uid)&&active();

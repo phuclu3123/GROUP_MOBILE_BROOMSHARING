@@ -18,8 +18,8 @@ import vn.edu.ueh.phuclu.broomsharing.ui.common.ManagementNavigation;
 import java.util.Collections;
 
 /**
- * Màn hình danh sách cuộc trò chuyện của tài khoản đang đăng nhập.
- * Chọn một cuộc trò chuyện để mở ChatActivity.
+ * Màn hình danh sách cuộc trò chuyện của tài khoản đang đăng nhập. Chọn một cuộc trò chuyện để mở
+ * ChatActivity.
  */
 public class ConversationsActivity extends SessionActivity {
     private ChatViewModel model;
@@ -39,6 +39,14 @@ public class ConversationsActivity extends SessionActivity {
                 ActivityConversationsBinding.bind(
                         ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0));
         model = new ViewModelProvider(this).get(ChatViewModel.class);
+        // Lối tắt từ inbox của Trúc, nối vào nguồn cập nhật chung đã nghiệm thu.
+        b.openUpdates.setOnClickListener(
+                v ->
+                        startActivity(
+                                new Intent(
+                                        this,
+                                        vn.edu.ueh.phuclu.broomsharing.ui.booking
+                                                .BookingNoticesActivity.class)));
         boolean host =
                 profile.getUserRole() == UserRole.HOST
                         && !getIntent().getBooleanExtra("renterMode", false);
@@ -73,7 +81,8 @@ public class ConversationsActivity extends SessionActivity {
                                             ? state.error
                                             : state.data == null || state.data.isEmpty()
                                                     ? getString(R.string.chat_empty)
-                                                    : "Trao đổi trực tiếp với khách và người cho thuê");
+                                                    : "Trao đổi trực tiếp với khách và người cho"
+                                                          + " thuê");
                     if (state.data != null) adapter.submit(state.data);
                     else if (state.error != null) adapter.submit(Collections.emptyList());
                 });

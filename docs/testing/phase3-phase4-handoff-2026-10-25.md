@@ -2,7 +2,7 @@
 
 Ngày đối chiếu: 25/10/2026. Mốc hoàn thành app dự kiến của nhóm: 27/10/2026. Đã đọc chín sheet và đối chiếu 47 đầu việc đợt 3–4: 25 việc đợt 3, 22 việc đợt 4. Các cột “Chưa làm” trong workbook chưa phản ánh code đã tích hợp; không dùng chúng để tính phần trăm hoàn tất. Workbook là dàn ý, các quyết định nghiệp vụ mới được ưu tiên.
 
-Nguồn: workbook `BroomSharing_PhanCong_4Dot_Android_Java_Firebase.xlsx`, sheet Trúc `A44:J62`, Hoàng `A44:J61`, Phúc `A47:J68`; [nghiệm thu cloud 24/10](cloud-business-acceptance-2026-10-24.md); [đối chiếu nhánh vừa fetch](upstream-members-review-2026-10-25.md). Workbook không bị sửa trong lượt này.
+Nguồn: workbook `BroomSharing_PhanCong_4Dot_Android_Java_Firebase.xlsx`, sheet Trúc `A44:J62`, Hoàng `A44:J61`, Phúc `A47:J68`; [nghiệm thu cloud 24/10](cloud-business-acceptance-2026-10-24.md); [đối chiếu nhánh](upstream-members-review-2026-10-25.md) và [nghiệm thu bản hợp nhất](member-integration-2026-10-25.md). Workbook không bị sửa trong lượt này.
 
 ## Phân công phần còn lại
 
@@ -23,20 +23,20 @@ Phần đã có không giao viết lại: booking engine, EXPIRED tại giờ b�
 
 | Việc cần làm tiếp | Mã liên quan | Phần đã có và cách tiếp tục |
 | --- | --- | --- |
-| Đồng bộ Sprint 3 với contract chung | U18–U24 | Dùng package `ui/map`, `ui/chat`, `ui/booking` hiện tại. Không giữ query `participantUids/lastMessage`, nguồn notifications riêng hoặc ghi chat ngoài transaction của nhánh cũ. |
+| Tiếp tục Guest/UI từ bản hợp nhất | U18–U24 | Lịch sử Sprint 3 và lối tắt inbox đã ghép; dùng package `ui/map`, `ui/chat`, `ui/booking` hiện tại. Không khôi phục query `participantUids/lastMessage`, notifications riêng hoặc chat ngoài transaction. |
 | Polish và lỗi trên thiết bị | U28/U29/U32 | Rà màn nhỏ/font lớn/bàn phím/Back, loading/empty/error/retry và xoay màn hình. Hoàn thiện trên luồng thật, không tạo lại màn mẫu dùng dữ liệu Intent hoặc mock cứng. |
 | Ảnh và report sau API | U30/U31 | Nối URL ảnh mới, placeholder/cache/ảnh lỗi. Nếu nhóm giữ ảnh minh chứng thì nối API tệp riêng tư Phúc cấp; báo cáo mô tả đã chạy được. |
 | Hủy, review, Calendar và thông báo | U22–U24/U26/U27 | Chức năng đã có; tự kiểm UI và điều hướng trên điện thoại. Kiểm chỉ booking hoàn tất mới review, một lần/booking; Calendar đúng ngày/giờ và không coi intent là đã lưu sự kiện. |
 
 U25 Settings/sort/theme và dark mode là tùy chọn theo thời gian; không chặn nghiệm thu luồng chính khi nhóm không chọn. Không giao Trúc viết lại API bản đồ, booking engine hoặc Rules.
 
-### Hoàng: ghép phần Host đã làm và khép UI theo API mới
+### Hoàng: hoàn thiện Host trên bản hợp nhất và nối API mới
 
 | Việc cần làm tiếp | Mã liên quan | Phần đã có và cách tiếp tục |
 | --- | --- | --- |
-| Lịch tháng | H20 | Đã có ở `c74d963`. Lấy dialog/lưới có chọn lọc, sửa ngày kết thúc loại trừ, EXPIRED, lịch khóa và chọn phòng. Giữ lịch ngày hiện có, không thay service giữ chỗ. |
-| Hồ sơ xác minh | H22, phối hợp P19 | Đã có form/list/model ở nhánh Hoàng; chưa ghép vào base. Thống nhất `evidenceRefs`/ID tệp với Phúc, đổi upload Firebase Storage sang API mới và kiểm Admin xem đủ bằng chứng. |
-| Phản hồi báo cáo | H25 | Bản tích hợp đã có `ReportCenterActivity` và `ReportRepository.reply`; có thể lấy thẻ RecyclerView từ nhánh Hoàng. Không tạo một Repository phản hồi song song thiếu timestamp/kiểm trạng thái. |
+| Nghiệm thu lịch tháng trên điện thoại | H20 | Dialog/lưới đã ghép, sửa đầu cuối loại trừ, EXPIRED, lọc phòng và chú giải. Tự kiểm font lớn/màn nhỏ, đổi tháng/phòng và thay đổi booking từ máy Guest; không viết lại bộ giữ chỗ. |
+| Hoàn tất hồ sơ có bằng chứng | H22, phối hợp P19 | Form/list/model và gửi metadata đã ghép, `evidenceRefs` thống nhất với Admin. Tích hợp chọn/tải tệp sau khi Phúc chốt API, xử lý upload/lưu lỗi và Admin đọc đúng quyền. Chưa coi gửi metadata là đã xác minh. |
+| Nghiệm thu giải trình Host | H25 | Thẻ RecyclerView của Hoàng đã ghép qua `ReportRepository.reply`, có `hostRespondedAt` server và chỉ OPEN mới phản hồi. Tự kiểm Admin xử lý đồng thời, lỗi/retry và cập nhật danh sách trên điện thoại. |
 | Ảnh và biên nhận | H23/H29 | Ghép form tải/thay/xóa qua API chung của Phúc, kiểm lỗi và rollback. UI payment/biên nhận chỉ theo trạng thái đã được dịch vụ xác nhận, không suy từ tiền dự kiến hoặc phần trăm hủy. |
 | Chốt Host end-to-end | H18/H19/H21/H26/H27/H30/H31 | Tự kiểm chat, inbox, check-in/hoàn tất, bị khóa khi đang mở màn hình, danh sách đồng bộ và toàn chuỗi xin Host → duyệt → tạo phòng → duyệt → nhận đơn. Các phần lõi đã có, không viết lại. |
 
@@ -61,9 +61,9 @@ Mỗi người ghi commit/APK, thiết bị và phiên bản Android, ID dữ li
 | Chủ phần | Đã có nền tảng/đã kiểm một phần | Còn tích hợp hoặc tự nghiệm thu | Tùy chọn/chưa chốt |
 | --- | --- | --- | --- |
 | Trúc | U18–U24, U26/U27 | U28–U32; nối UI vào base đã nghiệm thu | U25; phần đính kèm của U31 phụ thuộc API tệp |
-| Hoàng | H18/H19/H21/H25–H28 | H20/H22 cần ghép có chỉnh; H23/H29 phụ thuộc API; H30/H31 tự nghiệm thu | Phần đổi lịch trong H24; KPI nâng cao H28 |
+| Hoàng | H18–H21/H25–H28; form/list/metadata H22 | Phần tệp H22 và H23/H29 phụ thuộc API; H30/H31 tự nghiệm thu | Phần đổi lịch trong H24; KPI nâng cao H28 |
 | Phúc | P22–P24/P26/P27/P29, phần booking của P33/P34 | P25/P30/P35–P37 cần kiểm bản cuối; P28/P39 payment; quyền tệp P07/P19 | P31 KPI nâng cao, phần tiền/tranh chấp mở rộng P32; P38 đối tác xác minh |
 
 P32 đã có xử lý báo cáo, đình chỉ phòng/khóa Host, audit và Admin xử lý từng booking; chưa coi đó là hệ phân xử tiền hoàn chỉnh. Không tự thêm QR/PIN giả, push lúc app đóng, collection trùng hoặc partner verification để bám chữ trong sheet. Quyết định hiện tại là thông báo trong app/foreground, chưa có FCM nền.
 
-Ngày 25/10 ưu tiên chốt contract API và các phần nhánh cần ghép. Ngày 26/10 tích hợp và sửa lỗi xuyên vai trò. Ngày 27/10 dành cho nghiệm thu và bản chốt. Đây là thứ tự công việc, không phải cam kết hai API chưa chọn nhà cung cấp chắc chắn kịp hoàn tất.
+Ngày 25/10 chốt bản hợp nhất làm nền và contract API. Ngày 26/10 nối API, sửa lỗi xuyên vai trò và tự nghiệm thu từng phần. Ngày 27/10 dành cho nghiệm thu chung và bản chốt. Đây là thứ tự công việc, không phải cam kết hai API chưa chọn nhà cung cấp chắc chắn kịp hoàn tất.

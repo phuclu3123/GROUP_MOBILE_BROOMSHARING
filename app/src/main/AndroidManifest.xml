@@ -38,5 +38,7 @@
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
     </activity>
+    <activity android:name=".ui.host.PropertyVerificationActivity" android:exported="false" />
+    <activity android:name=".ui.host.HostReportsActivity" android:exported="false" />
   </application>
 </manifest>

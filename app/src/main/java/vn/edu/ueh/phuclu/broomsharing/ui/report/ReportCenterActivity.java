@@ -21,6 +21,7 @@ public class ReportCenterActivity extends SessionActivity {
     private ReportCenterViewModel model;
     private ActivityBusinessListBinding b;
     private Boolean restoredMode;
+    private boolean host;
 
     @Override
     protected int pageLayout() {
@@ -41,6 +42,7 @@ public class ReportCenterActivity extends SessionActivity {
 
     @Override
     protected void onProfileReady(UserProfile profile) {
+        host = profile.getUserRole() == UserRole.HOST;
         b = ActivityBusinessListBinding.bind(findViewById(R.id.workspaceRoot));
         ManagementNavigation.applyInsets(this);
         b.toolbar.setNavigationOnClickListener(v -> finish());
@@ -115,6 +117,14 @@ public class ReportCenterActivity extends SessionActivity {
     }
 
     private void watch() {
+        if (host && model.received) {
+            startActivity(
+                    new android.content.Intent(
+                            this,
+                            vn.edu.ueh.phuclu.broomsharing.ui.host.HostReportsActivity.class));
+            finish();
+            return;
+        }
         b.toolbar.setTitle(model.received ? R.string.reports_received : R.string.reports_sent);
         b.switchMode.setText(model.received ? R.string.reports_sent : R.string.reports_received);
         model.watch();
