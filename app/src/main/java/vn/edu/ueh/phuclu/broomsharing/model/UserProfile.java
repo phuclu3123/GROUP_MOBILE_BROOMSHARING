@@ -3,6 +3,10 @@ package vn.edu.ueh.phuclu.broomsharing.model;
 import com.google.firebase.firestore.Exclude;
 
 /** Firestore users/{uid}. Passwords are managed exclusively by Firebase Auth. */
+/*
+    Hồ sơ app gắn cùng UID với Firebase Authentication.
+    Role và status phục vụ phân quyền; mật khẩu và token không thuộc model này.
+ */
 public class UserProfile {
     public long schemaVersion = 1;
     public String uid;

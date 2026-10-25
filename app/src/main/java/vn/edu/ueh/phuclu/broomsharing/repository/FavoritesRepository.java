@@ -1,9 +1,15 @@
 package vn.edu.ueh.phuclu.broomsharing.repository;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.*;
+import java.util.*;
 import vn.edu.ueh.phuclu.broomsharing.model.Favorite;
 import vn.edu.ueh.phuclu.broomsharing.utils.FirebaseHelper;
-import java.util.*;
+
+/*
+    Lưu yêu thích dưới UID đang đăng nhập và đọc bổ sung thông tin phòng.
+    Snapshot tên giúp giữ nội dung danh sách; phòng phải được kiểm lại khi mở/đặt.
+ */
 public class FavoritesRepository {
     private CollectionReference mine() {
         String uid=FirebaseAuth.getInstance().getUid();

@@ -5,9 +5,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.*;
 import android.os.*;
-
 import androidx.core.content.ContextCompat;
-
 import vn.edu.ueh.phuclu.broomsharing.model.MapPoint;
 import vn.edu.ueh.phuclu.broomsharing.utils.MapArea;
 

@@ -1,42 +1,62 @@
 package vn.edu.ueh.phuclu.broomsharing;
-import static org.junit.Assert.*;
-import static org.junit.Assume.assumeTrue;
-import static androidx.test.espresso.Espresso.*;
-import static androidx.test.espresso.action.ViewActions.*;
-import static androidx.test.espresso.matcher.ViewMatchers.*;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static org.hamcrest.Matchers.*;
+
+import android.app.Activity;
+import android.app.Instrumentation;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.SystemClock;
 import android.view.*;
 import android.widget.*;
+import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.core.app.ActivityScenario;
+import androidx.test.espresso.Espresso;
 import androidx.test.platform.app.InstrumentationRegistry;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.*;
 import java.io.*;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 import java.util.function.Predicate;
 import org.json.JSONObject;
 import org.junit.Test;
-import vn.edu.ueh.phuclu.broomsharing.model.*;
-import vn.edu.ueh.phuclu.broomsharing.ui.*;
+import vn.edu.ueh.phuclu.broomsharing.model.BookingNotice;
+import vn.edu.ueh.phuclu.broomsharing.model.MapPoint;
+import vn.edu.ueh.phuclu.broomsharing.model.MapRoute;
+import vn.edu.ueh.phuclu.broomsharing.model.NearbyPlace;
+import vn.edu.ueh.phuclu.broomsharing.model.ReviewItem;
+import vn.edu.ueh.phuclu.broomsharing.model.UiState;
+import vn.edu.ueh.phuclu.broomsharing.ui.admin.AdminDashboardActivity;
 import vn.edu.ueh.phuclu.broomsharing.ui.admin.AdminViewModel;
+import vn.edu.ueh.phuclu.broomsharing.ui.booking.BookingNoticeViewModel;
+import vn.edu.ueh.phuclu.broomsharing.ui.booking.BookingNoticesActivity;
 import vn.edu.ueh.phuclu.broomsharing.ui.common.ManagementNavigation;
-import vn.edu.ueh.phuclu.broomsharing.utils.FirebaseHelper;
+import vn.edu.ueh.phuclu.broomsharing.ui.map.MapActivity;
+import vn.edu.ueh.phuclu.broomsharing.ui.map.MapViewModel;
+import vn.edu.ueh.phuclu.broomsharing.ui.map.NearbyPlacesActivity;
+import vn.edu.ueh.phuclu.broomsharing.ui.map.NearbyPlacesViewModel;
+import vn.edu.ueh.phuclu.broomsharing.ui.report.ReportViewModel;
+import vn.edu.ueh.phuclu.broomsharing.ui.report.RoomReportActivity;
+import vn.edu.ueh.phuclu.broomsharing.ui.room.SpaceDetailActivity;
+import static androidx.test.espresso.Espresso.*;
+import static androidx.test.espresso.action.ViewActions.*;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.*;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
 
 public class PhucPhase3UiTest {
-    private final android.app.Instrumentation device=InstrumentationRegistry.getInstrumentation();
-    private final android.content.Context context=device.getTargetContext();private Properties p;
+    private final Instrumentation device=InstrumentationRegistry.getInstrumentation();
+    private final Context context=device.getTargetContext();private Properties p;
     private void setup()throws Exception{assumeTrue("true".equals(InstrumentationRegistry.getArguments().getString("runPhase3Ui")));p=new Properties();try(var in=new FileInputStream(new File(context.getExternalFilesDir(null),"phase3-fixture.properties"))){p.load(in);}}
     private void login(String alias)throws Exception{FirebaseAuth.getInstance().signOut();Tasks.await(FirebaseAuth.getInstance().signInWithEmailAndPassword(p.getProperty(alias+".email"),p.getProperty(alias+".password")),40,TimeUnit.SECONDS);}
-    private <T extends android.app.Activity>void waitFor(ActivityScenario<T> s,Predicate<T> condition,String label){AtomicBoolean ready=new AtomicBoolean();for(int i=0;i<240&&!ready.get();i++){final boolean retry=i==60||i==120;s.onActivity(a->{ready.set(condition.test(a));if(!ready.get()&&retry){View button=a.findViewById(R.id.retryButton);if(button!=null&&button.getVisibility()==View.VISIBLE&&button.isEnabled())button.performClick();}});if(!ready.get())SystemClock.sleep(250);}assertTrue(label,ready.get());}
+    private <T extends Activity>void waitFor(ActivityScenario<T> s,Predicate<T> condition,String label){AtomicBoolean ready=new AtomicBoolean();for(int i=0;i<240&&!ready.get();i++){final boolean retry=i==60||i==120;s.onActivity(a->{ready.set(condition.test(a));if(!ready.get()&&retry){View button=a.findViewById(R.id.retryButton);if(button!=null&&button.getVisibility()==View.VISIBLE&&button.isEnabled())button.performClick();}});if(!ready.get())SystemClock.sleep(250);}assertTrue(label,ready.get());}
     private void capture(String name)throws Exception{Bitmap b=null;for(int i=0;i<3&&b==null;i++){SystemClock.sleep(500);b=device.getUiAutomation().takeScreenshot();}assertNotNull(b);try(var out=new FileOutputStream(new File(context.getExternalFilesDir(null),name+".png"))){b.compress(Bitmap.CompressFormat.PNG,100,out);}finally{b.recycle();}}
     private RecyclerView list(View v){if(v instanceof RecyclerView)return (RecyclerView)v;if(v instanceof ViewGroup)for(int i=0;i<((ViewGroup)v).getChildCount();i++){RecyclerView r=list(((ViewGroup)v).getChildAt(i));if(r!=null)return r;}return null;}
     @Test public void reportFormAdministratorDecisionAndNoticeReadState()throws Exception{
@@ -57,7 +77,7 @@ public class PhucPhase3UiTest {
                 s.onActivity(a->list(a.findViewById(R.id.workspaceRoot)).scrollToPosition(position.get()));SystemClock.sleep(750);
                 onView(allOf(withId(R.id.approve),withParent(withParent(hasDescendant(withText(containsString("[QA Phase3 UI]"))))))).perform(click());
                 onView(withText("Đóng báo cáo, ghi kết luận")).perform(click());onView(withText("Xác nhận")).perform(click());onView(isAssignableFrom(EditText.class)).check(matches(hasErrorText("Nhập từ 10 đến 1.000 ký tự.")));
-                onView(isAssignableFrom(EditText.class)).perform(replaceText("[QA Phase3 UI] Reviewed and closed without sanction."));androidx.test.espresso.Espresso.closeSoftKeyboard();onView(withText("Xác nhận")).perform(click());
+                onView(isAssignableFrom(EditText.class)).perform(replaceText("[QA Phase3 UI] Reviewed and closed without sanction."));Espresso.closeSoftKeyboard();onView(withText("Xác nhận")).perform(click());
                 waitFor(s,a->{UiState<List<ReviewItem>> rows=new ViewModelProvider(a).get(AdminViewModel.class).items.getValue();return rows!=null&&rows.data!=null&&rows.data.stream().noneMatch(r->r.id.equals(reportId.get()));},"Resolved report leaves open queue");capture("phase3-admin-reports");
             }
             login("guest1");
@@ -78,16 +98,16 @@ public class PhucPhase3UiTest {
             s.onActivity(a->{NearbyPlacesViewModel m=new ViewModelProvider(a).get(NearbyPlacesViewModel.class);UiState<List<NearbyPlace>> state=m.places.getValue();assertNull("Actual provider must work",state.error);assertNotNull(state.data);assertFalse(state.data.isEmpty());assertTrue(state.data.size()<=10);count.set(state.data.size());first.set(state.data.get(0));assertFalse(m.fallbackOpened);});
             s.recreate();waitFor(s,a->a.findViewById(R.id.placesList)!=null&&((RecyclerView)a.findViewById(R.id.placesList)).getChildCount()>0,"Live list restored after recreation");capture("phase3-nearby");
             s.onActivity(a->((RecyclerView)a.findViewById(R.id.placesList)).getChildAt(0).performClick());onView(withId(android.R.id.button1)).perform(click());
-            android.app.Instrumentation.ActivityResult result=s.getResult();assertEquals(android.app.Activity.RESULT_OK,result.getResultCode());Intent data=result.getResultData();assertEquals(first.get().point.latitude,data.getDoubleExtra("placeLat",0),0.0000001);assertEquals(center.longitude,data.getDoubleExtra("originLon",0),0.0000001);
-            report.put("uiPassed",true);report.put("providerAvailable",true);report.put("count",count.get());report.put("mapResultPassed",true);report.put("verifiedAt",java.time.Instant.now().toString());
+            Instrumentation.ActivityResult result=s.getResult();assertEquals(Activity.RESULT_OK,result.getResultCode());Intent data=result.getResultData();assertEquals(first.get().point.latitude,data.getDoubleExtra("placeLat",0),0.0000001);assertEquals(center.longitude,data.getDoubleExtra("originLon",0),0.0000001);
+            report.put("uiPassed",true);report.put("providerAvailable",true);report.put("count",count.get());report.put("mapResultPassed",true);report.put("verifiedAt",Instant.now().toString());
         }finally{FirebaseAuth.getInstance().signOut();}
         try(var out=new FileWriter(new File(context.getExternalFilesDir(null),"phase3-nearby-ui.json"))){out.write(report.toString(2));}
     }
     @Test public void mapPickerReturnsToSameMap()throws Exception{
-        setup();login("guest1");MapPoint center=new MapPoint(10.73731656,106.65579043,"Q8");android.app.Instrumentation.ActivityMonitor monitor=device.addMonitor(NearbyPlacesActivity.class.getName(),null,false);AtomicReference<Double> routeDistance=new AtomicReference<>();
+        setup();login("guest1");MapPoint center=new MapPoint(10.73731656,106.65579043,"Q8");Instrumentation.ActivityMonitor monitor=device.addMonitor(NearbyPlacesActivity.class.getName(),null,false);AtomicReference<Double> routeDistance=new AtomicReference<>();
         try(ActivityScenario<MapActivity> s=ActivityScenario.launch(MapActivity.class)){
             waitFor(s,a->a.findViewById(R.id.mapCanvas)!=null&&a.findViewById(R.id.mapProgress).getVisibility()==View.GONE&&a.hasWindowFocus(),"Map rendered before opening picker");AtomicReference<View> original=new AtomicReference<>();
-            s.onActivity(a->{original.set(a.findViewById(R.id.mapCanvas));new ViewModelProvider(a).get(MapViewModel.class).setOrigin(center);((androidx.appcompat.widget.Toolbar)a.findViewById(R.id.mapToolbar)).getMenu().performIdentifierAction(R.id.map_places,0);});
+            s.onActivity(a->{original.set(a.findViewById(R.id.mapCanvas));new ViewModelProvider(a).get(MapViewModel.class).setOrigin(center);((Toolbar)a.findViewById(R.id.mapToolbar)).getMenu().performIdentifierAction(R.id.map_places,0);});
             NearbyPlacesActivity picker=(NearbyPlacesActivity)monitor.waitForActivityWithTimeout(20000);assertNotNull(picker);AtomicBoolean ready=new AtomicBoolean();AtomicReference<NearbyPlace> first=new AtomicReference<>();
             for(int i=0;i<240&&!ready.get();i++){device.runOnMainSync(()->{UiState<List<NearbyPlace>> state=new ViewModelProvider(picker).get(NearbyPlacesViewModel.class).places.getValue();RecyclerView list=picker.findViewById(R.id.placesList);if(state!=null&&state.data!=null&&!state.data.isEmpty()&&list!=null&&list.getChildCount()>0){first.set(state.data.get(0));ready.set(true);}});if(!ready.get())SystemClock.sleep(250);}assertTrue("Picker has actual POIs",ready.get());
             device.runOnMainSync(()->((RecyclerView)picker.findViewById(R.id.placesList)).getChildAt(0).performClick());onView(withId(android.R.id.button1)).perform(click());
@@ -95,7 +115,7 @@ public class PhucPhase3UiTest {
             s.onActivity(a->{MapViewModel m=new ViewModelProvider(a).get(MapViewModel.class);assertSame("No second native MapView",original.get(),a.findViewById(R.id.mapCanvas));assertEquals(center.longitude,m.origin.getValue().longitude,0.0000001);assertEquals(first.get().point.latitude,m.destination.getValue().latitude,0.0000001);});
             waitFor(s,a->{MapRoute r=new ViewModelProvider(a).get(MapViewModel.class).route.getValue();if(r!=null&&r.distanceMeters>0&&r.points.size()>2&&a.hasWindowFocus()){routeDistance.set(r.distanceMeters);return true;}return false;},"Actual road route to MapTiler POI");SystemClock.sleep(1000);capture("phase3-map-picker-return");
         }finally{device.removeMonitor(monitor);FirebaseAuth.getInstance().signOut();}
-        JSONObject report=new JSONObject();report.put("passed",true);report.put("sameMapView",true);report.put("routeDistanceMeters",routeDistance.get());report.put("verifiedAt",java.time.Instant.now().toString());try(var out=new FileWriter(new File(context.getExternalFilesDir(null),"phase3-map-picker.json"))){out.write(report.toString(2));}
+        JSONObject report=new JSONObject();report.put("passed",true);report.put("sameMapView",true);report.put("routeDistanceMeters",routeDistance.get());report.put("verifiedAt",Instant.now().toString());try(var out=new FileWriter(new File(context.getExternalFilesDir(null),"phase3-map-picker.json"))){out.write(report.toString(2));}
     }
     @Test public void noticeReadStateVisibleAfterRecreation()throws Exception{
         setup();login("guest1");
@@ -108,7 +128,7 @@ public class PhucPhase3UiTest {
             waitFor(s,a->{UiState<List<BookingNotice>> state=new ViewModelProvider(a).get(BookingNoticeViewModel.class).notices.getValue();RecyclerView list=a.findViewById(R.id.noticeList);return list!=null&&list.isShown()&&state!=null&&state.data!=null&&state.data.stream().anyMatch(n->n.id.equals(chosen.get().id)&&!n.unread);},"Actual inbox view restored, not just retained ViewModel");
             s.onActivity(a->{List<BookingNotice> rows=new ViewModelProvider(a).get(BookingNoticeViewModel.class).notices.getValue().data;for(int i=0;i<rows.size();i++)if(rows.get(i).id.equals(chosen.get().id))((RecyclerView)a.findViewById(R.id.noticeList)).scrollToPosition(i);});capture("phase3-notice-read");
         }finally{FirebaseAuth.getInstance().signOut();}
-        JSONObject report=new JSONObject();report.put("passed",true);report.put("unreadToRead",true);report.put("visibleAfterRecreation",true);report.put("verifiedAt",java.time.Instant.now().toString());try(var out=new FileWriter(new File(context.getExternalFilesDir(null),"phase3-notice-ui.json"))){out.write(report.toString(2));}
+        JSONObject report=new JSONObject();report.put("passed",true);report.put("unreadToRead",true);report.put("visibleAfterRecreation",true);report.put("verifiedAt",Instant.now().toString());try(var out=new FileWriter(new File(context.getExternalFilesDir(null),"phase3-notice-ui.json"))){out.write(report.toString(2));}
     }
 
 }

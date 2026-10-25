@@ -1,15 +1,17 @@
 package vn.edu.ueh.phuclu.broomsharing.repository;
 
+import android.net.Uri;
 import android.os.*;
-import org.json.*;
-import java.net.*;
+import android.util.Log;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
-import vn.edu.ueh.phuclu.broomsharing.model.*;
-import vn.edu.ueh.phuclu.broomsharing.utils.MapArea;
+import org.json.*;
 import vn.edu.ueh.phuclu.broomsharing.BuildConfig;
+import vn.edu.ueh.phuclu.broomsharing.model.MapPoint;
+import vn.edu.ueh.phuclu.broomsharing.model.NearbyPlace;
+import vn.edu.ueh.phuclu.broomsharing.utils.MapArea;
 
 /** Bounded MapTiler reverse POI lookup using the existing client map key. */
 public class NearbyPlacesRepository {
@@ -29,7 +31,7 @@ public class NearbyPlacesRepository {
         worker.execute(()->{
             HttpURLConnection connection=null;
             try{
-                String url=android.net.Uri.parse("https://api.maptiler.com/geocoding/"+center.longitude+","+center.latitude+".json").buildUpon().appendQueryParameter("types","poi").appendQueryParameter("limit",String.valueOf(MAX_RESULTS)).appendQueryParameter("key",BuildConfig.MAPTILER_API_KEY).build().toString();
+                String url=Uri.parse("https://api.maptiler.com/geocoding/"+center.longitude+","+center.latitude+".json").buildUpon().appendQueryParameter("types","poi").appendQueryParameter("limit",String.valueOf(MAX_RESULTS)).appendQueryParameter("key",BuildConfig.MAPTILER_API_KEY).build().toString();
                 connection=(HttpURLConnection)new URL(url).openConnection();connection.setConnectTimeout(8000);connection.setReadTimeout(15000);connection.setInstanceFollowRedirects(false);
                 connection.setRequestProperty("User-Agent","BroomSharing-Android/1.0");
                 if(connection.getResponseCode()!=200)throw new IOException("HTTP_"+connection.getResponseCode());
@@ -37,7 +39,7 @@ public class NearbyPlacesRepository {
                 List<NearbyPlace> result=parse(new JSONObject(bytes.toString("UTF-8")),center);
                 synchronized(cache){if(cache.size()>=8){String first=cache.keySet().iterator().next();cache.remove(first);fetched.remove(first);}cache.put(key,result);fetched.put(key,SystemClock.elapsedRealtime());}
                 main.post(()->cb.onSuccess(result));
-            }catch(Exception e){android.util.Log.w("NearbyPlaces","Provider failure: "+e.getClass().getSimpleName()+(e instanceof IOException&&e.getMessage()!=null&&e.getMessage().matches("HTTP_[0-9]{3}")?" "+e.getMessage():""));main.post(()->cb.onError(new Exception("Chưa tải được tiện ích MapTiler. Kiểm tra mạng hoặc hạn mức dịch vụ rồi thử lại.")));}
+            }catch(Exception e){Log.w("NearbyPlaces","Provider failure: "+e.getClass().getSimpleName()+(e instanceof IOException&&e.getMessage()!=null&&e.getMessage().matches("HTTP_[0-9]{3}")?" "+e.getMessage():""));main.post(()->cb.onError(new Exception("Chưa tải được tiện ích MapTiler. Kiểm tra mạng hoặc hạn mức dịch vụ rồi thử lại.")));}
             finally{if(connection!=null)connection.disconnect();}
         });
     }

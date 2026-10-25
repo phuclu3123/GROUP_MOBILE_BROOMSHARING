@@ -1,27 +1,47 @@
 package vn.edu.ueh.phuclu.broomsharing.utils;
 
+import vn.edu.ueh.phuclu.broomsharing.model.Room;
+
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Date;
 import java.util.Locale;
 
+/*
+   Chuyển mã trạng thái và giá trị tiền thành nhãn hiển thị.
+   Nhãn giao diện không thay đổi trạng thái nghiệp vụ hay xác nhận giao dịch tiền.
+*/
 public class FormatUtils {
-    public static String verificationSummary(vn.edu.ueh.phuclu.broomsharing.model.Room room) {
-        return "Địa điểm: " + ("ADMIN_REVIEWED".equals(room.getLocationVerification())
-                ? "đã kiểm tra bằng chứng nội bộ" : "chưa kiểm tra nội bộ")
-                + "\nẢnh phòng: " + ("ADMIN_REVIEWED".equals(room.getPhotosVerification())
-                ? "đã kiểm tra bằng chứng nội bộ" : "chưa kiểm tra nội bộ")
+    public static String verificationSummary(Room room) {
+        return "Địa điểm: "
+                + ("ADMIN_REVIEWED".equals(room.getLocationVerification())
+                        ? "đã kiểm tra bằng chứng nội bộ"
+                        : "chưa kiểm tra nội bộ")
+                + "\nẢnh phòng: "
+                + ("ADMIN_REVIEWED".equals(room.getPhotosVerification())
+                        ? "đã kiểm tra bằng chứng nội bộ"
+                        : "chưa kiểm tra nội bộ")
                 + "\nKhông phải xác minh từ đối tác hoặc cam kết đã kiểm tra thực địa.";
     }
+
     public static String bookingStatus(String value) {
+        if ("EXPIRED".equals(value)) return "Hết hạn chờ duyệt";
         if ("PENDING".equals(value) || "REQUESTED".equals(value)) return "Chờ duyệt • Đang giữ chỗ";
         if ("CONFIRMED".equals(value)) return "Đã xác nhận";
         if ("CANCELLED".equals(value)) return "Đã hủy";
         if ("REJECTED".equals(value)) return "Đã từ chối";
         if ("COMPLETED".equals(value)) return "Hoàn tất";
-        if ("CHECKED_IN".equals(value)) return "Đã ghi nhận vào phòng (demo)";
+        if ("CHECKED_IN".equals(value)) return "Đã ghi nhận vào phòng";
         return "Trạng thái: " + value;
     }
+
+    public static String reportStatus(String value) {
+        if ("OPEN".equals(value)) return "Đang chờ xử lý";
+        if ("RESOLVED".equals(value)) return "Đã giải quyết";
+        if ("DISMISSED".equals(value)) return "Không xác nhận vi phạm";
+        return "Chưa xác định";
+    }
+
     public static String paymentStatus(String value) {
         if ("UNAVAILABLE".equals(value)) return "Thanh toán đang phát triển • Chưa thu tiền";
         if ("DEMO_PENDING".equals(value)) return "Cọc demo • Chưa thanh toán";
@@ -30,6 +50,7 @@ public class FormatUtils {
         if ("PAID".equals(value)) return "Đã thanh toán theo dữ liệu hệ thống";
         return value == null ? "Chưa có dữ liệu" : value;
     }
+
     public static String formatCurrency(double amount) {
         return new DecimalFormat(
                         "#,##0 'đ'",

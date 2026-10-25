@@ -381,6 +381,8 @@ public class FirestoreDataset {
                                 "UNVERIFIED",
                                 "bookingRevision",
                                 0L,
+                                "activeBookingCount",
+                                0L,
                                 "lastBookingId",
                                 "",
                                 "createdAt",
@@ -512,6 +514,8 @@ public class FirestoreDataset {
                                 room.get("renewalPolicy")));
         document("bookings/" + id, b);
         boolean occupied = List.of("PENDING", "CONFIRMED", "CHECKED_IN").contains(status);
+        if (occupied)
+            room.put("activeBookingCount", ((Number) room.get("activeBookingCount")).longValue() + 1);
         if (occupied)
             for (String key : monthKeys) {
                 Map<String, Object> calendar =

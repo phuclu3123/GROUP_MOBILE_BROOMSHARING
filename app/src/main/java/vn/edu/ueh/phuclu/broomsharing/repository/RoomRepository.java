@@ -3,13 +3,19 @@ package vn.edu.ueh.phuclu.broomsharing.repository;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.*;
-
-import vn.edu.ueh.phuclu.broomsharing.model.*;
+import java.util.*;
+import vn.edu.ueh.phuclu.broomsharing.model.Building;
+import vn.edu.ueh.phuclu.broomsharing.model.PublicHost;
+import vn.edu.ueh.phuclu.broomsharing.model.RentalPlace;
+import vn.edu.ueh.phuclu.broomsharing.model.Room;
+import vn.edu.ueh.phuclu.broomsharing.model.RoomListing;
 import vn.edu.ueh.phuclu.broomsharing.utils.FirebaseHelper;
 
-import java.util.*;
-
 /** Guest reads share Host's schema/database, with bounded one-shot queries (no listeners). */
+/*
+    Đọc phòng công khai và ghép Building/PublicHost cho trang chi tiết.
+    Kết quả phân trang chỉ nhận dữ liệu server; điều kiện đặt phòng được kiểm lại khi ghi.
+ */
 public class RoomRepository {
     public static final int PAGE_SIZE = 20;
     private final FirebaseFirestore db = FirebaseHelper.getFirestore();

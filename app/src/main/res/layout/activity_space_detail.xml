@@ -33,6 +33,7 @@
                 <TextView style="@style/DetailSectionTitle" android:text="Thông tin xác minh" />
                 <TextView android:id="@+id/verification" style="@style/DetailBody" />
             </LinearLayout>
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnReviews" style="@style/WorkspaceAction" android:text="@string/reviews_title" android:layout_marginHorizontal="16dp" />
             <TextView android:id="@+id/tvFeedback" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp" android:textColor="@color/danger" android:accessibilityLiveRegion="polite" />
             <com.google.android.material.button.MaterialButton android:id="@+id/btnRefresh" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Thử tải lại" android:textAllCaps="false" android:visibility="gone" />
         </LinearLayout>

@@ -8,6 +8,10 @@ import java.util.function.Consumer;
 import vn.edu.ueh.phuclu.broomsharing.databinding.ItemConversationBinding;
 import vn.edu.ueh.phuclu.broomsharing.model.Conversation;
 
+/*
+    Hiển thị hội thoại, tin cuối và số chưa đọc của đúng thành viên.
+    Khi chọn một dòng, Activity mở hội thoại bằng ID đã lưu.
+ */
 public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapter.Holder> {
     private final List<Conversation> rows = new ArrayList<>();
     private final String uid; private final Consumer<Conversation> open;

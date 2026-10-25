@@ -5,12 +5,11 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.storage.*;
-
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /** Only public room/building photographs. Identity documents are not uploaded here. */
@@ -62,7 +61,7 @@ public class MediaRepository {
             cb.onSuccess(urls);
             return;
         }
-        java.util.concurrent.ExecutorService worker = Executors.newSingleThreadExecutor();
+        ExecutorService worker = Executors.newSingleThreadExecutor();
         worker.execute(
                 () -> {
                     try {

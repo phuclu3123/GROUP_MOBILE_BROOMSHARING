@@ -1,9 +1,9 @@
 package vn.edu.ueh.phuclu.broomsharing.utils;
 
-import vn.edu.ueh.phuclu.broomsharing.model.RoomListing;
-
 import java.text.Normalizer;
+import java.util.Comparator;
 import java.util.Locale;
+import vn.edu.ueh.phuclu.broomsharing.model.RoomListing;
 
 /** Local search on loaded pages, using building district rather than guessed coordinates. */
 public final class RoomFilter {
@@ -16,11 +16,11 @@ public final class RoomFilter {
     private static int priceGroup(RoomListing item) {
         return "HOURLY".equals(item.room.getActiveMode())?0:item.room.getPricePerMonth()>0?1:2;
     }
-    public static java.util.Comparator<RoomListing> order(int sort) {
-        if(sort==3)return java.util.Comparator.comparingInt((RoomListing item)->item.room.getCapacity()).reversed();
-        java.util.Comparator<RoomListing> price=java.util.Comparator.comparingDouble(RoomFilter::unitPrice);
+    public static Comparator<RoomListing> order(int sort) {
+        if(sort==3)return Comparator.comparingInt((RoomListing item)->item.room.getCapacity()).reversed();
+        Comparator<RoomListing> price=Comparator.comparingDouble(RoomFilter::unitPrice);
         if(sort==2)price=price.reversed();
-        return java.util.Comparator.comparingInt(RoomFilter::priceGroup).thenComparing(price);
+        return Comparator.comparingInt(RoomFilter::priceGroup).thenComparing(price);
     }
 
     public static String normalize(String value) {

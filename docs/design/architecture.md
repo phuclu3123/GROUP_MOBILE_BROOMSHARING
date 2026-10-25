@@ -1,5 +1,7 @@
 # Java/XML + MVVM + Repository + Model
 
+Vị trí các file và quy ước package: xem [Cấu trúc mã nguồn](source-structure.md). Activity và ViewModel nằm theo chức năng trong `ui`; các lớp dữ liệu, Repository, Adapter và helper vẫn có package riêng.
+
 Luồng duy nhất: **Activity/XML → ViewModel → Repository → Firebase Android SDK → Firestore**. Model mang dữ liệu qua các lớp. Không có backend riêng, Cloud Functions, Node, JavaScript, DTO, use-case layer, DI framework hoặc event bus.
 
 | Phần | Trách nhiệm |

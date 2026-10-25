@@ -1,10 +1,14 @@
 package vn.edu.ueh.phuclu.broomsharing.model;
 
 import com.google.firebase.firestore.ServerTimestamp;
-
 import java.util.*;
 
 /** Firestore availabilityMonths/{roomId_yyyyMM}; no guest contact information. */
+/*
+    Lịch kỹ thuật cho một phòng trong một tháng YYYYMM.
+    fixedBookingId giữ cả tháng; hourlyBookings ánh xạ booking sang các slot 30 phút.
+    Các mảng và map này là dữ liệu nhúng, không phải subcollection.
+ */
 public class AvailabilityMonth {
     public String roomId = "";
     public int monthIndex;

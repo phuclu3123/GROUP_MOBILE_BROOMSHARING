@@ -1,13 +1,18 @@
 package vn.edu.ueh.phuclu.broomsharing;
 
-import static org.junit.Assert.*;
-import static org.junit.Assume.assumeTrue;
 import android.app.Activity;
+import android.app.Instrumentation;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.SystemClock;
 import android.view.View;
 import android.widget.TextView;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.espresso.Espresso;
+import androidx.test.espresso.action.ViewActions;
+import androidx.test.espresso.matcher.RootMatchers;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 import androidx.test.runner.lifecycle.Stage;
@@ -20,15 +25,22 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import org.junit.Test;
 import vn.edu.ueh.phuclu.broomsharing.repository.FirebaseAuthRepository;
+import vn.edu.ueh.phuclu.broomsharing.ui.admin.AdminDashboardActivity;
 import vn.edu.ueh.phuclu.broomsharing.ui.auth.LoginActivity;
+import vn.edu.ueh.phuclu.broomsharing.ui.booking.MyBookingsActivity;
 import vn.edu.ueh.phuclu.broomsharing.ui.common.RoleAccountActivity;
+import vn.edu.ueh.phuclu.broomsharing.ui.favorites.FavoritesActivity;
 import vn.edu.ueh.phuclu.broomsharing.ui.host.HostBookingsActivity;
 import vn.edu.ueh.phuclu.broomsharing.ui.host.HostDashboardActivity;
+import vn.edu.ueh.phuclu.broomsharing.ui.profile.ProfileActivity;
+import vn.edu.ueh.phuclu.broomsharing.ui.room.MainActivity;
+import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
 
 /** Opt-in cloud UI navigation check. Reads existing demo data; never approves or edits it. */
 public class RoleWorkspaceTest {
-    private final android.app.Instrumentation device = InstrumentationRegistry.getInstrumentation();
-    private final android.content.Context context = device.getTargetContext();
+    private final Instrumentation device = InstrumentationRegistry.getInstrumentation();
+    private final Context context = device.getTargetContext();
     private final Properties credentials = new Properties();
     private final FirebaseAuthRepository auth = new FirebaseAuthRepository(context);
 
@@ -41,7 +53,15 @@ public class RoleWorkspaceTest {
             });
             if (!done.get()) SystemClock.sleep(250);
         }
-        assertTrue(label, done.get());
+        if (!done.get()) {
+            StringBuilder screens = new StringBuilder();
+            device.runOnMainSync(() -> {
+                for (Activity activity : ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED))
+                    screens.append(activity.getClass().getSimpleName())
+                            .append("(focus=").append(activity.hasWindowFocus()).append(") ");
+            });
+            fail(label + "; resumed=" + screens + "; hasSession=" + auth.hasSession());
+        }
     }
 
     private <T extends Activity> void act(Class<T> type, Consumer<T> action) {
@@ -88,27 +108,27 @@ public class RoleWorkspaceTest {
         try {
             login("guest1");
             await(MainActivity.class, a -> a.findViewById(R.id.publicRooms) != null
-                    && ((androidx.recyclerview.widget.RecyclerView) a.findViewById(R.id.publicRooms)).getAdapter().getItemCount() > 0, "Guest public rooms");
+                    && ((RecyclerView) a.findViewById(R.id.publicRooms)).getAdapter().getItemCount() > 0, "Guest public rooms");
             capture("role-guest-home");
             act(MainActivity.class, a -> a.findViewById(R.id.toggleFilters).performClick());
-            androidx.test.espresso.Espresso.onView(androidx.test.espresso.matcher.ViewMatchers.withId(R.id.capacityFilter))
-                    .perform(androidx.test.espresso.action.ViewActions.replaceText("9999"));
-            androidx.test.espresso.Espresso.onView(androidx.test.espresso.matcher.ViewMatchers.withId(android.R.id.button1))
-                    .inRoot(androidx.test.espresso.matcher.RootMatchers.isDialog())
-                    .perform(androidx.test.espresso.action.ViewActions.click());
+            Espresso.onView(ViewMatchers.withId(R.id.capacityFilter))
+                    .perform(ViewActions.replaceText("9999"));
+            Espresso.onView(ViewMatchers.withId(android.R.id.button1))
+                    .inRoot(RootMatchers.isDialog())
+                    .perform(ViewActions.click());
             await(MainActivity.class, a -> a.findViewById(R.id.tvFeedback).getVisibility() == View.VISIBLE, "Filter empty state");
             act(MainActivity.class, a -> a.findViewById(R.id.toggleFilters).performClick());
-            androidx.test.espresso.Espresso.onView(androidx.test.espresso.matcher.ViewMatchers.withId(R.id.clearFilters))
-                    .perform(androidx.test.espresso.action.ViewActions.scrollTo(), androidx.test.espresso.action.ViewActions.click());
-            androidx.test.espresso.Espresso.onView(androidx.test.espresso.matcher.ViewMatchers.withId(android.R.id.button1))
-                    .inRoot(androidx.test.espresso.matcher.RootMatchers.isDialog())
-                    .perform(androidx.test.espresso.action.ViewActions.click());
+            Espresso.onView(ViewMatchers.withId(R.id.clearFilters))
+                    .perform(ViewActions.scrollTo(), ViewActions.click());
+            Espresso.onView(ViewMatchers.withId(android.R.id.button1))
+                    .inRoot(RootMatchers.isDialog())
+                    .perform(ViewActions.click());
             await(MainActivity.class, a -> a.findViewById(R.id.activeFilters).getVisibility() == View.GONE, "Clear applied filters");
             act(MainActivity.class, Activity::recreate);
             await(MainActivity.class, a -> a.findViewById(R.id.publicRooms) != null, "Restore Guest home");
             act(MainActivity.class, a -> ((BottomNavigationView) a.findViewById(R.id.bottomNavigation)).setSelectedItemId(R.id.nav_bookings));
             await(MyBookingsActivity.class, a -> a.findViewById(R.id.bookings) != null
-                    && ((androidx.recyclerview.widget.RecyclerView) a.findViewById(R.id.bookings)).getAdapter().getItemCount() > 0, "Load Guest bookings");
+                    && ((RecyclerView) a.findViewById(R.id.bookings)).getAdapter().getItemCount() > 0, "Load Guest bookings");
             capture("role-guest-bookings");
             act(MyBookingsActivity.class, a -> ((BottomNavigationView) a.findViewById(R.id.bottomNavigation)).setSelectedItemId(R.id.nav_profile));
             await(ProfileActivity.class, a -> a.findViewById(R.id.hostManagementMenu) != null
@@ -141,7 +161,7 @@ public class RoleWorkspaceTest {
             await(HostDashboardActivity.class, a -> a.findViewById(R.id.spacesPanel).getVisibility() == View.VISIBLE, "Spaces tab");
             capture("role-host-spaces");
             act(HostDashboardActivity.class, a -> {
-                androidx.recyclerview.widget.RecyclerView list = a.findViewById(R.id.rvRooms);
+                RecyclerView list = a.findViewById(R.id.rvRooms);
                 assertNotNull("Host rooms must have a calendar action", list.findViewHolderForAdapterPosition(0));
                 list.findViewHolderForAdapterPosition(0).itemView.findViewById(R.id.roomCalendar).performClick();
             });
@@ -197,13 +217,14 @@ public class RoleWorkspaceTest {
             act(AdminDashboardActivity.class, a -> tab(a, R.id.admin_account));
             await(RoleAccountActivity.class, a -> a.findViewById(R.id.accountSignOut) != null, "Open Admin account again");
             act(RoleAccountActivity.class, a -> a.findViewById(R.id.accountSignOut).performClick());
-            androidx.test.espresso.Espresso.onView(androidx.test.espresso.matcher.ViewMatchers.withId(android.R.id.button2))
-                    .inRoot(androidx.test.espresso.matcher.RootMatchers.isDialog())
-                    .perform(androidx.test.espresso.action.ViewActions.click());
+            Espresso.onView(ViewMatchers.withId(android.R.id.button2))
+                    .inRoot(RootMatchers.isDialog())
+                    .perform(ViewActions.click());
             act(RoleAccountActivity.class, a -> a.findViewById(R.id.accountSignOut).performClick());
-            androidx.test.espresso.Espresso.onView(androidx.test.espresso.matcher.ViewMatchers.withId(android.R.id.button1))
-                    .inRoot(androidx.test.espresso.matcher.RootMatchers.isDialog())
-                    .perform(androidx.test.espresso.action.ViewActions.click());
+            Espresso.onView(ViewMatchers.withId(android.R.id.button1))
+                    .inRoot(RootMatchers.isDialog())
+                    .perform(ViewActions.click());
+            assertFalse("Confirm sign out must end the Firebase session", auth.hasSession());
             await(LoginActivity.class, a -> a.findViewById(R.id.submitButton) != null, "Sign out must clear the role workspace");
         } finally {
             // No screenshot or hierarchy dump of a populated password field, including failures.

@@ -1,18 +1,25 @@
 package vn.edu.ueh.phuclu.broomsharing.ui.admin;
 
 import androidx.lifecycle.*;
-
-import vn.edu.ueh.phuclu.broomsharing.model.*;
-import vn.edu.ueh.phuclu.broomsharing.repository.*;
-
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import vn.edu.ueh.phuclu.broomsharing.model.ReviewItem;
+import vn.edu.ueh.phuclu.broomsharing.model.UiState;
+import vn.edu.ueh.phuclu.broomsharing.repository.AdminRepository;
+import vn.edu.ueh.phuclu.broomsharing.repository.ReportRepository;
+import vn.edu.ueh.phuclu.broomsharing.repository.ResultCallback;
 
+/*
+    Giữ dữ liệu hàng đợi và kết quả xét duyệt qua vòng đời màn hình Admin.
+    View gửi ý định, Repository kiểm lại quyền và dữ liệu trước khi cập nhật.
+ */
 public class AdminViewModel extends ViewModel {
     private final AdminRepository repository = new AdminRepository();
     public final MutableLiveData<UiState<List<ReviewItem>>> items = new MutableLiveData<>();
     public final MutableLiveData<UiState<String>> operation = new MutableLiveData<>();
     public String selected = "HOST";
-    public final java.util.Set<String> viewedEvidence = new java.util.HashSet<>();
+    public final Set<String> viewedEvidence = new HashSet<>();
 
     public boolean evidenceViewed(ReviewItem item) {
         return !item.evidenceRefs.isEmpty() && item.evidenceRefs.stream()

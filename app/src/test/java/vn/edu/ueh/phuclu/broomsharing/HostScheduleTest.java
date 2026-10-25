@@ -1,11 +1,14 @@
 package vn.edu.ueh.phuclu.broomsharing;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
-import vn.edu.ueh.phuclu.broomsharing.model.*;
-import vn.edu.ueh.phuclu.broomsharing.utils.*;
 import java.time.*;
 import java.util.*;
+import org.junit.Test;
+import vn.edu.ueh.phuclu.broomsharing.model.Booking;
+import vn.edu.ueh.phuclu.broomsharing.model.Room;
+import vn.edu.ueh.phuclu.broomsharing.model.RoomBlackout;
+import vn.edu.ueh.phuclu.broomsharing.utils.HostSchedule;
+import vn.edu.ueh.phuclu.broomsharing.utils.HostValidation;
+import static org.junit.Assert.*;
 
 public class HostScheduleTest {
     private Room room() {

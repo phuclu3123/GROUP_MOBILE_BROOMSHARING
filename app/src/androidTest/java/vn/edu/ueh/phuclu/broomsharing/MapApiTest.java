@@ -1,20 +1,18 @@
 package vn.edu.ueh.phuclu.broomsharing;
 
-import static org.junit.Assert.*;
-import static org.junit.Assume.assumeTrue;
-
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import vn.edu.ueh.phuclu.broomsharing.model.*;
-import vn.edu.ueh.phuclu.broomsharing.repository.*;
-import vn.edu.ueh.phuclu.broomsharing.utils.MapArea;
-
 import java.util.*;
 import java.util.concurrent.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import vn.edu.ueh.phuclu.broomsharing.model.MapPoint;
+import vn.edu.ueh.phuclu.broomsharing.model.MapRoute;
+import vn.edu.ueh.phuclu.broomsharing.repository.MapRepository;
+import vn.edu.ueh.phuclu.broomsharing.repository.ResultCallback;
+import vn.edu.ueh.phuclu.broomsharing.utils.MapArea;
+import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
 
 /** Opt-in real provider test, Java only. Fixed pilot coordinates in Ho Chi Minh City. */
 @RunWith(AndroidJUnit4.class)

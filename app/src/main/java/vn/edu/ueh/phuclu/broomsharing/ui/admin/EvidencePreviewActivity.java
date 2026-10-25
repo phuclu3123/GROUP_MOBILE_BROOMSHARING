@@ -5,12 +5,14 @@ import android.graphics.*;
 import android.graphics.pdf.PdfRenderer;
 import android.os.*;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import androidx.lifecycle.ViewModelProvider;
+import java.io.*;
 import vn.edu.ueh.phuclu.broomsharing.R;
 import vn.edu.ueh.phuclu.broomsharing.databinding.ActivityEvidencePreviewBinding;
 import vn.edu.ueh.phuclu.broomsharing.model.UserProfile;
 import vn.edu.ueh.phuclu.broomsharing.ui.auth.SessionActivity;
-import java.io.*;
 
 /** Views protected bytes without creating a public download URL or sharing a private document. */
 public class EvidencePreviewActivity extends SessionActivity {
@@ -23,8 +25,8 @@ public class EvidencePreviewActivity extends SessionActivity {
     @Override protected boolean requiresAdmin() { return true; }
     @Override protected void onCreate(Bundle state) { if (state != null) page=state.getInt("page"); super.onCreate(state); }
     @Override protected void onProfileReady(UserProfile profile) {
-        getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE);
-        b=ActivityEvidencePreviewBinding.bind(((android.view.ViewGroup)findViewById(android.R.id.content)).getChildAt(0));
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
+        b=ActivityEvidencePreviewBinding.bind(((ViewGroup)findViewById(android.R.id.content)).getChildAt(0));
         AdminEvidenceViewModel model=new ViewModelProvider(this).get(AdminEvidenceViewModel.class);
         b.close.setOnClickListener(v->finish());
         b.previous.setOnClickListener(v->{if(pdf!=null&&page>0){page--;renderPage();}});

@@ -1,10 +1,8 @@
 package vn.edu.ueh.phuclu.broomsharing.utils;
 
-import static org.junit.Assert.*;
-
 import org.junit.Test;
-
 import vn.edu.ueh.phuclu.broomsharing.model.MapPoint;
+import static org.junit.Assert.*;
 
 public class MapAreaTest {
     @Test public void q8SourceAddressesAreFilteredAroundChosenOrigin(){

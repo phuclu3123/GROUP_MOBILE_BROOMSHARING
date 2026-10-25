@@ -6,16 +6,17 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
-
-import vn.edu.ueh.phuclu.broomsharing.R;
-import vn.edu.ueh.phuclu.broomsharing.databinding.ItemHostBookingBinding;
-import vn.edu.ueh.phuclu.broomsharing.model.Booking;
-
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
+import vn.edu.ueh.phuclu.broomsharing.R;
+import vn.edu.ueh.phuclu.broomsharing.databinding.ItemHostBookingBinding;
+import vn.edu.ueh.phuclu.broomsharing.model.Booking;
+import vn.edu.ueh.phuclu.broomsharing.utils.FormatUtils;
 
 public class HostBookingAdapter extends RecyclerView.Adapter<HostBookingAdapter.BookingViewHolder> {
 
@@ -36,7 +37,7 @@ public class HostBookingAdapter extends RecyclerView.Adapter<HostBookingAdapter.
 
     public HostBookingAdapter(OnBookingActionListener listener) {
         this.listener = listener;
-        dateFormat.setTimeZone(java.util.TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
+        dateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
     }
 
     public void setData(List<Booking> data) {
@@ -75,7 +76,7 @@ public class HostBookingAdapter extends RecyclerView.Adapter<HostBookingAdapter.
 
         void bind(Booking item) {
             binding.btnChatGuest.setOnClickListener(v->listener.onChat(item));
-            binding.btnCancelByHost.setVisibility(Booking.STATUS_CONFIRMED.equals(item.status)&&item.startAt!=null&&item.startAt.after(new java.util.Date())?View.VISIBLE:View.GONE);
+            binding.btnCancelByHost.setVisibility(Booking.STATUS_CONFIRMED.equals(item.status)&&item.startAt!=null&&item.startAt.after(new Date())?View.VISIBLE:View.GONE);
             binding.btnCancelByHost.setEnabled(!busy);
             binding.btnCancelByHost.setOnClickListener(v->{if(!busy)listener.onCancel(item);});
             binding.btnAccept.setEnabled(!busy);
@@ -128,7 +129,7 @@ public class HostBookingAdapter extends RecyclerView.Adapter<HostBookingAdapter.
                 if (terms instanceof String) policy = (String) terms;
             }
             binding.tvPriceSnapshot.setText("Cọc: " + deposit + "\nThanh toán: "
-                    + vn.edu.ueh.phuclu.broomsharing.utils.FormatUtils.paymentStatus(item.paymentStatus)
+                    + FormatUtils.paymentStatus(item.paymentStatus)
                     + (policy.isEmpty() ? "" : "\nChính sách lúc đặt: " + policy));
 
             // Status Badge & Action buttons
@@ -137,7 +138,7 @@ public class HostBookingAdapter extends RecyclerView.Adapter<HostBookingAdapter.
                 case Booking.STATUS_PENDING:
                     binding.tvStatusBadge.setText("CHỜ DUYỆT");
                     binding.tvStatusBadge.setBackgroundColor(ContextCompat.getColor(itemView.getContext(), R.color.warning));
-                    binding.layoutActions.setVisibility(View.VISIBLE);
+                    binding.layoutActions.setVisibility(item.startAt != null && item.startAt.after(new Date()) ? View.VISIBLE : View.GONE);
                     binding.tvRejectionReason.setVisibility(View.GONE);
                     break;
                 case Booking.STATUS_CONFIRMED:
@@ -164,7 +165,7 @@ public class HostBookingAdapter extends RecyclerView.Adapter<HostBookingAdapter.
                     binding.tvRejectionReason.setVisibility(View.GONE);
                     break;
                 default:
-                    binding.tvStatusBadge.setText(vn.edu.ueh.phuclu.broomsharing.utils.FormatUtils.bookingStatus(status));
+                    binding.tvStatusBadge.setText(FormatUtils.bookingStatus(status));
                     binding.layoutActions.setVisibility(View.GONE);
                     binding.tvRejectionReason.setVisibility(View.GONE);
                     break;
@@ -177,16 +178,16 @@ public class HostBookingAdapter extends RecyclerView.Adapter<HostBookingAdapter.
                 String next = item.endAt.getTime() <= now ? Booking.STATUS_COMPLETED : Booking.STATUS_CHECKED_IN;
                 if (!next.equals(status)) {
                     binding.btnProgress.setVisibility(View.VISIBLE);
-                    binding.btnProgress.setText(Booking.STATUS_COMPLETED.equals(next) ? "Hoàn tất lượt thuê" : "Ghi nhận vào phòng (demo)");
+                    binding.btnProgress.setText(Booking.STATUS_COMPLETED.equals(next) ? "Hoàn tất lượt thuê" : "Ghi nhận vào phòng");
                     binding.btnProgress.setOnClickListener(v -> { if (!busy) listener.onProgress(item, next); });
                 }
             }
             binding.btnAccept.setOnClickListener(v -> {
-                if (listener != null) listener.onAccept(item);
+                if (!busy && listener != null) listener.onAccept(item);
             });
 
             binding.btnReject.setOnClickListener(v -> {
-                if (listener != null) listener.onReject(item);
+                if (!busy && listener != null) listener.onReject(item);
             });
         }
     }

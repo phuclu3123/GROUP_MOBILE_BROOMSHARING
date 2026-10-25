@@ -3,21 +3,22 @@ package vn.edu.ueh.phuclu.broomsharing.adapter;
 import android.view.*;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.bumptech.glide.Glide;
-
+import java.util.Objects;
 import vn.edu.ueh.phuclu.broomsharing.R;
-import vn.edu.ueh.phuclu.broomsharing.model.*;
+import vn.edu.ueh.phuclu.broomsharing.model.Room;
+import vn.edu.ueh.phuclu.broomsharing.model.RoomListing;
 import vn.edu.ueh.phuclu.broomsharing.utils.FormatUtils;
 
-import java.util.Objects;
-
 /** Adapted from Truc's RoomAdapter, using the shared Host Room model. */
+/*
+    Hiển thị phòng ở trang tìm kiếm của người thuê.
+    Giá và trạng thái ở đây phục vụ hiển thị; Repository vẫn kiểm lại trước khi đặt.
+ */
 public class GuestRoomAdapter extends ListAdapter<RoomListing, GuestRoomAdapter.Holder> {
     public interface Click {
         void open(RoomListing room);

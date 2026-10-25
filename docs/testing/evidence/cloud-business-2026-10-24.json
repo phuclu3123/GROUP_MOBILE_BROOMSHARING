@@ -1,0 +1,87 @@
+{
+  "date": "2026-10-24",
+  "project": "broom-sharing-firebase-mobile",
+  "database": "broomsharing",
+  "device": "Pixel_4 emulator API 29",
+  "run": "video_1792844782287_",
+  "integratedCloudScenario": {
+    "passed": 1,
+    "checkpointGroups": 18,
+    "seconds": 125.264,
+    "apkSha256": "ed89252c8dc333786cf3f135d9155143d2091e4328fcaa2e39c7e4876510f81b"
+  },
+  "finalCloudBookingUI": {
+    "passed": 1,
+    "seconds": 14.123,
+    "totalLabelFixVerified": true
+  },
+  "retainedRealAuthAccounts": 4,
+  "historicalBookingFixtures": 3,
+  "historicalPreparationWrites": 7,
+  "historicalSnapshotCorrections": 3,
+  "readback": {
+    "passed": true,
+    "project": "broom-sharing-firebase-mobile",
+    "database": "broomsharing",
+    "run": "video_1792844782287_",
+    "authentication": "Real retained demo Admin ID token; Security Rules applied",
+    "cloudWritesDuringVerification": 0,
+    "accountsActive": 4,
+    "rooms": 3,
+    "bookings": 12,
+    "bookingStates": {
+      "EXPIRED": 1,
+      "PENDING": 2,
+      "COMPLETED": 1,
+      "CHECKED_IN": 1,
+      "CANCELLED": 5,
+      "CONFIRMED": 1,
+      "REJECTED": 1
+    },
+    "heldBookings": 4,
+    "calendarDocuments": 6,
+    "reviewCount": 1,
+    "reportCount": 2,
+    "roomCountersMatch": true,
+    "calendarsMatch": true,
+    "terminalBookingHoldsAbsent": true,
+    "currentStateAuditsExist": true,
+    "videoRoomPublic": true,
+    "historicalGuestSnapshotCorrectionsNeeded": []
+  },
+  "apk": {
+    "firestoreDatabase": "broomsharing",
+    "emulatorHost": "",
+    "artifacts": {
+      "BroomSharing-business-2026-10-24-debug.apk": {
+        "bytes": 93228256,
+        "sha256": "3c429e0af9ca6c5488166b71cd4d5f6d47a526b6d31aef2baac32a047e28a609"
+      },
+      "BroomSharing-business-2026-10-24-release-unsigned.apk": {
+        "bytes": 75352882,
+        "sha256": "fa8a5f166632ecaa8a57d00233f2ba52103632a6c230df6617abdd9dc7b86263"
+      }
+    }
+  },
+  "unit": {
+    "tests": 71,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 503
+  },
+  "secretsExcludedFromEvidence": true,
+  "temporaryDeviceCredentialsRemoved": true,
+  "fixtureBridgeStopped": true,
+  "testAPKUninstalled": true,
+  "knownLimits": [
+    "No physical-device acceptance",
+    "Calendar Intent verified; no device event persisted",
+    "Foreground expiry only",
+    "Payment/image integrations deferred",
+    "Release unsigned"
+  ]
+}

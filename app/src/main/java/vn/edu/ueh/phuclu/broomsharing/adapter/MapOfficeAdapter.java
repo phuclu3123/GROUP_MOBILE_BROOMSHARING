@@ -2,17 +2,22 @@ package vn.edu.ueh.phuclu.broomsharing.adapter;
 
 import android.view.*;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
-import vn.edu.ueh.phuclu.broomsharing.model.*;
-import vn.edu.ueh.phuclu.broomsharing.utils.MapArea;
-
+import com.google.firebase.firestore.GeoPoint;
 import java.util.*;
 import java.util.function.Consumer;
+import vn.edu.ueh.phuclu.broomsharing.R;
+import vn.edu.ueh.phuclu.broomsharing.model.MapPoint;
+import vn.edu.ueh.phuclu.broomsharing.model.RentalPlace;
+import vn.edu.ueh.phuclu.broomsharing.model.RoomListing;
+import vn.edu.ueh.phuclu.broomsharing.utils.MapArea;
 
 /** Compact rows leave room for the map on a small phone. */
+/*
+    Đồng bộ danh sách địa điểm với lựa chọn trên bản đồ.
+    Adapter không quyết định tọa độ hay tạo quyền sở hữu cho địa điểm tham khảo.
+ */
 public class MapOfficeAdapter extends RecyclerView.Adapter<MapOfficeAdapter.Holder> {
     private final List<RoomListing> items = new ArrayList<>();
     private final Consumer<RoomListing> click;
@@ -38,7 +43,7 @@ public class MapOfficeAdapter extends RecyclerView.Adapter<MapOfficeAdapter.Hold
     public Holder onCreateViewHolder(@NonNull ViewGroup parent, int type) {
         return new Holder(
                 LayoutInflater.from(parent.getContext())
-                        .inflate(vn.edu.ueh.phuclu.broomsharing.R.layout.item_map_office, parent, false));
+                        .inflate(R.layout.item_map_office, parent, false));
     }
 
     @Override
@@ -51,7 +56,7 @@ public class MapOfficeAdapter extends RecyclerView.Adapter<MapOfficeAdapter.Hold
             holder.itemView.setOnClickListener(v->referenceClick.accept(p));return;
         }
         RoomListing room = items.get(position);
-        com.google.firebase.firestore.GeoPoint coordinate = room.building.getLocation();
+        GeoPoint coordinate = room.building.getLocation();
         double meters =
                 MapArea.distance(
                         origin,
@@ -72,8 +77,8 @@ public class MapOfficeAdapter extends RecyclerView.Adapter<MapOfficeAdapter.Hold
 
         Holder(View view) {
             super(view);
-            title = view.findViewById(vn.edu.ueh.phuclu.broomsharing.R.id.mapOfficeTitle);
-            subtitle = view.findViewById(vn.edu.ueh.phuclu.broomsharing.R.id.mapOfficeSubtitle);
+            title = view.findViewById(R.id.mapOfficeTitle);
+            subtitle = view.findViewById(R.id.mapOfficeSubtitle);
             view.setFocusable(true);
         }
     }

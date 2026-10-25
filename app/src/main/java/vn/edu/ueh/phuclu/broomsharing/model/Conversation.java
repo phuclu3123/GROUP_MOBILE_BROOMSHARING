@@ -5,6 +5,10 @@ import com.google.firebase.firestore.ServerTimestamp;
 import java.util.*;
 
 /** One private renter/host thread. Receipt counters count incoming messages only. */
+/*
+    Hội thoại của cặp Guest/Host với hai UID thành viên.
+    Received đếm số tin gửi đến mỗi bên; Read là mốc đã đọc của chính bên đó.
+ */
 public class Conversation {
     public String id = "", guestUid = "", hostUid = "", guestName = "", hostName = "";
     public List<String> memberUids = new ArrayList<>();

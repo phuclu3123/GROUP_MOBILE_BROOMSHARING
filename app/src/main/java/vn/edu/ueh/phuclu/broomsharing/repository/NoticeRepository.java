@@ -1,9 +1,15 @@
 package vn.edu.ueh.phuclu.broomsharing.repository;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.*;
 import java.util.*;
 import vn.edu.ueh.phuclu.broomsharing.utils.FirebaseHelper;
+
 /** Read receipts belong only to their recipient; event content is derived from real source data. */
+/*
+    Theo dõi mốc đã đọc trong subcollection của tài khoản hiện tại.
+    Không dùng collection notifications làm nguồn thông báo booking của app.
+ */
 public class NoticeRepository {
     private final FirebaseFirestore db=FirebaseHelper.getFirestore();
     public ListenerRegistration watch(String uid,ResultCallback<Set<String>> cb){

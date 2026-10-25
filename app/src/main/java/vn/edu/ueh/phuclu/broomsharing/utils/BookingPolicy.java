@@ -1,12 +1,15 @@
 package vn.edu.ueh.phuclu.broomsharing.utils;
 
-import vn.edu.ueh.phuclu.broomsharing.model.*;
-
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import vn.edu.ueh.phuclu.broomsharing.model.AvailabilityMonth;
+import vn.edu.ueh.phuclu.broomsharing.model.Booking;
+import vn.edu.ueh.phuclu.broomsharing.model.Room;
+import vn.edu.ueh.phuclu.broomsharing.model.RoomBlackout;
 
 /** Plain Java rules, no Firebase I/O or UI. Repository always reads current room data. */
 public final class BookingPolicy {
@@ -29,7 +32,7 @@ public final class BookingPolicy {
             StringBuilder out = new StringBuilder();
             for (byte b : bytes) out.append(String.format(Locale.ROOT, "%02x", b & 255));
             return out.toString();
-        } catch (java.security.NoSuchAlgorithmException error) {
+        } catch (NoSuchAlgorithmException error) {
             throw new IllegalStateException(error);
         }
     }
@@ -196,7 +199,7 @@ public final class BookingPolicy {
 
     public static void transition(Booking booking, String target, String reason, long now) {
         require(
-                Arrays.asList("CONFIRMED", "REJECTED", "CANCELLED", "CHECKED_IN", "COMPLETED")
+                Arrays.asList("CONFIRMED", "REJECTED", "CANCELLED", "CHECKED_IN", "COMPLETED", "EXPIRED")
                         .contains(target),
                 "Trạng thái không hợp lệ.");
         require(
@@ -214,7 +217,11 @@ public final class BookingPolicy {
                                         ? Arrays.asList("CONFIRMED", "CHECKED_IN")
                                         : Collections.singletonList("PENDING");
         require(allowed.contains(booking.status), "Booking đã đổi trạng thái. Vui lòng tải lại.");
-        if ("CHECKED_IN".equals(target))
+        // Yêu cầu chờ duyệt chỉ hết hạn từ đúng giờ bắt đầu, không dùng hạn 24 giờ.
+        if ("EXPIRED".equals(target))
+            require(booking.startAt != null && booking.startAt.getTime() <= now,
+                    "Chưa tới giờ bắt đầu để chuyển hết hạn.");
+        else if ("CHECKED_IN".equals(target))
             require(
                     booking.startAt.getTime() <= now && now < booking.endAt.getTime(),
                     "Chỉ ghi nhận vào phòng trong thời gian thuê.");
@@ -225,6 +232,10 @@ public final class BookingPolicy {
 
     public static void validateRoomChange(
             Room previous, Room next, List<AvailabilityMonth> months, long now) {
+        // Giữ cấu hình lịch ổn định khi còn booking; không chỉ dựa vào form hoặc query trước.
+        if (scheduleChanged(previous, next)) require(previous.activeBookingCount == 0,
+                previous.activeBookingCount < 0 ? "Lịch phòng cũ cần Admin đối soát trước khi sửa."
+                        : "Còn booking giữ chỗ; xử lý hết booking trước khi đổi cấu hình lịch.");
         for (AvailabilityMonth month : months) {
             YearMonth ym = YearMonth.of(month.monthIndex / 100, month.monthIndex % 100);
             if (!month.fixedBookingId.isEmpty()) {
@@ -266,5 +277,24 @@ public final class BookingPolicy {
                 validateBlackouts(next, start, end);
             }
         }
+    }
+
+    public static boolean scheduleChanged(Room a, Room b) {
+        return !Objects.equals(a.getBuildingId(), b.getBuildingId())
+                || !Objects.equals(a.getActiveMode(), b.getActiveMode())
+                || !Objects.equals(a.getOpenTime(), b.getOpenTime())
+                || !Objects.equals(a.getCloseTime(), b.getCloseTime())
+                || !Objects.equals(a.getWorkingDays(), b.getWorkingDays())
+                || a.getSlotMinutes() != b.getSlotMinutes()
+                || a.getMinBookingMinutes() != b.getMinBookingMinutes()
+                || !Objects.equals(a.getFixedStartMonth(), b.getFixedStartMonth())
+                || !Objects.equals(a.getBlackoutDates(), b.getBlackoutDates())
+                || !blackoutSignature(a).equals(blackoutSignature(b));
+    }
+
+    private static List<String> blackoutSignature(Room r) {
+        List<String> result = new ArrayList<>();
+        for (RoomBlackout b : r.getBlackoutRanges()) result.add(b.getStartAt() + ":" + b.getEndAt() + ":" + b.getReason());
+        return result;
     }
 }

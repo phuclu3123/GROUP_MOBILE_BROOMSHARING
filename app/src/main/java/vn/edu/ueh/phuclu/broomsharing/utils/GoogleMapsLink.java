@@ -1,9 +1,9 @@
 package vn.edu.ueh.phuclu.broomsharing.utils;
 
-import vn.edu.ueh.phuclu.broomsharing.model.MapPoint;
-
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import vn.edu.ueh.phuclu.broomsharing.model.MapPoint;
 
 public final class GoogleMapsLink {
     private GoogleMapsLink() {}
@@ -11,7 +11,7 @@ public final class GoogleMapsLink {
     private static String encode(String value) {
         try {
             return URLEncoder.encode(value, StandardCharsets.UTF_8.name());
-        } catch (java.io.UnsupportedEncodingException impossible) {
+        } catch (UnsupportedEncodingException impossible) {
             throw new IllegalStateException(impossible);
         }
     }

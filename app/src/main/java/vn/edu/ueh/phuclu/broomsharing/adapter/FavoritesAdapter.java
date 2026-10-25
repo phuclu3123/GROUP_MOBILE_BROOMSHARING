@@ -1,11 +1,17 @@
 package vn.edu.ueh.phuclu.broomsharing.adapter;
+
 import android.view.*;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import vn.edu.ueh.phuclu.broomsharing.databinding.ItemFavoriteBinding;
-import vn.edu.ueh.phuclu.broomsharing.model.Favorite;
 import java.util.*;
 import java.util.function.Consumer;
+import vn.edu.ueh.phuclu.broomsharing.databinding.ItemFavoriteBinding;
+import vn.edu.ueh.phuclu.broomsharing.model.Favorite;
+
+/*
+    Bind danh sách phòng yêu thích cùng thông tin đã đọc bổ sung.
+    Sự kiện mở phòng và bỏ yêu thích được giao lại cho màn hình quản lý.
+ */
 public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Holder> {
     private final List<Favorite> items=new ArrayList<>();
     private final Consumer<Favorite> open,remove;

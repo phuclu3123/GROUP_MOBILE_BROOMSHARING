@@ -1,13 +1,15 @@
 package vn.edu.ueh.phuclu.broomsharing.model;
 
 import com.google.firebase.firestore.ServerTimestamp;
-
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 public class Room implements Serializable {
+    // -1: dữ liệu cũ chưa đối soát; 0: không giữ chỗ; >0: khóa sửa cấu hình lịch.
+    public long activeBookingCount = -1;
     public long bookingRevision;
     public String lastBookingId = "";
     public static final String MODE_HOURLY = "HOURLY";
@@ -49,7 +51,7 @@ public class Room implements Serializable {
     private List<String> imageUrls;
     private List<String> blackoutDates; // Danh sách các ngày khóa lịch YYYY-MM-DD
     private List<Integer> workingDays =
-            new ArrayList<>(java.util.Arrays.asList(1, 2, 3, 4, 5, 6, 7));
+            new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 6, 7));
     private int slotMinutes = 60;
     private int minBookingMinutes = 60;
     private String fixedStartMonth = "";

@@ -2,18 +2,16 @@ package vn.edu.ueh.phuclu.broomsharing.repository;
 
 import android.os.Handler;
 import android.os.Looper;
-
-import org.json.*;
-
-import vn.edu.ueh.phuclu.broomsharing.BuildConfig;
-import vn.edu.ueh.phuclu.broomsharing.model.*;
-import vn.edu.ueh.phuclu.broomsharing.utils.MapArea;
-
 import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.*;
+import org.json.*;
+import vn.edu.ueh.phuclu.broomsharing.BuildConfig;
+import vn.edu.ueh.phuclu.broomsharing.model.MapPoint;
+import vn.edu.ueh.phuclu.broomsharing.model.MapRoute;
+import vn.edu.ueh.phuclu.broomsharing.utils.MapArea;
 
 /** Only provider I/O. No Activity, DTO or additional network framework. */
 public class MapRepository {

@@ -10,7 +10,7 @@
     <string name="booking_estimate_title">Tạm tính</string>
     <string name="booking_rent_label">Tiền thuê</string>
     <string name="booking_deposit_label">Trả trước dự kiến (40%)</string>
-    <string name="booking_total_label">Trả trước dự kiến</string>
+    <string name="booking_total_label">Tổng tiền thuê và phí</string>
 
     <string name="booking_success_screen_title">Kết quả đặt chỗ</string>
     <string name="booking_success_title">Đã gửi yêu cầu đặt chỗ</string>
@@ -32,6 +32,7 @@
         <item>Đã hủy</item>
         <item>Hoàn tất</item>
         <item>Bị từ chối</item>
-        <item>Đã vào phòng (demo)</item>
+        <item>Đã vào phòng</item>
+        <item>Hết hạn</item>
     </string-array>
 </resources>

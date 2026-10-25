@@ -1,15 +1,20 @@
 package vn.edu.ueh.phuclu.broomsharing.adapter;
 
-import android.view.*;
 import android.graphics.Color;
+import android.view.*;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.*;
 import java.util.function.Consumer;
+import vn.edu.ueh.phuclu.broomsharing.R;
 import vn.edu.ueh.phuclu.broomsharing.databinding.ItemChatMessageBinding;
 import vn.edu.ueh.phuclu.broomsharing.model.ChatMessage;
 import vn.edu.ueh.phuclu.broomsharing.utils.TimeUtils;
 
+/*
+    Phân biệt tin gửi và tin nhận theo UID của phiên hiện tại.
+    Thứ tự tin lấy từ sequence của Repository, không suy ra từ giờ trên điện thoại.
+ */
 public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.Holder> {
     private final List<ChatMessage> rows = new ArrayList<>();
     private final String uid; private final Consumer<String> openRoom;
@@ -23,7 +28,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
         ChatMessage m = rows.get(position); boolean mine=uid.equals(m.senderUid);
         h.b.getRoot().setGravity(mine ? Gravity.END : Gravity.START);
         h.b.messageBody.setText(m.text);
-        h.b.messageBody.setBackgroundResource(mine ? vn.edu.ueh.phuclu.broomsharing.R.drawable.bg_chat_outgoing : vn.edu.ueh.phuclu.broomsharing.R.drawable.bg_chat_incoming);
+        h.b.messageBody.setBackgroundResource(mine ? R.drawable.bg_chat_outgoing : R.drawable.bg_chat_incoming);
         h.b.messageBody.setTextColor(Color.parseColor("#183B53"));
         h.b.messageTime.setText(m.createdAt == null ? "Đang đồng bộ…" : TimeUtils.formatVietnam(m.createdAt));
         boolean context=!m.roomId.isEmpty()&&(position==0||!m.roomId.equals(rows.get(position-1).roomId));

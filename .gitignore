@@ -30,3 +30,11 @@ __pycache__/
 
 # Passwords for Firebase demo accounts (local only)
 /data/demo/credentials.local.properties
+/data/demo/video-credentials.local.properties
+/data/demo/video-business.local.json
+/output/verification/cloud-business-2026-10-24/
+
+# Generated artifacts for the booking business acceptance run
+/tmp/business-completion/
+/output/releases/
+/output/verification/business-completion-2026-10-24/

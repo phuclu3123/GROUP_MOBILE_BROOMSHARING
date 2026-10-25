@@ -3,14 +3,21 @@ package vn.edu.ueh.phuclu.broomsharing.repository;
 import com.google.android.gms.tasks.*;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.*;
-
-import vn.edu.ueh.phuclu.broomsharing.model.*;
-import vn.edu.ueh.phuclu.broomsharing.utils.*;
-
+import com.google.firebase.storage.StorageReference;
 import java.util.*;
+import vn.edu.ueh.phuclu.broomsharing.model.AuditLog;
+import vn.edu.ueh.phuclu.broomsharing.model.PublicHost;
+import vn.edu.ueh.phuclu.broomsharing.model.ReviewItem;
+import vn.edu.ueh.phuclu.broomsharing.model.Room;
+import vn.edu.ueh.phuclu.broomsharing.utils.BookingPolicy;
+import vn.edu.ueh.phuclu.broomsharing.utils.FirebaseHelper;
+import vn.edu.ueh.phuclu.broomsharing.utils.FormatUtils;
+import vn.edu.ueh.phuclu.broomsharing.utils.HostValidation;
+import vn.edu.ueh.phuclu.broomsharing.utils.TimeUtils;
 
 /** Admin reads and atomic writes through the Firestore Android SDK. */
 public class AdminRepository {
+    // Hàng đợi chỉ dành cho Admin đang ACTIVE; quyền vẫn được Rules kiểm lại lúc đọc và ghi.
     private final FirebaseFirestore db = FirebaseHelper.getFirestore();
 
     public void load(String kind, ResultCallback<List<ReviewItem>> cb) {
@@ -270,7 +277,10 @@ public class AdminRepository {
                             + text(d, "reason");
         } else {
             title = text(d, "reason");
-            details = text(d, "description")+"\n\nPhòng: "+text(d,"roomId")+"\nChủ: "+text(d,"ownerUid")+"\nNgười gửi: "+text(d,"reporterUid")+"\nTrạng thái: "+status+"\nTệp bằng chứng: đang phát triển; không coi mô tả là kết luận vi phạm.";
+            details = text(d, "description")+"\n\nPhòng: "+text(d,"roomId")+"\nChủ: "+text(d,"ownerUid")+"\nNgười gửi: "+text(d,"reporterUid")+"\nTrạng thái: "+status
+                    +"\nBooking liên quan: "+text(d,"bookingId")
+                    +"\nPhản hồi Host: "+text(d,"hostResponse")+"\nKết luận: "+text(d,"resolution")
+                    +"\nTệp bằng chứng: đang phát triển; không coi mô tả là kết luận vi phạm.";
         }
         ReviewItem item =
                 new ReviewItem(
@@ -631,7 +641,7 @@ public class AdminRepository {
                                                                         + " sơ."));
                                                     return;
                                                 }
-                                                com.google.firebase.storage.StorageReference file =
+                                                StorageReference file =
                                                         FirebaseHelper.getStorage()
                                                                 .getReference()
                                                                 .child(path);

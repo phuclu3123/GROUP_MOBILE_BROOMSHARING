@@ -1,25 +1,38 @@
 package vn.edu.ueh.phuclu.broomsharing;
 
-import static org.junit.Assert.*;
-import static org.junit.Assume.assumeTrue;
+import android.content.Context;
 import androidx.test.platform.app.InstrumentationRegistry;
 import com.google.android.gms.tasks.*;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.*;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.time.*;
 import java.util.*;
 import java.util.concurrent.*;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
-import vn.edu.ueh.phuclu.broomsharing.model.*;
-import vn.edu.ueh.phuclu.broomsharing.repository.*;
-import vn.edu.ueh.phuclu.broomsharing.utils.*;
+import vn.edu.ueh.phuclu.broomsharing.model.AvailabilityMonth;
+import vn.edu.ueh.phuclu.broomsharing.model.Booking;
+import vn.edu.ueh.phuclu.broomsharing.model.Building;
+import vn.edu.ueh.phuclu.broomsharing.model.PublicHost;
+import vn.edu.ueh.phuclu.broomsharing.model.ReviewItem;
+import vn.edu.ueh.phuclu.broomsharing.model.Room;
+import vn.edu.ueh.phuclu.broomsharing.repository.AdminRepository;
+import vn.edu.ueh.phuclu.broomsharing.repository.BookingRepository;
+import vn.edu.ueh.phuclu.broomsharing.repository.HostRepository;
+import vn.edu.ueh.phuclu.broomsharing.utils.CancellationPolicy;
+import vn.edu.ueh.phuclu.broomsharing.utils.FirebaseConfig;
+import vn.edu.ueh.phuclu.broomsharing.utils.FirebaseHelper;
+import vn.edu.ueh.phuclu.broomsharing.utils.HostSchedule;
+import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
 
 /** Explicit opt-in: writes only dedicated QA fixtures; releases all holds and hides QA rooms. */
 public class CloudBookingAcceptanceTest {
-    private final android.content.Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+    private final Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
     private final FirebaseAuth auth = FirebaseAuth.getInstance();
     private final FirebaseFirestore db = FirebaseHelper.getFirestore();
     private final Properties credentials = new Properties();
@@ -234,10 +247,10 @@ public class CloudBookingAcceptanceTest {
                     }
                 }
                 JSONObject report = new JSONObject().put("passed", success).put("project", FirebaseApp.getInstance().getOptions().getProjectId())
-                        .put("database", FirebaseConfig.FIRESTORE_DATABASE_ID).put("checks", new org.json.JSONArray(checks))
-                        .put("bookingIds", new org.json.JSONArray(created.keySet())).put("fixturesHidden", true).put("holdsReleased", true)
+                        .put("database", FirebaseConfig.FIRESTORE_DATABASE_ID).put("checks", new JSONArray(checks))
+                        .put("bookingIds", new JSONArray(created.keySet())).put("fixturesHidden", true).put("holdsReleased", true)
                         .put("note", "Dedicated DEMO QA fixtures retained as audit evidence; no real payment; no existing demo roles changed.");
-                try (Writer out = new OutputStreamWriter(new FileOutputStream(new File(context.getExternalFilesDir(null), "cloud-booking-verification.json")), java.nio.charset.StandardCharsets.UTF_8)) { out.write(report.toString(2)); }
+                try (Writer out = new OutputStreamWriter(new FileOutputStream(new File(context.getExternalFilesDir(null), "cloud-booking-verification.json")), StandardCharsets.UTF_8)) { out.write(report.toString(2)); }
             } finally {
                 auth.signOut();
                 for (FirebaseApp app : apps) { FirebaseAuth.getInstance(app).signOut(); FirebaseFirestore.getInstance(app, FirebaseConfig.FIRESTORE_DATABASE_ID).terminate(); app.delete(); }

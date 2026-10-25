@@ -5,16 +5,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.bumptech.glide.Glide;
-
+import java.util.List;
+import java.util.function.Consumer;
 import vn.edu.ueh.phuclu.broomsharing.R;
 
-import java.util.List;
-
+/*
+    Hiển thị các ảnh đang chọn trong biểu mẫu và chuyển yêu cầu bỏ ảnh về View.
+    Việc tải ảnh lên dịch vụ lưu trữ do MediaRepository đảm nhiệm.
+ */
 public class SelectedImageAdapter extends RecyclerView.Adapter<SelectedImageAdapter.ViewHolder> {
 
     public interface OnRemoveClickListener {
@@ -23,12 +24,12 @@ public class SelectedImageAdapter extends RecyclerView.Adapter<SelectedImageAdap
 
     private final List<Uri> imageList;
     private final OnRemoveClickListener listener;
-    private final java.util.function.Consumer<Uri> selection;
+    private final Consumer<Uri> selection;
 
     public SelectedImageAdapter(List<Uri> images, OnRemoveClickListener listener) {
         this(images, listener, null);
     }
-    public SelectedImageAdapter(List<Uri> images, OnRemoveClickListener listener, java.util.function.Consumer<Uri> selection) {
+    public SelectedImageAdapter(List<Uri> images, OnRemoveClickListener listener, Consumer<Uri> selection) {
         this.imageList=images; this.listener=listener; this.selection=selection;
     }
     @NonNull

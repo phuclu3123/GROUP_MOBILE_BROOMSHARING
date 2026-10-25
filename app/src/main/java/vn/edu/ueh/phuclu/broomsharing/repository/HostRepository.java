@@ -1,18 +1,31 @@
 package vn.edu.ueh.phuclu.broomsharing.repository;
 
+import android.util.Patterns;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.*;
 
-import vn.edu.ueh.phuclu.broomsharing.model.*;
+import vn.edu.ueh.phuclu.broomsharing.model.AuditLog;
+import vn.edu.ueh.phuclu.broomsharing.model.AvailabilityMonth;
+import vn.edu.ueh.phuclu.broomsharing.model.Booking;
+import vn.edu.ueh.phuclu.broomsharing.model.Building;
+import vn.edu.ueh.phuclu.broomsharing.model.HostApplication;
+import vn.edu.ueh.phuclu.broomsharing.model.HostStats;
+import vn.edu.ueh.phuclu.broomsharing.model.Room;
 import vn.edu.ueh.phuclu.broomsharing.utils.BookingPolicy;
 import vn.edu.ueh.phuclu.broomsharing.utils.FirebaseHelper;
 import vn.edu.ueh.phuclu.broomsharing.utils.HostSchedule;
 import vn.edu.ueh.phuclu.broomsharing.utils.HostValidation;
 
+import java.time.YearMonth;
 import java.util.*;
 import java.util.function.Consumer;
 
 /** Firebase operations only. Activities observe HostViewModel instead of owning callbacks. */
+/*
+   Thao tác dữ liệu của Host: đơn đăng ký, tòa nhà, phòng và trạng thái listing.
+   Kiểm UID/role trong transaction; thay đổi lịch bị chặn khi còn booking giữ chỗ.
+*/
 public class HostRepository {
     public interface Callback<T> extends ResultCallback<T> {}
 
@@ -78,6 +91,38 @@ public class HostRepository {
         return db.collection("buildings").document().getId();
     }
 
+    // Đồng bộ phòng/tòa nhà từ server; dữ liệu cache cũ không được coi là kết quả mới.
+    public <T> ListenerRegistration watchOwned(
+            String collection, Class<T> type, ResultCallback<List<T>> cb) {
+        BookingPolicy.require(
+                Arrays.asList("rooms", "buildings").contains(collection),
+                "Nguồn dữ liệu không hợp lệ.");
+        final String actor = uid();
+        return db.collection(collection)
+                .whereEqualTo("ownerUid", actor)
+                .addSnapshotListener(
+                        MetadataChanges.INCLUDE,
+                        (rows, error) -> {
+                            if (!actor.equals(FirebaseAuth.getInstance().getUid())) return;
+                            if (error != null) {
+                                cb.onError(error);
+                                return;
+                            }
+                            if (rows == null
+                                    || rows.getMetadata().isFromCache()
+                                    || rows.getMetadata().hasPendingWrites()) return;
+                            List<T> result = new ArrayList<>();
+                            for (DocumentSnapshot doc : rows) {
+                                T value = doc.toObject(type);
+                                if (value instanceof Room) ((Room) value).setId(doc.getId());
+                                if (value instanceof Building)
+                                    ((Building) value).setId(doc.getId());
+                                if (value != null) result.add(value);
+                            }
+                            cb.onSuccess(result);
+                        });
+    }
+
     public void submitHostApplication(HostApplication app, Callback<String> cb) {
         final String actor;
         try {
@@ -88,7 +133,7 @@ public class HostRepository {
         }
         if (HostValidation.empty(app.getFullName())
                 || !HostValidation.phone(app.getPhone())
-                || !android.util.Patterns.EMAIL_ADDRESS
+                || !Patterns.EMAIL_ADDRESS
                         .matcher(app.getEmail() == null ? "" : app.getEmail())
                         .matches()
                 || HostValidation.empty(app.getIdentityDoc())) {
@@ -284,8 +329,7 @@ public class HostRepository {
                                     "Chọn tòa nhà đang hoạt động của bạn.");
                             if (old.exists()) {
                                 List<AvailabilityMonth> months = new ArrayList<>();
-                                java.time.YearMonth first =
-                                        java.time.YearMonth.now(HostSchedule.ZONE);
+                                YearMonth first = YearMonth.now(HostSchedule.ZONE);
                                 for (int i = 0; i < 15; i++) {
                                     AvailabilityMonth month =
                                             tx.get(
@@ -306,6 +350,12 @@ public class HostRepository {
                                         System.currentTimeMillis());
                             }
                             room.setOwnerUid(actor);
+                            room.activeBookingCount =
+                                    old.exists()
+                                            ? (old.getLong("activeBookingCount") == null
+                                                    ? -1
+                                                    : old.getLong("activeBookingCount"))
+                                            : 0;
                             room.setBuildingName(building.getString("name"));
                             room.setListingStatus(
                                     "SUSPENDED".equals(old.getString("listingStatus"))

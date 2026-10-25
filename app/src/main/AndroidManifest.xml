@@ -6,27 +6,30 @@
   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
   <application android:allowBackup="true" android:icon="@mipmap/ic_launcher" android:label="@string/app_name" android:roundIcon="@mipmap/ic_launcher_round" android:supportsRtl="true" android:theme="@style/Theme.BroomSharing">
-    <activity android:name=".BookingActivity" android:exported="false" />
-    <activity android:name=".ConversationsActivity" android:exported="false" />
-    <activity android:name=".BookingNoticesActivity" android:exported="false" />
-    <activity android:name=".RoomReportActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
-    <activity android:name=".NearbyPlacesActivity" android:exported="false" />
-    <activity android:name=".ChatActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
-    <activity android:name=".FavoritesActivity" android:exported="false" />
-    <activity android:name=".CreateSpaceActivity" android:exported="false" />
+    <activity android:name=".ui.review.RoomReviewsActivity" android:exported="false" />
+    <activity android:name=".ui.report.ReportCenterActivity" android:exported="false" />
+    <activity android:name=".ui.admin.AdminBookingsActivity" android:exported="false" />
+    <activity android:name=".ui.booking.BookingActivity" android:exported="false" />
+    <activity android:name=".ui.chat.ConversationsActivity" android:exported="false" />
+    <activity android:name=".ui.booking.BookingNoticesActivity" android:exported="false" />
+    <activity android:name=".ui.report.RoomReportActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+    <activity android:name=".ui.map.NearbyPlacesActivity" android:exported="false" />
+    <activity android:name=".ui.chat.ChatActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+    <activity android:name=".ui.favorites.FavoritesActivity" android:exported="false" />
+    <activity android:name=".ui.host.CreateSpaceActivity" android:exported="false" />
     <activity android:name=".ui.host.HostDashboardActivity" android:exported="false" />
     <activity android:name=".ui.common.RoleAccountActivity" android:exported="false" />
     <activity android:name=".ui.host.HostApplyActivity" android:exported="false" />
     <activity android:name=".ui.host.AddBuildingActivity" android:exported="false" />
     <activity android:name=".ui.host.HostBookingsActivity" android:exported="false" />
     <activity android:name=".ui.admin.EvidencePreviewActivity" android:exported="false" />
-    <activity android:name=".AdminDashboardActivity" android:exported="false" />
-    <activity android:name=".ProfileActivity" android:exported="false" />
-    <activity android:name=".MyBookingsActivity" android:exported="false" />
-    <activity android:name=".BookingSuccessActivity" android:exported="false" />
-    <activity android:name=".MapActivity" android:exported="false" android:windowSoftInputMode="adjustNothing" />
-    <activity android:name=".SpaceDetailActivity" android:exported="false" />
-    <activity android:name=".MainActivity" android:exported="false" />
+    <activity android:name=".ui.admin.AdminDashboardActivity" android:exported="false" />
+    <activity android:name=".ui.profile.ProfileActivity" android:exported="false" />
+    <activity android:name=".ui.booking.MyBookingsActivity" android:exported="false" />
+    <activity android:name=".ui.booking.BookingSuccessActivity" android:exported="false" />
+    <activity android:name=".ui.map.MapActivity" android:exported="false" android:windowSoftInputMode="adjustNothing" />
+    <activity android:name=".ui.room.SpaceDetailActivity" android:exported="false" />
+    <activity android:name=".ui.room.MainActivity" android:exported="false" />
     <activity android:name=".ui.auth.RegisterActivity" android:exported="false" android:theme="@style/Theme.BroomSharing.Auth" android:windowSoftInputMode="adjustResize" />
     <activity android:name=".ui.auth.ForgotPasswordActivity" android:exported="false" android:theme="@style/Theme.BroomSharing.Auth" android:windowSoftInputMode="adjustResize" />
     <activity android:name=".ui.auth.LoginActivity" android:theme="@style/Theme.BroomSharing.Auth" android:windowSoftInputMode="adjustResize" android:exported="true">

@@ -1,15 +1,22 @@
 package vn.edu.ueh.phuclu.broomsharing.ui.host;
 
+import android.content.Intent;
 import android.view.View;
-
+import android.view.ViewGroup;
 import androidx.lifecycle.ViewModelProvider;
-
 import vn.edu.ueh.phuclu.broomsharing.R;
 import vn.edu.ueh.phuclu.broomsharing.databinding.ActivityHostApplyBinding;
-import vn.edu.ueh.phuclu.broomsharing.model.*;
+import vn.edu.ueh.phuclu.broomsharing.model.HostApplication;
+import vn.edu.ueh.phuclu.broomsharing.model.UserProfile;
+import vn.edu.ueh.phuclu.broomsharing.model.UserRole;
 import vn.edu.ueh.phuclu.broomsharing.ui.auth.SessionActivity;
+import vn.edu.ueh.phuclu.broomsharing.utils.FormatUtils;
 import vn.edu.ueh.phuclu.broomsharing.utils.UiForms;
 
+/*
+    Nhận thông tin xin quyền Host và quan sát kết quả nộp đơn qua ViewModel.
+    Gửi đơn không tự nâng role; quyền cho thuê chỉ thay đổi khi Admin duyệt.
+ */
 public class HostApplyActivity extends SessionActivity {
     private ActivityHostApplyBinding binding;
     private HostViewModel model;
@@ -23,13 +30,13 @@ public class HostApplyActivity extends SessionActivity {
     @Override
     protected void onProfileReady(UserProfile profile) {
         if (profile.getUserRole() == UserRole.HOST) {
-            startActivity(new android.content.Intent(this, HostDashboardActivity.class));
+            startActivity(new Intent(this, HostDashboardActivity.class));
             finish();
             return;
         }
         binding =
                 ActivityHostApplyBinding.bind(
-                        ((android.view.ViewGroup) findViewById(android.R.id.content))
+                        ((ViewGroup) findViewById(android.R.id.content))
                                 .getChildAt(0));
         model = new ViewModelProvider(this).get(HostViewModel.class);
         binding.etFullName.setText(profile.name);
@@ -69,7 +76,7 @@ public class HostApplyActivity extends SessionActivity {
                     binding.tvApplicationStatus.setText(
                             a == null
                                     ? "Bạn chưa gửi hồ sơ."
-                                    : vn.edu.ueh.phuclu.broomsharing.utils.FormatUtils.reviewStatus(
+                                    : FormatUtils.reviewStatus(
                                                     a.getStatus())
                                             + (a.getRejectionReason() == null
                                                     ? ""

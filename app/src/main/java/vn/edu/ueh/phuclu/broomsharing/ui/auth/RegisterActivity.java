@@ -2,15 +2,15 @@ package vn.edu.ueh.phuclu.broomsharing.ui.auth;
 
 import android.os.Bundle;
 import android.util.Patterns;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
-
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-
 import vn.edu.ueh.phuclu.broomsharing.R;
 import vn.edu.ueh.phuclu.broomsharing.utils.AuthValidation;
 
 public class RegisterActivity extends BaseAuthActivity {
+    // Tính chất tương tự với LoginActivity
     private TextInputEditText nameInput, usernameInput, emailInput, phoneInput, passwordInput, confirmInput;
     private TextInputLayout nameLayout, usernameLayout, emailLayout, phoneLayout, passwordLayout, confirmLayout;
 
@@ -47,7 +47,7 @@ public class RegisterActivity extends BaseAuthActivity {
 
     private void submit() {
         if (model.isBusy()) return;
-        message.setVisibility(android.view.View.GONE);
+        message.setVisibility(View.GONE);
         for (TextInputLayout layout :
                 new TextInputLayout[] {
                     nameLayout, usernameLayout, emailLayout, phoneLayout, passwordLayout, confirmLayout
@@ -86,6 +86,7 @@ public class RegisterActivity extends BaseAuthActivity {
         } else {
             model.register(name, username, email, phone, password);
         }
+        // Nếu hợp lý thì đăng ký vào Firebase
     }
 
     private void invalid(TextInputLayout layout, TextInputEditText input, int error) {

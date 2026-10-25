@@ -1,11 +1,14 @@
 package vn.edu.ueh.phuclu.broomsharing;
 
-import static org.junit.Assert.*;
-
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Test;
-
-import vn.edu.ueh.phuclu.broomsharing.model.*;
+import vn.edu.ueh.phuclu.broomsharing.model.Building;
+import vn.edu.ueh.phuclu.broomsharing.model.Room;
+import vn.edu.ueh.phuclu.broomsharing.model.RoomListing;
 import vn.edu.ueh.phuclu.broomsharing.utils.RoomFilter;
+import static org.junit.Assert.*;
 
 public class RoomFilterTest {
     private RoomListing item() {
@@ -53,9 +56,9 @@ public class RoomFilterTest {
         hour.room.setActiveMode("HOURLY");hour.room.setPricePerHour(100000);
         month.room.setPricePerMonth(3000000);
         quarter.room.setPricePerMonth(0);quarter.room.setPricePerQuarter(8000000);
-        java.util.List<RoomListing> rows=new java.util.ArrayList<>(java.util.Arrays.asList(quarter,month,hour));
+        List<RoomListing> rows=new ArrayList<>(Arrays.asList(quarter,month,hour));
         rows.sort(RoomFilter.order(1));
-        assertEquals(java.util.Arrays.asList(hour,month,quarter),rows);
+        assertEquals(Arrays.asList(hour,month,quarter),rows);
     }
     @Test public void sortUsesCurrentModePriceAndSupportsDescending() {
         RoomListing low=item(),high=item();low.room.setPricePerMonth(1000000);high.room.setPricePerMonth(3000000);

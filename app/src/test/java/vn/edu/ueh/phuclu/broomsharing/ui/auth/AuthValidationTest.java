@@ -1,19 +1,20 @@
 package vn.edu.ueh.phuclu.broomsharing.ui.auth;
 
+import java.util.Locale;
 import org.junit.Test;
+import vn.edu.ueh.phuclu.broomsharing.model.UserProfile;
 import vn.edu.ueh.phuclu.broomsharing.model.UserRole;
 import vn.edu.ueh.phuclu.broomsharing.utils.AuthValidation;
-import java.util.Locale;
 import static org.junit.Assert.*;
 
 public class AuthValidationTest {
     @Test public void typedPhoneDoesNotBecomeAVerifiedIdentity() {
-        vn.edu.ueh.phuclu.broomsharing.model.UserProfile profile =
-                new vn.edu.ueh.phuclu.broomsharing.model.UserProfile(
+        UserProfile profile =
+                new UserProfile(
                         "uid", "Name", "username", "user@example.com", "+84912345678");
         assertEquals("+84912345678", profile.phone);
         assertFalse(profile.phoneVerified);
-        assertEquals("", new vn.edu.ueh.phuclu.broomsharing.model.UserProfile().phone);
+        assertEquals("", new UserProfile().phone);
     }
     @Test public void localAndInternationalPhoneFormatsAreNormalized() {
         assertEquals("+84912345678", AuthValidation.normalizePhone("0912 345 678"));

@@ -5,11 +5,25 @@ import android.net.Uri;
 
 import androidx.lifecycle.*;
 
-import vn.edu.ueh.phuclu.broomsharing.model.*;
-import vn.edu.ueh.phuclu.broomsharing.repository.*;
+import com.google.firebase.firestore.ListenerRegistration;
+
+import vn.edu.ueh.phuclu.broomsharing.model.Booking;
+import vn.edu.ueh.phuclu.broomsharing.model.Building;
+import vn.edu.ueh.phuclu.broomsharing.model.HostApplication;
+import vn.edu.ueh.phuclu.broomsharing.model.HostStats;
+import vn.edu.ueh.phuclu.broomsharing.model.Room;
+import vn.edu.ueh.phuclu.broomsharing.model.UiState;
+import vn.edu.ueh.phuclu.broomsharing.repository.BookingRepository;
+import vn.edu.ueh.phuclu.broomsharing.repository.HostRepository;
+import vn.edu.ueh.phuclu.broomsharing.repository.MediaRepository;
+import vn.edu.ueh.phuclu.broomsharing.repository.ResultCallback;
 
 import java.util.*;
 
+/*
+   Nối các màn hình Host với Repository, giữ biểu mẫu và trạng thái thao tác.
+   Listener dashboard/booking chỉ sống khi màn hình hoạt động và được tháo khi dừng.
+*/
 public class HostViewModel extends AndroidViewModel {
     private final HostRepository repository = new HostRepository();
     private final MediaRepository media;
@@ -97,6 +111,94 @@ public class HostViewModel extends AndroidViewModel {
         } catch (Exception e) {
             rooms.setValue(UiState.error(e));
         }
+    }
+
+    private final List<ListenerRegistration> dashboardListeners = new ArrayList<>();
+    private int dashboardGeneration;
+    private List<Room> dashboardRooms;
+    private List<Booking> dashboardBookings;
+
+    // Ba luồng độc lập giữ dashboard đúng khi thiết bị khác đặt phòng hoặc Admin xét duyệt.
+    public void watchDashboard() {
+        stopDashboard();
+        final int run = dashboardGeneration;
+        rooms.setValue(UiState.loading());
+        buildings.setValue(UiState.loading());
+        stats.setValue(UiState.loading());
+        dashboardRooms = null;
+        dashboardBookings = null;
+        try {
+            dashboardListeners.add(
+                    repository.watchOwned(
+                            "rooms",
+                            Room.class,
+                            new ResultCallback<List<Room>>() {
+                                public void onSuccess(List<Room> value) {
+                                    if (run != dashboardGeneration) return;
+                                    dashboardRooms = value;
+                                    rooms.setValue(UiState.success(value));
+                                    dashboardStats();
+                                }
+
+                                public void onError(Exception e) {
+                                    if (run == dashboardGeneration)
+                                        rooms.setValue(UiState.error(e));
+                                }
+                            }));
+            dashboardListeners.add(
+                    repository.watchOwned(
+                            "buildings",
+                            Building.class,
+                            new ResultCallback<List<Building>>() {
+                                public void onSuccess(List<Building> value) {
+                                    if (run == dashboardGeneration)
+                                        buildings.setValue(UiState.success(value));
+                                }
+
+                                public void onError(Exception e) {
+                                    if (run == dashboardGeneration)
+                                        buildings.setValue(UiState.error(e));
+                                }
+                            }));
+            dashboardListeners.add(
+                    new BookingRepository()
+                            .watchOwner(
+                                    repository.currentUserId(),
+                                    new ResultCallback<List<Booking>>() {
+                                        public void onSuccess(List<Booking> value) {
+                                            if (run != dashboardGeneration) return;
+                                            dashboardBookings = value;
+                                            dashboardStats();
+                                        }
+
+                                        public void onError(Exception e) {
+                                            if (run == dashboardGeneration)
+                                                stats.setValue(UiState.error(e));
+                                        }
+                                    }));
+        } catch (Exception e) {
+            stats.setValue(UiState.error(e));
+        }
+    }
+
+    private void dashboardStats() {
+        if (dashboardRooms == null || dashboardBookings == null) return;
+        HostStats value = new HostStats();
+        value.totalRooms = dashboardRooms.size();
+        for (Room room : dashboardRooms) {
+            if ("PENDING_REVIEW".equals(room.getApprovalStatus())) value.pendingRooms++;
+            if ("APPROVED".equals(room.getApprovalStatus())
+                    && "ACTIVE".equals(room.getListingStatus())) value.activeRooms++;
+        }
+        for (Booking booking : dashboardBookings)
+            if ("PENDING".equals(booking.status)) value.bookingRequests++;
+        stats.setValue(UiState.success(value));
+    }
+
+    public void stopDashboard() {
+        dashboardGeneration++;
+        for (ListenerRegistration listener : dashboardListeners) listener.remove();
+        dashboardListeners.clear();
     }
 
     public void loadApplication() {
@@ -214,18 +316,36 @@ public class HostViewModel extends AndroidViewModel {
         try {
             stopBookings();
             bookings.setValue(UiState.loading());
-            bookingListener = new vn.edu.ueh.phuclu.broomsharing.repository.BookingRepository().watchOwner(repository.currentUserId(),
-                new vn.edu.ueh.phuclu.broomsharing.repository.ResultCallback<List<Booking>>() {
-                    public void onSuccess(List<Booking> values) { bookings.setValue(UiState.success(values)); }
-                    public void onError(Exception e) { bookings.setValue(UiState.error(e)); }
-                });
+            bookingListener =
+                    new BookingRepository()
+                            .watchOwner(
+                                    repository.currentUserId(),
+                                    new ResultCallback<List<Booking>>() {
+                                        public void onSuccess(List<Booking> values) {
+                                            bookings.setValue(UiState.success(values));
+                                        }
+
+                                        public void onError(Exception e) {
+                                            bookings.setValue(UiState.error(e));
+                                        }
+                                    });
         } catch (Exception e) {
             bookings.setValue(UiState.error(e));
         }
     }
-    private com.google.firebase.firestore.ListenerRegistration bookingListener;
-    public void stopBookings() { if(bookingListener!=null)bookingListener.remove();bookingListener=null; }
-    @Override protected void onCleared() { stopBookings(); }
+
+    private ListenerRegistration bookingListener;
+
+    public void stopBookings() {
+        if (bookingListener != null) bookingListener.remove();
+        bookingListener = null;
+    }
+
+    @Override
+    protected void onCleared() {
+        stopBookings();
+        stopDashboard();
+    }
 
     public void updateBookingStatus(String bookingId, String newStatus, String reason) {
         if (actionResult.getValue() != null && actionResult.getValue().loading) return;

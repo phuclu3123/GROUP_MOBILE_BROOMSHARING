@@ -4,6 +4,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
+/*
+    Hỗ trợ gắn lỗi và thao tác dùng chung của biểu mẫu.
+    Các điều kiện quyền và dữ liệu quan trọng vẫn được kiểm ở Repository/Rules.
+ */
 public final class UiForms {
     private UiForms() {}
 

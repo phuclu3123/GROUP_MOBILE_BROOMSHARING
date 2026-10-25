@@ -1,10 +1,10 @@
 package vn.edu.ueh.phuclu.broomsharing;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
 import java.util.Date;
+import org.junit.Test;
 import vn.edu.ueh.phuclu.broomsharing.model.Booking;
 import vn.edu.ueh.phuclu.broomsharing.utils.CancellationPolicy;
+import static org.junit.Assert.*;
 
 public class CancellationPolicyTest {
     private Booking booking(String mode) { Booking b=new Booking();b.activeMode=mode;b.startAt=new Date(2000000000L);return b; }
@@ -27,4 +27,10 @@ public class CancellationPolicyTest {
     }
     @Test(expected=IllegalStateException.class) public void alreadyStartedIsNotOrdinaryCancellation(){Booking b=booking("HOURLY");CancellationPolicy.percent(b,b.startAt.getTime());}
     @Test public void oldBookingDoesNotAcquireNewPolicy(){assertFalse(CancellationPolicy.versioned(booking("HOURLY")));}
+    @Test public void adminCancellationIsNotDescribedAsGuestCancellation() {
+        Booking b=booking("HOURLY");b.priceSnapshot.put("cancellationPolicyVersion",1);
+        b.ownerUid="host";b.guestUid="guest";b.cancelledByUid="admin";b.cancelledAt=new Date();
+        assertTrue(CancellationPolicy.summary(b,0).contains("bên quản trị"));
+        assertFalse(CancellationPolicy.summary(b,0).contains("Đã hủy bởi người thuê"));
+    }
 }

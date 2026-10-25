@@ -1,10 +1,13 @@
 package vn.edu.ueh.phuclu.broomsharing.model;
 
 import com.google.firebase.firestore.ServerTimestamp;
-
 import java.io.Serializable;
 import java.util.Date;
 
+/*
+    Đơn xin quyền cho thuê, dùng UID người nộp làm document ID.
+    Trạng thái duyệt đơn và quyền users.role được cập nhật qua luồng quản trị.
+ */
 public class HostApplication implements Serializable {
     private long schemaVersion = 1;
     private Date updatedAt;

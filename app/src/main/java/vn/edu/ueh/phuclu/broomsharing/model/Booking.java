@@ -1,11 +1,20 @@
 package vn.edu.ueh.phuclu.broomsharing.model;
 
+import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.ServerTimestamp;
-
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /** Shared Firestore contract for bookings. Instants stored as Timestamp (UTC). */
+/*
+    Snapshot phòng, người thuê, giá và khóa lịch tại lúc đặt.
+    Các chuyển trạng thái phải qua BookingRepository để booking và lịch thay đổi cùng transaction.
+    Thông tin tỷ lệ hủy không xác nhận đã thu hoặc hoàn tiền.
+ */
 public class Booking implements Serializable {
     public static final String STATUS_PENDING = "PENDING";
     public static final String STATUS_CONFIRMED = "CONFIRMED";
@@ -13,6 +22,7 @@ public class Booking implements Serializable {
     public static final String STATUS_REJECTED = "REJECTED";
     public static final String STATUS_COMPLETED = "COMPLETED";
     public static final String STATUS_CHECKED_IN = "CHECKED_IN";
+    public static final String STATUS_EXPIRED = "EXPIRED";
 
     public String id;
     public String roomId;
@@ -29,20 +39,20 @@ public class Booking implements Serializable {
     public Date startAt;
     public Date endAt;
     public double totalAmount;
-    public java.util.Map<String, Object> priceSnapshot = new java.util.HashMap<>();
+    public Map<String, Object> priceSnapshot = new HashMap<>();
     public long schemaVersion = 1;
     public int rentalMonths;
     public int slotStart;
     public int slotCount;
-    public java.util.List<String> monthKeys = new java.util.ArrayList<>();
-    public java.util.List<Integer> slotKeys = new java.util.ArrayList<>();
+    public List<String> monthKeys = new ArrayList<>();
+    public List<Integer> slotKeys = new ArrayList<>();
     public String requestFingerprint = "";
     public Date cancelledAt;
     public String cancelledByUid = "";
     public int cancellationRefundPercent;
     public double refundAmount;
     public String refundStatus = "NOT_REQUIRED";
-    @com.google.firebase.firestore.Exclude public String requestKey = "";
+    @Exclude public String requestKey = "";
 
     @ServerTimestamp public Date createdAt;
     @ServerTimestamp public Date updatedAt;

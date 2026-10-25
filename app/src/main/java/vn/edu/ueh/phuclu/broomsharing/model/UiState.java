@@ -1,6 +1,14 @@
 package vn.edu.ueh.phuclu.broomsharing.model;
 
+import android.util.Log;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import java.io.IOException;
+
 /** A small observable result for Activity -> ViewModel -> Repository. */
+/*
+    Trạng thái tải, dữ liệu hoặc lỗi mà ViewModel phát cho View quan sát.
+    Không lưu đối tượng trạng thái giao diện này xuống Firestore.
+ */
 public final class UiState<T> {
     public final boolean loading;
     public final T data;
@@ -26,23 +34,23 @@ public final class UiState<T> {
         if (cause.getClass() == Exception.class
                 || cause instanceof IllegalStateException
                 || cause instanceof IllegalArgumentException
-                || cause instanceof java.io.IOException) {
+                || cause instanceof IOException) {
             return new UiState<>(false, null, cause.getMessage());
         }
-        if (e instanceof com.google.firebase.firestore.FirebaseFirestoreException) {
-            com.google.firebase.firestore.FirebaseFirestoreException.Code code =
-                    ((com.google.firebase.firestore.FirebaseFirestoreException) e).getCode();
+        if (e instanceof FirebaseFirestoreException) {
+            FirebaseFirestoreException.Code code =
+                    ((FirebaseFirestoreException) e).getCode();
             if (code
-                    == com.google.firebase.firestore.FirebaseFirestoreException.Code
+                    == FirebaseFirestoreException.Code
                             .PERMISSION_DENIED)
                 return new UiState<>(false, null, "Bạn chưa có quyền truy cập dữ liệu này.");
-            if (code == com.google.firebase.firestore.FirebaseFirestoreException.Code.UNAVAILABLE
+            if (code == FirebaseFirestoreException.Code.UNAVAILABLE
                     || code
-                            == com.google.firebase.firestore.FirebaseFirestoreException.Code
+                            == FirebaseFirestoreException.Code
                                     .DEADLINE_EXCEEDED)
                 return new UiState<>(false, null, "Không thể kết nối. Kiểm tra mạng và thử lại.");
         }
-        android.util.Log.e("Repository", "Operation failed", e);
+        Log.e("Repository", "Operation failed", e);
         return new UiState<>(
                 false, null, "Chưa thể hoàn tất. Vui lòng thử lại hoặc liên hệ quản lý dự án.");
     }

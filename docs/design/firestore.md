@@ -13,6 +13,20 @@ Project giữ nguyên `broom-sharing-firebase-mobile`; database chính là **`br
 | hostApplications / propertyVerifications / reports | Hồ sơ và hàng chờ quản trị |
 | auditLogs | Người xử lý, đối tượng, trước/sau, lý do, server timestamp |
 | users/{uid}/favorites | Phòng quan tâm của từng người dùng |
+| reviews/{bookingId} | Nhận xét của chính Guest sau booking hoàn tất; mỗi booking một document, không sửa/xóa |
+| users/{uid}/noticeReads | Mốc đã đọc của thông báo dẫn xuất từ booking, chat và báo cáo |
+
+## Bổ sung nghiệp vụ ngày 24/10/2026
+
+`PENDING` đến giờ bắt đầu được chuyển `EXPIRED` khi app đồng bộ. Transaction nhả lịch, cập nhật revision/bộ đếm phòng và ghi audit; booking vẫn được giữ trong lịch sử. Chưa có máy chủ chạy nền để bảo đảm chuyển trạng thái khi tất cả thiết bị đều đóng app. Không thêm hạn chờ 24 giờ.
+
+Admin được hủy từng booking `PENDING` hoặc `CONFIRMED` của Host `BLOCKED`, bắt buộc lý do và audit. Không hủy hàng loạt, không tự kết thúc `CHECKED_IN`, không xác nhận thu/hoàn tiền. Guest vẫn gửi được báo cáo gắn `bookingId` từ lịch sử thuê khi phòng bị đình chỉ. Host chỉ phản hồi báo cáo `OPEN`; Admin kết luận theo luồng quản trị.
+
+Phòng mới có `activeBookingCount=0`. Tạo booking tăng một; hủy/từ chối/hoàn tất/hết hạn giảm một trong cùng transaction. Thiếu trường ở dữ liệu cũ được hiểu là `-1`, không coi là lịch trống. Admin có thao tác đối soát theo booking và revision. Chỉ sửa cấu hình lịch khi bộ đếm bằng 0; giá và mô tả vẫn theo luồng lưu/gửi duyệt hiện có. Dataset local đã bổ sung bộ đếm cho 24 phòng, không sửa snapshot tiền hoặc nạp lại cloud.
+
+Rules kiểm thời gian/giá trên write revision phòng, kiểm khóa lịch trên write booking/calendar và yêu cầu audit trong cùng lần commit. Phân bổ này tránh vượt giới hạn đánh giá của Rules. Lịch khóa hỗ trợ tối đa 16 ngày riêng lẻ và 8 khoảng; ngày liên tiếp nên biểu diễn bằng khoảng. Ngày cũ `dd/MM/yyyy` và ISO vẫn được nhận diện. Các ID vẫn là chuỗi, không đổi thành DocumentReference.
+
+Index mới: `reviews(roomId ASC, createdAt DESC)`, `reports(reporterUid ASC, createdAt DESC)`, `reports(ownerUid ASC, createdAt DESC)`, `bookings(status ASC, startAt ASC)`. Rules mới và bốn index đã triển khai vào database `broomsharing` ngày 24/10/2026; cả bảy index đạt `READY`, ba index cũ được giữ nguyên. Xem [nghiệm thu nghiệp vụ](../testing/business-completion-2026-10-24.md). Bộ sơ đồ và chương báo cáo cũ cần đồng bộ sau khi chốt các tích hợp còn lại.
 
 ## Giữ chỗ bằng transaction Java
 
@@ -20,7 +34,7 @@ Thuê giờ có `slotStart`, `slotCount`, `slotKeys`; mỗi slot 30 phút, tối
 
 Tạo booking đọc lại user, Room, PublicHost, Building và các tài liệu lịch rồi mới ghi. Lịch + booking + bookingRevision của Room + audit được commit cùng transaction. Hai yêu cầu tranh chỗ được Firestore retry trên dữ liệu mới. Nếu Rules từ chối commit do lịch vừa thay đổi, Repository đọc/giao dịch lại đúng một lần để trả lỗi trùng lịch; không hạ quyền Rules. Quote chỉ đọc, không giữ chỗ.
 
-ID booking được tạo ổn định từ UID và requestKey. Gửi lại cùng lựa chọn trả ID cũ; đổi lựa chọn sinh requestKey mới. Giá/cọc/chính sách đọc từ Room mới nhất, chụp vào booking; trạng thái thanh toán là `DEMO_PENDING`, không tự nhận đã thanh toán.
+ID booking được tạo ổn định từ UID và requestKey. Gửi lại cùng lựa chọn trả ID cũ; đổi lựa chọn sinh requestKey mới. Giá và chính sách đọc từ Room mới nhất, chụp vào booking; booking mới ghi `paymentStatus=UNAVAILABLE`, khoản trả trước dự kiến là 40% tiền thuê. `Room.deposit` là trường cũ, không dùng để tính khoản này. `UNPAID/DEMO_PENDING` chỉ là giá trị mặc định/cũ được code nhận diện, không chứng minh đã thanh toán.
 
 `PENDING → CONFIRMED → CHECKED_IN → COMPLETED`; Guest hủy PENDING/CONFIRMED trước giờ bắt đầu; Host từ chối PENDING với lý do. Cancel/reject/complete nhả đúng khóa của booking, không xóa lịch của người khác. Thuê cố định bắt đầu 00:00 ngày 1 theo Asia/Ho_Chi_Minh.
 
@@ -44,7 +58,9 @@ Chỉ giữ một bộ Firestore Rules: `firestore.rules`, được `firebase.js
 
 Ngày 19/10/2026, Rules mới đã được biên dịch và phát hành cho đúng database **broomsharing** qua Firebase Rules API bằng phiên đăng nhập quản trị hiện có. Đã đọc lại release và so khớp nguyên văn với `firestore.rules`. Những lần sửa file local sau này vẫn cần kiểm tra/phát hành lại. Không nâng Blaze hoặc dùng Cloud Functions. Storage Rules chỉ cho chủ tệp đọc bằng chứng riêng tư. [Firebase giới hạn Storage Rules chỉ đọc database mặc định](https://firebase.google.com/docs/storage/security/rules-conditions#enhance_with_firestore), nên không thể kiểm tra role từ `broomsharing` tại đây. AdminRepository đã có mã Java đọc tệp, nhưng quyền Admin xem tệp chưa cấu hình và chưa nghiệm thu; không mở công khai, không tạo database phụ hoặc thêm backend để lách giới hạn. Admin vẫn duyệt dữ liệu Firestore; chưa coi luồng kiểm chứng tệp là hoàn tất.
 
-## Dữ liệu cloud đã bổ sung (19/10/2026)
+## Lịch sử dữ liệu cloud đã bổ sung (19/10/2026)
+
+Các số lượng và lần đọc lại trong hai mục lịch sử dưới đây là ghi nhận của lần thao tác trước, không phải kiểm kê cloud hiện tại ngày 23/10/2026. Bộ sơ đồ mới chỉ khẳng định phạm vi code/Rules/dataset local; không lấy số lượng lịch sử làm trạng thái hiện hành.
 
 - Đồng bộ PublicHost cho 1 Host đang có, không thay role/status của 3 tài khoản hiện hữu.
 - Bổ sung 11 trường chưa tồn tại của phòng cũ: workingDays, slotMinutes, minBookingMinutes, fixedStartMonth, renewalPolicy, rentalPolicy, locationVerification, photosVerification, blackoutRanges, bookingRevision, lastBookingId. Các giá trị nghiệp vụ đã có được giữ lại.
@@ -52,7 +68,7 @@ Ngày 19/10/2026, Rules mới đã được biên dịch và phát hành cho đ�
 - Lần thiết lập ban đầu: users 3, publicHosts 1, buildings 3, rooms 3. Sau đó, theo yêu cầu bổ sung dữ liệu giả định, đã nạp dataset 157 document, bao gồm booking và lịch giữ chỗ nhất quán (xem bên dưới).
 - Hai tòa nhà cũ có tọa độ 0 được giữ nguyên; không gán vị trí TP.HCM giả cho dữ liệu cũ. Có audit `JAVA_FIRESTORE_SETUP` cho thao tác bổ sung.
 - Dataset mở rộng tạo tài khoản ADMIN demo riêng; không thay role của tài khoản có sẵn.
-## Dataset mở rộng theo yêu cầu người dùng
+## Lịch sử nạp dataset mở rộng theo yêu cầu người dùng
 
 Đã nạp thêm **157 document**, gồm 10 user demo (Auth thật), 8 buildings, 24 rooms, 28 bookings, 16 availabilityMonths và dữ liệu liên quan. Tổng cloud sau nạp: users **13**, publicHosts **5**, buildings **11**, rooms **27**, bookings **28**. Có Admin demo để đăng nhập quản trị. Chi tiết, bản JSON nạp lại được và vị trí mật khẩu local: [dataset TP.HCM](../../data/demo/README.md).
 

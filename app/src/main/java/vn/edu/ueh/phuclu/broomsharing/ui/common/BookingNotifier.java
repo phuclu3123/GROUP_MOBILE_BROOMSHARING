@@ -3,22 +3,24 @@ package vn.edu.ueh.phuclu.broomsharing.ui.common;
 import android.Manifest;
 import android.app.*;
 import android.content.*;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import java.util.*;
-import vn.edu.ueh.phuclu.broomsharing.*;
+import vn.edu.ueh.phuclu.broomsharing.R;
 import vn.edu.ueh.phuclu.broomsharing.model.BookingNotice;
+import vn.edu.ueh.phuclu.broomsharing.ui.booking.BookingNoticesActivity;
 
 /** Device-local, opt-in notifications; no FCM and no background delivery promise. */
 public final class BookingNotifier {
     private static final String CHANNEL="booking_updates";
     private BookingNotifier(){}
-    public static android.content.SharedPreferences preferences(Context c,String uid){return c.getSharedPreferences("booking_notices_"+uid,Context.MODE_PRIVATE);}
+    public static SharedPreferences preferences(Context c,String uid){return c.getSharedPreferences("booking_notices_"+uid,Context.MODE_PRIVATE);}
     public static void deliver(Context c,String uid,List<BookingNotice> notices){
-        android.content.SharedPreferences prefs=preferences(c,uid);
+        SharedPreferences prefs=preferences(c,uid);
         if(!prefs.getBoolean("enabled",false))return;
         if(Build.VERSION.SDK_INT>=33&&ContextCompat.checkSelfPermission(c,Manifest.permission.POST_NOTIFICATIONS)!=PackageManager.PERMISSION_GRANTED)return;
         if(!NotificationManagerCompat.from(c).areNotificationsEnabled())return;
@@ -34,6 +36,6 @@ public final class BookingNotifier {
             .setContentText("Mở ứng dụng để xem trạng thái và chính sách hiện tại.")
             .setContentIntent(pending).setAutoCancel(true).setVisibility(NotificationCompat.VISIBILITY_PRIVATE);
         NotificationManagerCompat.from(c).notify(uid.hashCode(),builder.build());
-        android.content.SharedPreferences.Editor edit=prefs.edit();for(BookingNotice n:notices)if(n.conversationId.isEmpty()&&n.unread)edit.putBoolean("delivered:"+n.id,true);edit.apply();
+        SharedPreferences.Editor edit=prefs.edit();for(BookingNotice n:notices)if(n.conversationId.isEmpty()&&n.unread)edit.putBoolean("delivered:"+n.id,true);edit.apply();
     }
 }

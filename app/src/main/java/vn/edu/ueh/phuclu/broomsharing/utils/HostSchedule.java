@@ -1,9 +1,12 @@
 package vn.edu.ueh.phuclu.broomsharing.utils;
 
-import vn.edu.ueh.phuclu.broomsharing.model.*;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.format.ResolverStyle;
 import java.util.*;
+import vn.edu.ueh.phuclu.broomsharing.model.Booking;
+import vn.edu.ueh.phuclu.broomsharing.model.Room;
+import vn.edu.ueh.phuclu.broomsharing.model.RoomBlackout;
 
 /** Pure date and interval rules shared by Host forms and the booking contract. */
 public final class HostSchedule {
@@ -21,7 +24,7 @@ public final class HostSchedule {
 
     public static String validate(Room r) {
         try {
-            if (r.getBlackoutDates().size() > 100) return "Tối đa 100 ngày khóa lịch.";
+            if (r.getBlackoutDates().size() > 16) return "Tối đa 16 ngày khóa lịch; dùng khoảng khóa cho nhiều ngày liên tiếp.";
             for (String day : r.getBlackoutDates()) blackoutDate(day);
         } catch (Exception e) { return "Ngày khóa lịch không hợp lệ."; }
         if (Room.MODE_HOURLY.equals(r.getActiveMode())) {
@@ -44,7 +47,7 @@ public final class HostSchedule {
             catch (Exception e) { return "Tháng bắt đầu phải theo YYYY-MM."; }
         }
         if (r.getBlackoutRanges() != null) {
-            if (r.getBlackoutRanges().size() > 100) return "Tối đa 100 khung khóa lịch.";
+            if (r.getBlackoutRanges().size() > 8) return "Tối đa 8 khoảng khóa lịch.";
             for (RoomBlackout b : r.getBlackoutRanges())
                 if (b == null || b.getStartAt() == null || b.getEndAt() == null
                         || !b.getStartAt().before(b.getEndAt()) || HostValidation.empty(b.getReason()))
@@ -57,7 +60,7 @@ public final class HostSchedule {
     public static LocalDate blackoutDate(String value) {
         try { return LocalDate.parse(value); }
         catch (Exception e) { return LocalDate.parse(value, DateTimeFormatter.ofPattern("dd/MM/uuuu")
-                .withResolverStyle(java.time.format.ResolverStyle.STRICT)); }
+                .withResolverStyle(ResolverStyle.STRICT)); }
     }
 
     public static String daySummary(Room r, List<Booking> bookings, LocalDate day) {

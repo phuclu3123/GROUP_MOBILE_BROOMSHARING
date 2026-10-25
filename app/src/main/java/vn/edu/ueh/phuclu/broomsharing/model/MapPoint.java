@@ -2,6 +2,10 @@ package vn.edu.ueh.phuclu.broomsharing.model;
 
 import java.io.Serializable;
 
+/*
+    Điểm hiển thị trên bản đồ, dùng chung tọa độ và nhãn cho giao diện.
+    Đây là đối tượng trao đổi trong app, không phải một collection độc lập.
+ */
 public class MapPoint implements Serializable {
     public final double latitude, longitude;
     public final String name;

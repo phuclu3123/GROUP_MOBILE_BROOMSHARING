@@ -8,10 +8,9 @@
 app/src/main/java/.../
   model/          Dữ liệu Firestore và trạng thái màn hình
   repository/     Firebase Android SDK và HTTP bản đồ
-  ui/             ViewModel, màn Auth và các phần UI dùng chung
+  ui/             Activity và ViewModel chia theo chức năng
   adapter/        Hiển thị danh sách
   utils/          Kiểm tra dữ liệu, lịch, giá và cấu hình dùng chung
-  *Activity.java  Màn hình, quan sát ViewModel
 app/src/main/res/ XML và tài nguyên Android
 app/src/test/     Unit test Java
 app/src/androidTest/ Kiểm thử Android Java
@@ -19,6 +18,8 @@ docs/            Thiết kế, tính năng và kiểm thử hiện tại
 ```
 
 Không có Cloud Functions/backend riêng, Node, JavaScript hoặc DTO. Gradle Kotlin DSL (`.kts`) là cấu hình build Android có sẵn, không phải mã ứng dụng Kotlin.
+
+Xem [cây package và vị trí từng màn hình](docs/design/source-structure.md) để đọc code theo luồng Activity → ViewModel → Repository → Firebase. Model biểu diễn dữ liệu trao đổi giữa các lớp.
 
 ## Chạy
 

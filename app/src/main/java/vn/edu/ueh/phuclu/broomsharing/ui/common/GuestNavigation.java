@@ -2,10 +2,18 @@ package vn.edu.ueh.phuclu.broomsharing.ui.common;
 
 import android.app.Activity;
 import android.content.Intent;
-
+import android.view.View;
+import android.view.ViewGroup;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-
-import vn.edu.ueh.phuclu.broomsharing.*;
+import vn.edu.ueh.phuclu.broomsharing.R;
+import vn.edu.ueh.phuclu.broomsharing.ui.booking.MyBookingsActivity;
+import vn.edu.ueh.phuclu.broomsharing.ui.chat.ConversationsActivity;
+import vn.edu.ueh.phuclu.broomsharing.ui.map.MapActivity;
+import vn.edu.ueh.phuclu.broomsharing.ui.profile.ProfileActivity;
+import vn.edu.ueh.phuclu.broomsharing.ui.room.MainActivity;
 
 /** Shared menu and tab navigation for all guest/host-as-renter screens. */
 public final class GuestNavigation {
@@ -14,13 +22,13 @@ public final class GuestNavigation {
     public static void attach(Activity activity, int current) {
         BottomNavigationView nav = activity.findViewById(R.id.bottomNavigation);
         nav.setSelectedItemId(current);
-        android.view.View root = ((android.view.ViewGroup) activity.findViewById(android.R.id.content)).getChildAt(0);
-        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(root, (view, insets) -> {
-            androidx.core.graphics.Insets bars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars());
+        View root = ((ViewGroup) activity.findViewById(android.R.id.content)).getChildAt(0);
+        ViewCompat.setOnApplyWindowInsetsListener(root, (view, insets) -> {
+            Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             view.setPadding(bars.left, bars.top, bars.right, bars.bottom);
             return insets;
         });
-        androidx.core.view.ViewCompat.requestApplyInsets(root);
+        ViewCompat.requestApplyInsets(root);
         nav.setOnItemSelectedListener(
                 item -> {
                     if (item.getItemId() == current) return true;

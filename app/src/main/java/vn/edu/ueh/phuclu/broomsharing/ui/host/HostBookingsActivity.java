@@ -1,26 +1,36 @@
 package vn.edu.ueh.phuclu.broomsharing.ui.host;
 
+import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import vn.edu.ueh.phuclu.broomsharing.R;
 import vn.edu.ueh.phuclu.broomsharing.adapter.HostBookingAdapter;
 import vn.edu.ueh.phuclu.broomsharing.databinding.ActivityHostBookingsBinding;
 import vn.edu.ueh.phuclu.broomsharing.model.Booking;
+import vn.edu.ueh.phuclu.broomsharing.model.Room;
+import vn.edu.ueh.phuclu.broomsharing.model.UserProfile;
+import vn.edu.ueh.phuclu.broomsharing.model.UserRole;
+import vn.edu.ueh.phuclu.broomsharing.ui.auth.SessionActivity;
+import vn.edu.ueh.phuclu.broomsharing.ui.chat.ChatActivity;
+import vn.edu.ueh.phuclu.broomsharing.ui.common.ManagementNavigation;
+import vn.edu.ueh.phuclu.broomsharing.ui.room.SpaceDetailActivity;
+import vn.edu.ueh.phuclu.broomsharing.utils.FormatUtils;
+import vn.edu.ueh.phuclu.broomsharing.utils.HostSchedule;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class HostBookingsActivity extends vn.edu.ueh.phuclu.broomsharing.ui.auth.SessionActivity {
+public class HostBookingsActivity extends SessionActivity {
 
     private ActivityHostBookingsBinding binding;
     private HostViewModel viewModel;
@@ -30,23 +40,23 @@ public class HostBookingsActivity extends vn.edu.ueh.phuclu.broomsharing.ui.auth
     private String currentFilter = "ALL"; // ALL, PENDING, CONFIRMED, REJECTED
 
     private Bundle restored;
-    private java.time.LocalDate scheduleDay = java.time.LocalDate.now(vn.edu.ueh.phuclu.broomsharing.utils.HostSchedule.ZONE);
-    private vn.edu.ueh.phuclu.broomsharing.model.Room scheduleRoom;
+    private LocalDate scheduleDay = LocalDate.now(HostSchedule.ZONE);
+    private Room scheduleRoom;
     private String roomId;
     private boolean bookingsLoaded;
     @Override protected int pageLayout() { return R.layout.activity_host_bookings; }
     @Override protected boolean requiresHost() { return true; }
     @Override protected void onCreate(Bundle state) { restored = state; super.onCreate(state); }
-    @Override protected void onProfileReady(vn.edu.ueh.phuclu.broomsharing.model.UserProfile profile) {
-        binding = ActivityHostBookingsBinding.bind(((android.view.ViewGroup) findViewById(android.R.id.content)).getChildAt(0));
+    @Override protected void onProfileReady(UserProfile profile) {
+        binding = ActivityHostBookingsBinding.bind(((ViewGroup) findViewById(android.R.id.content)).getChildAt(0));
         roomId = getIntent().getStringExtra("ROOM_ID");
-        vn.edu.ueh.phuclu.broomsharing.ui.common.ManagementNavigation.applyInsets(this);
-        vn.edu.ueh.phuclu.broomsharing.ui.common.ManagementNavigation.attach(this,
-                vn.edu.ueh.phuclu.broomsharing.model.UserRole.HOST, R.id.host_bookings, null);
+        ManagementNavigation.applyInsets(this);
+        ManagementNavigation.attach(this,
+                UserRole.HOST, R.id.host_bookings, null);
         binding.btnBack.setVisibility(roomId == null ? View.GONE : View.VISIBLE);
         if (restored != null) {
             currentFilter = restored.getString("filter", "ALL");
-            scheduleDay = java.time.LocalDate.parse(restored.getString("day", scheduleDay.toString()));
+            scheduleDay = LocalDate.parse(restored.getString("day", scheduleDay.toString()));
         }
         viewModel = new ViewModelProvider(this).get(HostViewModel.class);
 
@@ -56,8 +66,8 @@ public class HostBookingsActivity extends vn.edu.ueh.phuclu.broomsharing.ui.auth
         observeViewModel();
 
         binding.btnRefreshBookings.setOnClickListener(v -> refresh());
-        binding.btnScheduleDay.setOnClickListener(v -> new android.app.DatePickerDialog(this, (picker,y,m,d) -> {
-            scheduleDay = java.time.LocalDate.of(y,m+1,d); renderSchedule();
+        binding.btnScheduleDay.setOnClickListener(v -> new DatePickerDialog(this, (picker,y,m,d) -> {
+            scheduleDay = LocalDate.of(y,m+1,d); renderSchedule();
         },scheduleDay.getYear(),scheduleDay.getMonthValue()-1,scheduleDay.getDayOfMonth()).show());
         if (roomId != null) {
             binding.schedulePanel.setVisibility(View.VISIBLE);
@@ -79,13 +89,13 @@ public class HostBookingsActivity extends vn.edu.ueh.phuclu.broomsharing.ui.auth
         if (roomId != null) viewModel.loadHostRoom(roomId);
     }
     private void renderSchedule() {
-        if (scheduleRoom != null && bookingsLoaded) binding.tvSchedule.setText(vn.edu.ueh.phuclu.broomsharing.utils.HostSchedule.daySummary(scheduleRoom, fullList, scheduleDay));
+        if (scheduleRoom != null && bookingsLoaded) binding.tvSchedule.setText(HostSchedule.daySummary(scheduleRoom, fullList, scheduleDay));
     }
     @Override protected void onResume() { super.onResume(); if (binding != null && viewModel != null) refresh(); }
     @Override protected void onStop() { if(viewModel!=null)viewModel.stopBookings();super.onStop(); }
-    @Override protected void onNewIntent(android.content.Intent intent) {
+    @Override protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        boolean changedRoom = !java.util.Objects.equals(roomId, intent.getStringExtra("ROOM_ID"));
+        boolean changedRoom = !Objects.equals(roomId, intent.getStringExtra("ROOM_ID"));
         setIntent(intent);
         if (changedRoom) recreate();
     }
@@ -102,7 +112,7 @@ public class HostBookingsActivity extends vn.edu.ueh.phuclu.broomsharing.ui.auth
         adapter = new HostBookingAdapter(new HostBookingAdapter.OnBookingActionListener() {
             @Override public void onCancel(Booking booking) { showReasonDialog(booking,"CANCELLED"); }
             @Override public void onChat(Booking booking) {
-                startActivity(new android.content.Intent(HostBookingsActivity.this,vn.edu.ueh.phuclu.broomsharing.ChatActivity.class).putExtra("bookingId",booking.id).putExtra(vn.edu.ueh.phuclu.broomsharing.SpaceDetailActivity.ROOM_ID,booking.roomId).putExtra("roomName",booking.roomName));
+                startActivity(new Intent(HostBookingsActivity.this,ChatActivity.class).putExtra("bookingId",booking.id).putExtra(SpaceDetailActivity.ROOM_ID,booking.roomId).putExtra("roomName",booking.roomName));
             }
             @Override
             public void onAccept(Booking booking) {
@@ -115,7 +125,7 @@ public class HostBookingsActivity extends vn.edu.ueh.phuclu.broomsharing.ui.auth
             }
             @Override public void onProgress(Booking booking, String status) {
                 new AlertDialog.Builder(HostBookingsActivity.this).setTitle("Cập nhật lượt thuê")
-                        .setMessage(vn.edu.ueh.phuclu.broomsharing.utils.FormatUtils.bookingStatus(status)
+                        .setMessage(FormatUtils.bookingStatus(status)
                                 + "\nThao tác này không xác nhận thu/hoàn tiền thật.")
                         .setNegativeButton(android.R.string.cancel,null)
                         .setPositiveButton(android.R.string.ok,(dialog,which)->viewModel.updateBookingStatus(booking.id,status,""))

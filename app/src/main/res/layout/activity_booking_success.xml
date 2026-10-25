@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/screen_bg"
-    tools:context=".BookingSuccessActivity">
+    tools:context=".ui.booking.BookingSuccessActivity">
 
     <LinearLayout
         android:id="@+id/topBar"
@@ -116,6 +116,7 @@
                     android:background="@color/border" />
 
                 <TextView
+                    android:id="@+id/tvConfirmationTotalLabel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
@@ -159,6 +160,9 @@
                     android:textSize="12sp" />
             </LinearLayout>
 
+            <com.google.android.material.button.MaterialButton android:id="@+id/bookingCalendar" style="@style/WorkspaceAction" android:text="@string/calendar_save" android:visibility="gone" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/bookingReview" style="@style/WorkspaceAction" android:text="@string/review_booking" android:visibility="gone" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/bookingReport" style="@style/WorkspaceAction" android:text="@string/booking_report" android:visibility="gone" />
             <com.google.android.material.button.MaterialButton android:id="@+id/bookingChat" style="@style/Widget.MaterialComponents.Button.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/chat_contact" android:enabled="false" />
             <com.google.android.material.button.MaterialButton android:id="@+id/bookingPayment" style="@style/Widget.MaterialComponents.Button.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Thanh toán · Đang phát triển" android:textAllCaps="false" />
             <com.google.android.material.button.MaterialButton
