@@ -39,6 +39,8 @@ public class Booking implements Serializable {
     public String guestPhone;
     public String status = STATUS_PENDING;
     public String paymentStatus = "UNPAID";
+    // Backend xác nhận số tiền đã nhận; client chỉ được tạo booking với giá trị 0.
+    public long paidAmount;
     public String activeMode = "HOURLY";
     public String rejectionReason = "";
     public Date startAt;

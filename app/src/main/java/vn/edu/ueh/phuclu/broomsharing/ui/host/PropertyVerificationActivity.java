@@ -1,12 +1,17 @@
 package vn.edu.ueh.phuclu.broomsharing.ui.host;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.*;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.tabs.TabLayout;
 
 import vn.edu.ueh.phuclu.broomsharing.R;
@@ -27,6 +32,25 @@ public class PropertyVerificationActivity extends SessionActivity {
     private final List<Building> buildings = new ArrayList<>();
     private final List<String> assetKeys = new ArrayList<>();
     private Bundle restored;
+    private final ActivityResultLauncher<String[]> picker =
+            registerForActivityResult(
+                    new ActivityResultContracts.OpenMultipleDocuments(),
+                    selected -> {
+                        if (model == null || model.busy() || selected.isEmpty()) return;
+                        if (selected.size() > 6) {
+                            b.tvEvidenceFileName.setText("Tối đa 6 tệp. Vui lòng chọn lại.");
+                            return;
+                        }
+                        for (Uri uri : selected)
+                            try {
+                                getContentResolver()
+                                        .takePersistableUriPermission(
+                                                uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                            } catch (SecurityException ignored) {
+                            }
+                        model.selectEvidence(selected);
+                        renderEvidence();
+                    });
 
     @Override
     protected void onCreate(Bundle state) {
@@ -49,12 +73,18 @@ public class PropertyVerificationActivity extends SessionActivity {
         b = ActivityPropertyVerificationBinding.bind(findViewById(R.id.workspaceRoot));
         ManagementNavigation.applyInsets(this);
         model = new ViewModelProvider(this).get(PropertyVerificationViewModel.class);
-        if (restored != null) {
+        if (restored != null && model.action.getValue() == null) {
             model.description = restored.getString("verification.description", model.description);
             model.draftId = restored.getString("verification.draft", model.draftId);
             model.selectedAssetKey =
                     restored.getString("verification.asset", model.selectedAssetKey);
             model.photos = restored.getBoolean("verification.photos", model.photos);
+            ArrayList<Uri> chosen = restored.getParcelableArrayList("verification.files");
+            if (chosen != null && model.attachments.isEmpty()) model.attachments.addAll(chosen);
+            ArrayList<String> uploaded = restored.getStringArrayList("verification.uploaded");
+            if (uploaded != null && model.uploadedRefs.isEmpty())
+                model.uploadedRefs.addAll(uploaded);
+            model.uploadOwner = restored.getString("verification.uploadOwner", model.uploadOwner);
         }
         assets = new ViewModelProvider(this).get(HostViewModel.class);
         b.btnBack.setOnClickListener(v -> finish());
@@ -82,11 +112,21 @@ public class PropertyVerificationActivity extends SessionActivity {
         if (restored != null)
             b.verificationTabs.selectTab(
                     b.verificationTabs.getTabAt(restored.getInt("verification.tab", 0)));
-        b.btnPickEvidence.setVisibility(View.GONE);
-        b.ivEvidencePreview.setVisibility(View.GONE);
-        b.tvEvidenceFileName.setText(
-                "Hiện gửi thông tin yêu cầu. Đính kèm tệp riêng tư đang chờ tích hợp; hồ sơ chưa đủ"
-                    + " bằng chứng sẽ chưa được duyệt.");
+        b.btnPickEvidence.setVisibility(View.VISIBLE);
+        b.btnPickEvidence.setText("Chọn ảnh/PDF");
+        b.btnPickEvidence.setOnClickListener(
+                v ->
+                        picker.launch(
+                                new String[] {
+                                    "image/jpeg", "image/png", "image/webp", "application/pdf"
+                                }));
+        b.btnPickEvidence.setOnLongClickListener(
+                v -> {
+                    model.selectEvidence(Collections.emptyList());
+                    renderEvidence();
+                    return true;
+                });
+        renderEvidence();
         b.etDescription.setText(model.description);
         b.etDescription.setFilters(
                 new android.text.InputFilter[] {new android.text.InputFilter.LengthFilter(2000)});
@@ -145,7 +185,8 @@ public class PropertyVerificationActivity extends SessionActivity {
         model.rows.observe(
                 this,
                 s -> {
-                    b.progressBar.setVisibility(s.loading ? View.VISIBLE : View.GONE);
+                    b.progressBar.setVisibility(
+                            s.loading || model.busy() ? View.VISIBLE : View.GONE);
                     adapter.setData(s.data);
                     b.tvEmptyVerifications.setText(
                             s.error != null
@@ -158,12 +199,26 @@ public class PropertyVerificationActivity extends SessionActivity {
                 this,
                 s -> {
                     if (s == null) return;
+                    b.progressBar.setVisibility(
+                            s.loading
+                                            || model.rows.getValue() != null
+                                                    && model.rows.getValue().loading
+                                    ? View.VISIBLE
+                                    : View.GONE);
+                    b.btnSubmitVerification.setText(
+                            s.loading ? "Đang gửi hồ sơ…" : "Gửi hồ sơ xác minh cho Admin");
                     b.btnSubmitVerification.setEnabled(
                             !s.loading && rooms.size() + buildings.size() > 0);
+                    b.btnPickEvidence.setEnabled(!s.loading);
+                    b.spinnerSpaces.setEnabled(!s.loading);
+                    b.rbLocation.setEnabled(!s.loading);
+                    b.rbPhotos.setEnabled(!s.loading);
+                    b.etDescription.setEnabled(!s.loading);
                     if (!s.loading) {
                         if (s.error != null) b.etDescription.setError(s.error);
                         else if (s.data != null) {
                             b.etDescription.setText("");
+                            renderEvidence();
                             Toast.makeText(
                                             this,
                                             "Đã ghi nhận hồ sơ. Xem kết quả trong danh sách.",
@@ -200,6 +255,23 @@ public class PropertyVerificationActivity extends SessionActivity {
                         && (model.action.getValue() == null || !model.action.getValue().loading));
     }
 
+    private void renderEvidence() {
+        b.tvEvidenceFileName.setText(
+                model.attachments.isEmpty()
+                        ? "Chưa chọn tệp (tối đa 6, mỗi tệp 5 MiB)."
+                        : "Đã chọn "
+                                + model.attachments.size()
+                                + "/6 tệp. Nhấn giữ nút chọn để bỏ tệp.");
+        b.ivEvidencePreview.setVisibility(View.GONE);
+        if (!model.attachments.isEmpty()) {
+            Uri first = model.attachments.get(0);
+            if (!"application/pdf".equals(getContentResolver().getType(first))) {
+                b.ivEvidencePreview.setVisibility(View.VISIBLE);
+                Glide.with(this).load(first).into(b.ivEvidencePreview);
+            }
+        }
+    }
+
     @Override
     protected void onSaveInstanceState(Bundle state) {
         if (b != null)
@@ -215,6 +287,9 @@ public class PropertyVerificationActivity extends SessionActivity {
             state.putString("verification.draft", model.draftId);
             state.putString("verification.asset", model.selectedAssetKey);
             state.putBoolean("verification.photos", model.photos);
+            state.putParcelableArrayList("verification.files", new ArrayList<>(model.attachments));
+            state.putStringArrayList("verification.uploaded", new ArrayList<>(model.uploadedRefs));
+            state.putString("verification.uploadOwner", model.uploadOwner);
         }
         super.onSaveInstanceState(state);
     }

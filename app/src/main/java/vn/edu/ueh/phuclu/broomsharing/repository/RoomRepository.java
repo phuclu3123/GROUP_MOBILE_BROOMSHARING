@@ -3,7 +3,7 @@ package vn.edu.ueh.phuclu.broomsharing.repository;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.*;
-import java.util.*;
+
 import vn.edu.ueh.phuclu.broomsharing.model.Building;
 import vn.edu.ueh.phuclu.broomsharing.model.PublicHost;
 import vn.edu.ueh.phuclu.broomsharing.model.RentalPlace;
@@ -11,20 +11,34 @@ import vn.edu.ueh.phuclu.broomsharing.model.Room;
 import vn.edu.ueh.phuclu.broomsharing.model.RoomListing;
 import vn.edu.ueh.phuclu.broomsharing.utils.FirebaseHelper;
 
+import java.util.*;
+
 /** Guest reads share Host's schema/database, with bounded one-shot queries (no listeners). */
 /*
-    Đọc phòng công khai và ghép Building/PublicHost cho trang chi tiết.
-    Kết quả phân trang chỉ nhận dữ liệu server; điều kiện đặt phòng được kiểm lại khi ghi.
- */
+   Đọc phòng công khai và ghép Building/PublicHost cho trang chi tiết.
+   Kết quả phân trang chỉ nhận dữ liệu server; điều kiện đặt phòng được kiểm lại khi ghi.
+*/
 public class RoomRepository {
     public static final int PAGE_SIZE = 20;
     private final FirebaseFirestore db = FirebaseHelper.getFirestore();
+
     public void referencePlaces(ResultCallback<List<RentalPlace>> cb) {
-        db.collection("rentalPlaces").limit(100).get(Source.SERVER).addOnSuccessListener(rows->{
-            List<RentalPlace> values=new ArrayList<>();
-            for(DocumentSnapshot doc:rows){RentalPlace p=doc.toObject(RentalPlace.class);if(p!=null&&p.location!=null){p.id=doc.getId();values.add(p);}}
-            cb.onSuccess(values);
-        }).addOnFailureListener(cb::onError);
+        db.collection("rentalPlaces")
+                .limit(100)
+                .get(Source.SERVER)
+                .addOnSuccessListener(
+                        rows -> {
+                            List<RentalPlace> values = new ArrayList<>();
+                            for (DocumentSnapshot doc : rows) {
+                                RentalPlace p = doc.toObject(RentalPlace.class);
+                                if (p != null && p.location != null) {
+                                    p.id = doc.getId();
+                                    values.add(p);
+                                }
+                            }
+                            cb.onSuccess(values);
+                        })
+                .addOnFailureListener(cb::onError);
     }
 
     public static final class Page {
@@ -176,7 +190,9 @@ public class RoomRepository {
                                                     .equals(place.getString("ownerUid"))) continue;
                                     Building building = place.toObject(Building.class);
                                     building.setId(place.getId());
-                                    result.add(new RoomListing(room, building, owner.name));
+                                    result.add(
+                                            new RoomListing(
+                                                    room, building, owner.name, owner.photoUrl));
                                 }
                                 cb.onSuccess(result);
                             } catch (Exception e) {

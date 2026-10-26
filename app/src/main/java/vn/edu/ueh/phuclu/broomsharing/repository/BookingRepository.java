@@ -311,15 +311,20 @@ public class BookingRepository {
                                     System.currentTimeMillis());
                             int refundPercent = 0;
                             if ("CANCELLED".equals(target)) {
-                                // Host phải ghi lý do; trạng thái thanh toán chưa tích hợp chỉ cho
-                                // phép xử lý các booking chưa cần đối soát tiền thật.
+                                // Hủy vẫn nhả lịch; chỉ ghi khoản cần xử lý, chưa gọi API hoàn
+                                // tiền.
                                 if (uid.equals(booking.ownerUid) || admin)
                                     BookingPolicy.require(!note.isEmpty(), "Cần nhập lý do hủy.");
                                 BookingPolicy.require(
-                                        Arrays.asList("UNAVAILABLE", "DEMO_PENDING", "UNPAID")
+                                        Arrays.asList(
+                                                        "UNAVAILABLE",
+                                                        "DEMO_PENDING",
+                                                        "UNPAID",
+                                                        "PENDING",
+                                                        "PAID",
+                                                        "REVIEW_REQUIRED")
                                                 .contains(booking.paymentStatus),
-                                        "Booking có thông tin thanh toán cần được đối soát; chức"
-                                                + " năng này đang phát triển.");
+                                        "Giao dịch cần Admin đối soát trước khi xử lý booking.");
                                 if (CancellationPolicy.versioned(booking)) {
                                     refundPercent =
                                             (uid.equals(booking.ownerUid) || admin)
@@ -422,9 +427,14 @@ public class BookingRepository {
                                         "cancellationRefundPercent",
                                         refundPercent,
                                         "refundAmount",
-                                        0,
+                                        CancellationPolicy.refundDue(booking, refundPercent),
                                         "refundStatus",
-                                        "NOT_REQUIRED");
+                                        "REVIEW_REQUIRED".equals(booking.paymentStatus)
+                                                        || CancellationPolicy.refundDue(
+                                                                        booking, refundPercent)
+                                                                > 0
+                                                ? "MANUAL_REVIEW"
+                                                : "NOT_REQUIRED");
                             tx.update(
                                     roomRef,
                                     "activeBookingCount",

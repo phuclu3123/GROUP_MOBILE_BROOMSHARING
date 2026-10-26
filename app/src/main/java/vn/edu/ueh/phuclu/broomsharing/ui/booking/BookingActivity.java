@@ -297,7 +297,7 @@ public class BookingActivity extends SessionActivity {
                                         + "\nThuê + phí: "
                                         + amount(p, "totalAmount")
                                         + "\n"
-                                        + "Trả trước dự kiến 40%, được trừ vào tiền thuê. Chức năng thanh toán đang phát triển; chưa thu tiền.\n"
+                                        + "Khoản trả trước 40% được trừ vào tiền thuê; chỉ thanh toán sau khi Host xác nhận qua kênh demo được hỗ trợ.\n"
                                         + CancellationPolicy.terms(state.data.activeMode)
                                         + "\n"
                                         + p.get("rentalPolicy"));

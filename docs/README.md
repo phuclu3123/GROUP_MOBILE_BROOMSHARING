@@ -8,6 +8,10 @@ Chỉ giữ tài liệu phản ánh code hiện tại. Ứng dụng dùng **Java
 | Cây package, vị trí Activity/ViewModel và cách đọc từng chức năng | [Cấu trúc mã nguồn](design/source-structure.md) |
 | Collection, giữ chỗ và phân quyền | [Firestore](design/firestore.md) |
 | GPS/địa chỉ/chọn điểm, tìm 3 km và Google Maps dự phòng | [Bản đồ](features/maps.md) |
+| Cloudinary unsigned upload, biến .env và phân nhóm ảnh/tệp demo | [Thiết lập media API](integrations/cloudinary-setup.md), [kết quả kiểm thử](testing/cloudinary-media-2026-10-26.md) |
+| 30 ảnh thật, gallery sáu phòng và dữ liệu demo Cloudinary/Firestore | [Bộ ảnh và nguồn](../data/demo/media/README.md), [nghiệm thu ảnh demo](testing/cloudinary-photo-demo-2026-10-26.md) |
+| Avatar thư viện/URL, hai mặt giấy tờ demo và duyệt quyền Host | [Luồng hồ sơ](integrations/profile-host-verification.md), [nghiệm thu](testing/profile-identity-2026-10-26.md) |
+| Backend Java payOS, QR trả trước 40% và webhook dùng chung WEB_TCC | [Thiết lập thanh toán](../backend/payments/README.md), [nghiệm thu tích hợp 27/10](testing/payos-2026-10-27.md), [mốc kiểm thử local ban đầu](testing/payos-2026-10-26.md) |
 | Địa chỉ công khai đã đối chiếu và nạp Firestore | [Địa điểm tham khảo](../data/reference/README.md) |
 | Dataset giả định đã nạp cloud và tài khoản demo | [Dataset TP.HCM](../data/demo/README.md) |
 | Build, kiểm thử, kết quả và giới hạn | [Kiểm thử](testing/verification.md) |

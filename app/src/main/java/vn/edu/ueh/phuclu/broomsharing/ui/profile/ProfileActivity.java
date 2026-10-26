@@ -18,10 +18,12 @@ import vn.edu.ueh.phuclu.broomsharing.ui.host.HostApplyActivity;
 import vn.edu.ueh.phuclu.broomsharing.ui.host.HostDashboardActivity;
 
 /**
- * Màn hình hồ sơ Guest: hiển thị thông tin tài khoản và các lối tắt cá nhân.
- * Kế thừa SessionActivity để kiểm tra phiên trước khi mở giao diện.
+ * Màn hình hồ sơ Guest: hiển thị thông tin tài khoản và các lối tắt cá nhân. Kế thừa
+ * SessionActivity để kiểm tra phiên trước khi mở giao diện.
  */
 public class ProfileActivity extends SessionActivity {
+    private final AvatarEditor avatar = new AvatarEditor(this);
+
     @Override
     protected int pageLayout() {
         return R.layout.activity_profile;
@@ -37,6 +39,8 @@ public class ProfileActivity extends SessionActivity {
         ActivityProfileBinding binding =
                 ActivityProfileBinding.bind(findViewById(R.id.profileRoot));
         binding.profileName.setText(profile.name);
+        avatar.bind(profile);
+        binding.profileInitial.setVisibility(View.GONE);
         binding.profileSubtitle.setText(profile.email);
         if (profile.phone != null && !profile.phone.isEmpty()) {
             binding.profilePhone.setVisibility(View.VISIBLE);
@@ -87,10 +91,16 @@ public class ProfileActivity extends SessionActivity {
                         profile.username == null ? "" : profile.username));
         GuestNavigation.attach(this, R.id.nav_profile);
         // Lối vào báo cáo đã gửi, dùng chung màn hình phản hồi với khu vực Host.
-        com.google.android.material.button.MaterialButton reports = new com.google.android.material.button.MaterialButton(this);
+        com.google.android.material.button.MaterialButton reports =
+                new com.google.android.material.button.MaterialButton(this);
         reports.setText(R.string.reports_sent);
         ((android.view.ViewGroup) binding.btnNotices.getParent()).addView(reports);
-        reports.setOnClickListener(v -> startActivity(new Intent(this,
-                vn.edu.ueh.phuclu.broomsharing.ui.report.ReportCenterActivity.class)));
+        reports.setOnClickListener(
+                v ->
+                        startActivity(
+                                new Intent(
+                                        this,
+                                        vn.edu.ueh.phuclu.broomsharing.ui.report
+                                                .ReportCenterActivity.class)));
     }
 }

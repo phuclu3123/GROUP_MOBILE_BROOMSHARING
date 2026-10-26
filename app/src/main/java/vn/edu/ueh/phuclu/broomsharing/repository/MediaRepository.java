@@ -1,171 +1,170 @@
 package vn.edu.ueh.phuclu.broomsharing.repository;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.storage.*;
+
+import vn.edu.ueh.phuclu.broomsharing.BuildConfig;
+import vn.edu.ueh.phuclu.broomsharing.model.MediaAsset;
+import vn.edu.ueh.phuclu.broomsharing.utils.MediaPolicy;
+
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
-/** Only public room/building photographs. Identity documents are not uploaded here. */
-public class MediaRepository {
-    public static final int MAX_IMAGES = 6;
-    public static final int MAX_BYTES = 5 * 1024 * 1024;
+/*
+    Upload trực tiếp Cloudinary bằng unsigned preset, theo thứ tự ảnh người dùng đã chọn.
+    URL công khai được lưu trong document nghiệp vụ; đây là chế độ demo không có backend ký.
+    Lỗi lưu document chỉ dọn được file còn delete token, không giả nhận đã xóa file cũ.
+*/
+public class MediaRepository implements AutoCloseable {
+    public static final int MAX_IMAGES = MediaPolicy.MAX_FILES;
+    public static final int MAX_BYTES = MediaPolicy.MAX_BYTES;
     private final Context context;
-    private final FirebaseStorage storage = FirebaseStorage.getInstance();
+    private final CloudinaryClient client;
+    private final RemoteImageClient remote = new RemoteImageClient();
+    private final SharedPreferences cleanup;
+    private final Handler main = new Handler(Looper.getMainLooper());
+    private final ExecutorService worker = Executors.newSingleThreadExecutor();
+    private volatile boolean closed;
 
     public MediaRepository(Context context) {
+        this(
+                context,
+                new CloudinaryClient(
+                        BuildConfig.CLOUDINARY_CLOUD_NAME, BuildConfig.CLOUDINARY_UPLOAD_PRESET));
+    }
+
+    // Tiêm transport cho nghiệm thu mà không upload lên tài khoản bên thứ ba.
+    public MediaRepository(Context context, CloudinaryClient client) {
         this.context = context.getApplicationContext();
-        storage.setMaxUploadRetryTimeMillis(60000);
+        this.client = client;
+        cleanup =
+                this.context.getSharedPreferences(
+                        "cloudinary_recent_uploads", Context.MODE_PRIVATE);
     }
 
-    public void upload(
-            List<Uri> uris, String kind, String id, HostRepository.Callback<List<String>> cb) {
-        if (FirebaseAuth.getInstance().getCurrentUser() == null
-                || !("roomMedia".equals(kind) || "buildingMedia".equals(kind))
-                || id == null
-                || id.contains("/")) {
-            cb.onError(new Exception("Đăng nhập và lưu đúng mã không gian trước khi tải ảnh."));
+    public void upload(List<Uri> uris, String kind, String id, ResultCallback<List<String>> cb) {
+        final String uid = FirebaseAuth.getInstance().getUid();
+        final List<Uri> selected = uris == null ? Collections.emptyList() : new ArrayList<>(uris);
+        try {
+            if (closed) throw new IllegalStateException("Màn hình đã đóng.");
+            if (uid == null)
+                throw new IllegalStateException("Vui lòng đăng nhập trước khi tải ảnh.");
+            MediaPolicy.folder(kind, uid, id);
+            if (selected.size() > MAX_IMAGES)
+                throw new IllegalArgumentException("Tối đa 6 tệp mỗi lần.");
+            if (!selected.isEmpty()) client.configured();
+        } catch (Exception e) {
+            cb.onError(e);
             return;
         }
-        if (uris.size() > MAX_IMAGES) {
-            cb.onError(new Exception("Tối đa 6 ảnh."));
-            return;
-        }
-        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        List<StorageReference> uploaded = new ArrayList<>();
-        uploadNext(
-                new ArrayList<>(uris),
-                0,
-                kind + "/" + uid + "/" + id + "/",
-                uid,
-                uploaded,
-                new ArrayList<>(),
-                cb);
-    }
-
-    private void uploadNext(
-            List<Uri> uris,
-            int index,
-            String path,
-            String uid,
-            List<StorageReference> refs,
-            List<String> urls,
-            HostRepository.Callback<List<String>> cb) {
-        if (index == uris.size()) {
-            cb.onSuccess(urls);
-            return;
-        }
-        ExecutorService worker = Executors.newSingleThreadExecutor();
         worker.execute(
                 () -> {
+                    List<String> urls = new ArrayList<>();
                     try {
-                        byte[] bytes;
-                        try (InputStream in =
-                                        context.getContentResolver()
-                                                .openInputStream(uris.get(index));
-                                ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-                            if (in == null)
-                                throw new IOException("Không đọc được ảnh. Vui lòng chọn lại.");
-                            byte[] buffer = new byte[8192];
-                            int length;
-                            while ((length = in.read(buffer)) != -1) {
-                                if (out.size() + length > MAX_BYTES)
-                                    throw new IOException("Mỗi ảnh tối đa 5 MiB.");
-                                out.write(buffer, 0, length);
+                        for (Uri uri : selected) {
+                            session(uid);
+                            byte[] bytes;
+                            if ("https".equalsIgnoreCase(uri.getScheme()))
+                                bytes = remote.get(uri.toString());
+                            else
+                                try (InputStream in =
+                                        context.getContentResolver().openInputStream(uri)) {
+                                    bytes = CloudinaryClient.read(in, MAX_BYTES);
+                                }
+                            String mime = MediaPolicy.mime(bytes, "verification".equals(kind));
+                            if (mime.startsWith("image/")) {
+                                BitmapFactory.Options bounds = new BitmapFactory.Options();
+                                bounds.inJustDecodeBounds = true;
+                                BitmapFactory.decodeByteArray(bytes, 0, bytes.length, bounds);
+                                if (bounds.outWidth <= 0 || bounds.outHeight <= 0)
+                                    throw new IOException("Ảnh không hợp lệ hoặc đã hỏng.");
                             }
-                            bytes = out.toByteArray();
+                            MediaAsset asset =
+                                    client.upload(
+                                            bytes,
+                                            mime,
+                                            MediaPolicy.folder(kind, uid, id),
+                                            UUID.randomUUID().toString());
+                            remember(asset, uid);
+                            urls.add(asset.secureUrl);
+                            session(uid);
                         }
-                        BitmapFactory.Options options = new BitmapFactory.Options();
-                        options.inJustDecodeBounds = true;
-                        BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
-                        String mime = options.outMimeType;
-                        if (options.outWidth <= 0
-                                || options.outHeight <= 0
-                                || !("image/jpeg".equals(mime)
-                                        || "image/png".equals(mime)
-                                        || "image/webp".equals(mime)))
-                            throw new IOException("Chỉ hỗ trợ ảnh JPEG, PNG hoặc WebP hợp lệ.");
-                        String ext =
-                                "image/png".equals(mime)
-                                        ? ".png"
-                                        : "image/webp".equals(mime) ? ".webp" : ".jpg";
-                        new Handler(Looper.getMainLooper())
-                                .post(
-                                        () -> {
-                                            if (FirebaseAuth.getInstance().getCurrentUser() == null
-                                                    || !uid.equals(
-                                                            FirebaseAuth.getInstance()
-                                                                    .getCurrentUser()
-                                                                    .getUid())) {
-                                                discard(refs);
-                                                cb.onError(
-                                                        new Exception(
-                                                                "Phiên đăng nhập đã thay đổi. Vui"
-                                                                        + " lòng thử lại."));
-                                                return;
-                                            }
-                                            StorageReference ref =
-                                                    storage.getReference()
-                                                            .child(path + UUID.randomUUID() + ext);
-                                            refs.add(ref);
-                                            ref.putBytes(
-                                                            bytes,
-                                                            new StorageMetadata.Builder()
-                                                                    .setContentType(mime)
-                                                                    .build())
-                                                    .continueWithTask(
-                                                            task -> {
-                                                                if (!task.isSuccessful())
-                                                                    throw task.getException();
-                                                                return ref.getDownloadUrl();
-                                                            })
-                                                    .addOnSuccessListener(
-                                                            url -> {
-                                                                urls.add(url.toString());
-                                                                uploadNext(
-                                                                        uris, index + 1, path, uid,
-                                                                        refs, urls, cb);
-                                                            })
-                                                    .addOnFailureListener(
-                                                            e -> {
-                                                                discard(refs);
-                                                                cb.onError(e);
-                                                            });
-                                        });
+                        main.post(
+                                () -> {
+                                    if (closed) return;
+                                    if (!uid.equals(FirebaseAuth.getInstance().getUid())) {
+                                        removeOwnUrlsFor(uid, urls);
+                                        cb.onError(
+                                                new IllegalStateException(
+                                                        "Phiên đăng nhập đã thay đổi."));
+                                    } else cb.onSuccess(urls);
+                                });
                     } catch (Exception e) {
-                        new Handler(Looper.getMainLooper())
-                                .post(
-                                        () -> {
-                                            discard(refs);
-                                            cb.onError(e);
-                                        });
-                    } finally {
-                        worker.shutdown();
+                        discardRecent(uid, urls);
+                        main.post(
+                                () -> {
+                                    if (!closed) cb.onError(e);
+                                });
                     }
                 });
     }
 
-    private void discard(List<StorageReference> refs) {
-        for (StorageReference ref : refs) ref.delete();
+    private void session(String uid) throws IOException {
+        if (closed
+                || Thread.currentThread().isInterrupted()
+                || !uid.equals(FirebaseAuth.getInstance().getUid()))
+            throw new IOException("Phiên đăng nhập đã thay đổi hoặc việc tải tệp đã dừng.");
+    }
+
+    private void remember(MediaAsset asset, String uid) {
+        if (asset.deleteToken == null || asset.deleteToken.isEmpty()) return;
+        cleanup.edit()
+                .putString(asset.secureUrl + ":token", asset.deleteToken)
+                .putString(asset.secureUrl + ":uid", uid)
+                .putLong(asset.secureUrl + ":until", System.currentTimeMillis() + 9 * 60000L)
+                .apply();
     }
 
     public void removeOwnUrls(List<String> urls) {
-        if (FirebaseAuth.getInstance().getCurrentUser() == null) return;
-        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        for (String url : urls)
-            try {
-                StorageReference ref = storage.getReferenceFromUrl(url);
-                String path = ref.getPath().replaceFirst("^/", "");
-                if (path.startsWith("roomMedia/" + uid + "/")
-                        || path.startsWith("buildingMedia/" + uid + "/")) ref.delete();
-            } catch (IllegalArgumentException ignored) {
-                /* Legacy/external image is never deleted. */
+        String uid = FirebaseAuth.getInstance().getUid();
+        if (uid != null) removeOwnUrlsFor(uid, new ArrayList<>(urls));
+    }
+
+    private void removeOwnUrlsFor(String uid, List<String> urls) {
+        if (!closed) worker.execute(() -> discardRecent(uid, urls));
+    }
+
+    private void discardRecent(String uid, List<String> urls) {
+        for (String url : urls) {
+            if (!uid.equals(cleanup.getString(url + ":uid", null))) continue;
+            String token = cleanup.getString(url + ":token", "");
+            if (cleanup.getLong(url + ":until", 0) > System.currentTimeMillis()) {
+                try {
+                    if (!client.deleteRecent(token)) continue;
+                } catch (Exception ignored) {
+                    continue;
+                } // Giữ token để dọn lại trước khi hết hạn.
             }
+            cleanup.edit()
+                    .remove(url + ":token")
+                    .remove(url + ":uid")
+                    .remove(url + ":until")
+                    .apply();
+        }
+    }
+
+    @Override
+    public void close() {
+        closed = true;
+        client.close();
+        remote.close();
+        worker.shutdownNow();
     }
 }

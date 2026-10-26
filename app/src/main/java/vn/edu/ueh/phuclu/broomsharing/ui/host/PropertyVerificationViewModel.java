@@ -1,17 +1,45 @@
 package vn.edu.ueh.phuclu.broomsharing.ui.host;
 
+import android.app.Application;
+import android.net.Uri;
+
 import androidx.lifecycle.*;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.ListenerRegistration;
 
 import vn.edu.ueh.phuclu.broomsharing.model.*;
 import vn.edu.ueh.phuclu.broomsharing.repository.*;
 
-import java.util.List;
+import java.util.*;
 
 // Giữ draft qua recreate; listener của màn cũ không được ghi đè phiên mới.
-public class PropertyVerificationViewModel extends ViewModel {
+public class PropertyVerificationViewModel extends AndroidViewModel {
     private final PropertyVerificationRepository repository = new PropertyVerificationRepository();
+    private final MediaRepository media;
+    public final ArrayList<Uri> attachments = new ArrayList<>();
+    public final ArrayList<String> uploadedRefs = new ArrayList<>();
+    public String uploadOwner = "";
+
+    public PropertyVerificationViewModel(Application app) {
+        super(app);
+        media = new MediaRepository(app);
+    }
+
+    public boolean busy() {
+        return action.getValue() != null && action.getValue().loading;
+    }
+
+    // Đổi tệp trước khi gửi lại sẽ bỏ cache upload của draft, không gắn nhầm ảnh cũ.
+    public void selectEvidence(List<Uri> selected) {
+        if (busy()) return;
+        media.removeOwnUrls(uploadedRefs);
+        uploadedRefs.clear();
+        attachments.clear();
+        attachments.addAll(selected);
+        uploadOwner = "";
+    }
+
     public final MutableLiveData<UiState<List<PropertyVerification>>> rows =
             new MutableLiveData<>();
     public final MutableLiveData<UiState<String>> action = new MutableLiveData<>();
@@ -45,16 +73,46 @@ public class PropertyVerificationViewModel extends ViewModel {
     }
 
     public void submit(PropertyVerification item) {
-        if (action.getValue() != null && action.getValue().loading) return;
+        if (busy()) return;
         action.setValue(UiState.loading());
+        String uid = FirebaseAuth.getInstance().getUid();
+        if (!Objects.equals(uploadOwner, uid)) uploadedRefs.clear();
+        if (!uploadedRefs.isEmpty() || attachments.isEmpty()) {
+            item.evidenceRefs = new ArrayList<>(uploadedRefs);
+            persist(item);
+            return;
+        }
+        media.upload(
+                attachments,
+                "verification",
+                draftId,
+                new ResultCallback<List<String>>() {
+                    public void onSuccess(List<String> urls) {
+                        uploadedRefs.clear();
+                        uploadedRefs.addAll(urls);
+                        uploadOwner = uid;
+                        item.evidenceRefs = new ArrayList<>(urls);
+                        persist(item);
+                    }
+
+                    public void onError(Exception e) {
+                        action.setValue(UiState.error(e));
+                    }
+                });
+    }
+
+    private void persist(PropertyVerification item) {
         repository.submit(
                 draftId,
                 item,
                 new ResultCallback<String>() {
                     public void onSuccess(String id) {
-                        action.setValue(UiState.success(id));
                         draftId = repository.newId();
                         description = "";
+                        attachments.clear();
+                        uploadedRefs.clear();
+                        uploadOwner = "";
+                        action.setValue(UiState.success(id));
                     }
 
                     public void onError(Exception e) {
@@ -72,5 +130,6 @@ public class PropertyVerificationViewModel extends ViewModel {
     @Override
     protected void onCleared() {
         stop();
+        media.close();
     }
 }

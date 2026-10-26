@@ -19,6 +19,10 @@ app/google-services.json
 .env.*
 !.env.example
 __pycache__/
+backend/payments/build/
+backend/payments/.gradle/
+backend/payments/credentials/
+backend/payments/.runtime/
 *.pyc
 
 # Local lecture slides and reference documents
@@ -31,6 +35,7 @@ __pycache__/
 # Passwords for Firebase demo accounts (local only)
 /data/demo/credentials.local.properties
 /data/demo/video-credentials.local.properties
+/data/demo/profile-identity-credentials.local.properties
 /data/demo/video-business.local.json
 /output/verification/cloud-business-2026-10-24/
 
@@ -39,4 +44,5 @@ __pycache__/
 /output/releases/
 /output/verification/business-completion-2026-10-24/
 /output/verification/member-integration-2026-10-25/
+/output/verification/payos-2026-10-26/
 /output/verification/room-counter-compatibility-2026-10-25/

@@ -3,12 +3,14 @@ package vn.edu.ueh.phuclu.broomsharing.repository;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.*;
 
+import vn.edu.ueh.phuclu.broomsharing.BuildConfig;
 import vn.edu.ueh.phuclu.broomsharing.model.PropertyVerification;
 import vn.edu.ueh.phuclu.broomsharing.utils.FirebaseHelper;
+import vn.edu.ueh.phuclu.broomsharing.utils.MediaPolicy;
 
 import java.util.*;
 
-// Gửi thông tin hồ sơ; việc tải tệp riêng tư sẽ nối với API media chung.
+// Lưu hồ sơ cùng URL Cloudinary của tệp demo; thông tin tài khoản vẫn thuộc Firestore.
 public class PropertyVerificationRepository {
     private final FirebaseFirestore db = FirebaseHelper.getFirestore();
 
@@ -39,6 +41,13 @@ public class PropertyVerificationRepository {
                 throw new IllegalArgumentException("Chọn phòng hoặc tòa nhà cần xác minh.");
             if (item.roomId.contains("/") || item.buildingId.contains("/"))
                 throw new IllegalArgumentException("Mã tài sản không hợp lệ.");
+            if (item.evidenceRefs == null) item.evidenceRefs = Collections.emptyList();
+            if (item.evidenceRefs.size() > MediaPolicy.MAX_FILES)
+                throw new IllegalArgumentException("Tối đa 6 tệp đính kèm.");
+            for (String url : item.evidenceRefs)
+                if (!MediaPolicy.evidenceUrl(url, BuildConfig.CLOUDINARY_CLOUD_NAME, actor, id))
+                    throw new IllegalArgumentException(
+                            "Tệp không thuộc đúng tài khoản và hồ sơ Cloudinary.");
         } catch (Exception e) {
             cb.onError(e);
             return;
@@ -77,7 +86,7 @@ public class PropertyVerificationRepository {
                                     item.buildingName == null ? "" : item.buildingName);
                             data.put("verificationType", item.verificationType);
                             data.put("description", item.description);
-                            data.put("evidenceRefs", Collections.emptyList());
+                            data.put("evidenceRefs", new ArrayList<>(item.evidenceRefs));
                             data.put("status", "PENDING");
                             data.put("createdAt", FieldValue.serverTimestamp());
                             data.put("updatedAt", FieldValue.serverTimestamp());
@@ -93,7 +102,7 @@ public class PropertyVerificationRepository {
                                                     cb.onError(
                                                             new IllegalStateException(
                                                                     "Phiên đăng nhập đã thay"
-                                                                        + " đổi."));
+                                                                            + " đổi."));
                                             })
                                     .addOnFailureListener(
                                             error -> {
@@ -123,6 +132,10 @@ public class PropertyVerificationRepository {
                                                                                             old
                                                                                                     .getString(
                                                                                                             "verificationType"))
+                                                                            && item.evidenceRefs
+                                                                                    .equals(
+                                                                                            old.get(
+                                                                                                    "evidenceRefs"))
                                                                             && item.description
                                                                                     .equals(
                                                                                             old

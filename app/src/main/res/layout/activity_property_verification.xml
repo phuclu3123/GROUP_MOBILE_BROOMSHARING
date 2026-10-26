@@ -213,6 +213,8 @@
                 android:textColor="@color/white"
                 android:textSize="14sp"
                 android:textStyle="bold" />
+            <TextView style="@style/WorkspaceBody" android:layout_marginTop="8dp"
+                android:text="Tệp demo được lưu công khai theo URL trên Cloudinary. Không đính kèm giấy tờ thật hoặc thông tin khách hàng nhạy cảm." />
         </LinearLayout>
     </ScrollView>
 

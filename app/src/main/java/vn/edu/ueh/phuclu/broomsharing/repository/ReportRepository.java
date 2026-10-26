@@ -268,7 +268,10 @@ public class ReportRepository {
                                 tx.set(
                                         db.collection("publicHosts").document(owner.getId()),
                                         new PublicHost(
-                                                owner.getId(), owner.getString("name"), "BLOCKED"));
+                                                owner.getId(),
+                                                owner.getString("name"),
+                                                "BLOCKED",
+                                                owner.getString("photoUrl")));
                             }
                             Map<String, Object> after = new HashMap<>();
                             after.put("status", status);

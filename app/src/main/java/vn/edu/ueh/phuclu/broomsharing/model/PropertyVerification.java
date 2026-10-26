@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-// Hồ sơ xét duyệt của Host; tệp riêng tư dùng evidenceRefs, cùng contract Admin.
+// Hồ sơ xét duyệt của Host; evidenceRefs giữ path cũ hoặc URL Cloudinary demo, cùng contract Admin.
 public class PropertyVerification implements Serializable {
     public int schemaVersion = 1;
     public String id;

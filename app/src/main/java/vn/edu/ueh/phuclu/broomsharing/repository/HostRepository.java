@@ -127,6 +127,19 @@ public class HostRepository {
         final String actor;
         try {
             actor = uid();
+            if (app.getIdentityImageUrls() == null
+                    || app.getIdentityImageUrls().size() != 2
+                    || new HashSet<>(app.getIdentityImageUrls()).size() != 2
+                    || !"DEMO_PUBLIC".equals(app.getEvidenceMode()))
+                throw new IllegalArgumentException(
+                        "Cần đủ hai ảnh giấy tờ demo: mặt trước và mặt sau.");
+            for (String url : app.getIdentityImageUrls())
+                if (!vn.edu.ueh.phuclu.broomsharing.utils.MediaPolicy.hostIdentityUrl(
+                        url,
+                        vn.edu.ueh.phuclu.broomsharing.BuildConfig.CLOUDINARY_CLOUD_NAME,
+                        actor))
+                    throw new IllegalArgumentException(
+                            "Ảnh không thuộc hồ sơ Cloudinary của tài khoản này.");
         } catch (Exception e) {
             cb.onError(e);
             return;
@@ -157,6 +170,8 @@ public class HostRepository {
                         }
                         DocumentReference ref = db.collection("hostApplications").document(actor);
                         app.setId(actor);
+                        app.setSchemaVersion(2);
+                        app.setIdentityReviewedAt(null);
                         app.setApplicantUid(actor);
                         app.setStatus("PENDING");
                         app.setRejectionReason("");

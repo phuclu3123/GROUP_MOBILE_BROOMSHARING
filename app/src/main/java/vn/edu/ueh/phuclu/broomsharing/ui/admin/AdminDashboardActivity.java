@@ -26,8 +26,8 @@ import vn.edu.ueh.phuclu.broomsharing.ui.common.ManagementNavigation;
 import vn.edu.ueh.phuclu.broomsharing.utils.UiForms;
 
 /**
- * Màn hình Admin: hiển thị các yêu cầu và thao tác quản trị.
- * Nhận trạng thái từ AdminViewModel để cập nhật giao diện.
+ * Màn hình Admin: hiển thị các yêu cầu và thao tác quản trị. Nhận trạng thái từ AdminViewModel để
+ * cập nhật giao diện.
  */
 public class AdminDashboardActivity extends SessionActivity {
     private AdminViewModel model;
@@ -78,10 +78,12 @@ public class AdminDashboardActivity extends SessionActivity {
         b.openReview.setOnClickListener(v -> showGroup(R.id.admin_review, null));
         b.openManage.setOnClickListener(v -> showGroup(R.id.admin_manage, null));
         b.openReports.setOnClickListener(v -> showGroup(R.id.admin_reports, null));
-        com.google.android.material.button.MaterialButton bookings = new com.google.android.material.button.MaterialButton(this);
+        com.google.android.material.button.MaterialButton bookings =
+                new com.google.android.material.button.MaterialButton(this);
         bookings.setText("Booking cần xử lý");
         ((android.view.ViewGroup) b.openReports.getParent()).addView(bookings);
-        bookings.setOnClickListener(v -> startActivity(new Intent(this, AdminBookingsActivity.class)));
+        bookings.setOnClickListener(
+                v -> startActivity(new Intent(this, AdminBookingsActivity.class)));
         b.openAudit.setOnClickListener(v -> showGroup(R.id.admin_manage, "AUDIT"));
         b.btnRefresh.setOnClickListener(v -> model.load(model.selected));
         b.reviewList.setLayoutManager(new LinearLayoutManager(this));
@@ -260,7 +262,9 @@ public class AdminDashboardActivity extends SessionActivity {
                     .show();
             return;
         }
-        if ("VERIFICATION".equals(item.kind) && approve && !model.evidenceViewed(item)) {
+        if (("VERIFICATION".equals(item.kind) || "HOST".equals(item.kind))
+                && approve
+                && !model.evidenceViewed(item)) {
             b.tvFeedback.setText(R.string.admin_evidence_required);
             viewEvidence(item);
             return;
@@ -313,7 +317,9 @@ public class AdminDashboardActivity extends SessionActivity {
                         .setTitle("Xác nhận xử lý")
                         .setMessage(
                                 item.title
-                                        + "\nKhông tự hủy booking hoặc chuyển tiền. Lịch sử và nhật ký được giữ lại.")
+                                        + "\n"
+                                        + "Không tự hủy booking hoặc chuyển tiền. Lịch sử và nhật"
+                                        + " ký được giữ lại.")
                         .setView(note)
                         .setNegativeButton(android.R.string.cancel, null)
                         .setPositiveButton("Xác nhận", null)

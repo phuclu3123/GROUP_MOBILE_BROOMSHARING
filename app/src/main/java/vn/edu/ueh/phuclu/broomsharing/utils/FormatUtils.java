@@ -45,11 +45,12 @@ public class FormatUtils {
     }
 
     public static String paymentStatus(String value) {
-        if ("UNAVAILABLE".equals(value)) return "Thanh toán đang phát triển • Chưa thu tiền";
+        if ("UNAVAILABLE".equals(value)) return "Chưa khởi tạo thanh toán • Chưa ghi nhận tiền";
         if ("DEMO_PENDING".equals(value)) return "Cọc demo • Chưa thanh toán";
         if ("UNPAID".equals(value)) return "Chưa thanh toán";
         if ("PENDING".equals(value)) return "Chờ xử lý";
-        if ("PAID".equals(value)) return "Đã thanh toán theo dữ liệu hệ thống";
+        if ("PAID".equals(value)) return "Đã nhận khoản trả trước 40% qua payOS";
+        if ("REVIEW_REQUIRED".equals(value)) return "Đã ghi nhận tiền, cần đối soát; chưa hoàn tiền";
         return value == null ? "Chưa có dữ liệu" : value;
     }
 

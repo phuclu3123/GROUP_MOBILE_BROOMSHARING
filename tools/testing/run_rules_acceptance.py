@@ -26,6 +26,8 @@ cases = [
     ('quarter_final_month_blocked', ['--months','3','--blocked','date','--block-month-offset','2'], 1),
     ('quarter_exclusive_end', ['--months','3','--blocked','date','--block-month-offset','3'], 0),
     ('fixed_legacy_day', ['--months','1','--blocked','legacy'], 1),
+    ('forged_paid_amount', ['--paid-amount','40000'], 1),
+    ('negative_paid_amount', ['--paid-amount','-1'], 1),
     ('forged_price', ['--tamper-price'], 1),
     ('missing_room_write', ['--omit-room'], 1),
     ('missing_audit_write', ['--omit-audit'], 1),

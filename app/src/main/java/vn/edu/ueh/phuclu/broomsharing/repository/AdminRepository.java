@@ -5,6 +5,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.*;
 import com.google.firebase.storage.StorageReference;
 
+import vn.edu.ueh.phuclu.broomsharing.BuildConfig;
 import vn.edu.ueh.phuclu.broomsharing.model.AuditLog;
 import vn.edu.ueh.phuclu.broomsharing.model.PublicHost;
 import vn.edu.ueh.phuclu.broomsharing.model.ReviewItem;
@@ -13,6 +14,7 @@ import vn.edu.ueh.phuclu.broomsharing.utils.BookingPolicy;
 import vn.edu.ueh.phuclu.broomsharing.utils.FirebaseHelper;
 import vn.edu.ueh.phuclu.broomsharing.utils.FormatUtils;
 import vn.edu.ueh.phuclu.broomsharing.utils.HostValidation;
+import vn.edu.ueh.phuclu.broomsharing.utils.MediaPolicy;
 import vn.edu.ueh.phuclu.broomsharing.utils.TimeUtils;
 
 import java.util.*;
@@ -183,7 +185,7 @@ public class AdminRepository {
                             + text(d, "email")
                             + "\n"
                             + text(d, "organizationType")
-                            + "\nGiấy tờ mô tả (demo): "
+                            + "\nMô tả giấy tờ: "
                             + text(d, "identityDoc");
         } else if ("ROOM".equals(kind) || "ROOM_STATUS".equals(kind)) {
             Room r = d.toObject(Room.class);
@@ -306,6 +308,10 @@ public class AdminRepository {
                         title == null || title.isEmpty() ? d.getId() : title,
                         details + "\n" + TimeUtils.formatVietnam(d.getDate("createdAt")));
         item.status = status;
+        if ("HOST".equals(kind)) {
+            Object refs = d.get("identityImageUrls");
+            if (refs instanceof List) item.evidenceRefs = (List<String>) refs;
+        }
         if ("ROOM".equals(kind) || "ROOM_STATUS".equals(kind)) {
             Object urls = d.get("imageUrls");
             if (urls instanceof List) item.imageUrls = (List<String>) urls;
@@ -484,6 +490,40 @@ public class AdminRepository {
                                 changes.put("reviewedBy", actor);
                                 changes.put("rejectionReason", note);
                                 if ("HOST".equals(item.kind)) {
+                                    List<String> identity =
+                                            (List<String>) target.get("identityImageUrls");
+                                    if (approve) {
+                                        BookingPolicy.require(
+                                                evidenceReviewed,
+                                                "Cần mở xem cả hai mặt giấy tờ trước khi duyệt"
+                                                    + " Host.");
+                                        BookingPolicy.require(
+                                                Long.valueOf(2)
+                                                                .equals(
+                                                                        target.getLong(
+                                                                                "schemaVersion"))
+                                                        && "DEMO_PUBLIC"
+                                                                .equals(
+                                                                        target.getString(
+                                                                                "evidenceMode"))
+                                                        && identity != null
+                                                        && identity.size() == 2
+                                                        && !identity.get(0).equals(identity.get(1)),
+                                                "Hồ sơ thiếu hai ảnh giấy tờ. Hãy từ chối kèm yêu"
+                                                    + " cầu bổ sung.");
+                                        for (String url : identity)
+                                            BookingPolicy.require(
+                                                    vn.edu.ueh.phuclu.broomsharing.utils.MediaPolicy
+                                                            .hostIdentityUrl(
+                                                                    url,
+                                                                    vn.edu.ueh.phuclu.broomsharing
+                                                                            .BuildConfig
+                                                                            .CLOUDINARY_CLOUD_NAME,
+                                                                    item.id),
+                                                    "Ảnh giấy tờ không thuộc đúng người nộp.");
+                                        changes.put(
+                                                "identityReviewedAt", FieldValue.serverTimestamp());
+                                    }
                                     hostRef =
                                             db.collection("users")
                                                     .document(
@@ -578,7 +618,7 @@ public class AdminRepository {
                                                 "Cần xem bằng chứng trước khi duyệt.");
                                         for (String path : refs)
                                             BookingPolicy.require(
-                                                    validEvidence(owner, path),
+                                                    validEvidence(owner, path, item.id),
                                                     "Đường dẫn bằng chứng không hợp lệ.");
                                     }
                                     changes.put("method", "ADMIN_REVIEWED");
@@ -600,12 +640,19 @@ public class AdminRepository {
                                 tx.set(
                                         db.collection("publicHosts").document(host.getId()),
                                         new PublicHost(
-                                                host.getId(), host.getString("name"), "ACTIVE"));
+                                                host.getId(),
+                                                host.getString("name"),
+                                                "ACTIVE",
+                                                host.getString("photoUrl")));
                             }
                             if ("HOST_STATUS".equals(item.kind))
                                 tx.set(
                                         db.collection("publicHosts").document(item.id),
-                                        new PublicHost(item.id, target.getString("name"), after));
+                                        new PublicHost(
+                                                item.id,
+                                                target.getString("name"),
+                                                after,
+                                                target.getString("photoUrl")));
                             if (verificationRoom != null
                                     && approve
                                     && !"IDENTITY".equals(target.getString("verificationType")))
@@ -631,6 +678,10 @@ public class AdminRepository {
     }
 
     public void evidence(String id, String path, ResultCallback<byte[]> cb) {
+        if (path != null && path.contains("/broomsharing/hostIdentity/")) {
+            hostEvidence(id, path, cb);
+            return;
+        }
         final String actor = FirebaseAuth.getInstance().getUid();
         try {
             BookingPolicy.id(id);
@@ -656,12 +707,16 @@ public class AdminRepository {
                                             doc -> {
                                                 if (!doc.exists()
                                                         || !validEvidence(
-                                                                doc.getString("ownerUid"), path)
+                                                                doc.getString("ownerUid"), path, id)
                                                         || !evidencePaths(doc).contains(path)) {
                                                     cb.onError(
                                                             new Exception(
                                                                     "Bằng chứng không thuộc hồ"
                                                                             + " sơ."));
+                                                    return;
+                                                }
+                                                if (path.startsWith("https://")) {
+                                                    EvidenceDownloader.download(path, actor, cb);
                                                     return;
                                                 }
                                                 StorageReference file =
@@ -706,6 +761,50 @@ public class AdminRepository {
                 .addOnFailureListener(cb::onError);
     }
 
+    private void hostEvidence(String id, String path, ResultCallback<byte[]> cb) {
+        String actor = FirebaseAuth.getInstance().getUid();
+        if (actor == null
+                || !vn.edu.ueh.phuclu.broomsharing.utils.MediaPolicy.hostIdentityUrl(
+                        path,
+                        vn.edu.ueh.phuclu.broomsharing.BuildConfig.CLOUDINARY_CLOUD_NAME,
+                        id)) {
+            cb.onError(new IllegalArgumentException("Ảnh không thuộc hồ sơ Host này."));
+            return;
+        }
+        db.collection("users")
+                .document(actor)
+                .get(Source.SERVER)
+                .addOnSuccessListener(
+                        user -> {
+                            if (!"ADMIN".equals(user.getString("role"))
+                                    || !"ACTIVE".equals(user.getString("status"))) {
+                                cb.onError(new IllegalStateException("Bạn không có quyền Admin."));
+                                return;
+                            }
+                            db.collection("hostApplications")
+                                    .document(id)
+                                    .get(Source.SERVER)
+                                    .addOnSuccessListener(
+                                            doc -> {
+                                                Object refs = doc.get("identityImageUrls");
+                                                if (!actor.equals(
+                                                                FirebaseAuth.getInstance().getUid())
+                                                        || !doc.exists()
+                                                        || !id.equals(doc.getString("applicantUid"))
+                                                        || !(refs instanceof List)
+                                                        || !((List<?>) refs).contains(path)) {
+                                                    cb.onError(
+                                                            new IllegalArgumentException(
+                                                                    "Ảnh không thuộc hồ sơ Host."));
+                                                    return;
+                                                }
+                                                EvidenceDownloader.download(path, actor, cb);
+                                            })
+                                    .addOnFailureListener(cb::onError);
+                        })
+                .addOnFailureListener(cb::onError);
+    }
+
     @SuppressWarnings("unchecked")
     private List<String> evidencePaths(DocumentSnapshot doc) {
         Object value = doc.get("evidenceRefs");
@@ -716,10 +815,12 @@ public class AdminRepository {
                         : Collections.singletonList(doc.getString("evidencePath"));
     }
 
-    private boolean validEvidence(String owner, String path) {
-        return owner != null
-                && path != null
-                && path.startsWith("verification/" + owner + "/")
+    private boolean validEvidence(String owner, String path, String id) {
+        if (owner == null || path == null || id == null) return false;
+        if (path.startsWith("https://")) {
+            return MediaPolicy.evidenceUrl(path, BuildConfig.CLOUDINARY_CLOUD_NAME, owner, id);
+        }
+        return path.startsWith("verification/" + owner + "/")
                 && !path.contains("..")
                 && path.split("/").length == 3;
     }

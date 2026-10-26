@@ -1,6 +1,6 @@
 """Local emulator only: narrow a transaction failure before re-running Android SDK tests."""
 import base64, datetime as dt, hashlib, json, urllib.request, urllib.error, pathlib, sys, argparse
-parser=argparse.ArgumentParser();parser.add_argument('--months',type=int,default=0);parser.add_argument('--hours',type=int,default=1);parser.add_argument('--dates',type=int,default=0);parser.add_argument('--ranges',type=int,default=0);parser.add_argument('--blocked',choices=['none','date','legacy','range'],default='none');parser.add_argument('--forged-slots',action='store_true');parser.add_argument('--omit-room',action='store_true');parser.add_argument('--omit-audit',action='store_true');parser.add_argument('--tamper-price',action='store_true');parser.add_argument('--block-month-offset',type=int,default=0);opts=parser.parse_args()
+parser=argparse.ArgumentParser();parser.add_argument('--months',type=int,default=0);parser.add_argument('--hours',type=int,default=1);parser.add_argument('--dates',type=int,default=0);parser.add_argument('--ranges',type=int,default=0);parser.add_argument('--blocked',choices=['none','date','legacy','range'],default='none');parser.add_argument('--forged-slots',action='store_true');parser.add_argument('--omit-room',action='store_true');parser.add_argument('--omit-audit',action='store_true');parser.add_argument('--tamper-price',action='store_true');parser.add_argument('--block-month-offset',type=int,default=0);parser.add_argument('--paid-amount',type=int,default=0);opts=parser.parse_args()
 BASE='http://127.0.0.1:8085'
 DB='projects/broom-sharing-firebase-mobile/databases/broomsharing'
 def call(path,body=None,token='owner',method=None):
@@ -56,6 +56,7 @@ if opts.forged_slots:slots[-1]+=1
 price=r['pricePerMonth'] if opts.months==1 else r['pricePerQuarter'] if opts.months else r['pricePerHour']*opts.hours;advance=int(price*.4+.5)
 b=dict(id=id,schemaVersion=2,roomId=r['id'],roomName=r['roomName'],roomAddress=r['address'],ownerUid=r['ownerUid'],guestUid=u['uid'],guestName=u['name'],guestPhone=u['phone'],status='PENDING',paymentStatus='UNAVAILABLE',activeMode='HOURLY',rejectionReason='',startAt=start,endAt=end,totalAmount=price,priceSnapshot=dict(currency='VND',rentalAmount=price,feeAmount=0,depositAmount=advance,advancePercent=40,cancellationPolicyVersion=1,totalAmount=price,paymentDueAmount=advance,rentalPolicy=r['rentalPolicy'],renewalPolicy=r['renewalPolicy']),rentalMonths=0,slotStart=slot,slotCount=2,monthKeys=[key],slotKeys=slots,requestFingerprint='a'*64,cancelledAt=None,cancelledByUid='',cancellationRefundPercent=0,refundAmount=0,refundStatus='NOT_REQUIRED')
 b.update(activeMode=mode,rentalMonths=opts.months,slotCount=len(slots),monthKeys=keys)
+b['paidAmount']=opts.paid_amount
 if opts.tamper_price: b['totalAmount']=1;b['priceSnapshot']['rentalAmount']=1;b['priceSnapshot']['totalAmount']=1
 def write(path,data,transforms=(),mask=None):
     w={'update':{'name':DB+'/documents/'+path,'fields':{k:encode(v) for k,v in data.items()}}}

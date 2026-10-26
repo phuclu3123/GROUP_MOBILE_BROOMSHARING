@@ -1,6 +1,5 @@
 package vn.edu.ueh.phuclu.broomsharing.ui.room;
 
-import vn.edu.ueh.phuclu.broomsharing.ui.review.RoomReviewsActivity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
@@ -32,6 +31,7 @@ import vn.edu.ueh.phuclu.broomsharing.ui.chat.ChatViewModel;
 import vn.edu.ueh.phuclu.broomsharing.ui.favorites.FavoritesViewModel;
 import vn.edu.ueh.phuclu.broomsharing.ui.map.MapActivity;
 import vn.edu.ueh.phuclu.broomsharing.ui.report.RoomReportActivity;
+import vn.edu.ueh.phuclu.broomsharing.ui.review.RoomReviewsActivity;
 import vn.edu.ueh.phuclu.broomsharing.utils.CancellationPolicy;
 import vn.edu.ueh.phuclu.broomsharing.utils.FormatUtils;
 
@@ -39,8 +39,8 @@ import java.text.NumberFormat;
 import java.util.*;
 
 /**
- * Màn hình chi tiết phòng: hiển thị thông tin và mở các chức năng liên quan.
- * Kiểm tra phiên qua SessionActivity trước khi tải nội dung.
+ * Màn hình chi tiết phòng: hiển thị thông tin và mở các chức năng liên quan. Kiểm tra phiên qua
+ * SessionActivity trước khi tải nội dung.
  */
 public class SpaceDetailActivity extends SessionActivity {
     // Key truyền mã phòng giữa các màn hình liên quan đến phòng.
@@ -89,8 +89,11 @@ public class SpaceDetailActivity extends SessionActivity {
 
         // Nhận mã phòng từ Intent; mã này sẽ được chuyển tiếp sang các màn hình khác.
         String id = getIntent().getStringExtra(ROOM_ID);
-        b.btnReviews.setOnClickListener(v -> startActivity(new Intent(this,
-                RoomReviewsActivity.class).putExtra("roomId", id)));
+        b.btnReviews.setOnClickListener(
+                v ->
+                        startActivity(
+                                new Intent(this, RoomReviewsActivity.class)
+                                        .putExtra("roomId", id)));
         b.detailToolbar.setNavigationOnClickListener(v -> finish());
 
         // Mở BookingActivity và gửi kèm mã phòng để tạo yêu cầu đặt đúng phòng này.
@@ -218,7 +221,8 @@ public class SpaceDetailActivity extends SessionActivity {
                                         ? Collections.emptyList()
                                         : room.getAmenities()));
         b.deposit.setText(
-                "Trả trước dự kiến: 40% tiền thuê, tính theo kỳ đã chọn.\nThanh toán đang phát triển; hiện chưa thu tiền.");
+                "Trả trước dự kiến: 40% tiền thuê, tính theo kỳ đã chọn.\n"
+                    + "Khoản trả trước 40% chỉ thanh toán sau khi Host xác nhận, qua kênh demo được hỗ trợ.");
         b.policies.setText(
                 "Chính sách hủy cho booking mới\n"
                         + CancellationPolicy.terms(room.getActiveMode())
@@ -228,6 +232,10 @@ public class SpaceDetailActivity extends SessionActivity {
                         + safe(room.getRentalPolicy())
                         + "\n\nGia hạn\n"
                         + safe(room.getRenewalPolicy()));
+        b.hostAvatar.setVisibility(state.data.hostPhotoUrl.isEmpty() ? View.GONE : View.VISIBLE);
+        if (!state.data.hostPhotoUrl.isEmpty())
+            vn.edu.ueh.phuclu.broomsharing.utils.OnlineImages.show(
+                    b.hostAvatar, Uri.parse(state.data.hostPhotoUrl));
         b.location.setText(
                 safe(building.getName())
                         + " • Tầng "

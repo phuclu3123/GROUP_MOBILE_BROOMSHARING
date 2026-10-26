@@ -354,6 +354,7 @@ public class HostViewModel extends AndroidViewModel {
     protected void onCleared() {
         stopBookings();
         stopDashboard();
+        media.close();
     }
 
     public void updateBookingStatus(String bookingId, String newStatus, String reason) {

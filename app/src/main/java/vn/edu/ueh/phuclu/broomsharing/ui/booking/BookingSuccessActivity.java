@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.ViewModelProvider;
 
 import vn.edu.ueh.phuclu.broomsharing.R;
@@ -53,16 +52,12 @@ public class BookingSuccessActivity extends SessionActivity {
         // Đóng màn hình chi tiết.
         b.confirmationBack.setOnClickListener(v -> finish());
 
-        // Thanh toán/hoàn tiền chưa tích hợp, nên nút chỉ giải thích trạng thái hiện tại.
+        // Backend tạo QR theo snapshot; không gửi số tiền hoặc tự ghi PAID từ Activity.
         b.bookingPayment.setOnClickListener(
                 v ->
-                        new AlertDialog.Builder(this)
-                                .setTitle("Chức năng đang phát triển")
-                                .setMessage(
-                                        "Thanh toán và hoàn tiền chưa được tích hợp. Ứng dụng chưa"
-                                                + " thu tiền cho yêu cầu này.")
-                                .setPositiveButton(android.R.string.ok, null)
-                                .show());
+                        startActivity(
+                                new Intent(this, BookingPaymentActivity.class)
+                                        .putExtra("bookingId", id)));
 
         // Mở danh sách booking và dọn các màn hình cũ phía trên khỏi back stack.
         b.btnGoBookings.setOnClickListener(
@@ -105,6 +100,17 @@ public class BookingSuccessActivity extends SessionActivity {
 
                     // Từ đây đã có dữ liệu booking để đưa lên giao diện.
                     Booking item = state.data;
+                    boolean received =
+                            "PAID".equals(item.paymentStatus)
+                                    || "REVIEW_REQUIRED".equals(item.paymentStatus);
+                    b.bookingPayment.setEnabled(
+                            received
+                                    || ("CONFIRMED".equals(item.status)
+                                            && item.startAt != null
+                                            && item.startAt.getTime()
+                                                    > System.currentTimeMillis()));
+                    b.bookingPayment.setText(
+                            received ? "Xem giao dịch" : "Thanh toán trả trước 40%");
                     // Calendar Intent không ghi thẳng lịch; Guest xác nhận trong ứng dụng Lịch.
                     b.bookingCalendar.setVisibility(
                             BookingCalendar.canSave(item, System.currentTimeMillis())
@@ -181,28 +187,29 @@ public class BookingSuccessActivity extends SessionActivity {
                     b.tvConfirmationNote.setText(
                             "NO_SHOW".equals(item.status)
                                     ? "Host đã xác nhận khách không đến. Nếu kết luận chưa đúng,"
-                                          + " bạn có thể gửi phản ánh theo booking.\n"
-                                          + "Lý do: "
+                                            + " bạn có thể gửi phản ánh theo booking.\n"
+                                            + "Lý do: "
                                             + item.rejectionReason
                                     : "TERMINATED".equals(item.status)
                                             ? "Lượt thuê kết thúc do sự cố.\nLý do: "
                                                     + item.rejectionReason
                                                     + "\nKhép đơn: "
                                                     + TimeUtils.formatVietnam(item.closedAt)
-                                                    + "\nChưa xác nhận thu/hoàn tiền."
+                                                    + "\n"
+                                                    + FormatUtils.paymentStatus(item.paymentStatus)
                                             : "CONFIRMED".equals(item.status)
                                                             && item.endAt != null
                                                             && item.endAt.getTime()
                                                                     <= System.currentTimeMillis()
                                                     ? "Đã hết thời gian thuê, chờ xác nhận tình"
-                                                          + " trạng sử dụng. Bạn có thể gửi phản"
-                                                          + " ánh nếu Host chưa ghi nhận đúng."
+                                                            + " trạng sử dụng. Bạn có thể gửi phản"
+                                                            + " ánh nếu Host chưa ghi nhận đúng."
                                                     : "COMPLETED".equals(item.status)
                                                                     && item.usageConfirmedAt == null
                                                             ? "Đơn cũ chưa có xác nhận sử dụng."
-                                                                  + " Liên hệ Admin qua phản ánh"
-                                                                  + " theo booking để xác minh"
-                                                                  + " quyền đánh giá."
+                                                                    + " Liên hệ Admin qua phản ánh"
+                                                                    + " theo booking để xác minh"
+                                                                    + " quyền đánh giá."
                                                             : "EXPIRED".equals(item.status)
                                                                     ? "Yêu cầu chưa được duyệt khi"
                                                                           + " đến giờ bắt đầu. Lịch"
