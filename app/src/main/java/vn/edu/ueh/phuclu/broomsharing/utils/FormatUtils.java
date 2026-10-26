@@ -32,6 +32,8 @@ public class FormatUtils {
         if ("REJECTED".equals(value)) return "Đã từ chối";
         if ("COMPLETED".equals(value)) return "Hoàn tất";
         if ("CHECKED_IN".equals(value)) return "Đã ghi nhận vào phòng";
+        if ("NO_SHOW".equals(value)) return "Khách không đến";
+        if ("TERMINATED".equals(value)) return "Kết thúc do sự cố";
         return "Trạng thái: " + value;
     }
 

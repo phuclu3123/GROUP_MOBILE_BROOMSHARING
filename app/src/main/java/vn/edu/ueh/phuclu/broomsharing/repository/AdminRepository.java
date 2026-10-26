@@ -4,7 +4,7 @@ import com.google.android.gms.tasks.*;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.*;
 import com.google.firebase.storage.StorageReference;
-import java.util.*;
+
 import vn.edu.ueh.phuclu.broomsharing.model.AuditLog;
 import vn.edu.ueh.phuclu.broomsharing.model.PublicHost;
 import vn.edu.ueh.phuclu.broomsharing.model.ReviewItem;
@@ -14,6 +14,8 @@ import vn.edu.ueh.phuclu.broomsharing.utils.FirebaseHelper;
 import vn.edu.ueh.phuclu.broomsharing.utils.FormatUtils;
 import vn.edu.ueh.phuclu.broomsharing.utils.HostValidation;
 import vn.edu.ueh.phuclu.broomsharing.utils.TimeUtils;
+
+import java.util.*;
 
 /** Admin reads and atomic writes through the Firestore Android SDK. */
 public class AdminRepository {
@@ -277,10 +279,25 @@ public class AdminRepository {
                             + text(d, "reason");
         } else {
             title = text(d, "reason");
-            details = text(d, "description")+"\n\nPhòng: "+text(d,"roomId")+"\nChủ: "+text(d,"ownerUid")+"\nNgười gửi: "+text(d,"reporterUid")+"\nTrạng thái: "+status
-                    +"\nBooking liên quan: "+text(d,"bookingId")
-                    +"\nPhản hồi Host: "+text(d,"hostResponse")+"\nKết luận: "+text(d,"resolution")
-                    +"\nTệp bằng chứng: đang phát triển; không coi mô tả là kết luận vi phạm.";
+            details =
+                    text(d, "description")
+                            + "\n\nPhòng: "
+                            + text(d, "roomId")
+                            + "\nChủ: "
+                            + text(d, "ownerUid")
+                            + "\nNgười gửi: "
+                            + text(d, "reporterUid")
+                            + "\nTrạng thái: "
+                            + status
+                            + "\nBooking liên quan: "
+                            + text(d, "bookingId")
+                            + "\nPhản hồi Host: "
+                            + text(d, "hostResponse")
+                            + "\nKết luận: "
+                            + text(d, "resolution")
+                            + "\n"
+                            + "Tệp bằng chứng: đang phát triển; không coi mô tả là kết luận vi"
+                            + " phạm.";
         }
         ReviewItem item =
                 new ReviewItem(
@@ -335,6 +352,12 @@ public class AdminRepository {
                 return "Ghi nhận vào phòng demo";
             case "COMPLETED":
                 return "Hoàn tất booking";
+            case "NO_SHOW":
+                return "Xác nhận khách không đến";
+            case "TERMINATED":
+                return "Kết thúc lượt thuê do sự cố";
+            case "ATTENDANCE_CONFIRMED":
+                return "Xác minh sử dụng cho booking cũ";
             case "SAVE_ROOM":
                 return "Sửa thông tin phòng";
             case "SET_LISTING":
@@ -350,8 +373,10 @@ public class AdminRepository {
             String reason,
             boolean evidenceReviewed,
             ResultCallback<String> cb) {
-        if("REPORT".equals(item.kind)){
-            new ReportRepository().resolve(item.id,approve?"RESOLVED":"DISMISSED","NO_ACTION",reason,cb);return;
+        if ("REPORT".equals(item.kind)) {
+            new ReportRepository()
+                    .resolve(item.id, approve ? "RESOLVED" : "DISMISSED", "NO_ACTION", reason, cb);
+            return;
         }
         final String actor;
         String note = reason == null ? "" : reason.trim();
@@ -447,17 +472,15 @@ public class AdminRepository {
                                 changes.put("moderatedBy", actor);
                             } else {
                                 String pending =
-                                        "ROOM".equals(item.kind)
-                                                ? "PENDING_REVIEW"
-                                                : "PENDING";
+                                        "ROOM".equals(item.kind) ? "PENDING_REVIEW" : "PENDING";
                                 BookingPolicy.require(
                                         pending.equals(before),
                                         "Hồ sơ đã được xử lý. Vui lòng tải lại.");
                                 action = approve ? "APPROVE" : "REJECT";
                                 after =
                                         "VERIFICATION".equals(item.kind)
-                                                        ? approve ? "VERIFIED" : "REJECTED"
-                                                        : approve ? "APPROVED" : "REJECTED";
+                                                ? approve ? "VERIFIED" : "REJECTED"
+                                                : approve ? "APPROVED" : "REJECTED";
                                 changes.put("reviewedBy", actor);
                                 changes.put("rejectionReason", note);
                                 if ("HOST".equals(item.kind)) {
@@ -638,7 +661,7 @@ public class AdminRepository {
                                                     cb.onError(
                                                             new Exception(
                                                                     "Bằng chứng không thuộc hồ"
-                                                                        + " sơ."));
+                                                                            + " sơ."));
                                                     return;
                                                 }
                                                 StorageReference file =

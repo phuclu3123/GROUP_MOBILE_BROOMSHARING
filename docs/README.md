@@ -15,5 +15,6 @@ Chỉ giữ tài liệu phản ánh code hiện tại. Ứng dụng dùng **Java
 | Nghiệm thu booking/nghiệp vụ bằng tài khoản thật trên cloud và dữ liệu quay video | [Nghiệm thu cloud](testing/cloud-business-acceptance-2026-10-24.md) |
 | Bản hợp nhất Trúc/Hoàng và công việc mới giai đoạn 3–4 | [Nghiệm thu tích hợp](testing/member-integration-2026-10-25.md), [bàn giao](testing/phase3-phase4-handoff-2026-10-25.md), [đối chiếu nhánh](testing/upstream-members-review-2026-10-25.md) |
 | Bộ đếm phòng cũ, phiên bản booking và chuyển đổi dữ liệu cloud | [Tương thích phòng cũ](testing/room-counter-compatibility-2026-10-25.md) |
+| Khép lượt đang sử dụng của Host bị khóa, khách không đến và quyền đánh giá | [Chính sách và nghiệm thu 26/10](testing/booking-resolution-2026-10-26.md) |
 
 File phân công `.xlsx` và slide gốc vẫn ở đường dẫn người dùng cung cấp tại thư mục dự án; không phải mã nguồn ứng dụng. Các báo cáo cũ, log Functions, ảnh/log thử lặp và tài liệu mô tả kiến trúc đã bỏ không được giữ lẫn với hướng dẫn hiện tại.

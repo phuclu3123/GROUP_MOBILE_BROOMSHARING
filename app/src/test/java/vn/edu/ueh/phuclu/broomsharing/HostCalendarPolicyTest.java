@@ -45,7 +45,7 @@ public class HostCalendarPolicyTest {
 
     @Test
     public void releasedStatesAndOtherRoomsAreNotHolds() {
-        for (String status : Arrays.asList("EXPIRED", "REJECTED", "CANCELLED", "COMPLETED")) {
+        for (String status : Arrays.asList("EXPIRED", "REJECTED", "CANCELLED", "COMPLETED", "NO_SHOW", "TERMINATED")) {
             assertTrue(
                     HostCalendarPolicy.heldOnDay(
                                     Collections.singletonList(

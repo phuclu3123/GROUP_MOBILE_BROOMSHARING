@@ -1,15 +1,16 @@
 package vn.edu.ueh.phuclu.broomsharing.utils;
 
+import vn.edu.ueh.phuclu.broomsharing.model.AvailabilityMonth;
+import vn.edu.ueh.phuclu.broomsharing.model.Booking;
+import vn.edu.ueh.phuclu.broomsharing.model.Room;
+import vn.edu.ueh.phuclu.broomsharing.model.RoomBlackout;
+
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import vn.edu.ueh.phuclu.broomsharing.model.AvailabilityMonth;
-import vn.edu.ueh.phuclu.broomsharing.model.Booking;
-import vn.edu.ueh.phuclu.broomsharing.model.Room;
-import vn.edu.ueh.phuclu.broomsharing.model.RoomBlackout;
 
 /** Plain Java rules, no Firebase I/O or UI. Repository always reads current room data. */
 public final class BookingPolicy {
@@ -199,7 +200,13 @@ public final class BookingPolicy {
 
     public static void transition(Booking booking, String target, String reason, long now) {
         require(
-                Arrays.asList("CONFIRMED", "REJECTED", "CANCELLED", "CHECKED_IN", "COMPLETED", "EXPIRED")
+                Arrays.asList(
+                                "CONFIRMED",
+                                "REJECTED",
+                                "CANCELLED",
+                                "CHECKED_IN",
+                                "COMPLETED",
+                                "EXPIRED")
                         .contains(target),
                 "Trạng thái không hợp lệ.");
         require(
@@ -214,12 +221,13 @@ public final class BookingPolicy {
                         : "CHECKED_IN".equals(target)
                                 ? Collections.singletonList("CONFIRMED")
                                 : "COMPLETED".equals(target)
-                                        ? Arrays.asList("CONFIRMED", "CHECKED_IN")
+                                        ? Collections.singletonList("CHECKED_IN")
                                         : Collections.singletonList("PENDING");
         require(allowed.contains(booking.status), "Booking đã đổi trạng thái. Vui lòng tải lại.");
         // Yêu cầu chờ duyệt chỉ hết hạn từ đúng giờ bắt đầu, không dùng hạn 24 giờ.
         if ("EXPIRED".equals(target))
-            require(booking.startAt != null && booking.startAt.getTime() <= now,
+            require(
+                    booking.startAt != null && booking.startAt.getTime() <= now,
                     "Chưa tới giờ bắt đầu để chuyển hết hạn.");
         else if ("CHECKED_IN".equals(target))
             require(
@@ -233,9 +241,13 @@ public final class BookingPolicy {
     public static void validateRoomChange(
             Room previous, Room next, List<AvailabilityMonth> months, long now) {
         // Giữ cấu hình lịch ổn định khi còn booking; không chỉ dựa vào form hoặc query trước.
-        if (scheduleChanged(previous, next)) require(previous.activeBookingCount == 0,
-                previous.activeBookingCount < 0 ? "Lịch phòng cũ cần Admin đối soát trước khi sửa."
-                        : "Còn booking giữ chỗ; xử lý hết booking trước khi đổi cấu hình lịch.");
+        if (scheduleChanged(previous, next))
+            require(
+                    previous.activeBookingCount == 0,
+                    previous.activeBookingCount < 0
+                            ? "Lịch phòng cũ cần Admin đối soát trước khi sửa."
+                            : "Còn booking giữ chỗ; xử lý hết booking trước khi đổi cấu hình"
+                                  + " lịch.");
         for (AvailabilityMonth month : months) {
             YearMonth ym = YearMonth.of(month.monthIndex / 100, month.monthIndex % 100);
             if (!month.fixedBookingId.isEmpty()) {
@@ -267,7 +279,7 @@ public final class BookingPolicy {
                                 && previous.getSlotMinutes() == next.getSlotMinutes()
                                 && previous.getMinBookingMinutes() == next.getMinBookingMinutes(),
                         "Còn lịch giữ chỗ, chưa thể đổi tòa nhà/hình thức/bước giờ/thời lượng tối"
-                            + " thiểu.");
+                                + " thiểu.");
                 require(
                         next.getWorkingDays().contains(at.getDayOfWeek().getValue())
                                 && at.getHour() * 60 + at.getMinute() >= minutes(next.getOpenTime())
@@ -294,7 +306,8 @@ public final class BookingPolicy {
 
     private static List<String> blackoutSignature(Room r) {
         List<String> result = new ArrayList<>();
-        for (RoomBlackout b : r.getBlackoutRanges()) result.add(b.getStartAt() + ":" + b.getEndAt() + ":" + b.getReason());
+        for (RoomBlackout b : r.getBlackoutRanges())
+            result.add(b.getStartAt() + ":" + b.getEndAt() + ":" + b.getReason());
         return result;
     }
 }

@@ -72,8 +72,7 @@ P32 đã có xử lý báo cáo, đình chỉ phòng/khóa Host, audit và Admin
 
 ## Những nhánh cần bàn tiếp, chưa tự thay đổi
 
-- Host bị khóa khi booking đã CHECKED_IN: Admin hiện xem riêng, chưa có thao tác khép vụ việc trong Repository/UI. Cần chốt quyền xử lý từng đơn, thời điểm và lý do; không tự hủy hàng loạt hoặc mở khóa Host để đi vòng.
-- Khách không đến: CONFIRMED hiện có thể chuyển COMPLETED sau giờ kết thúc, rồi đủ điều kiện review. Cần quyết định phân biệt với lượt đã sử dụng trước khi thay trạng thái hoặc điều kiện đánh giá.
+- Hai nhánh Host bị khóa khi `CHECKED_IN` và khách không đến đã được chốt bổ sung ngày 26/10: [chính sách khép lượt thuê và đánh giá](booking-resolution-2026-10-26.md). Không còn dùng mô tả Admin chỉ xem `CHECKED_IN` hoặc hoàn tất im lặng từ `CONFIRMED` làm contract cho UI.
 - Payment chưa có scope về khoản 60% còn lại, thời hạn thanh toán, callback đến sau hủy/hết hạn, hoàn tiền và quyết toán cho Host. Phúc trao đổi với nhóm trước khi triển khai.
 - Hồ sơ cá nhân hiện chủ yếu xem thông tin; sửa tên/số điện thoại là bổ sung nhỏ có thể cân nhắc, chưa giao thành hạng mục bắt buộc.
 

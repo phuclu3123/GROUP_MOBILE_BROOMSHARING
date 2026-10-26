@@ -11,6 +11,7 @@ import vn.edu.ueh.phuclu.broomsharing.model.Booking;
 import vn.edu.ueh.phuclu.broomsharing.model.PublicHost;
 import vn.edu.ueh.phuclu.broomsharing.model.Room;
 import vn.edu.ueh.phuclu.broomsharing.utils.BookingPolicy;
+import vn.edu.ueh.phuclu.broomsharing.utils.BookingResolutionPolicy;
 import vn.edu.ueh.phuclu.broomsharing.utils.CancellationPolicy;
 import vn.edu.ueh.phuclu.broomsharing.utils.FirebaseHelper;
 import vn.edu.ueh.phuclu.broomsharing.utils.HostSchedule;
@@ -116,11 +117,17 @@ public class BookingRepository {
         // Ghi lại ai đã tạo/chuyển trạng thái booking và trạng thái trước/sau.
         tx.set(
                 db.collection("auditLogs")
-                        .document("booking_" + bookingId + "_" + (from.isEmpty() ? "CREATE" : to)),
+                        .document(
+                                "booking_"
+                                        + bookingId
+                                        + "_"
+                                        + (from.equals(to)
+                                                ? "ATTENDANCE_CONFIRMED"
+                                                : from.isEmpty() ? "CREATE" : to)),
                 new AuditLog(
                         uid,
                         "bookings/" + bookingId,
-                        from.isEmpty() ? "CREATE" : to,
+                        from.equals(to) ? "ATTENDANCE_CONFIRMED" : from.isEmpty() ? "CREATE" : to,
                         Collections.singletonMap("status", from),
                         Collections.singletonMap("status", to),
                         reason));
@@ -284,25 +291,24 @@ public class BookingRepository {
                                                     ? participant
                                                     : uid.equals(booking.ownerUid)),
                                     "Không được xử lý booking này.");
-                            if (target.equals(booking.status)) return id;
-                            // Admin chỉ can thiệp đơn chưa vào phòng khi Host bị khóa.
+                            if (target.equals(booking.status)
+                                    && !(admin
+                                            && "COMPLETED".equals(target)
+                                            && booking.usageConfirmedAt == null)) return id;
+                            boolean blockedOwner = false;
                             if (admin && !expired) {
                                 DocumentSnapshot owner =
                                         tx.get(db.collection("users").document(booking.ownerUid));
-                                BookingPolicy.require(
-                                        "BLOCKED".equals(owner.getString("status"))
-                                                && "CANCELLED".equals(target)
-                                                && Arrays.asList("PENDING", "CONFIRMED")
-                                                        .contains(booking.status)
-                                                && !note.isEmpty(),
-                                        "Admin chỉ hủy đơn chưa check-in của Host bị khóa và phải"
-                                            + " ghi lý do.");
+                                blockedOwner = "BLOCKED".equals(owner.getString("status"));
                             }
                             // Kiểm tra chuyển trạng thái có hợp lệ theo domain và thời điểm không.
-                            if (!admin || expired)
-                                BookingPolicy.transition(
-                                        booking, target, note, System.currentTimeMillis());
-                            if (target.equals(booking.status)) return id;
+                            BookingResolutionPolicy.validate(
+                                    booking,
+                                    target,
+                                    note,
+                                    admin,
+                                    blockedOwner,
+                                    System.currentTimeMillis());
                             int refundPercent = 0;
                             if ("CANCELLED".equals(target)) {
                                 // Host phải ghi lý do; trạng thái thanh toán chưa tích hợp chỉ cho
@@ -313,7 +319,7 @@ public class BookingRepository {
                                         Arrays.asList("UNAVAILABLE", "DEMO_PENDING", "UNPAID")
                                                 .contains(booking.paymentStatus),
                                         "Booking có thông tin thanh toán cần được đối soát; chức"
-                                            + " năng này đang phát triển.");
+                                                + " năng này đang phát triển.");
                                 if (CancellationPolicy.versioned(booking)) {
                                     refundPercent =
                                             (uid.equals(booking.ownerUid) || admin)
@@ -326,7 +332,7 @@ public class BookingRepository {
                                             expectedRefundPercent == null
                                                     || expectedRefundPercent == refundPercent,
                                             "Đã qua mốc chính sách. Vui lòng mở lại xác nhận hủy để"
-                                                + " xem mức hoàn hiện tại.");
+                                                    + " xem mức hoàn hiện tại.");
                                 }
                             }
                             BookingPolicy.require(
@@ -346,15 +352,16 @@ public class BookingRepository {
                                         "APPROVED".equals(room.getApprovalStatus())
                                                 && "ACTIVE".equals(room.getListingStatus()),
                                         "Phòng không còn nhận đặt.");
-                            List<AvailabilityMonth> months = months(tx, booking);
+                            boolean heldBefore = BookingResolutionPolicy.holds(booking.status);
+                            List<AvailabilityMonth> months =
+                                    heldBefore ? months(tx, booking) : Collections.emptyList();
                             // Từ chối, hủy hoặc hoàn tất sẽ giải phóng khoảng lịch đã giữ.
                             boolean release =
-                                    Arrays.asList("REJECTED", "CANCELLED", "COMPLETED", "EXPIRED")
-                                            .contains(target);
+                                    heldBefore && BookingResolutionPolicy.terminal(target);
                             BookingPolicy.require(
                                     !release || room.activeBookingCount != 0,
                                     "Số booking giữ lịch không khớp. Cần Admin đối soát trước khi"
-                                        + " tiếp tục.");
+                                            + " tiếp tục.");
                             for (AvailabilityMonth month : months) {
                                 if (release) BookingPolicy.release(month, booking);
                                 else if ("FIXED".equals(booking.activeMode))
@@ -379,11 +386,32 @@ public class BookingRepository {
                                     "status",
                                     target,
                                     "rejectionReason",
-                                    Arrays.asList("REJECTED", "CANCELLED").contains(target)
+                                    Arrays.asList(
+                                                            "REJECTED",
+                                                            "CANCELLED",
+                                                            "NO_SHOW",
+                                                            "TERMINATED",
+                                                            "COMPLETED")
+                                                    .contains(target)
                                             ? note
                                             : "",
                                     "updatedAt",
                                     FieldValue.serverTimestamp());
+                            // Không sửa snapshot giá, thời gian thuê hoặc trạng thái tiền khi khép
+                            // vụ việc.
+                            if ("CHECKED_IN".equals(target)
+                                    || "COMPLETED".equals(target)
+                                    || "TERMINATED".equals(target)) {
+                                if (booking.usageConfirmedAt == null)
+                                    tx.update(
+                                            ref,
+                                            "usageConfirmedAt",
+                                            FieldValue.serverTimestamp(),
+                                            "usageConfirmedBy",
+                                            uid);
+                            }
+                            if (BookingResolutionPolicy.terminal(target))
+                                tx.update(ref, "closedAt", FieldValue.serverTimestamp());
                             if ("CANCELLED".equals(target))
                                 tx.update(
                                         ref,
@@ -498,7 +526,9 @@ public class BookingRepository {
     public ListenerRegistration watchAdmin(ResultCallback<List<Booking>> callback) {
         // Chỉ lấy đơn chưa kết thúc; không để giới hạn trang che mất các yêu cầu quá hạn cũ.
         return db.collection("bookings")
-                .whereIn("status", Arrays.asList("PENDING", "CONFIRMED", "CHECKED_IN"))
+                .whereIn(
+                        "status",
+                        Arrays.asList("PENDING", "CONFIRMED", "CHECKED_IN", "NO_SHOW", "COMPLETED"))
                 .orderBy("startAt")
                 .addSnapshotListener(
                         MetadataChanges.INCLUDE,
@@ -559,7 +589,7 @@ public class BookingRepository {
                                                                                                             .get(
                                                                                                                     "bookingRevision")),
                                                                             "Lịch vừa đổi; hãy đối"
-                                                                                + " soát lại.");
+                                                                                    + " soát lại.");
                                                                     tx.update(
                                                                             roomRef,
                                                                             "activeBookingCount",

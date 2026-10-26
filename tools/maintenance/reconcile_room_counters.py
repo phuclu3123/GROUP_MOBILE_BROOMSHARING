@@ -19,7 +19,7 @@ PROJECT = "broom-sharing-firebase-mobile"
 DATABASE = "broomsharing"
 OUTPUT = ROOT / "output/verification/room-counter-compatibility-2026-10-25"
 HELD = {"PENDING", "CONFIRMED", "CHECKED_IN"}
-TERMINAL = {"CANCELLED", "REJECTED", "COMPLETED", "EXPIRED"}
+TERMINAL = {"CANCELLED", "REJECTED", "COMPLETED", "EXPIRED", "NO_SHOW", "TERMINATED"}
 
 
 class FirebaseError(RuntimeError):

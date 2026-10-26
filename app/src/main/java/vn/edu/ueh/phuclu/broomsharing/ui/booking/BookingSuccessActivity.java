@@ -112,7 +112,9 @@ public class BookingSuccessActivity extends SessionActivity {
                                     : View.GONE);
                     b.bookingCalendar.setOnClickListener(v -> BookingCalendar.open(this, item));
                     b.bookingReview.setVisibility(
-                            profile.uid.equals(item.guestUid) && "COMPLETED".equals(item.status)
+                            profile.uid.equals(item.guestUid)
+                                            && vn.edu.ueh.phuclu.broomsharing.utils.ReviewPolicy
+                                                    .canReview(item, System.currentTimeMillis())
                                     ? View.VISIBLE
                                     : View.GONE);
                     b.bookingReview.setOnClickListener(
@@ -177,14 +179,47 @@ public class BookingSuccessActivity extends SessionActivity {
                                     + "\n"
                                     + FormatUtils.paymentStatus(item.paymentStatus));
                     b.tvConfirmationNote.setText(
-                            "EXPIRED".equals(item.status)
-                                    ? "Yêu cầu chưa được duyệt khi đến giờ bắt đầu. Lịch đã được"
-                                          + " nhả; booking được giữ trong lịch sử."
-                                    : ("PENDING".equals(item.status)
-                                                    ? "Đang giữ chỗ, chờ Host xác nhận.\n"
-                                                    : "")
-                                            + CancellationPolicy.summary(
-                                                    item, System.currentTimeMillis()));
+                            "NO_SHOW".equals(item.status)
+                                    ? "Host đã xác nhận khách không đến. Nếu kết luận chưa đúng,"
+                                          + " bạn có thể gửi phản ánh theo booking.\n"
+                                          + "Lý do: "
+                                            + item.rejectionReason
+                                    : "TERMINATED".equals(item.status)
+                                            ? "Lượt thuê kết thúc do sự cố.\nLý do: "
+                                                    + item.rejectionReason
+                                                    + "\nKhép đơn: "
+                                                    + TimeUtils.formatVietnam(item.closedAt)
+                                                    + "\nChưa xác nhận thu/hoàn tiền."
+                                            : "CONFIRMED".equals(item.status)
+                                                            && item.endAt != null
+                                                            && item.endAt.getTime()
+                                                                    <= System.currentTimeMillis()
+                                                    ? "Đã hết thời gian thuê, chờ xác nhận tình"
+                                                          + " trạng sử dụng. Bạn có thể gửi phản"
+                                                          + " ánh nếu Host chưa ghi nhận đúng."
+                                                    : "COMPLETED".equals(item.status)
+                                                                    && item.usageConfirmedAt == null
+                                                            ? "Đơn cũ chưa có xác nhận sử dụng."
+                                                                  + " Liên hệ Admin qua phản ánh"
+                                                                  + " theo booking để xác minh"
+                                                                  + " quyền đánh giá."
+                                                            : "EXPIRED".equals(item.status)
+                                                                    ? "Yêu cầu chưa được duyệt khi"
+                                                                          + " đến giờ bắt đầu. Lịch"
+                                                                          + " đã được nhả; booking"
+                                                                          + " được giữ trong lịch"
+                                                                          + " sử."
+                                                                    : ("PENDING".equals(item.status)
+                                                                                    ? "Đang giữ"
+                                                                                          + " chỗ,"
+                                                                                          + " chờ Host"
+                                                                                          + " xác nhận.\n"
+                                                                                    : "")
+                                                                            + CancellationPolicy
+                                                                                    .summary(
+                                                                                            item,
+                                                                                            System
+                                                                                                    .currentTimeMillis()));
                 });
 
         // Bắt đầu nhận dữ liệu chi tiết ngay khi observer đã được đăng ký.

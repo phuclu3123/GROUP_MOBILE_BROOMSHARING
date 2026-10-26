@@ -10,7 +10,7 @@ import java.util.*;
 
 // Đọc đánh giá công khai và ghi một lần cho mỗi booking; không tự cộng điểm trên client.
 /*
-   Mỗi booking đã hoàn tất chỉ được tạo một nhận xét của chính Guest.
+   Mỗi lượt đã sử dụng và kết thúc chỉ được tạo một nhận xét của chính Guest.
    Transaction kiểm lại trạng thái và chủ booking, retry cùng nội dung trả về ID cũ.
 */
 public class ReviewRepository {

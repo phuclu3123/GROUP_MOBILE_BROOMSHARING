@@ -104,7 +104,11 @@ service cloud.firestore {
     function bookingRevision(b) {
       let old=get(/databases/$(database)/documents/rooms/$(b.roomId)).data;
       let n=getAfter(/databases/$(database)/documents/rooms/$(b.roomId)).data;
-      return n.bookingRevision==old.get('bookingRevision',0)+1 && n.lastBookingId==b.id;
+      let previous=exists(/databases/$(database)/documents/bookings/$(b.id))?get(/databases/$(database)/documents/bookings/$(b.id)).data.status:'';
+      let count=old.get('activeBookingCount',-1);
+      let next=count<0?-1:b.createdAt==request.time?count+1:previous in ['PENDING','CONFIRMED','CHECKED_IN']&&b.status in ['CANCELLED','REJECTED','COMPLETED','EXPIRED','NO_SHOW','TERMINATED']?count-1:count;
+      return n.bookingRevision==old.get('bookingRevision',0)+1 && n.lastBookingId==b.id
+        && n.activeBookingCount==next && (count<0||next>=0);
     }
     match /users/{uid} {
       allow read: if own(uid)||admin();
@@ -180,7 +184,8 @@ service cloud.firestore {
         let n=request.resource.data;
         let b=getAfter(/databases/$(database)/documents/bookings/$(n.lastBookingId)).data;
         let c=resource.data.get('activeBookingCount',-1);
-        let count=c<0?-1:b.createdAt==request.time?c+1:b.status in ['CANCELLED','REJECTED','COMPLETED','EXPIRED']?c-1:c;
+        let previous=exists(/databases/$(database)/documents/bookings/$(b.id))?get(/databases/$(database)/documents/bookings/$(b.id)).data.status:'';
+        let count=c<0?-1:b.createdAt==request.time?c+1:previous in ['PENDING','CONFIRMED','CHECKED_IN']&&b.status in ['CANCELLED','REJECTED','COMPLETED','EXPIRED','NO_SHOW','TERMINATED']?c-1:c;
         return renter() && n.activeBookingCount==count && (c<0 || count>=0)
           && n.bookingRevision==resource.data.get('bookingRevision',0)+1
           && b.roomId==id && b.updatedAt==request.time && request.auth.uid in [b.guestUid,b.ownerUid]
@@ -199,31 +204,55 @@ service cloud.firestore {
         let owner=get(/databases/$(database)/documents/users/$(r.ownerUid)).data;
         let guest=account();
         let building=get(/databases/$(database)/documents/buildings/$(r.buildingId)).data;
-        return b.keys().hasOnly(['id','schemaVersion','roomId','roomName','roomAddress','ownerUid','guestUid','guestName','guestPhone','status','paymentStatus','activeMode','rejectionReason','startAt','endAt','totalAmount','priceSnapshot','rentalMonths','slotStart','slotCount','monthKeys','slotKeys','requestFingerprint','createdAt','updatedAt','cancelledAt','cancelledByUid','cancellationRefundPercent','refundAmount','refundStatus'])
+        return b.keys().hasOnly(['id','schemaVersion','roomId','roomName','roomAddress','ownerUid','guestUid','guestName','guestPhone','status','paymentStatus','activeMode','rejectionReason','startAt','endAt','totalAmount','priceSnapshot','rentalMonths','slotStart','slotCount','monthKeys','slotKeys','requestFingerprint','createdAt','updatedAt','cancelledAt','cancelledByUid','cancellationRefundPercent','refundAmount','refundStatus','usageConfirmedAt','usageConfirmedBy','closedAt'])
           && b.id==id&&id.matches('[a-f0-9]{64}')&&b.schemaVersion==2&&own(b.guestUid)&&!own(b.ownerUid)
           && b.ownerUid==r.ownerUid&&owner.role=='HOST'&&owner.status=='ACTIVE'&&publicRoom(r)
           && building.ownerUid==r.ownerUid&&building.status=='ACTIVE'
           && b.roomName==r.roomName&&b.roomAddress==r.address&&b.guestName==guest.name&&b.guestPhone==guest.phone
           && b.status=='PENDING'&&b.paymentStatus=='UNAVAILABLE'&&b.rejectionReason==''&&b.createdAt==request.time&&b.updatedAt==request.time
           && b.cancelledAt==null && b.get('cancelledByUid','')=='' && b.cancellationRefundPercent==0 && b.refundAmount==0 && b.refundStatus=='NOT_REQUIRED'
+          && b.get('usageConfirmedAt',null)==null && b.get('usageConfirmedBy','')=='' && b.get('closedAt',null)==null
           && b.requestFingerprint.matches('[a-f0-9]{64}')&&held(b)&&bookingRevision(b)&&auditAt(b,'CREATE');
       }
       function bookingTransition() {
         let before=resource.data;let after=request.resource.data;
-        return before.schemaVersion==2&&after.updatedAt==request.time&&bookingRevision(after)&&audited(after)
+        return before.schemaVersion==2&&after.updatedAt==request.time&&bookingRevision(after)
+          && auditAt(after,before.status=='COMPLETED'&&after.status=='COMPLETED'?'ATTENDANCE_CONFIRMED':after.status)
           && after.rejectionReason is string&&after.rejectionReason.size()<=500
+          && (after.get('closedAt',null)==before.get('closedAt',null)||(after.closedAt==request.time&&after.status in ['CANCELLED','REJECTED','EXPIRED','COMPLETED','NO_SHOW','TERMINATED']))
           && ((before.status=='PENDING'&&after.status=='EXPIRED'&&before.startAt<=request.time
               && (admin()||own(before.guestUid)||own(before.ownerUid))
-              && after.diff(before).affectedKeys().hasOnly(['status','rejectionReason','updatedAt'])&&released(after))
+              && after.diff(before).affectedKeys().hasOnly(['status','rejectionReason','updatedAt','closedAt'])&&released(after))
             || (admin()&&get(/databases/$(database)/documents/users/$(before.ownerUid)).data.status=='BLOCKED'
               && before.status in ['PENDING','CONFIRMED']&&after.status=='CANCELLED'
               && after.rejectionReason.size()>0&&released(after)&&cancellation())
             || ((own(before.guestUid)&&renter()||own(before.ownerUid)&&host())&&before.status in ['PENDING','CONFIRMED']&&after.status=='CANCELLED'&&before.startAt>request.time&&released(after)&&cancellation())
-            || (own(before.ownerUid)&&host()&&after.diff(before).affectedKeys().hasOnly(['status','rejectionReason','updatedAt'])&&(
+            || closeRental(before,after)
+            || (own(before.ownerUid)&&host()&&(
+              (after.diff(before).affectedKeys().hasOnly(['status','rejectionReason','updatedAt','closedAt'])&&(
               (before.status=='PENDING'&&before.startAt>request.time&&after.status=='CONFIRMED'&&publicRoom(get(/databases/$(database)/documents/rooms/$(before.roomId)).data)&&held(after))
-              ||(before.status=='PENDING'&&before.startAt>request.time&&after.status=='REJECTED'&&after.rejectionReason.size()>0&&released(after))
-              ||(before.status=='CONFIRMED'&&after.status=='CHECKED_IN'&&before.startAt<=request.time&&before.endAt>request.time&&held(after))
-              ||(before.status in ['CONFIRMED','CHECKED_IN']&&after.status=='COMPLETED'&&before.endAt<=request.time&&released(after)))));
+              ||(before.status=='PENDING'&&before.startAt>request.time&&after.status=='REJECTED'&&after.rejectionReason.size()>0&&released(after))))
+              ||(before.status=='CONFIRMED'&&after.status=='CHECKED_IN'&&before.startAt<=request.time&&before.endAt>request.time&&held(after)
+                && after.diff(before).affectedKeys().hasOnly(['status','rejectionReason','updatedAt','usageConfirmedAt','usageConfirmedBy'])&&usageValid(before,after)))));
+      }
+      // Xác nhận sử dụng có người chịu trách nhiệm; không cho client tự bịa mốc trong quá khứ.
+      function usageValid(b,n) {
+        return b.get('usageConfirmedAt',null)!=null
+          ? n.usageConfirmedAt==b.usageConfirmedAt&&n.usageConfirmedBy==b.usageConfirmedBy
+          : n.usageConfirmedAt==request.time&&n.usageConfirmedBy==request.auth.uid;
+      }
+      function closeRental(b,n) {
+        let correction=admin()&&(b.status in ['CONFIRMED','NO_SHOW']||b.status=='COMPLETED'&&b.get('usageConfirmedAt',null)==null);
+        let operator=(own(b.ownerUid)&&host())||(admin()&&get(/databases/$(database)/documents/users/$(b.ownerUid)).data.status=='BLOCKED');
+        return n.diff(b).affectedKeys().hasOnly(['status','rejectionReason','updatedAt','closedAt','usageConfirmedAt','usageConfirmedBy'])
+          && n.closedAt==request.time
+          && ((n.status=='COMPLETED'&&b.endAt<=request.time&&usageValid(b,n)
+              && ((operator&&b.status in ['CONFIRMED','CHECKED_IN']&&released(n))||(correction&&(b.status=='CONFIRMED'?released(n):true)))
+              && ((own(b.ownerUid)&&host()&&b.status=='CHECKED_IN')||n.rejectionReason.trim().size()>0))
+            ||(operator&&b.status=='CONFIRMED'&&n.status=='NO_SHOW'&&b.endAt<=request.time&&n.rejectionReason.trim().size()>0
+              && n.get('usageConfirmedAt',null)==b.get('usageConfirmedAt',null)&&n.get('usageConfirmedBy','')==b.get('usageConfirmedBy','')&&released(n))
+            ||(admin()&&operator&&b.status=='CHECKED_IN'&&n.status=='TERMINATED'&&b.startAt<=request.time
+              && n.rejectionReason.trim().size()>0&&usageValid(b,n)&&released(n)));
       }
       function cancellation() {
         let b=resource.data; let n=request.resource.data;
@@ -231,13 +260,12 @@ service cloud.firestore {
         let full=b.activeMode=='HOURLY'?86400000:604800000;
         let partial=b.activeMode=='HOURLY'?21600000:172800000;
         let rate=b.priceSnapshot.get('cancellationPolicyVersion',0)==1?((own(b.ownerUid)||admin())?100:remaining>=full?100:remaining>=partial?50:0):0;
-        return n.diff(b).affectedKeys().hasOnly(['status','rejectionReason','updatedAt','cancelledAt','cancelledByUid','cancellationRefundPercent','refundAmount','refundStatus'])
+        return n.diff(b).affectedKeys().hasOnly(['status','rejectionReason','updatedAt','cancelledAt','cancelledByUid','cancellationRefundPercent','refundAmount','refundStatus','closedAt'])
           && b.paymentStatus in ['UNAVAILABLE','DEMO_PENDING','UNPAID'] && n.cancelledAt==request.time
           && n.cancelledByUid==request.auth.uid && (!own(b.ownerUid)||n.rejectionReason.size()>0)
           && n.cancellationRefundPercent==rate && n.refundAmount==0 && n.refundStatus=='NOT_REQUIRED';
       }
     }
-    function audited(b) { return auditAt(b,b.status); }
     function auditAt(b,action) {
       let a=getAfter(/databases/$(database)/documents/auditLogs/$('booking_'+b.id+'_'+action)).data;
       return a.actorUid==request.auth.uid&&a.createdAt==request.time&&a.targetPath=='bookings/'+b.id&&a.action==action;
@@ -258,7 +286,7 @@ service cloud.firestore {
             && (b.activeMode=='FIXED'?old.slotsBusy.size()==0&&old.hourlyBookings.size()==0&&n.slotsBusy.size()==0&&n.hourlyBookings.size()==0&&n.fixedBookingId==b.id
               :n.fixedBookingId==''&&changed.hasOnly([b.id])&&!old.hourlyBookings.keys().hasAny([b.id])&&n.hourlyBookings[b.id]==b.slotKeys
                 &&!old.slotsBusy.hasAny(b.slotKeys)&&n.slotsBusy.toSet()==old.slotsBusy.toSet().union(b.slotKeys.toSet())))
-            ||((admin()||own(b.guestUid)||own(b.ownerUid))&&b.status in ['CANCELLED','REJECTED','COMPLETED','EXPIRED']
+            ||((admin()||own(b.guestUid)||own(b.ownerUid))&&b.status in ['CANCELLED','REJECTED','COMPLETED','EXPIRED','NO_SHOW','TERMINATED']
               && (b.activeMode=='FIXED'?old.fixedBookingId==b.id&&n.fixedBookingId==''&&n.slotsBusy==old.slotsBusy&&n.hourlyBookings==old.hourlyBookings
                 :n.fixedBookingId==old.fixedBookingId&&changed.hasOnly([b.id])&&old.hourlyBookings[b.id]==b.slotKeys&&!n.hourlyBookings.keys().hasAny([b.id])
                   && n.slotsBusy.toSet()==old.slotsBusy.toSet().difference(b.slotKeys.toSet()))));
@@ -423,7 +451,9 @@ service cloud.firestore {
         let b=get(/databases/$(database)/documents/bookings/$(id)).data;
         return r.keys().hasOnly(['bookingId','roomId','guestUid','guestName','rating','comment','createdAt'])
           && r.bookingId==id && b.roomId==r.roomId && own(b.guestUid) && r.guestUid==b.guestUid
-          && b.status=='COMPLETED' && b.endAt<=request.time && r.guestName==account().name
+          && b.get('usageConfirmedAt',null) is timestamp && b.usageConfirmedAt<=request.time
+          && ((b.status=='COMPLETED'&&b.endAt<=request.time)||(b.status=='TERMINATED'&&b.closedAt<=request.time))
+          && r.guestName==account().name
           && r.rating is int && r.rating>=1 && r.rating<=5
           && r.comment is string && r.comment.size()>=10 && r.comment.size()<=1000
           && r.createdAt==request.time;

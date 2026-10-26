@@ -35,9 +35,13 @@ public class AdminBookingsViewModel extends ViewModel {
     }
 
     public void cancel(String id, String reason) {
+        resolve(id, "CANCELLED", reason);
+    }
+
+    public void resolve(String id, String target, String reason) {
         if (busy()) return;
         action.setValue(UiState.loading());
-        repository.transition(id, "CANCELLED", reason, result());
+        repository.transition(id, target, reason, result());
     }
 
     public void reconcile(String roomId) {

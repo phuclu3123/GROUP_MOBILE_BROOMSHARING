@@ -34,5 +34,7 @@
         <item>Bị từ chối</item>
         <item>Đã vào phòng</item>
         <item>Hết hạn</item>
+        <item>Khách không đến</item>
+        <item>Kết thúc do sự cố</item>
     </string-array>
 </resources>

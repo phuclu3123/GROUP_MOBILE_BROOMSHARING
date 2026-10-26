@@ -2,6 +2,7 @@ package vn.edu.ueh.phuclu.broomsharing.model;
 
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.ServerTimestamp;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -11,10 +12,10 @@ import java.util.Map;
 
 /** Shared Firestore contract for bookings. Instants stored as Timestamp (UTC). */
 /*
-    Snapshot phòng, người thuê, giá và khóa lịch tại lúc đặt.
-    Các chuyển trạng thái phải qua BookingRepository để booking và lịch thay đổi cùng transaction.
-    Thông tin tỷ lệ hủy không xác nhận đã thu hoặc hoàn tiền.
- */
+   Snapshot phòng, người thuê, giá và khóa lịch tại lúc đặt.
+   Các chuyển trạng thái phải qua BookingRepository để booking và lịch thay đổi cùng transaction.
+   Thông tin tỷ lệ hủy không xác nhận đã thu hoặc hoàn tiền.
+*/
 public class Booking implements Serializable {
     public static final long CURRENT_SCHEMA_VERSION = 2;
     public static final long LEGACY_SCHEMA_VERSION = 1;
@@ -25,6 +26,8 @@ public class Booking implements Serializable {
     public static final String STATUS_COMPLETED = "COMPLETED";
     public static final String STATUS_CHECKED_IN = "CHECKED_IN";
     public static final String STATUS_EXPIRED = "EXPIRED";
+    public static final String STATUS_NO_SHOW = "NO_SHOW";
+    public static final String STATUS_TERMINATED = "TERMINATED";
 
     public String id;
     public String roomId;
@@ -56,6 +59,11 @@ public class Booking implements Serializable {
     public int cancellationRefundPercent;
     public double refundAmount;
     public String refundStatus = "NOT_REQUIRED";
+    // Mốc xác nhận việc sử dụng, không tự suy diễn từ giờ kết thúc hoặc trạng thái cũ.
+    public Date usageConfirmedAt;
+    public String usageConfirmedBy = "";
+    // Thời điểm khép hồ sơ trên hệ thống; giữ nguyên khoảng thuê trong startAt/endAt.
+    public Date closedAt;
     @Exclude public String requestKey = "";
 
     @ServerTimestamp public Date createdAt;

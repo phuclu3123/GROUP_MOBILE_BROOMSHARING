@@ -57,6 +57,9 @@ public class AdminBookingsActivity extends SessionActivity {
                 this,
                 state -> {
                     if (state == null) return;
+                    for (int i = 0; i < b.items.getChildCount(); i++)
+                        if (b.items.getChildAt(i) instanceof MaterialButton)
+                            b.items.getChildAt(i).setEnabled(!state.loading);
                     b.feedback.setText(
                             state.loading
                                     ? getString(R.string.business_loading)
@@ -73,13 +76,14 @@ public class AdminBookingsActivity extends SessionActivity {
                             state.loading
                                     ? getString(R.string.business_loading)
                                     : state.error == null
-                                            ? "Các đơn chưa kết thúc, sắp xếp theo giờ bắt đầu. Đơn"
-                                                    + " quá giờ chờ duyệt được đồng bộ hết hạn;"
-                                                    + " CHECKED_IN chỉ xem xét riêng, không tự kết"
-                                                    + " thúc."
+                                            ? "Xử lý từng đơn của Host bị khóa hoặc xác minh lại"
+                                                  + " việc sử dụng. Mọi quyết định cần lý do và"
+                                                  + " được lưu nhật ký."
                                             : state.error);
                     if (state.data == null) return;
                     for (Booking row : state.data) {
+                        if ("COMPLETED".equals(row.status) && row.usageConfirmedAt != null)
+                            continue;
                         TextView text = new TextView(this);
                         text.setTextSize(15);
                         text.setPadding(8, 24, 8, 16);
@@ -92,21 +96,46 @@ public class AdminBookingsActivity extends SessionActivity {
                                         + "\n"
                                         + TimeUtils.formatVietnam(row.startAt)
                                         + "\n"
-                                        + FormatUtils.bookingStatus(row.status));
+                                        + FormatUtils.bookingStatus(row.status)
+                                        + "\nKết thúc dự kiến: "
+                                        + TimeUtils.formatVietnam(row.endAt)
+                                        + (row.rejectionReason == null
+                                                        || row.rejectionReason.isEmpty()
+                                                ? ""
+                                                : "\nGhi nhận: " + row.rejectionReason));
                         text.setTextColor(getColor(R.color.text_primary));
                         b.items.addView(text);
                         if ("PENDING".equals(row.status) || "CONFIRMED".equals(row.status)) {
-                            MaterialButton button = new MaterialButton(this);
-                            button.setText("Hủy nếu Host bị khóa");
-                            button.setOnClickListener(v -> cancel(row));
-                            b.items.addView(button);
+                            addAction(row, "Hủy nếu Host bị khóa", "CANCELLED");
+                        }
+                        long now = System.currentTimeMillis();
+                        if ("CHECKED_IN".equals(row.status)) {
+                            addAction(row, "Kết thúc do sự cố (Host bị khóa)", "TERMINATED");
+                            if (row.endAt != null && row.endAt.getTime() <= now)
+                                addAction(row, "Hoàn tất thay Host bị khóa", "COMPLETED");
+                        } else if ("CONFIRMED".equals(row.status)
+                                && row.endAt != null
+                                && row.endAt.getTime() <= now) {
+                            addAction(row, "Xác minh khách đã sử dụng", "COMPLETED");
+                            addAction(row, "Khách không đến (Host bị khóa)", "NO_SHOW");
+                        } else if ("NO_SHOW".equals(row.status) || "COMPLETED".equals(row.status)) {
+                            addAction(row, "Xác minh và xác nhận khách đã sử dụng", "COMPLETED");
                         }
                     }
                 });
         model.watch();
     }
 
-    private void cancel(Booking row) {
+    private void addAction(Booking row, String title, String target) {
+        MaterialButton button = new MaterialButton(this);
+        button.setText(title);
+        button.setTag(row.id + ":" + target);
+        button.setEnabled(model.action.getValue() == null || !model.action.getValue().loading);
+        button.setOnClickListener(v -> resolve(row, target));
+        b.items.addView(button);
+    }
+
+    private void resolve(Booking row, String target) {
         EditText input = new EditText(this);
         input.setHint("Lý do can thiệp, tối đa 500 ký tự");
         input.setMinLines(2);
@@ -114,13 +143,14 @@ public class AdminBookingsActivity extends SessionActivity {
                 new android.text.InputFilter[] {new android.text.InputFilter.LengthFilter(500)});
         AlertDialog dialog =
                 new AlertDialog.Builder(this)
-                        .setTitle("Hủy booking của Host bị khóa")
+                        .setTitle(FormatUtils.bookingStatus(target))
                         .setMessage(
-                                "Chỉ hủy đơn chưa check-in. Nhả lịch và giữ lịch sử; không xác nhận"
-                                        + " hoàn tiền.")
+                                "Xác minh thực tế với các bên trước khi xử lý. Giữ lịch sử và nhật"
+                                    + " ký; không xác nhận thu/hoàn tiền. Việc khép đơn không mở"
+                                    + " khóa Host.")
                         .setView(input)
                         .setNegativeButton(android.R.string.cancel, null)
-                        .setPositiveButton("Hủy booking", null)
+                        .setPositiveButton("Xác nhận xử lý", null)
                         .create();
         dialog.setOnShowListener(
                 d ->
@@ -132,7 +162,7 @@ public class AdminBookingsActivity extends SessionActivity {
                                                 input.setError("Cần lý do xử lý.");
                                                 return;
                                             }
-                                            model.cancel(row.id, reason);
+                                            model.resolve(row.id, target, reason);
                                             dialog.dismiss();
                                         }));
         dialog.show();

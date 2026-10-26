@@ -141,6 +141,8 @@ public class HostBookingsActivity extends SessionActivity {
                                                         : "COMPLETED".equals(currentFilter)
                                                                 ? binding.chipCompleted
                                                                 : binding.chipAll;
+        if ("NO_SHOW".equals(currentFilter)) selected = binding.chipNoShow;
+        if ("TERMINATED".equals(currentFilter)) selected = binding.chipTerminated;
         setFilter(currentFilter, selected);
         refresh();
     }
@@ -221,6 +223,27 @@ public class HostBookingsActivity extends SessionActivity {
 
                             @Override
                             public void onProgress(Booking booking, String status) {
+                                // Chưa check-in không đồng nghĩa khách vắng; Host phải xác nhận
+                                // thực tế.
+                                if ("CONFIRMED".equals(booking.status)
+                                        && "COMPLETED".equals(status)) {
+                                    new AlertDialog.Builder(HostBookingsActivity.this)
+                                            .setTitle("Xác nhận tình trạng lượt thuê")
+                                            .setItems(
+                                                    new String[] {
+                                                        "Khách đã sử dụng, bổ sung xác nhận",
+                                                        "Khách không đến"
+                                                    },
+                                                    (dialog, which) ->
+                                                            showReasonDialog(
+                                                                    booking,
+                                                                    which == 0
+                                                                            ? "COMPLETED"
+                                                                            : "NO_SHOW"))
+                                            .setNegativeButton(android.R.string.cancel, null)
+                                            .show();
+                                    return;
+                                }
                                 new AlertDialog.Builder(HostBookingsActivity.this)
                                         .setTitle("Cập nhật lượt thuê")
                                         .setMessage(
@@ -252,6 +275,9 @@ public class HostBookingsActivity extends SessionActivity {
         binding.chipCancelled.setOnClickListener(
                 v -> setFilter("CANCELLED", binding.chipCancelled));
         binding.chipRejected.setOnClickListener(v -> setFilter("REJECTED", binding.chipRejected));
+        binding.chipNoShow.setOnClickListener(v -> setFilter("NO_SHOW", binding.chipNoShow));
+        binding.chipTerminated.setOnClickListener(
+                v -> setFilter("TERMINATED", binding.chipTerminated));
     }
 
     private void setFilter(String filter, TextView selectedChip) {
@@ -264,7 +290,9 @@ public class HostBookingsActivity extends SessionActivity {
                     binding.chipCheckedIn,
                     binding.chipCompleted,
                     binding.chipRejected,
-                    binding.chipCancelled
+                    binding.chipCancelled,
+                    binding.chipNoShow,
+                    binding.chipTerminated
                 };
         for (TextView chip : chips) {
             chip.setBackgroundResource(R.drawable.bg_chip);
@@ -387,16 +415,24 @@ public class HostBookingsActivity extends SessionActivity {
     private void showReasonDialog(Booking booking, String target) {
         final EditText etReason = new EditText(this);
         etReason.setHint(
-                "Nhập lý do (bắt buộc). Host hủy sẽ nhả lịch; booking chưa thanh toán không phát"
-                    + " sinh hoàn tiền.");
+                "COMPLETED".equals(target)
+                        ? "Ghi rõ căn cứ xác nhận khách đã sử dụng dù chưa ghi nhận check-in."
+                        : "NO_SHOW".equals(target)
+                                ? "Ghi rõ việc liên hệ và xác nhận khách không đến; khách vẫn có"
+                                      + " thể gửi phản ánh."
+                                : "Nhập lý do (bắt buộc). Thao tác không xác nhận thu/hoàn tiền.");
         etReason.setPadding(40, 30, 40, 30);
 
         AlertDialog dialog =
                 new AlertDialog.Builder(this)
                         .setTitle(
-                                "CANCELLED".equals(target)
-                                        ? "Hủy đặt chỗ của khách"
-                                        : "Từ chối yêu cầu")
+                                "COMPLETED".equals(target)
+                                        ? "Xác nhận khách đã sử dụng"
+                                        : "NO_SHOW".equals(target)
+                                                ? "Xác nhận khách không đến"
+                                                : "CANCELLED".equals(target)
+                                                        ? "Hủy đặt chỗ của khách"
+                                                        : "Từ chối yêu cầu")
                         .setView(etReason)
                         .setPositiveButton("Xác nhận", null)
                         .setNegativeButton(android.R.string.cancel, null)

@@ -25,8 +25,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Màn hình đơn của Guest: hiển thị danh sách và lọc theo trạng thái.
- * Giao tiếp với BookingViewModel để tải và cập nhật đơn.
+ * Màn hình đơn của Guest: hiển thị danh sách và lọc theo trạng thái. Giao tiếp với BookingViewModel
+ * để tải và cập nhật đơn.
  */
 public class MyBookingsActivity extends SessionActivity {
     // Binding tới activity_my_bookings_live.xml.
@@ -93,7 +93,8 @@ public class MyBookingsActivity extends SessionActivity {
                                     .setMessage(CancellationPolicy.preview(item, now))
                                     .setPositiveButton(
                                             R.string.booking_cancel,
-                                            // Repository sẽ kiểm tra lại chính sách trước khi cập nhật.
+                                            // Repository sẽ kiểm tra lại chính sách trước khi cập
+                                            // nhật.
                                             (d, w) -> model.cancel(item.id, uid, rate))
                                     .setNegativeButton("Giữ đặt chỗ", null)
                                     .show();
@@ -165,7 +166,16 @@ public class MyBookingsActivity extends SessionActivity {
         UiState<List<Booking>> state = model.bookings.getValue();
         if (state == null || state.data == null) return;
         String[] statuses = {
-            "", "PENDING", "CONFIRMED", "CANCELLED", "COMPLETED", "REJECTED", "CHECKED_IN", "EXPIRED"
+            "",
+            "PENDING",
+            "CONFIRMED",
+            "CANCELLED",
+            "COMPLETED",
+            "REJECTED",
+            "CHECKED_IN",
+            "EXPIRED",
+            "NO_SHOW",
+            "TERMINATED"
         };
         String wanted = statuses[Math.max(0, Math.min(model.filterPosition, statuses.length - 1))];
         List<Booking> rows = new ArrayList<>();
