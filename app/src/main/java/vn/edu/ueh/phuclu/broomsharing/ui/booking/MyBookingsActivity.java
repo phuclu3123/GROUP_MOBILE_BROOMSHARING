@@ -34,6 +34,7 @@ public class MyBookingsActivity extends SessionActivity {
 
     // ViewModel tải danh sách, hủy booking và phát trạng thái cho giao diện.
     private BookingViewModel model;
+    private PendingPaymentViewModel pendingPayments;
 
     // UID của Guest đang đăng nhập; dùng để tải danh sách của chính tài khoản đó.
     private String uid;
@@ -103,7 +104,11 @@ public class MyBookingsActivity extends SessionActivity {
                                 // Mở chi tiết bằng mã của booking được nhấn.
                                 startActivity(
                                         new Intent(this, BookingSuccessActivity.class)
-                                                .putExtra("bookingId", item.id)));
+                                                .putExtra("bookingId", item.id)),
+                        item -> startActivity(new Intent(this, BookingPaymentActivity.class).putExtra("bookingId", item.id)));
+        pendingPayments = new ViewModelProvider(this).get(PendingPaymentViewModel.class);
+        pendingPayments.entries.observe(this, adapter::setPendingPayments);
+        pendingPayments.start(uid);
 
         // RecyclerView hiển thị danh sách dọc và dùng BookingAdapter tạo từng thẻ.
         b.bookings.setLayoutManager(new LinearLayoutManager(this));
@@ -192,12 +197,14 @@ public class MyBookingsActivity extends SessionActivity {
         super.onStart();
         // Màn hình quay lại foreground thì đăng ký listener để nhận thay đổi mới.
         if (model != null && uid != null) model.watchMine(uid);
+        if (pendingPayments != null && uid != null) pendingPayments.start(uid);
     }
 
     @Override
     protected void onStop() {
         // Dừng listener khi màn hình không còn hiển thị.
         if (model != null) model.stopWatching();
+        if (pendingPayments != null) pendingPayments.stop();
         super.onStop();
     }
 }

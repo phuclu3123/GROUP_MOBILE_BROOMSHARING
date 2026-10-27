@@ -31,6 +31,7 @@ host={'uid':'qa_rules_host','name':'Rules Host','phone':'+84900000001','role':'H
 for user in [u,host]:
     call('/v1/'+DB+'/documents/users/'+user['uid'],{'fields':{k:encode(v) for k,v in user.items()}},method='PATCH')
 call('/v1/'+DB+'/documents/publicHosts/'+host['uid'],{'fields':{k:encode(v) for k,v in {'uid':host['uid'],'name':host['name'],'status':'ACTIVE'}.items()}},method='PATCH')
+call('/v1/'+DB+'/documents/appConfig/payments',{'fields':{k:encode(v) for k,v in {'flow':'INSTANT_5M','demoHostUid':host['uid']}.items()}},method='PATCH')
 call('/v1/'+DB+'/documents/buildings/probe_building',{'fields':{k:encode(v) for k,v in {'ownerUid':host['uid'],'status':'ACTIVE'}.items()}},method='PATCH')
 r=dict(id='probe_room',schemaVersion=1,buildingId='probe_building',ownerUid=host['uid'],roomName='Rules acceptance',address='QA fixture',approvalStatus='APPROVED',listingStatus='ACTIVE',activeMode='HOURLY',pricePerHour=100000.0,pricePerMonth=3000000.0,pricePerQuarter=8000000.0,rentalPolicy='',renewalPolicy='',slotMinutes=30,minBookingMinutes=30,workingDays=[1,2,3,4,5,6,7])
 def b64(x):return base64.urlsafe_b64encode(json.dumps(x).encode()).decode().rstrip('=')
@@ -57,6 +58,7 @@ price=r['pricePerMonth'] if opts.months==1 else r['pricePerQuarter'] if opts.mon
 b=dict(id=id,schemaVersion=2,roomId=r['id'],roomName=r['roomName'],roomAddress=r['address'],ownerUid=r['ownerUid'],guestUid=u['uid'],guestName=u['name'],guestPhone=u['phone'],status='PENDING',paymentStatus='UNAVAILABLE',activeMode='HOURLY',rejectionReason='',startAt=start,endAt=end,totalAmount=price,priceSnapshot=dict(currency='VND',rentalAmount=price,feeAmount=0,depositAmount=advance,advancePercent=40,cancellationPolicyVersion=1,totalAmount=price,paymentDueAmount=advance,rentalPolicy=r['rentalPolicy'],renewalPolicy=r['renewalPolicy']),rentalMonths=0,slotStart=slot,slotCount=2,monthKeys=[key],slotKeys=slots,requestFingerprint='a'*64,cancelledAt=None,cancelledByUid='',cancellationRefundPercent=0,refundAmount=0,refundStatus='NOT_REQUIRED')
 b.update(activeMode=mode,rentalMonths=opts.months,slotCount=len(slots),monthKeys=keys)
 b['paidAmount']=opts.paid_amount
+b['paymentFlow']='INSTANT_5M'
 if opts.tamper_price: b['totalAmount']=1;b['priceSnapshot']['rentalAmount']=1;b['priceSnapshot']['totalAmount']=1
 def write(path,data,transforms=(),mask=None):
     w={'update':{'name':DB+'/documents/'+path,'fields':{k:encode(v) for k,v in data.items()}}}
@@ -70,6 +72,7 @@ for path in ['bookings/'+id]+['availabilityMonths/'+k for k in keys]+['auditLogs
     except RuntimeError:pass
 roomchanges=dict(activeBookingCount=max(-1,r.get('activeBookingCount',-1)+1),bookingRevision=r.get('bookingRevision',0)+1,lastBookingId=id)
 m=dict(roomId=r['id'],monthIndex=int(day.strftime('%Y%m')),fixedBookingId=id if opts.months else '',slotsBusy=slots,hourlyBookings={} if opts.months else {id:slots},lastBookingId=id)
+m['pendingPaymentIds']=[id]
 a=dict(schemaVersion=1,actorUid=u['uid'],targetPath='bookings/'+id,action='CREATE',before={'status':''},after={'status':'PENDING'},reason='')
 w=[write('availabilityMonths/'+k,{**m,'monthIndex':int(k.rsplit('_',1)[1])},['updatedAt']) for k in keys]+[write('bookings/'+id,b,['createdAt','updatedAt']),write('rooms/'+r['id'],roomchanges,mask=list(roomchanges)),write('auditLogs/booking_'+id+'_CREATE',a,['createdAt'])]
 if opts.omit_room:w=[x for x in w if '/rooms/' not in x['update']['name']]

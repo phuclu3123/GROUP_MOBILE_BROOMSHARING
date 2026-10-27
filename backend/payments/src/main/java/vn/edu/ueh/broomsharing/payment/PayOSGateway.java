@@ -42,6 +42,15 @@ public final class PayOSGateway implements PaymentGateway {
         return json.valueToTree(client.paymentRequests().get(order));
     }
 
+    @Override
+    public boolean isMissing(Exception error) {
+        return error instanceof vn.payos.exception.NotFoundException;
+    }
+
+    public JsonNode cancel(long order, String reason) throws Exception {
+        return json.valueToTree(client.paymentRequests().cancel(order, reason));
+    }
+
     public JsonNode verify(byte[] body) throws Exception {
         return json.valueToTree(client.webhooks().verify(json.readValue(body, Webhook.class)));
     }

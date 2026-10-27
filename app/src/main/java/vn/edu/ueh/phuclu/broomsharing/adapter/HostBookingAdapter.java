@@ -171,11 +171,11 @@ public class HostBookingAdapter extends RecyclerView.Adapter<HostBookingAdapter.
                             : Booking.STATUS_PENDING;
             switch (status) {
                 case Booking.STATUS_PENDING:
-                    binding.tvStatusBadge.setText("CHỜ DUYỆT");
+                    binding.tvStatusBadge.setText(item.isInstantPayment() ? "CHỜ THANH TOÁN" : "CHỜ DUYỆT (ĐƠN CŨ)");
                     binding.tvStatusBadge.setBackgroundColor(
                             ContextCompat.getColor(itemView.getContext(), R.color.warning));
                     binding.layoutActions.setVisibility(
-                            item.startAt != null && item.startAt.after(new Date())
+                            !item.isInstantPayment() && item.startAt != null && item.startAt.after(new Date())
                                     ? View.VISIBLE
                                     : View.GONE);
                     binding.tvRejectionReason.setVisibility(View.GONE);

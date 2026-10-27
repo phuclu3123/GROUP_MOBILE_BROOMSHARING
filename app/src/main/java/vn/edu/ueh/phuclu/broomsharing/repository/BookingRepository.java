@@ -204,6 +204,11 @@ public class BookingRepository {
                             Room room = room(tx, request.roomId, uid);
                             Booking booking =
                                     BookingPolicy.plan(room, request, System.currentTimeMillis());
+                            DocumentSnapshot channel = tx.get(db.collection("appConfig").document("payments"));
+                            BookingPolicy.require("INSTANT_5M".equals(channel.getString("flow"))
+                                            && room.getOwnerUid().equals(channel.getString("demoHostUid")),
+                                    "Phòng này chưa hỗ trợ thanh toán demo. Bạn có thể liên hệ Host.");
+                            booking.paymentFlow = "INSTANT_5M";
                             booking.id = bookingId;
                             booking.guestUid = uid;
                             booking.guestName = guest.getString("name");
@@ -462,10 +467,10 @@ public class BookingRepository {
                 result.add(booking);
             }
         }
-        // Sắp xếp booking mới hơn lên trước; ngày null được đưa xuống cuối.
+        // Đơn mới tạo lên đầu; ngày thuê và lần cập nhật không làm đổi thứ tự.
         result.sort(
                 Comparator.comparing(
-                        Booking::getStartAt, Comparator.nullsLast(Comparator.reverseOrder())));
+                        Booking::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())));
         return result;
     }
 
@@ -480,7 +485,7 @@ public class BookingRepository {
         }
     }
 
-    // Không có job máy chủ: chỉ dọn đơn quá giờ khi đồng bộ foreground.
+    // Chỉ dọn booking cũ chờ duyệt; giữ tạm thanh toán do backend đối soát.
     // ID booking cố định + transaction bảo vệ trường hợp Guest/Host cùng dọn một đơn.
     private final Map<String, Long> expiryAttempts = new HashMap<>();
 
@@ -488,6 +493,7 @@ public class BookingRepository {
         long now = System.currentTimeMillis();
         for (Booking b : values)
             if (b.schemaVersion == Booking.CURRENT_SCHEMA_VERSION
+                    && !b.isInstantPayment()
                     && "PENDING".equals(b.status)
                     && b.startAt != null
                     && b.startAt.getTime() <= now
@@ -737,7 +743,7 @@ public class BookingRepository {
             actor();
             BookingPolicy.id(roomId);
             BookingPolicy.require(
-                    from < to && to - from <= 100L * 86400000, "Khoảng xem lịch tối đa 100 ngày.");
+                    from < to && to - from <= 366L * 86400000, "Khoảng xem lịch tối đa 12 tháng.");
         } catch (Exception e) {
             callback.onError(e);
             return;
@@ -769,7 +775,7 @@ public class BookingRepository {
                                 if (!month.fixedBookingId.isEmpty())
                                     // Lịch thuê cố định chiếm trọn tháng.
                                     addInterval(
-                                            result,
+                                            result, roomId, month.pendingPaymentIds.contains(month.fixedBookingId),
                                             start.toInstant().toEpochMilli(),
                                             start.plusMonths(1).toInstant().toEpochMilli(),
                                             from,
@@ -781,7 +787,10 @@ public class BookingRepository {
                                                 start.plusMinutes(slot * 30L)
                                                         .toInstant()
                                                         .toEpochMilli();
-                                        addInterval(result, at, at + 1800000, from, to);
+                                        boolean pending = false;
+                                        for (String key : month.pendingPaymentIds)
+                                            if (month.hourlyBookings.getOrDefault(key, Collections.emptyList()).contains(slot)) pending = true;
+                                        addInterval(result, roomId, pending, at, at + 1800000, from, to);
                                     }
                             }
                             callback.onSuccess(result);
@@ -789,13 +798,15 @@ public class BookingRepository {
                 .addOnFailureListener(callback::onError);
     }
 
-    private void addInterval(List<Booking> rows, long start, long end, long from, long to) {
+    private void addInterval(List<Booking> rows, String roomId, boolean pending, long start, long end, long from, long to) {
         // Chỉ trả khoảng bận nếu nó giao với khoảng đang được xem.
         if (start < to && from < end) {
             Booking booking = new Booking();
             booking.startAt = new Date(start);
             booking.endAt = new Date(end);
-            booking.status = "CONFIRMED";
+            booking.roomId = roomId;
+            booking.paymentFlow = pending ? "INSTANT_5M" : "";
+            booking.status = pending ? "PENDING" : "CONFIRMED";
             // Đây là khoảng lịch tổng hợp để hiển thị; không kèm hồ sơ Guest của booking khác.
             rows.add(booking);
         }

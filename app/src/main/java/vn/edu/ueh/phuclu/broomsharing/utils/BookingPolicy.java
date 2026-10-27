@@ -178,6 +178,7 @@ public final class BookingPolicy {
             month.slotsBusy.addAll(booking.slotKeys);
             month.hourlyBookings.put(booking.id, new ArrayList<>(booking.slotKeys));
         }
+        if (booking.isInstantPayment()) month.pendingPaymentIds.add(booking.id);
         month.lastBookingId = booking.id;
         month.updatedAt = null;
     }
@@ -194,6 +195,7 @@ public final class BookingPolicy {
             month.slotsBusy.removeAll(booking.slotKeys);
             month.hourlyBookings.remove(booking.id);
         }
+        month.pendingPaymentIds.remove(booking.id);
         month.lastBookingId = booking.id;
         month.updatedAt = null;
     }
@@ -215,6 +217,9 @@ public final class BookingPolicy {
                         && (!"REJECTED".equals(target) || !reason.trim().isEmpty()),
                 "Từ chối cần lý do, tối đa 500 ký tự.");
         if (target.equals(booking.status)) return;
+        require(!booking.isInstantPayment() || !("CONFIRMED".equals(target)
+                || "REJECTED".equals(target) || "EXPIRED".equals(target)),
+                "Booking thanh toán ngay do server xác nhận hoặc hết hạn; Host không duyệt đơn này.");
         List<String> allowed =
                 "CANCELLED".equals(target)
                         ? Arrays.asList("PENDING", "CONFIRMED")

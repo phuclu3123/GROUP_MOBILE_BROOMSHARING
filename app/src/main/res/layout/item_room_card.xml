@@ -40,6 +40,13 @@
                 android:textColor="@color/teal_dark"
                 android:textSize="@dimen/text_size_caption"
                 android:textStyle="bold" />
+            <TextView
+                android:id="@+id/tvRentalBadge"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true" android:layout_alignParentEnd="true"
+                android:layout_margin="12dp" android:background="@drawable/bg_badge_verified"
+                android:textColor="@color/teal_dark" android:textSize="12sp"
+                android:textStyle="bold" android:maxWidth="250dp" android:visibility="gone" />
         </RelativeLayout>
 
         <LinearLayout
@@ -65,27 +72,30 @@
                 android:layout_marginTop="2dp"
                 android:textColor="@color/text_secondary"
                 android:textSize="@dimen/text_size_body" />
+            <TextView android:id="@+id/tvRentalDates"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="6dp" android:textSize="13sp"
+                android:textColor="@color/text_secondary" android:visibility="gone" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_sm"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/tvPrice"
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:textColor="@color/teal_dark"
                     android:textSize="@dimen/text_size_title"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/tvCapacity"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
                     android:textColor="@color/text_secondary"
                     android:textSize="@dimen/text_size_caption" />
             </LinearLayout>

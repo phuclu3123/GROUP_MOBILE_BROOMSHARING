@@ -23,7 +23,7 @@
     <string name="booking_mine">Đặt chỗ của tôi</string>
     <string name="booking_back">Quay lại</string>
     <string name="booking_cancel">Hủy yêu cầu này</string>
-    <string name="booking_help" formatted="false">Giờ Việt Nam. Chọn ngày 1 khi thuê tháng/quý. Yêu cầu chờ Host xác nhận sẽ giữ chỗ. Khoản trả trước 40% chỉ thanh toán sau khi Host xác nhận qua kênh demo được hỗ trợ.</string>
+    <string name="booking_help" formatted="false">Giờ Việt Nam. Chọn ngày 1 khi thuê tháng/quý. Bấm thanh toán để tạm giữ lịch tối đa 5 phút. Đặt chỗ được xác nhận khi nhận đủ 40%, không cần Host duyệt. Chỉ áp dụng cho Host payOS demo.</string>
     <string name="booking_cancel_help">Hủy trước giờ bắt đầu sẽ nhả chỗ. Bản demo không thực hiện hoàn tiền thật.</string>
     <string name="booking_loading">Đang tải đặt chỗ…</string>
     <string name="booking_sending">Đang gửi thao tác…</string>

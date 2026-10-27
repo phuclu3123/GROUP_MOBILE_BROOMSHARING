@@ -10,13 +10,18 @@
             android:textSize="16sp" android:layout_marginTop="12dp" />
         <TextView android:id="@+id/payment_amount" android:layout_width="match_parent" android:layout_height="wrap_content"
             android:textSize="22sp" android:layout_marginTop="16dp" />
-        <ImageView android:id="@+id/payment_qr" android:layout_width="280dp" android:layout_height="280dp"
+        <TextView android:id="@+id/payment_expiry" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" android:accessibilityLiveRegion="none" android:textSize="14sp" />
+        <ImageView android:id="@+id/payment_qr" android:layout_width="match_parent" android:layout_height="260dp"
+            android:scaleType="fitCenter"
             android:layout_gravity="center_horizontal" android:layout_marginVertical="16dp" android:contentDescription="@string/payment_qr_description" />
         <TextView android:id="@+id/payment_account" android:layout_width="match_parent" android:layout_height="wrap_content"
             android:textSize="16sp" android:textIsSelectable="true" />
         <Button android:id="@+id/payment_open" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/payment_open_label" />
         <Button android:id="@+id/payment_refresh" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/payment_refresh_label" />
         <Button android:id="@+id/payment_retry" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/payment_retry_label" />
+        <Button android:id="@+id/payment_details" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/booking_success_screen_title" />
+        <Button android:id="@+id/payment_notifications" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Bật nhắc thanh toán trên điện thoại" android:visibility="gone" />
         <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp"
             android:text="@string/payment_scope_note" android:textSize="14sp" />
     </LinearLayout>

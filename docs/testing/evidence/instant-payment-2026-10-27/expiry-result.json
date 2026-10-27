@@ -1,0 +1,12 @@
+{
+  "bookingId": "47f4e77e5d6b6b8e56f269548a1964390c9993e2590866fbb8db88cbeb919ab1",
+  "bookingStatus": "EXPIRED",
+  "paymentStatus": "UNPAID",
+  "backendPaymentStatus": "EXPIRED",
+  "amount": 10000,
+  "paidAmount": 0,
+  "holdSeconds": 299.88899993896484,
+  "calendarReleased": true,
+  "closedAt": "2026-10-27T12:12:48.971Z",
+  "agentTransferredMoney": false
+}

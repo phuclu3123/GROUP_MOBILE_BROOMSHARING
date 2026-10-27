@@ -1,5 +1,6 @@
 package vn.edu.ueh.phuclu.broomsharing.repository;
 
+import android.util.Log;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.*;
@@ -143,26 +144,31 @@ public class RoomRepository {
         List<Room> rooms = new ArrayList<>();
         try {
             for (DocumentSnapshot doc : documents) {
-                if (!doc.exists()
-                        || !"APPROVED".equals(doc.getString("approvalStatus"))
-                        || !"ACTIVE".equals(doc.getString("listingStatus"))) continue;
-                Room room = doc.toObject(Room.class);
-                if (room == null || !idValid(room.getOwnerUid()) || !idValid(room.getBuildingId()))
-                    continue;
-                room.setId(doc.getId());
-                rooms.add(room);
-                if (!owners.containsKey(room.getOwnerUid()))
-                    owners.put(
-                            room.getOwnerUid(),
-                            db.collection("publicHosts")
-                                    .document(room.getOwnerUid())
-                                    .get(Source.SERVER));
-                if (!buildings.containsKey(room.getBuildingId()))
-                    buildings.put(
-                            room.getBuildingId(),
-                            db.collection("buildings")
-                                    .document(room.getBuildingId())
-                                    .get(Source.SERVER));
+                try {
+                    if (!doc.exists()
+                            || !"APPROVED".equals(doc.getString("approvalStatus"))
+                            || !"ACTIVE".equals(doc.getString("listingStatus"))) continue;
+                    Room room = doc.toObject(Room.class);
+                    if (room == null || !idValid(room.getOwnerUid()) || !idValid(room.getBuildingId()))
+                        continue;
+                    room.setId(doc.getId());
+                    rooms.add(room);
+                    if (!owners.containsKey(room.getOwnerUid()))
+                        owners.put(
+                                room.getOwnerUid(),
+                                db.collection("publicHosts")
+                                        .document(room.getOwnerUid())
+                                        .get(Source.SERVER));
+                    if (!buildings.containsKey(room.getBuildingId()))
+                        buildings.put(
+                                room.getBuildingId(),
+                                db.collection("buildings")
+                                        .document(room.getBuildingId())
+                                        .get(Source.SERVER));
+                } catch (RuntimeException invalid) {
+                    // Bỏ riêng bản ghi hỏng, không làm mất toàn bộ trang phòng hợp lệ.
+                    Log.w("RoomRepository", "Invalid room schema");
+                }
             }
         } catch (Exception e) {
             cb.onError(e);
@@ -176,23 +182,27 @@ public class RoomRepository {
                             try {
                                 List<RoomListing> result = new ArrayList<>();
                                 for (Room room : rooms) {
-                                    PublicHost owner =
-                                            owners.get(room.getOwnerUid())
-                                                    .getResult()
-                                                    .toObject(PublicHost.class);
-                                    DocumentSnapshot place =
-                                            buildings.get(room.getBuildingId()).getResult();
-                                    if (owner == null
-                                            || !"ACTIVE".equals(owner.status)
-                                            || !place.exists()
-                                            || !"ACTIVE".equals(place.getString("status"))
-                                            || !room.getOwnerUid()
-                                                    .equals(place.getString("ownerUid"))) continue;
-                                    Building building = place.toObject(Building.class);
-                                    building.setId(place.getId());
-                                    result.add(
-                                            new RoomListing(
-                                                    room, building, owner.name, owner.photoUrl));
+                                    try {
+                                        PublicHost owner =
+                                                owners.get(room.getOwnerUid())
+                                                        .getResult()
+                                                        .toObject(PublicHost.class);
+                                        DocumentSnapshot place =
+                                                buildings.get(room.getBuildingId()).getResult();
+                                        if (owner == null
+                                                || !"ACTIVE".equals(owner.status)
+                                                || !place.exists()
+                                                || !"ACTIVE".equals(place.getString("status"))
+                                                || !room.getOwnerUid()
+                                                        .equals(place.getString("ownerUid"))) continue;
+                                        Building building = place.toObject(Building.class);
+                                        building.setId(place.getId());
+                                        result.add(
+                                                new RoomListing(
+                                                        room, building, owner.name, owner.photoUrl));
+                                    } catch (RuntimeException invalid) {
+                                        Log.w("RoomRepository", "Invalid listing projection");
+                                    }
                                 }
                                 cb.onSuccess(result);
                             } catch (Exception e) {

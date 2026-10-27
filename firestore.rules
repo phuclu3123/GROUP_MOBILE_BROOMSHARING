@@ -1,5 +1,5 @@
 rules_version = '2';
-// Firestore Security Rules language. App/business code is Java, with no backend runtime.
+// Security Rules bảo vệ dữ liệu Android; backend thanh toán Java kiểm quyền riêng bằng Admin SDK.
 service cloud.firestore {
   match /databases/{database}/documents {
     function own(uid) { return request.auth.uid == uid; }
@@ -114,6 +114,13 @@ service cloud.firestore {
       return url is string && (url=='' || (uid.matches('[A-Za-z0-9_-]{1,128}')
         && url.matches('https://res[.]cloudinary[.]com/[A-Za-z0-9_-]{1,128}/image/upload/v[0-9]+/broomsharing/avatarMedia/'+uid+'/avatar/[A-Za-z0-9_-]{1,128}[.](jpg|jpeg|png|webp)')));
     }
+    // Kiểm cả kiểu và giá trị, kể cả request đi thẳng ngoài form Android.
+    function profileName(value) {
+      return value is string && value.trim().size()>0 && value.size()<=100;
+    }
+    function profilePhone(value) {
+      return value is string && value.matches('[+][1-9][0-9]{7,14}');
+    }
     function identityUrl(uid,url) {
       return uid.matches('[A-Za-z0-9_-]{1,128}') && url is string
         && url.matches('https://res[.]cloudinary[.]com/[A-Za-z0-9_-]{1,128}/image/upload/v[0-9]+/broomsharing/hostIdentity/'+uid+'/'+uid+'/[A-Za-z0-9_-]{1,128}[.](jpg|jpeg|png|webp)');
@@ -133,10 +140,13 @@ service cloud.firestore {
       allow read: if own(uid)||admin();
       allow create: if own(uid) && request.resource.data.uid==uid && request.resource.data.role=='GUEST'
         && request.resource.data.status=='ACTIVE' && request.resource.data.schemaVersion==1
-        && request.resource.data.phoneVerified==false && request.resource.data.phone.matches('[+][1-9][0-9]{7,14}')
+        && profileName(request.resource.data.name) && profilePhone(request.resource.data.phone)
+        && request.resource.data.phoneVerified==false
         && request.resource.data.keys().hasOnly(['uid','schemaVersion','name','username','email','phone','phoneVerified','role','status','createdAt','updatedAt'])
         && getAfter(/databases/$(database)/documents/usernames/$(request.resource.data.username)).data.uid==uid;
       allow update: if (own(uid)&&active()&&request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name','phone','phoneVerified','photoUrl','updatedAt'])
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['name']) || profileName(request.resource.data.name))
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['phone']) || profilePhone(request.resource.data.phone))
         && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['photoUrl']) || avatarUrl(uid,request.resource.data.get('photoUrl','')))
         && (request.resource.data.get('phoneVerified',false)==false || (request.resource.data.get('phoneVerified',false)==resource.data.get('phoneVerified',false)&&request.resource.data.phone==resource.data.phone)))
         || (admin()&&request.resource.data.uid==resource.data.uid&&request.resource.data.diff(resource.data).affectedKeys().hasOnly(['role','status','moderationReason','moderatedBy','updatedAt'])
@@ -147,6 +157,7 @@ service cloud.firestore {
       allow read: if active();
       allow create,update: if (admin() || (own(uid)&&host()))
         && request.resource.data.keys().hasOnly(['uid','name','status','photoUrl']) && request.resource.data.uid==uid
+        && profileName(request.resource.data.name)
         && getAfter(/databases/$(database)/documents/users/$(uid)).data.role=='HOST'
         && request.resource.data.name==getAfter(/databases/$(database)/documents/users/$(uid)).data.name
         && request.resource.data.status==getAfter(/databases/$(database)/documents/users/$(uid)).data.status
@@ -234,6 +245,14 @@ service cloud.firestore {
       }
     }
 
+    // Backend quản lý kênh demo; client chỉ đọc để tránh tạo đơn ngoài phạm vi thanh toán.
+    match /appConfig/payments { allow read: if active(); }
+    function instantChannel(b) {
+      return exists(/databases/$(database)/documents/appConfig/payments)
+        && b.paymentFlow=='INSTANT_5M'
+          && get(/databases/$(database)/documents/appConfig/payments).data.flow=='INSTANT_5M'
+          && b.ownerUid==get(/databases/$(database)/documents/appConfig/payments).data.demoHostUid;
+    }
     match /bookings/{id} {
       allow get: if active()&&(!exists(/databases/$(database)/documents/bookings/$(id))||own(resource.data.guestUid)||own(resource.data.ownerUid)||admin());
       allow list: if active()&&(own(resource.data.guestUid)||own(resource.data.ownerUid)||admin());
@@ -245,8 +264,8 @@ service cloud.firestore {
         let owner=get(/databases/$(database)/documents/users/$(r.ownerUid)).data;
         let guest=account();
         let building=get(/databases/$(database)/documents/buildings/$(r.buildingId)).data;
-        return b.keys().hasOnly(['id','schemaVersion','roomId','roomName','roomAddress','ownerUid','guestUid','guestName','guestPhone','status','paymentStatus','paidAmount','activeMode','rejectionReason','startAt','endAt','totalAmount','priceSnapshot','rentalMonths','slotStart','slotCount','monthKeys','slotKeys','requestFingerprint','createdAt','updatedAt','cancelledAt','cancelledByUid','cancellationRefundPercent','refundAmount','refundStatus','usageConfirmedAt','usageConfirmedBy','closedAt'])
-          && b.id==id&&id.matches('[a-f0-9]{64}')&&b.schemaVersion==2&&own(b.guestUid)&&!own(b.ownerUid)
+        return b.keys().hasOnly(['id','schemaVersion','roomId','roomName','roomAddress','ownerUid','guestUid','guestName','guestPhone','status','paymentStatus','paymentFlow','paidAmount','activeMode','rejectionReason','startAt','endAt','totalAmount','priceSnapshot','rentalMonths','slotStart','slotCount','monthKeys','slotKeys','requestFingerprint','createdAt','updatedAt','cancelledAt','cancelledByUid','cancellationRefundPercent','refundAmount','refundStatus','usageConfirmedAt','usageConfirmedBy','closedAt'])
+          && instantChannel(b) && b.id==id&&id.matches('[a-f0-9]{64}')&&b.schemaVersion==2&&own(b.guestUid)&&!own(b.ownerUid)
           && b.ownerUid==r.ownerUid&&owner.role=='HOST'&&owner.status=='ACTIVE'&&publicRoom(r)
           && building.ownerUid==r.ownerUid&&building.status=='ACTIVE'
           && b.roomName==r.roomName&&b.roomAddress==r.address&&b.guestName==guest.name&&b.guestPhone==guest.phone
@@ -261,7 +280,7 @@ service cloud.firestore {
           && auditAt(after,before.status=='COMPLETED'&&after.status=='COMPLETED'?'ATTENDANCE_CONFIRMED':after.status)
           && after.rejectionReason is string&&after.rejectionReason.size()<=500
           && (after.get('closedAt',null)==before.get('closedAt',null)||(after.closedAt==request.time&&after.status in ['CANCELLED','REJECTED','EXPIRED','COMPLETED','NO_SHOW','TERMINATED']))
-          && ((before.status=='PENDING'&&after.status=='EXPIRED'&&before.startAt<=request.time
+          && ((before.get('paymentFlow','')!='INSTANT_5M'&&before.status=='PENDING'&&after.status=='EXPIRED'&&before.startAt<=request.time
               && (admin()||own(before.guestUid)||own(before.ownerUid))
               && after.diff(before).affectedKeys().hasOnly(['status','rejectionReason','updatedAt','closedAt'])&&released(after))
             || (admin()&&get(/databases/$(database)/documents/users/$(before.ownerUid)).data.status=='BLOCKED'
@@ -271,8 +290,8 @@ service cloud.firestore {
             || closeRental(before,after)
             || (own(before.ownerUid)&&host()&&(
               (after.diff(before).affectedKeys().hasOnly(['status','rejectionReason','updatedAt','closedAt'])&&(
-              (before.status=='PENDING'&&before.startAt>request.time&&after.status=='CONFIRMED'&&publicRoom(get(/databases/$(database)/documents/rooms/$(before.roomId)).data)&&held(after))
-              ||(before.status=='PENDING'&&before.startAt>request.time&&after.status=='REJECTED'&&after.rejectionReason.size()>0&&released(after))))
+              (before.get('paymentFlow','')!='INSTANT_5M'&&before.status=='PENDING'&&before.startAt>request.time&&after.status=='CONFIRMED'&&publicRoom(get(/databases/$(database)/documents/rooms/$(before.roomId)).data)&&held(after))
+              ||(before.get('paymentFlow','')!='INSTANT_5M'&&before.status=='PENDING'&&before.startAt>request.time&&after.status=='REJECTED'&&after.rejectionReason.size()>0&&released(after))))
               ||(before.status=='CONFIRMED'&&after.status=='CHECKED_IN'&&before.startAt<=request.time&&before.endAt>request.time&&held(after)
                 && after.diff(before).affectedKeys().hasOnly(['status','rejectionReason','updatedAt','usageConfirmedAt','usageConfirmedBy'])&&usageValid(before,after)))));
       }
@@ -321,7 +340,12 @@ service cloud.firestore {
         let old=exists(/databases/$(database)/documents/availabilityMonths/$(id))?resource.data:{'fixedBookingId':'','slotsBusy':[],'hourlyBookings':{}};
         let b=getAfter(/databases/$(database)/documents/bookings/$(n.lastBookingId)).data;
         let changed=n.hourlyBookings.diff(old.hourlyBookings).affectedKeys();
-        return n.keys().hasOnly(['roomId','monthIndex','fixedBookingId','slotsBusy','hourlyBookings','lastBookingId','updatedAt'])&&n.updatedAt==request.time
+        return n.keys().hasOnly(['roomId','monthIndex','fixedBookingId','slotsBusy','hourlyBookings','pendingPaymentIds','lastBookingId','updatedAt'])&&n.updatedAt==request.time
+          && n.get('pendingPaymentIds',[]) is list
+          && n.get('pendingPaymentIds',[]).size()==n.get('pendingPaymentIds',[]).toSet().size()
+          && n.get('pendingPaymentIds',[]).toSet()==(b.status=='PENDING'&&b.get('paymentFlow','')=='INSTANT_5M'
+            ? old.get('pendingPaymentIds',[]).toSet().union([b.id].toSet())
+            : old.get('pendingPaymentIds',[]).toSet().difference([b.id].toSet()))
           && n.slotsBusy.size()==n.slotsBusy.toSet().size()
           && b.roomId==n.roomId&&b.monthKeys.hasAny([id])&&id==b.roomId+'_'+string(n.monthIndex)
           && b.schemaVersion==2&&b.updatedAt==request.time

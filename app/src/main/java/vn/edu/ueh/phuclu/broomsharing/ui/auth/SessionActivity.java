@@ -72,8 +72,10 @@ public abstract class SessionActivity extends AppCompatActivity {
             return;
         }
 
-        // Yêu cầu ViewModel tải lại Session và thông tin UserProfile.
-        model.reloadSession();
+        // Xoay màn hình dùng lại phiên đã kiểm tra của chính Activity, không đọc role từ cache.
+        // Listener vẫn kiểm tra lại quyền trên server khi kết nối trở lại.
+        AuthViewModel.State retained = model.getState().getValue();
+        if (retained == null || retained.profile == null) model.reloadSession();
 
         // LiveData Observer: nhận trạng thái mới khi ViewModel cập nhật State.
         // LifecycleOwner = this, Observer gắn với vòng đời Activity.

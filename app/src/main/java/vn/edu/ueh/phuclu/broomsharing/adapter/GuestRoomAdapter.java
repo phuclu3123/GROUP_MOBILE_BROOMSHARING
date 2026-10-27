@@ -40,6 +40,7 @@ public class GuestRoomAdapter extends ListAdapter<RoomListing, GuestRoomAdapter.
                                 && Objects.equals(x.getAddress(), y.getAddress())
                                 && Objects.equals(x.getRoomType(), y.getRoomType())
                                 && Objects.equals(x.getActiveMode(), y.getActiveMode())
+                                && Objects.equals(a.availability, b.availability)
                                 && Objects.equals(x.getImageUrls(), y.getImageUrls())
                                 && Objects.equals(
                                         a.building.getDistrict(), b.building.getDistrict())
@@ -65,6 +66,18 @@ public class GuestRoomAdapter extends ListAdapter<RoomListing, GuestRoomAdapter.
     public void onBindViewHolder(@NonNull Holder h, int position) {
         RoomListing item = getItem(position);
         Room r = item.room;
+        boolean fixed = Room.MODE_FIXED.equals(r.getActiveMode());
+        h.rentalBadge.setVisibility(fixed ? View.VISIBLE : View.GONE);
+        h.rentalDates.setVisibility(fixed ? View.VISIBLE : View.GONE);
+        if (fixed) {
+            vn.edu.ueh.phuclu.broomsharing.utils.FixedRentalBadge badge = item.availability == null
+                    ? vn.edu.ueh.phuclu.broomsharing.utils.FixedRentalBadge.unknown(true) : item.availability;
+            h.rentalBadge.setText(badge.label);
+            h.rentalDates.setText(badge.detail);
+            int color = badge.tone == 1 ? R.color.teal_dark : badge.tone == 2 || badge.tone == 4
+                    ? R.color.warning : R.color.text_secondary;
+            h.rentalBadge.setTextColor(androidx.core.content.ContextCompat.getColor(h.itemView.getContext(), color));
+        }
         h.name.setText(r.getRoomName());
         h.location.setText(
                 (item.building.getDistrict() == null ? "" : item.building.getDistrict() + " · ")
@@ -103,7 +116,7 @@ public class GuestRoomAdapter extends ListAdapter<RoomListing, GuestRoomAdapter.
     }
 
     static class Holder extends RecyclerView.ViewHolder {
-        final TextView name, location, price, capacity;
+        final TextView name, location, price, capacity, rentalBadge, rentalDates;
         final ImageView image;
 
         Holder(View view) {
@@ -112,6 +125,8 @@ public class GuestRoomAdapter extends ListAdapter<RoomListing, GuestRoomAdapter.
             location = view.findViewById(R.id.tvLocation);
             price = view.findViewById(R.id.tvPrice);
             capacity = view.findViewById(R.id.tvCapacity);
+            rentalBadge = view.findViewById(R.id.tvRentalBadge);
+            rentalDates = view.findViewById(R.id.tvRentalDates);
             image = view.findViewById(R.id.imgRoomThumb);
         }
     }

@@ -209,10 +209,11 @@ public class BookingNoticeViewModel extends ViewModel {
             if (b.endAt == null || b.endAt.getTime() < now - 7L * 86400000) continue;
             list.add(
                     new BookingNotice(
-                            b.id + ":status:" + b.status,
-                            FormatUtils.bookingStatus(b.status),
+                            b.id + ":status:" + b.status + ":" + b.paymentStatus,
+                            FormatUtils.bookingStatus(b),
                             b.roomName + " · " + TimeUtils.formatVietnam(b.startAt),
                             b.id));
+            if (b.isInstantPayment() && "PENDING".equals(b.status)) continue;
             if (!CancellationPolicy.versioned(b)
                     || b.startAt == null
                     || b.startAt.getTime() <= now
@@ -235,8 +236,9 @@ public class BookingNoticeViewModel extends ViewModel {
                                                     new Date(b.startAt.getTime() - boundary))
                                             + ". "
                                     : "")
-                            + "Tính trên tiền trả trước thực nhận. Booking này chưa ghi nhận thanh"
-                            + " toán. Bạn vẫn có thể hủy trước khi bắt đầu.";
+                            + "Tính trên tiền trả trước thực nhận. "
+                            + FormatUtils.paymentStatus(b.paymentStatus)
+                            + ". Hoàn tiền được xử lý thủ công, chưa có API hoàn tự động.";
             list.add(
                     new BookingNotice(
                             b.id + ":policy:" + rate + (soon ? ":soon" : ""), title, body, b.id));
@@ -245,8 +247,8 @@ public class BookingNoticeViewModel extends ViewModel {
             if (b.endAt == null || b.endAt.getTime() < now - 7L * 86400000) continue;
             BookingNotice n =
                     new BookingNotice(
-                            b.id + ":host:" + b.status,
-                            FormatUtils.bookingStatus(b.status),
+                            b.id + ":host:" + b.status + ":" + b.paymentStatus,
+                            FormatUtils.bookingStatus(b),
                             b.roomName
                                     + " · Khách: "
                                     + b.guestName

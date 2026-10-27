@@ -18,12 +18,22 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.Holder> 
     // Hai callback để Activity xử lý hủy booking hoặc mở chi tiết.
     private final Consumer<Booking> cancel;
     private final Consumer<Booking> open;
+    private final Consumer<Booking> resume;
+    private final Set<String> payable = new HashSet<>();
 
     // Dùng để khóa nút hủy trong lúc ViewModel đang cập nhật booking.
     private boolean busy;
 
     // Activity truyền hành động cho Adapter thay vì để Adapter tự điều hướng hoặc gọi Repository.
-    public BookingAdapter(Consumer<Booking> cancel, Consumer<Booking> open) { this.cancel = cancel; this.open = open; }
+    public BookingAdapter(Consumer<Booking> cancel, Consumer<Booking> open, Consumer<Booking> resume) {
+        this.cancel = cancel; this.open = open; this.resume = resume;
+    }
+
+    public void setPendingPayments(List<vn.edu.ueh.phuclu.broomsharing.utils.PendingCheckout> entries) {
+        Set<String> next = new HashSet<>();
+        for (vn.edu.ueh.phuclu.broomsharing.utils.PendingCheckout entry : entries) next.add(entry.booking.id);
+        if (!next.equals(payable)) { payable.clear(); payable.addAll(next); notifyDataSetChanged(); }
+    }
 
     // Thay danh sách đang hiển thị rồi báo RecyclerView bind lại các dòng.
     public void setData(List<Booking> data) { items.clear(); items.addAll(data); notifyDataSetChanged(); }
@@ -42,12 +52,14 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.Holder> 
     // Đổ dữ liệu booking tại position vào ViewHolder đang được RecyclerView dùng lại.
     @Override public void onBindViewHolder(@NonNull Holder h, int position) {
         Booking item = items.get(position);
+        h.b.resumePayment.setVisibility(payable.contains(item.id) ? View.VISIBLE : View.GONE);
+        h.b.resumePayment.setOnClickListener(v -> { if (payable.contains(item.id)) resume.accept(item); });
         h.b.open.setOnClickListener(v -> open.accept(item));
         h.b.info.setContentDescription("Xem chi tiết đặt chỗ " + (item.roomName == null ? item.roomId : item.roomName));
         String deposit = item.priceSnapshot != null && item.priceSnapshot.get("depositAmount") instanceof Number
                 ? FormatUtils.formatCurrency(((Number) item.priceSnapshot.get("depositAmount")).doubleValue()) : "Chưa có dữ liệu";
         h.b.info.setText(item.roomName == null ? item.roomId : item.roomName);
-        h.b.bookingStatus.setText(FormatUtils.bookingStatus(item.status) + " · " + ("FIXED".equals(item.activeMode) ? "Thuê tháng/quý" : "Thuê giờ"));
+        h.b.bookingStatus.setText(FormatUtils.bookingStatus(item) + " · " + ("FIXED".equals(item.activeMode) ? "Thuê tháng/quý" : "Thuê giờ"));
         h.b.bookingTime.setText(TimeUtils.formatVietnam(item.startAt) + "\nđến " + TimeUtils.formatVietnam(item.endAt));
         h.b.bookingPrice.setText("Thuê và phí: " + FormatUtils.formatCurrency(item.totalAmount) + "\n" + (CancellationPolicy.versioned(item) ? "Trả trước dự kiến (40%): " : "Cọc theo booking cũ: ") + deposit);
         h.b.bookingPayment.setText(FormatUtils.paymentStatus(item.paymentStatus));

@@ -16,9 +16,9 @@
     <string name="workspace_total_rooms">Tổng không gian</string>
     <string name="workspace_pending_rooms">Chờ xét duyệt</string>
     <string name="workspace_active_rooms">Đang hiển thị</string>
-    <string name="workspace_pending_bookings">Yêu cầu chờ xử lý</string>
+    <string name="workspace_pending_bookings">Chờ thanh toán / đơn cũ chờ duyệt</string>
     <string name="workspace_open_bookings">Xử lý yêu cầu thuê</string>
-    <string name="workspace_open_bookings_hint">Xác nhận, từ chối và theo dõi lượt thuê</string>
+    <string name="workspace_open_bookings_hint">Theo dõi thanh toán, nhận phòng và hoàn tất lượt thuê</string>
     <string name="workspace_open_spaces">Quản lý không gian</string>
     <string name="workspace_open_spaces_hint">Phòng, tòa nhà, giá và lịch trống</string>
     <string name="workspace_add_room">Thêm không gian</string>

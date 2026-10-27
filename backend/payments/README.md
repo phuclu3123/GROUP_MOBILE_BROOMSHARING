@@ -4,7 +4,8 @@ Java 17, HTTP server của JDK, Firebase Admin SDK và SDK payOS chính thức. 
 
 ## Phạm vi
 
-- Host xác nhận booking trước; Guest thanh toán khoản trả trước 40% theo `priceSnapshot` schema 2. Không nhận giá hoặc UID người thuê từ request body.
+- Booking mới dùng `paymentFlow=INSTANT_5M`: khách bấm thanh toán thì giữ lịch tối đa 5 phút và mở QR ngay. Backend nhận đủ 40% đúng hạn mới chuyển `PENDING` thành `CONFIRMED`, không cần Host duyệt. Hạn tính từ `createdAt` của server và không vượt giờ bắt đầu thuê; retry không kéo dài hạn.
+- Chỉ Host trong `PAYMENT_DEMO_HOST_UID` nhận booking mới qua kênh này. Backend công bố UID/phiên bản luồng tại `appConfig/payments`; không công bố khóa payOS. Booking cũ giữ nguyên lịch sử và cơ chế tương thích. Không nhận giá hoặc UID người thuê từ request body.
 - Một `PAYMENT_DEMO_HOST_UID` gắn với một kênh merchant payOS của nhóm. Tiền vào tài khoản ngân hàng của kênh đó, không tự chuyển đến email hay tài khoản riêng của từng Host.
 - Không triển khai API hoàn tiền. Hủy đơn vẫn nhả lịch theo chính sách hiện có; số tiền cần đối soát được ghi với `refundStatus=MANUAL_REVIEW`, không đánh dấu đã hoàn.
 - Khoản thanh toán không tự chuyển booking sang CHECKED_IN/COMPLETED, không gia hạn lịch. Chưa bắt buộc thu nốt 60% còn lại bằng API.
@@ -43,11 +44,17 @@ QR mẫu thật đã tạo ở booking `78cb225b84f342b8d0eb2b6dc88547bd6e48071c
 
 `payments/{bookingId}` lưu giao dịch hiện hành; `paymentOrders/{orderCode}` là tra cứu nội bộ backend; `auditLogs/payment_{orderCode}_paid` ghi nhận tiền một lần. Android chỉ đọc payment và booking qua Rules; không được tự ghi PAID, paidAmount hoặc xác nhận hoàn tiền.
 
-Một booking dùng một orderCode bền vững, hết hạn tại giờ bắt đầu. Khi create timeout, server kiểm tra lại cùng mã thay vì tạo đơn thu tiền khác. Khi payOS đã hủy/hết hạn QR, phiên bản này không tạo orderCode thứ hai cho cùng booking. Có thể đặt booking mới nếu còn lịch và đủ điều kiện; không tự hủy/đặt lại trong backend.
+Một booking dùng một orderCode bền vững. Booking mới hết hạn sau tối đa 5 phút; giao dịch cũ giữ hạn đã có. Khi create timeout, server kiểm tra lại cùng mã thay vì tạo đơn thu tiền khác. Khi payOS đã hủy/hết hạn QR, phiên bản này không tạo orderCode thứ hai cho cùng booking. Có thể đặt booking mới nếu còn lịch và đủ điều kiện; không tự hủy/đặt lại trong backend.
+
+Backend đối soát phiên giữ chỗ ngay cả khi app bị đóng trước khi gọi tạo QR. Sau khi xác nhận link chưa trả đã kết thúc, transaction nhả đúng lịch giờ/tháng/quý, giảm bộ đếm một lần, giữ lịch sử `EXPIRED` và ghi audit. Không nhả mù khi API nhà cung cấp mất kết nối. Thời điểm ngân hàng nhận tiền được đối chiếu khi webhook chậm; tiền thiếu, dư, đến muộn hoặc booking đã hủy được ghi `REVIEW_REQUIRED`/`MANUAL_REVIEW`. Không tự lấy lại lịch đã nhả. Tiến trình local dừng thì công việc này chờ tới khi Java chạy lại.
+
+Để đổi bản Java mà giữ nguyên URL tunnel: `powershell -NoProfile -File tools/payments/restart-server.ps1`. Script chỉ thay đúng tiến trình Java demo theo PID/thời điểm khởi tạo, build lại backend và kiểm tra health. Nếu chạy `run-demo.ps1` để tạo tunnel mới thì vẫn cần build lại APK theo URL mới.
 
 Trạng thái tiền: `CREATING`, `PENDING`, `PAID`, `CANCELLED`, `EXPIRED`, `REVIEW_REQUIRED`. Booking giữ `UNAVAILABLE` trước khi dùng API, `PENDING` khi đã tạo yêu cầu, `PAID` khi payOS xác nhận nhận đủ, `REVIEW_REQUIRED` khi tiền đến cho booking đã hủy hoặc số nhận khác số yêu cầu. Webhook lặp và kết quả đối chiếu đến muộn không hạ trạng thái đã nhận tiền.
 
-Không có worker chạy nền trong bản này. Webhook cập nhật khi server đang hoạt động; nút kiểm tra giao dịch và quay về màn thanh toán đối chiếu trực tiếp để bù webhook bị lỡ. Sau khi server dừng, payOS không thể gọi vào máy; cần bật server/tunnel khi demo.
+Khi Java đang chạy, tác vụ đối soát mỗi 15 giây kiểm tra tối đa 50 payment đang tạo/chờ theo cursor, hủy link chưa trả nếu booking đã khép, Host bị khóa hoặc QR quá hạn. Một lỗi provider không làm dừng các đơn khác; lần sau sẽ thử lại. Màn Android đang mở cũng cập nhật thời hạn và đối soát định kỳ, không tự xác nhận đã nhận tiền. Nếu thanh toán thắng race với hủy, server vẫn ghi nhận tiền để đối soát, không phục hồi booking/lịch đã nhả.
+
+Webhook cập nhật khi server đang hoạt động; nút kiểm tra giao dịch và quay về màn thanh toán đối chiếu trực tiếp để bù webhook bị lỡ. Sau khi server dừng, tác vụ đối soát cũng dừng và payOS không thể gọi vào máy; cần bật server/tunnel khi demo. Hủy link chưa thanh toán không phải thao tác hoàn tiền.
 
 ## Kiểm thử
 

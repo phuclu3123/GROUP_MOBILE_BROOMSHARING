@@ -40,7 +40,7 @@ public final class PaymentService {
                                             uid.equals(data.get("guestUid")),
                                             "Không có quyền xem giao dịch.");
                                     if (p.exists()
-                                            && Set.of("PAID", "REVIEW_REQUIRED")
+                                            && Set.of("PAID", "REVIEW_REQUIRED", "CANCELLED", "EXPIRED")
                                                     .contains(p.getString("status")))
                                         return p.getData();
                                     PaymentPolicy.canCreate(
@@ -51,6 +51,11 @@ public final class PaymentService {
                                             "ACTIVE".equals(owner.getString("status"))
                                                     && "HOST".equals(owner.getString("role")),
                                             "Chủ phòng không còn quyền cho thuê.");
+                                    if (PaymentPolicy.instant(data)) {
+                                        BookingHold hold = new BookingHold(db, tx, b);
+                                        PaymentPolicy.require(hold.matches() && hold.roomOpen(),
+                                                "Lịch hoặc phòng đã thay đổi; chưa tạo QR. Vui lòng kiểm tra lại.");
+                                    }
                                     if (p.exists()) return p.getData();
                                     DocumentReference orderRef =
                                             db.collection("paymentOrders")
@@ -64,7 +69,7 @@ public final class PaymentService {
                                     n.put("ownerUid", host);
                                     n.put("orderCode", candidate);
                                     n.put("amount", PaymentPolicy.amount(data));
-                                    n.put("expiresAt", PaymentPolicy.startMillis(data) / 1000);
+                                    n.put("expiresAt", PaymentPolicy.deadline(data) / 1000);
                                     n.put("status", "CREATING");
                                     n.put("provider", "PAYOS");
                                     n.put("advancePercent", 40);
@@ -141,6 +146,7 @@ public final class PaymentService {
         if (Set.of("PAID", "REVIEW_REQUIRED").contains((String) latestPayment.get("status")))
             return publicView(latestPayment);
         Map<String, Object> latestBooking = booking.get().get().getData();
+        if (mustClose(latestBooking, latestPayment, true)) return refresh(uid, id);
         PaymentPolicy.canCreate(latestBooking, uid, host, System.currentTimeMillis());
         return refresh(uid, id);
     }
@@ -150,6 +156,15 @@ public final class PaymentService {
         DocumentSnapshot actor = db.collection("users").document(uid).get().get();
         active(actor);
         DocumentSnapshot p = db.collection("payments").document(id).get().get();
+        if (!p.exists()) {
+            DocumentSnapshot b = db.collection("bookings").document(id).get().get();
+            PaymentPolicy.require(b.exists() && (uid.equals(b.getString("guestUid"))
+                    || uid.equals(b.getString("ownerUid")) || "ADMIN".equals(actor.getString("role"))),
+                    "Không có quyền xem giao dịch.");
+            PaymentPolicy.require(host.equals(b.getString("ownerUid")),
+                    "Phòng này chưa thuộc Host payOS demo. Chưa tạo giao dịch thanh toán.");
+            throw new IllegalStateException("Chưa khởi tạo giao dịch thanh toán. Bạn có thể thử tải lại QR nếu phiên còn hạn.");
+        }
         PaymentPolicy.require(
                 p.exists()
                         && (uid.equals(p.getString("guestUid"))
@@ -172,14 +187,92 @@ public final class PaymentService {
         reconcile(order, data);
     }
 
+    // Server tiếp tục khép QR dù người dùng đã đóng app. Mỗi lượt có giới hạn và cursor.
+    private DocumentSnapshot pendingCursor, holdCursor;
+
+    public synchronized void reconcilePending() throws Exception {
+        // App có thể mất mạng sau khi giữ lịch và trước khi gọi tạo QR.
+        expireUnstartedHolds();
+        Query query = db.collection("payments")
+                .whereIn("status", List.of("CREATING", "PENDING"))
+                .orderBy(FieldPath.documentId()).limit(50);
+        if (pendingCursor != null) query = query.startAfter(pendingCursor);
+        List<QueryDocumentSnapshot> rows = query.get().get().getDocuments();
+        pendingCursor = rows.size() == 50 ? rows.get(rows.size() - 1) : null;
+        for (DocumentSnapshot row : rows) {
+            try {
+                reconcile(((Number) row.get("orderCode")).longValue(), null);
+            } catch (Exception error) {
+                // Giữ đơn để thử lại; không ghi log payload ngân hàng hoặc secret.
+                System.err.println("Pending payment sync: " + error.getClass().getSimpleName());
+            }
+        }
+    }
+
+    private void expireUnstartedHolds() throws Exception {
+        Query query = db.collection("bookings").whereEqualTo("status", "PENDING")
+                .orderBy(FieldPath.documentId()).limit(50);
+        if (holdCursor != null) query = query.startAfter(holdCursor);
+        List<QueryDocumentSnapshot> rows = query.get().get().getDocuments();
+        holdCursor = rows.size() == 50 ? rows.get(rows.size() - 1) : null;
+        for (DocumentSnapshot row : rows) {
+            if (!PaymentPolicy.instant(row.getData()) || PaymentPolicy.deadline(row.getData()) > System.currentTimeMillis()) continue;
+            try {
+                db.runTransaction(tx -> {
+                    DocumentSnapshot b = tx.get(row.getReference()).get();
+                    DocumentSnapshot p = tx.get(db.collection("payments").document(row.getId())).get();
+                    if (!"PENDING".equals(b.getString("status")) || p.exists()
+                            || PaymentPolicy.deadline(b.getData()) > System.currentTimeMillis()) return null;
+                    new BookingHold(db, tx, b).finish(db, tx, false);
+                    return null;
+                }).get();
+            } catch (Exception error) { System.err.println("Hold expiry: " + error.getClass().getSimpleName()); }
+        }
+    }
+
+    private static boolean mustClose(Map<String, Object> booking, Map<String, Object> payment,
+                                     boolean ownerActive) {
+        return !ownerActive || PaymentPolicy.needsReview(booking)
+                || ((Number) payment.get("expiresAt")).longValue() <= System.currentTimeMillis() / 1000;
+    }
+
     private void reconcile(long order, JsonNode event) throws Exception {
         DocumentSnapshot link =
                 db.collection("paymentOrders").document(Long.toString(order)).get().get();
         if (!link.exists()) return;
         String id = link.getString("bookingId");
-        JsonNode remote = provider.get(order);
         DocumentReference payment = db.collection("payments").document(id);
         DocumentReference booking = db.collection("bookings").document(id);
+        DocumentSnapshot before = payment.get().get(), beforeBooking = booking.get().get();
+        PaymentPolicy.require(before.exists() && beforeBooking.exists(), "Mất liên kết giao dịch.");
+        if (Set.of("PAID", "REVIEW_REQUIRED").contains(before.getString("status"))) return;
+        DocumentSnapshot beforeOwner = db.collection("users").document(before.getString("ownerUid")).get().get();
+        JsonNode observed;
+        try {
+            observed = provider.get(order);
+        } catch (Exception lookupError) {
+            // Timeout không chứng minh chưa có giao dịch. Chỉ nhả khi payOS xác nhận không tồn tại,
+            // phiên đã hết hạn và lần tạo chưa từng trả một link hợp lệ.
+            if (!provider.isMissing(lookupError) || !"CREATING".equals(before.getString("status"))
+                    || ((Number) before.get("expiresAt")).longValue() > System.currentTimeMillis() / 1000)
+                throw lookupError;
+            observed = new com.fasterxml.jackson.databind.ObjectMapper().createObjectNode()
+                    .put("orderCode", order).put("amount", ((Number) before.get("amount")).longValue())
+                    .put("status", "EXPIRED");
+        }
+        if ("PENDING".equals(observed.path("status").asText())
+                && mustClose(beforeBooking.getData(), before.getData(),
+                             "ACTIVE".equals(beforeOwner.getString("status")) && "HOST".equals(beforeOwner.getString("role")))) {
+            try {
+                provider.cancel(order, "BroomSharing: booking closed or payment expired");
+            } catch (Exception race) {
+                // Thanh toán có thể hoàn tất ngay lúc hủy; đọc lại trước khi quyết định.
+                JsonNode latest = provider.get(order);
+                if ("PENDING".equals(latest.path("status").asText())) throw race;
+            }
+            observed = provider.get(order);
+        }
+        final JsonNode remote = observed;
         db.runTransaction(
                         tx -> {
                             DocumentSnapshot p = tx.get(payment).get(), b = tx.get(booking).get();
@@ -205,7 +298,9 @@ public final class PaymentService {
                                         "Mã liên kết thanh toán không khớp.");
                             if (event != null)
                                 PaymentPolicy.require(
-                                        event.path("amount").asLong() == expected
+                                        (PaymentPolicy.instant(b.getData())
+                                                ? event.path("amount").asLong() > 0
+                                                : event.path("amount").asLong() == expected)
                                                 && event.path("paymentLinkId")
                                                         .asText()
                                                         .equals(
@@ -215,20 +310,33 @@ public final class PaymentService {
                                                                                                 "paymentLinkId")
                                                                                         .asText())),
                                         "Webhook không khớp giao dịch.");
+                            BookingHold hold = PaymentPolicy.instant(b.getData()) && "PENDING".equals(b.getString("status"))
+                                    ? new BookingHold(db, tx, b) : null;
                             String old = p.getString("status"),
                                     current = remote.path("status").asText();
                             if (Set.of("PAID", "REVIEW_REQUIRED").contains(old)) return null;
-                            if ("PAID".equals(current)) {
+                            boolean instant = PaymentPolicy.instant(b.getData());
+                            boolean closedWithMoney = instant && Set.of("CANCELLED", "EXPIRED").contains(current)
+                                    && remote.path("amountPaid").asLong() > 0;
+                            if ("PAID".equals(current) || closedWithMoney) {
                                 long received = remote.path("amountPaid").asLong();
                                 PaymentPolicy.require(
-                                        received >= expected
+                                        instant ? received > 0 : received >= expected
                                                 && remote.path("amountRemaining").asLong(-1) == 0,
                                         "payOS chưa xác nhận nhận đủ tiền.");
                                 boolean review =
                                         PaymentPolicy.needsReview(b.getData())
                                                 || received != expected
-                                                || !"ACTIVE".equals(owner.getString("status"));
+                                                || !"PAID".equals(current)
+                                                || remote.path("amountRemaining").asLong(-1) != 0
+                                                || (hold != null && (!hold.matches() || !hold.roomOpen()
+                                                    || !PaymentPolicy.paidInTime(remote, expected,
+                                                        ((Number) p.get("expiresAt")).longValue() * 1000,
+                                                        System.currentTimeMillis())))
+                                                || !"ACTIVE".equals(owner.getString("status"))
+                                                || !"HOST".equals(owner.getString("role"));
                                 String status = review ? "REVIEW_REQUIRED" : "PAID";
+                                if (hold != null && hold.matches()) hold.finish(db, tx, !review);
                                 Map<String, Object> update = new HashMap<>();
                                 update.put("status", status);
                                 update.put("paidAmount", received);
@@ -271,11 +379,16 @@ public final class PaymentService {
                                                 "createdAt",
                                                 FieldValue.serverTimestamp()));
                             } else if (Set.of("CANCELLED", "EXPIRED").contains(current)) {
+                                // Chỉ nhả đúng khóa của booking đang chờ; không đụng lịch sử đã xác nhận.
+                                if (hold != null) hold.finish(db, tx, false);
+                                String terminal = "CANCELLED".equals(current)
+                                                && ((Number) p.get("expiresAt")).longValue() <= System.currentTimeMillis() / 1000
+                                        ? "EXPIRED" : current;
                                 tx.update(
                                         payment,
                                         Map.of(
                                                 "status",
-                                                current,
+                                                terminal,
                                                 "updatedAt",
                                                 FieldValue.serverTimestamp()));
                                 if ("PENDING".equals(b.getString("paymentStatus")))

@@ -16,6 +16,8 @@ import vn.edu.ueh.phuclu.broomsharing.model.Booking;
 import vn.edu.ueh.phuclu.broomsharing.model.Room;
 import vn.edu.ueh.phuclu.broomsharing.model.RoomBlackout;
 import vn.edu.ueh.phuclu.broomsharing.model.UserProfile;
+import vn.edu.ueh.phuclu.broomsharing.model.UiState;
+import vn.edu.ueh.phuclu.broomsharing.utils.BookingAvailability;
 import vn.edu.ueh.phuclu.broomsharing.ui.auth.SessionActivity;
 import vn.edu.ueh.phuclu.broomsharing.utils.CancellationPolicy;
 import vn.edu.ueh.phuclu.broomsharing.utils.FormatUtils;
@@ -87,6 +89,8 @@ public class BookingActivity extends SessionActivity {
 
         // Lấy ViewModel gắn với Activity này.
         model = new ViewModelProvider(this).get(BookingViewModel.class);
+        vn.edu.ueh.phuclu.broomsharing.ui.common.CheckoutReminder.attach(
+                this, b.pendingCheckout.getRoot(), profile.uid, roomId());
 
         // Khôi phục ngày, giờ và thông tin nhận diện yêu cầu sau khi Activity được dựng lại.
         if (restored != null) {
@@ -230,42 +234,17 @@ public class BookingActivity extends SessionActivity {
                         String text =
                                 HostSchedule.daySummary(room, state.data, day)
                                         .replace("Đã xác nhận", "Đã giữ chỗ");
-                        if (!hourly()) {
-                            // Thuê tháng/quý: kiểm tra lịch cho toàn bộ kỳ đã chọn.
-                            LocalDate endDay = day.plusMonths(months());
-                            boolean held = false;
-                            Date from = Date.from(day.atStartOfDay(HostSchedule.ZONE).toInstant()),
-                                    to =
-                                            Date.from(
-                                                    endDay.atStartOfDay(HostSchedule.ZONE)
-                                                            .toInstant());
-                            // Nếu booking hiện có giao với kỳ đang xét thì kỳ đó đã bận.
-                            for (Booking item : state.data)
-                                if (HostSchedule.overlaps(from, to, item.startAt, item.endAt))
-                                    held = true;
-                            // Kiểm tra các khoảng thời gian chủ phòng chủ động khóa.
-                            for (RoomBlackout range : room.getBlackoutRanges())
-                                if (HostSchedule.overlaps(
-                                        from, to, range.getStartAt(), range.getEndAt()))
-                                    held = true;
-                            // Kiểm tra thêm các ngày lẻ bị khóa.
-                            for (String value : room.getBlackoutDates()) {
-                                LocalDate blocked = HostSchedule.blackoutDate(value);
-                                if (!blocked.isBefore(day) && blocked.isBefore(endDay)) held = true;
-                            }
-                            text =
-                                    day
-                                            + " – "
-                                            + endDay
-                                            + ": "
-                                            + (held
-                                                    ? "Có khoảng đã giữ chỗ/khóa lịch"
-                                                    : "Chưa có khoảng giữ chỗ trong kỳ này");
+                        if (!hourly()) text = BookingAvailability.fixedSummary(
+                                room, state.data, day, months(), day.plusMonths(12));
+                        // Lịch đổi sau khi báo giá thì phải kiểm lại lựa chọn trước khi gửi.
+                        if (quoted) {
+                            try { request(); }
+                            catch (Exception conflict) { quoted = false; enabled(); }
                         }
                         b.tvAvailability.setText(
                                 text
                                         + "\n"
-                                        + "Lịch có thể thay đổi; service kiểm tra lại khi gửi yêu"
+                                        + "Lịch có thể thay đổi; hệ thống kiểm tra lại khi gửi yêu"
                                         + " cầu.");
                     }
                 });
@@ -297,7 +276,7 @@ public class BookingActivity extends SessionActivity {
                                         + "\nThuê + phí: "
                                         + amount(p, "totalAmount")
                                         + "\n"
-                                        + "Khoản trả trước 40% được trừ vào tiền thuê; chỉ thanh toán sau khi Host xác nhận qua kênh demo được hỗ trợ.\n"
+                                        + "Khoản trả trước 40% được trừ vào tiền thuê. Khi bấm thanh toán, lịch được tạm giữ tối đa 5 phút. Hết hạn chưa trả sẽ nhả lịch; không cần Host duyệt.\n"
                                         + CancellationPolicy.terms(state.data.activeMode)
                                         + "\n"
                                         + p.get("rentalPolicy"));
@@ -320,14 +299,21 @@ public class BookingActivity extends SessionActivity {
                         // Xóa kết quả thành công vừa xử lý để không điều hướng lặp lại.
                         model.saved.setValue(null);
                         startActivity(
-                                new Intent(this, BookingSuccessActivity.class)
+                                new Intent(this, BookingPaymentActivity.class)
                                         .putExtra("bookingId", id));
                         finish();
                     }
                 });
+        b.btnSubmitBooking.setText("Thanh toán và giữ lịch 5 phút");
         selection();
         if (model.room.getValue() == null) model.loadRoom(roomId());
     }
+
+    @Override
+    protected void onStart() { super.onStart(); if (model != null) loadAvailability(); }
+
+    @Override
+    protected void onStop() { if (model != null) model.stopAvailability(); super.onStop(); }
 
     private String amount(Map<String, Object> p, String key) {
         // Lấy một khoản tiền trong snapshot và định dạng; nếu thiếu thì hiển thị "Chưa có".
@@ -357,7 +343,7 @@ public class BookingActivity extends SessionActivity {
         model.loadAvailability(
                 roomId(),
                 day.atStartOfDay(HostSchedule.ZONE).toInstant().toEpochMilli(),
-                (hourly() ? day.plusDays(1) : day.plusMonths(months()))
+                (hourly() ? day.plusDays(1) : day.plusMonths(12))
                         .atStartOfDay(HostSchedule.ZONE)
                         .toInstant()
                         .toEpochMilli());
@@ -403,19 +389,47 @@ public class BookingActivity extends SessionActivity {
     }
 
     private void chooseTime(boolean from) {
-        // from=true chọn giờ bắt đầu; from=false chọn giờ kết thúc.
-        LocalTime selected = from ? start : end;
-        new TimePickerDialog(
-                        this,
-                        (p, h, m) -> {
-                            if (from) start = LocalTime.of(h, m);
-                            else end = LocalTime.of(h, m);
-                            changed();
-                        },
-                        selected.getHour(),
-                        selected.getMinute(),
-                        true)
-                .show();
+        UiState<List<Booking>> calendar = model.availability.getValue();
+        if (room == null || day == null || calendar == null || calendar.data == null || calendar.loading) {
+            b.tvBookingFeedback.setText("Chọn ngày và chờ tải lịch trước khi chọn giờ.");
+            return;
+        }
+        List<LocalTime> times = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
+        List<Boolean> allowed = new ArrayList<>();
+        String[] opening = room.getOpenTime().split(":"), closing = room.getCloseTime().split(":");
+        int open = Integer.parseInt(opening[0]) * 60 + Integer.parseInt(opening[1]);
+        int close = Integer.parseInt(closing[0]) * 60 + Integer.parseInt(closing[1]);
+        int step = Math.max(30, room.getSlotMinutes());
+        for (int minute = open; minute <= close; minute += step) {
+            LocalTime time = minute == 1440 ? LocalTime.MIDNIGHT : LocalTime.of(minute / 60, minute % 60);
+            int begin = from ? minute : start.getHour() * 60 + start.getMinute();
+            int finish = from ? minute + room.getMinBookingMinutes() : minute;
+            Date a = Date.from(day.atStartOfDay(HostSchedule.ZONE).plusMinutes(begin).toInstant());
+            Date z = Date.from(day.atStartOfDay(HostSchedule.ZONE).plusMinutes(finish).toInstant());
+            String reason = finish > close || finish - begin < room.getMinBookingMinutes()
+                    ? "Không đủ thời lượng" : !room.getWorkingDays().contains(day.getDayOfWeek().getValue())
+                    ? "Ngày nghỉ" : a.getTime() <= System.currentTimeMillis()
+                    ? "Đã qua giờ" : BookingAvailability.conflict(room, calendar.data, a, z);
+            times.add(time);
+            labels.add((minute == 1440 ? "24:00" : time.toString()) + " • " + (reason == null ? "Còn trống" : reason));
+            allowed.add(reason == null);
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, labels) {
+            @Override public boolean areAllItemsEnabled() { return false; }
+            @Override public boolean isEnabled(int position) { return allowed.get(position); }
+            @Override public View getView(int position, View convert, ViewGroup parent) {
+                View view = super.getView(position, convert, parent);
+                view.setAlpha(isEnabled(position) ? 1f : 0.45f);
+                return view;
+            }
+        };
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle(from ? "Chọn giờ bắt đầu" : "Chọn giờ kết thúc")
+                .setAdapter(adapter, (dialog, position) -> {
+                    if (from) start = times.get(position); else end = times.get(position);
+                    changed();
+                }).setNegativeButton(android.R.string.cancel, null).show();
     }
 
     private Booking request() {
@@ -430,13 +444,21 @@ public class BookingActivity extends SessionActivity {
                         .atZone(HostSchedule.ZONE)
                         .toInstant()
                         .toEpochMilli();
-        long to =
-                hourly() ? day.atTime(end).atZone(HostSchedule.ZONE).toInstant().toEpochMilli() : 0;
+        boolean midnightEnd = hourly() && end.equals(LocalTime.MIDNIGHT);
+        long to = hourly() ? (midnightEnd ? day.plusDays(1) : day).atTime(end)
+                .atZone(HostSchedule.ZONE).toInstant().toEpochMilli() : 0;
         if (from <= System.currentTimeMillis())
             throw new IllegalStateException("Thời gian bắt đầu phải ở tương lai.");
-        if (hourly() && !start.isBefore(end))
+        if (hourly() && !midnightEnd && !start.isBefore(end))
             throw new IllegalStateException("Giờ kết thúc phải sau giờ bắt đầu.");
 
+        UiState<List<Booking>> calendar = model.availability.getValue();
+        if (calendar == null || calendar.loading || calendar.data == null)
+            throw new IllegalStateException("Chờ tải lịch hiện tại trước khi thanh toán.");
+        Date selectedEnd = hourly() ? new Date(to)
+                : Date.from(day.plusMonths(months()).atStartOfDay(HostSchedule.ZONE).toInstant());
+        String conflict = BookingAvailability.conflict(room, calendar.data, new Date(from), selectedEnd);
+        if (conflict != null) throw new IllegalStateException(conflict + ". Vui lòng chọn lịch khác.");
         // Thuê giờ gửi cả from/to; thuê cố định gửi số tháng để nghiệp vụ tính ngày kết thúc.
         return model.request(roomId(), from, to, hourly() ? 0 : months());
     }

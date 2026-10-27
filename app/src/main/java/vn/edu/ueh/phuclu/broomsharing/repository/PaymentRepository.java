@@ -34,6 +34,29 @@ public final class PaymentRepository {
         return !BuildConfig.PAYMENT_API_BASE_URL.isEmpty();
     }
 
+    // Kiểm tra server trước khi tạo giữ chỗ; Rules vẫn kiểm lại Host trong transaction.
+    public void checkChannel(String ownerUid, ResultCallback<String> callback) {
+        if (!configured()) {
+            callback.onError(new IllegalStateException("Chưa cấu hình server thanh toán."));
+            return;
+        }
+        http.newCall(new Request.Builder().url(BuildConfig.PAYMENT_API_BASE_URL + "/health").get().build())
+                .enqueue(new Callback() {
+                    public void onFailure(Call call, IOException error) {
+                        main.post(() -> callback.onError(new IOException("Server thanh toán chưa sẵn sàng. Chưa tạo giữ chỗ; vui lòng thử lại.")));
+                    }
+                    public void onResponse(Call call, Response response) {
+                        try (Response result = response) {
+                            if (!result.isSuccessful() || result.body() == null) throw new IOException("Server thanh toán chưa sẵn sàng.");
+                            JSONObject data = new JSONObject(result.body().string());
+                            if (!"INSTANT_5M".equals(data.optString("paymentFlow"))) throw new IOException("Server chưa hỗ trợ phiên thanh toán 5 phút.");
+                            if (!ownerUid.equals(data.optString("demoHostUid"))) throw new IOException("Phòng này chưa thuộc Host payOS demo. Bạn vẫn có thể xem thông tin và liên hệ Host.");
+                            main.post(() -> callback.onSuccess(ownerUid));
+                        } catch (Exception error) { main.post(() -> callback.onError(error)); }
+                    }
+                });
+    }
+
     public void request(String bookingId, boolean create, ResultCallback<Payment> callback) {
         FirebaseUser user = auth.getCurrentUser();
         if (user == null
@@ -140,6 +163,25 @@ public final class PaymentRepository {
                         });
     }
 
+    // Chỉ các giao dịch của tài khoản đang đăng nhập; cache chưa xác nhận không bật nút trả tiền.
+    public ListenerRegistration watchMine(ResultCallback<java.util.List<Payment>> callback) {
+        FirebaseUser user = auth.getCurrentUser();
+        if (user == null) throw new IllegalStateException("Vui lòng đăng nhập lại.");
+        String uid = user.getUid();
+        return FirebaseHelper.getFirestore().collection("payments").whereEqualTo("guestUid", uid)
+                .addSnapshotListener(MetadataChanges.INCLUDE, (rows, error) -> {
+                    if (!uid.equals(auth.getUid())) return;
+                    if (error != null) { callback.onError(error); return; }
+                    if (rows == null || rows.getMetadata().isFromCache() || rows.getMetadata().hasPendingWrites()) return;
+                    java.util.List<Payment> values = new java.util.ArrayList<>();
+                    for (DocumentSnapshot row : rows) {
+                        Payment payment = row.toObject(Payment.class);
+                        if (payment != null && row.getId().equals(payment.bookingId)) values.add(payment);
+                    }
+                    callback.onSuccess(values);
+                });
+    }
+
     static Payment decode(JSONObject json, String expectedId) {
         Payment p = new Payment();
         p.bookingId = json.optString("bookingId");
@@ -173,7 +215,7 @@ public final class PaymentRepository {
                     || link.getPort() != -1)
                 throw new IllegalArgumentException("Đường dẫn thanh toán không hợp lệ.");
         }
-        if (p.received() && p.paidAmount < p.amount)
+        if ("PAID".equals(p.status) && p.paidAmount < p.amount)
             throw new IllegalArgumentException("Giao dịch chưa ghi nhận đủ khoản trả trước.");
         return p;
     }

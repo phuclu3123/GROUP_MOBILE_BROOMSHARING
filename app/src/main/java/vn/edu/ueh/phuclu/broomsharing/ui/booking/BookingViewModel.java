@@ -99,10 +99,34 @@ public class BookingViewModel extends ViewModel {
                 });
     }
 
+    private final List<ListenerRegistration> calendarListeners = new ArrayList<>();
+    private int availabilityReadRequest;
+    public void stopAvailability() {
+        ++availabilityRequest;
+        ++availabilityReadRequest;
+        for (ListenerRegistration listener : calendarListeners) listener.remove();
+        calendarListeners.clear();
+    }
     public void loadAvailability(String roomId, long from, long to) {
-        // Mỗi lần kiểm tra có một mã; bỏ kết quả cũ nếu người dùng đã đổi thời gian.
-        final int token = ++availabilityRequest;
+        stopAvailability();
+        final int generation = availabilityRequest;
+        java.time.ZoneId zone = vn.edu.ueh.phuclu.broomsharing.utils.HostSchedule.ZONE;
+        java.time.YearMonth first = java.time.YearMonth.from(java.time.Instant.ofEpochMilli(from).atZone(zone));
+        java.time.YearMonth last = java.time.YearMonth.from(java.time.Instant.ofEpochMilli(to - 1).atZone(zone));
         availability.setValue(UiState.loading());
+        for (java.time.YearMonth month = first; month.compareTo(last) <= 0; month = month.plusMonths(1)) {
+            String key = vn.edu.ueh.phuclu.broomsharing.utils.BookingPolicy.monthKey(roomId, month);
+            calendarListeners.add(vn.edu.ueh.phuclu.broomsharing.utils.FirebaseHelper.getFirestore()
+                    .collection("availabilityMonths").document(key).addSnapshotListener(com.google.firebase.firestore.MetadataChanges.INCLUDE, (row, error) -> {
+                        if (generation != availabilityRequest) return;
+                        if (error != null) { availability.setValue(UiState.error(error)); return; }
+                        if (row != null && !row.getMetadata().isFromCache()) refreshAvailability(roomId, from, to, generation);
+                    }));
+        }
+    }
+    private void refreshAvailability(String roomId, long from, long to, int token) {
+        // Mỗi lần kiểm tra có một mã; bỏ kết quả cũ nếu người dùng đã đổi thời gian.
+        final int read = ++availabilityReadRequest;
         repository.availability(
                 roomId,
                 from,
@@ -110,13 +134,13 @@ public class BookingViewModel extends ViewModel {
                 new ResultCallback<List<Booking>>() {
                     public void onSuccess(List<Booking> value) {
                             // Chỉ nhận kết quả nếu đây vẫn là lần tải mới nhất.
-                        if (token == availabilityRequest)
+                        if (token == availabilityRequest && read == availabilityReadRequest)
                             availability.setValue(UiState.success(value));
                     }
 
                     public void onError(Exception e) {
                             // Lỗi từ lần tải cũ cũng không được ghi đè trạng thái mới.
-                        if (token == availabilityRequest) availability.setValue(UiState.error(e));
+                        if (token == availabilityRequest && read == availabilityReadRequest) availability.setValue(UiState.error(e));
                     }
                 });
     }
@@ -150,6 +174,7 @@ public class BookingViewModel extends ViewModel {
 
     @Override
     protected void onCleared() {
+        stopAvailability();
         // ViewModel sắp bị hủy: dọn listener và làm mất hiệu lực phản hồi lịch đang chờ.
         stopWatching();
         stopDetail();
@@ -223,18 +248,17 @@ public class BookingViewModel extends ViewModel {
         // Chặn thao tác trùng khi ViewModel đang xử lý.
         if (busy()) return;
         saved.setValue(UiState.loading());
-        repository.create(
-                request,
-                new ResultCallback<String>() {
-                    public void onSuccess(String value) {
-                            // value là mã booking đã được lưu.
-                        saved.setValue(UiState.success(value));
+        Room selected = room.getValue() == null ? null : room.getValue().data;
+        if (selected == null) { saved.setValue(UiState.error(new Exception("Chưa tải được phòng."))); return; }
+        new vn.edu.ueh.phuclu.broomsharing.repository.PaymentRepository().checkChannel(
+                selected.getOwnerUid(), new ResultCallback<String>() {
+                    public void onSuccess(String owner) {
+                        repository.create(request, new ResultCallback<String>() {
+                            public void onSuccess(String value) { saved.setValue(UiState.success(value)); }
+                            public void onError(Exception error) { saved.setValue(UiState.error(error)); }
+                        });
                     }
-
-                    public void onError(Exception e) {
-                            // Activity quan sát lỗi và hiển thị cho người dùng.
-                        saved.setValue(UiState.error(e));
-                    }
+                    public void onError(Exception error) { saved.setValue(UiState.error(error)); }
                 });
     }
 

@@ -7,6 +7,7 @@ import android.view.View;
 import androidx.activity.OnBackPressedCallback;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.google.android.material.tabs.TabLayout;
 
@@ -93,7 +94,8 @@ public class HostDashboardActivity extends SessionActivity {
                                 startActivity(
                                         new Intent(this, AddBuildingActivity.class)
                                                 .putExtra("EXTRA_BUILDING", building)));
-        b.rvRooms.setLayoutManager(new LinearLayoutManager(this));
+        b.rvRooms.setLayoutManager(new GridLayoutManager(this,
+                getResources().getInteger(R.integer.room_grid_columns)));
         b.rvRooms.setAdapter(roomAdapter);
         b.rvBuildings.setLayoutManager(new LinearLayoutManager(this));
         b.rvBuildings.setAdapter(buildingAdapter);

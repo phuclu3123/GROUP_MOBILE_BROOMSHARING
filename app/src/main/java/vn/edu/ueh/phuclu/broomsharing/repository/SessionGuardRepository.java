@@ -27,10 +27,15 @@ public class SessionGuardRepository {
                             if (doc == null
                                     || doc.getMetadata().isFromCache()
                                     || doc.getMetadata().hasPendingWrites()) return;
-                            UserProfile profile = doc.toObject(UserProfile.class);
-                            if (profile == null)
-                                cb.onError(new Exception("Hồ sơ tài khoản không còn tồn tại."));
-                            else cb.onSuccess(profile);
+                            try {
+                                UserProfile profile = doc.toObject(UserProfile.class);
+                                if (profile == null)
+                                    cb.onError(new Exception("Hồ sơ tài khoản không còn tồn tại."));
+                                else cb.onSuccess(profile);
+                            } catch (RuntimeException invalid) {
+                                cb.onError(new IllegalStateException(
+                                        "Hồ sơ tài khoản không hợp lệ. Vui lòng liên hệ Admin."));
+                            }
                         });
     }
 }

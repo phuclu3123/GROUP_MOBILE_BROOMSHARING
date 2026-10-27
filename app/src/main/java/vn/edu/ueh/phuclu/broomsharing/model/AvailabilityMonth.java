@@ -15,6 +15,8 @@ public class AvailabilityMonth {
     public String fixedBookingId = "";
     public List<Integer> slotsBusy = new ArrayList<>();
     public Map<String, List<Integer>> hourlyBookings = new HashMap<>();
+    // Chỉ chứa mã giữ tạm, không công khai thông tin khách hoặc thanh toán.
+    public List<String> pendingPaymentIds = new ArrayList<>();
     public String lastBookingId = "";
     @ServerTimestamp public Date updatedAt;
 

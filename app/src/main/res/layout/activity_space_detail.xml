@@ -39,6 +39,7 @@
             <com.google.android.material.button.MaterialButton android:id="@+id/btnRefresh" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Thử tải lại" android:textAllCaps="false" android:visibility="gone" />
         </LinearLayout>
     </ScrollView>
+    <include android:id="@+id/pendingCheckout" layout="@layout/view_pending_checkout" />
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingHorizontal="16dp" android:paddingVertical="8dp" android:background="@color/white" android:elevation="6dp">
         <com.google.android.material.button.MaterialButton android:id="@+id/btnFavorite" style="@style/Widget.MaterialComponents.Button.OutlinedButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:minHeight="48dp" android:layout_marginEnd="8dp" android:text="Lưu phòng" android:textAllCaps="false" android:enabled="false" />
         <com.google.android.material.button.MaterialButton android:id="@+id/btnBook" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:minHeight="48dp" android:text="Đặt chỗ" android:textAllCaps="false" android:enabled="false" />

@@ -16,7 +16,7 @@
     <string name="booking_success_title">Đã gửi yêu cầu đặt chỗ</string>
     <string name="booking_code_label">Mã đặt chỗ: %1$s</string>
     <string name="booking_deposit_unpaid">Trả trước dự kiến / thanh toán</string>
-    <string name="booking_pending_explanation">Yêu cầu đang chờ chủ phòng xác nhận. Đây chưa phải xác nhận đặt chỗ cuối cùng và chưa có giao dịch thanh toán thật.</string>
+    <string name="booking_pending_explanation">Lịch đang được giữ tạm để thanh toán. Chỉ xác nhận đặt chỗ khi server ghi nhận đủ khoản trả trước. Hết hạn chưa trả sẽ nhả lịch.</string>
     <string name="booking_to_my_bookings">Về đặt chỗ của tôi</string>
     <string name="booking_continue_explore">Tiếp tục khám phá</string>
 
@@ -27,7 +27,7 @@
 
     <string-array name="booking_filter_options">
         <item>Tất cả đặt chỗ</item>
-        <item>Chờ xác nhận</item>
+        <item>Chờ thanh toán / chờ duyệt đơn cũ</item>
         <item>Đã xác nhận</item>
         <item>Đã hủy</item>
         <item>Hoàn tất</item>

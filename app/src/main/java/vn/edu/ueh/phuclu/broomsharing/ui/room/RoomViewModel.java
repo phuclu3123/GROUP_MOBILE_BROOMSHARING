@@ -1,6 +1,12 @@
 package vn.edu.ueh.phuclu.broomsharing.ui.room;
 
 import androidx.lifecycle.*;
+import android.os.Handler;
+import android.os.Looper;
+import com.google.firebase.firestore.ListenerRegistration;
+import vn.edu.ueh.phuclu.broomsharing.model.Room;
+import vn.edu.ueh.phuclu.broomsharing.repository.PublicCalendarRepository;
+import vn.edu.ueh.phuclu.broomsharing.utils.FixedRentalBadge;
 
 import vn.edu.ueh.phuclu.broomsharing.model.RoomListing;
 import vn.edu.ueh.phuclu.broomsharing.model.UiState;
@@ -38,6 +44,16 @@ public class RoomViewModel extends ViewModel {
     private String cursor, detailId;
     private boolean loading, hasMore = true;
     private int request;
+    private final PublicCalendarRepository calendarRepository = new PublicCalendarRepository();
+    private final Map<String, ListenerRegistration> calendarListeners = new HashMap<>();
+    private final Map<String, PublicCalendarRepository.Calendar> calendars = new HashMap<>();
+    private final Set<String> calendarErrors = new HashSet<>();
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private boolean calendarsActive;
+    private int calendarGeneration;
+    private final Runnable tick = new Runnable() {
+        public void run() { if (calendarsActive) { publish(); handler.postDelayed(this, 60000); } }
+    };
 
     public boolean hasMore() {
         return hasMore;
@@ -61,6 +77,13 @@ public class RoomViewModel extends ViewModel {
         this.type = type;
         this.mode = mode;
         publish();
+        // Tìm kiếm/lọc toàn bộ tập phòng công khai, không chỉ trang đầu đã tải.
+        if (hasFilters() && hasMore && !loading) fetch(false);
+    }
+
+    private boolean hasFilters() {
+        return !search.trim().isEmpty() || !area.trim().isEmpty() || !type.isEmpty()
+                || !mode.isEmpty() || minCapacity > 0 || maxPrice > 0 || sort > 0;
     }
 
     private void publish() {
@@ -68,7 +91,14 @@ public class RoomViewModel extends ViewModel {
         for (RoomListing item : loaded.values())
             if (RoomFilter.matches(item, search, area, type, mode)
                     && item.room.getCapacity() >= minCapacity
-                    && (maxPrice <= 0 || RoomFilter.unitPrice(item) <= maxPrice)) result.add(item);
+                    && (maxPrice <= 0 || RoomFilter.unitPrice(item) <= maxPrice)) {
+                if (Room.MODE_FIXED.equals(item.room.getActiveMode())) {
+                    PublicCalendarRepository.Calendar calendar = calendars.get(item.room.getId());
+                    result.add(item.withAvailability(calendar == null
+                            ? FixedRentalBadge.unknown(!calendarErrors.contains(item.room.getId()))
+                            : FixedRentalBadge.from(item.room, calendar.windows, calendar.until, System.currentTimeMillis())));
+                } else result.add(item);
+            }
         if (sort > 0) result.sort(RoomFilter.order(sort));
         rooms.setValue(UiState.success(result));
     }
@@ -90,11 +120,13 @@ public class RoomViewModel extends ViewModel {
                 new ResultCallback<RoomRepository.Page>() {
                     public void onSuccess(RoomRepository.Page page) {
                         if (token != request) return;
-                        if (refresh) loaded.clear();
+                        if (refresh) { stopCalendarListeners(); loaded.clear(); }
                         for (RoomListing item : page.items) loaded.put(item.room.getId(), item);
                         cursor = page.cursor;
                         hasMore = page.hasMore;
                         loading = false;
+                        watchCalendars();
+                        if ((hasFilters() || loaded.isEmpty()) && hasMore) { fetch(false); return; }
                         publish();
                     }
 
@@ -104,6 +136,44 @@ public class RoomViewModel extends ViewModel {
                         rooms.setValue(UiState.error(error));
                     }
                 });
+    }
+
+    public void resumeCalendars() {
+        if (calendarsActive) return;
+        calendarsActive = true;
+        watchCalendars();
+        handler.post(tick);
+    }
+
+    private void watchCalendars() {
+        if (!calendarsActive) return;
+        final int run = calendarGeneration;
+        for (RoomListing listing : loaded.values()) {
+            String id = listing.room.getId();
+            if (!Room.MODE_FIXED.equals(listing.room.getActiveMode()) || calendarListeners.containsKey(id)) continue;
+            calendarListeners.put(id, calendarRepository.watch(listing.room, new ResultCallback<PublicCalendarRepository.Calendar>() {
+                public void onSuccess(PublicCalendarRepository.Calendar value) {
+                    if (run != calendarGeneration) return;
+                    calendars.put(id, value); calendarErrors.remove(id); publish();
+                }
+                public void onError(Exception error) {
+                    if (run != calendarGeneration) return;
+                    calendars.remove(id); calendarErrors.add(id); publish();
+                }
+            }));
+        }
+    }
+
+    private void stopCalendarListeners() {
+        ++calendarGeneration;
+        for (ListenerRegistration listener : calendarListeners.values()) listener.remove();
+        calendarListeners.clear(); calendars.clear(); calendarErrors.clear();
+    }
+
+    public void pauseCalendars() {
+        calendarsActive = false;
+        handler.removeCallbacks(tick);
+        stopCalendarListeners();
     }
 
     public void ensureDetail(String id) {
@@ -128,6 +198,7 @@ public class RoomViewModel extends ViewModel {
 
     @Override
     protected void onCleared() {
+        pauseCalendars();
         request++;
         detailId = null;
     }

@@ -97,7 +97,7 @@ public final class HostSchedule {
                 if (Objects.equals(r.getId(), b.roomId)
                         && occupies(b)
                         && overlaps(start, end, b.startAt, b.endAt))
-                    return day + " • " + FormatUtils.bookingStatus(b.status);
+                    return day + " • " + FormatUtils.bookingStatus(b);
             for (RoomBlackout b : r.getBlackoutRanges())
                 if (overlaps(start, end, b.getStartAt(), b.getEndAt()))
                     return day + " • Bị khóa: " + b.getReason();
@@ -129,7 +129,7 @@ public final class HostSchedule {
                     if (Objects.equals(r.getId(), b.roomId)
                             && occupies(b)
                             && overlaps(start, end, b.startAt, b.endAt))
-                        state = FormatUtils.bookingStatus(b.status);
+                        state = FormatUtils.bookingStatus(b);
                 if (last != null && !last.equals(state)) {
                     result.append(runStart)
                             .append("–")

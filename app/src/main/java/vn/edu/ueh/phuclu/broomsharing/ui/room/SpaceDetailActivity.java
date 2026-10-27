@@ -89,6 +89,8 @@ public class SpaceDetailActivity extends SessionActivity {
 
         // Nhận mã phòng từ Intent; mã này sẽ được chuyển tiếp sang các màn hình khác.
         String id = getIntent().getStringExtra(ROOM_ID);
+        vn.edu.ueh.phuclu.broomsharing.ui.common.CheckoutReminder.attach(
+                this, b.pendingCheckout.getRoot(), profile.uid, id);
         b.btnReviews.setOnClickListener(
                 v ->
                         startActivity(
@@ -222,7 +224,7 @@ public class SpaceDetailActivity extends SessionActivity {
                                         : room.getAmenities()));
         b.deposit.setText(
                 "Trả trước dự kiến: 40% tiền thuê, tính theo kỳ đã chọn.\n"
-                    + "Khoản trả trước 40% chỉ thanh toán sau khi Host xác nhận, qua kênh demo được hỗ trợ.");
+                    + "Thanh toán ngay qua kênh Host payOS demo. Lịch được tạm giữ tối đa 5 phút khi mở QR; nhận đủ tiền mới xác nhận đặt chỗ, không cần Host duyệt.");
         b.policies.setText(
                 "Chính sách hủy cho booking mới\n"
                         + CancellationPolicy.terms(room.getActiveMode())

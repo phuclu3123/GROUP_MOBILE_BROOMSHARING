@@ -24,6 +24,15 @@ public class FormatUtils {
                 + "\nKhông phải xác minh từ đối tác hoặc cam kết đã kiểm tra thực địa.";
     }
 
+    public static String bookingStatus(vn.edu.ueh.phuclu.broomsharing.model.Booking booking) {
+        if ("REVIEW_REQUIRED".equals(booking.paymentStatus)) return "Đã nhận tiền • Cần đối soát";
+        if (booking.isInstantPayment() && "PENDING".equals(booking.status))
+            return "Chờ thanh toán • Tạm giữ 5 phút";
+        if (booking.isInstantPayment() && "EXPIRED".equals(booking.status))
+            return "Đặt chỗ không thành công • Hết hạn thanh toán";
+        return bookingStatus(booking.status);
+    }
+
     public static String bookingStatus(String value) {
         if ("EXPIRED".equals(value)) return "Hết hạn chờ duyệt";
         if ("PENDING".equals(value) || "REQUESTED".equals(value)) return "Chờ duyệt • Đang giữ chỗ";

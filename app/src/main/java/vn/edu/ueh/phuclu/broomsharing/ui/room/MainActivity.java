@@ -12,7 +12,7 @@ import android.widget.*;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 
 import vn.edu.ueh.phuclu.broomsharing.R;
 import vn.edu.ueh.phuclu.broomsharing.adapter.GuestRoomAdapter;
@@ -72,7 +72,8 @@ public class MainActivity extends SessionActivity {
             pendingScroll = restored.getParcelable("guest.scroll");
         }
         b.search.setText(model.search);
-        LinearLayoutManager layout = new LinearLayoutManager(this);
+        GridLayoutManager layout = new GridLayoutManager(this,
+                getResources().getInteger(R.integer.room_grid_columns));
         b.publicRooms.setLayoutManager(layout);
         GuestRoomAdapter adapter =
                 new GuestRoomAdapter(
@@ -120,6 +121,7 @@ public class MainActivity extends SessionActivity {
                                                     : "";
                             if (!busy
                                     && state.error == null
+                                    && !model.hasMore()
                                     && state.data != null
                                     && state.data.isEmpty()) {
                                 boolean filtered =
@@ -165,9 +167,14 @@ public class MainActivity extends SessionActivity {
                             }
                         });
         model.ensureLoaded();
+        model.resumeCalendars();
         if (restored != null && restored.getBoolean("guest.filtersExpanded"))
             b.getRoot().post(this::showFilters);
     }
+
+    @Override protected void onStart() { super.onStart(); if (model != null) model.resumeCalendars(); }
+
+    @Override protected void onStop() { if (model != null) model.pauseCalendars(); super.onStop(); }
 
     private void updateFilterLabel() {
         int count =

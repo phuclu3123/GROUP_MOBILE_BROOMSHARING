@@ -5,6 +5,9 @@
     <TextView android:id="@+id/bookingPrice" android:layout_marginTop="8dp" style="@style/WorkspaceBody" />
     <TextView android:id="@+id/bookingPayment" android:layout_marginTop="8dp" style="@style/WorkspaceBody" />
     <TextView android:id="@+id/bookingReason" android:layout_marginTop="8dp" style="@style/WorkspaceBody" />
+    <com.google.android.material.button.MaterialButton android:id="@+id/resumePayment"
+        android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp"
+        android:text="Tiếp tục thanh toán" android:textAllCaps="false" android:visibility="gone" />
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="8dp">
         <com.google.android.material.button.MaterialButton android:id="@+id/cancel" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:minHeight="52dp" android:textAllCaps="false" android:text="@string/booking_cancel" android:layout_marginEnd="8dp" android:textColor="@color/danger" style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
         <com.google.android.material.button.MaterialButton android:id="@+id/open" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:minHeight="52dp" android:textAllCaps="false" android:text="@string/guest_detail_booking" />

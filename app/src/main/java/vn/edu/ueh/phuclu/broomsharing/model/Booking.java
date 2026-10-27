@@ -39,6 +39,17 @@ public class Booking implements Serializable {
     public String guestPhone;
     public String status = STATUS_PENDING;
     public String paymentStatus = "UNPAID";
+    // Rỗng là booking cũ chờ Host duyệt; luồng mới giữ tạm theo createdAt của server.
+    public String paymentFlow = "";
+
+    @Exclude
+    public boolean isInstantPayment() { return "INSTANT_5M".equals(paymentFlow); }
+
+    @Exclude
+    public long paymentDeadline() {
+        if (createdAt == null || startAt == null) return 0;
+        return Math.min(createdAt.getTime() + 300000L, startAt.getTime());
+    }
     // Backend xác nhận số tiền đã nhận; client chỉ được tạo booking với giá trị 0.
     public long paidAmount;
     public String activeMode = "HOURLY";

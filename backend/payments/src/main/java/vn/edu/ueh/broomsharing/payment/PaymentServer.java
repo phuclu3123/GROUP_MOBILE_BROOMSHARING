@@ -62,9 +62,14 @@ public final class PaymentServer {
         PaymentPolicy.require(
                 !FirebaseAuth.getInstance(app).getUser(hostUid).isDisabled(),
                 "Tài khoản Firebase Auth của Host đã bị vô hiệu hóa.");
+        // Cấu hình công khai chỉ chứa UID và phiên bản luồng, không chứa khóa ngân hàng.
+        database.collection("appConfig").document("payments").set(
+                Map.of("flow", "INSTANT_5M", "demoHostUid", hostUid)).get(30, TimeUnit.SECONDS);
         PaymentService service =
                 new PaymentService(
                         database, new PayOSGateway(config), hostUid, base.replaceAll("/$", ""));
+        // Đối soát lượt bị gián đoạn trước khi nhận yêu cầu đặt mới; lỗi từng payment sẽ thử lại.
+        service.reconcilePending();
         HttpServer server =
                 HttpServer.create(
                         new InetSocketAddress(
@@ -80,7 +85,7 @@ public final class PaymentServer {
                         String path = exchange.getRequestURI().getPath(),
                                 method = exchange.getRequestMethod();
                         if (path.equals("/health") && method.equals("GET")) {
-                            reply(exchange, 200, json.writeValueAsBytes(Map.of("status", "ok")));
+                            reply(exchange, 200, json.writeValueAsBytes(Map.of("status", "ok", "paymentFlow", "INSTANT_5M", "demoHostUid", hostUid)));
                             return;
                         }
                         if (path.startsWith("/payment/") && method.equals("GET")) {
@@ -174,12 +179,20 @@ public final class PaymentServer {
                         new ArrayBlockingQueue<>(100),
                         new ThreadPoolExecutor.CallerRunsPolicy()));
         server.start();
+        ScheduledExecutorService paymentSync = Executors.newSingleThreadScheduledExecutor();
+        paymentSync.scheduleWithFixedDelay(() -> {
+            try { service.reconcilePending(); }
+            catch (Exception error) {
+                System.err.println("Payment sync unavailable: " + error.getClass().getSimpleName());
+            }
+        }, 0, 15, TimeUnit.SECONDS);
         System.out.println(
                 "BroomSharing Java payment server listening on " + server.getAddress().getPort());
         Runtime.getRuntime()
                 .addShutdownHook(
                         new Thread(
                                 () -> {
+                                    paymentSync.shutdownNow();
                                     server.stop(2);
                                     app.delete();
                                 }));

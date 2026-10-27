@@ -1,6 +1,9 @@
 package vn.edu.ueh.broomsharing.payment;
 
 import com.google.cloud.Timestamp;
+import com.fasterxml.jackson.databind.JsonNode;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
 
 import java.util.*;
 
@@ -34,14 +37,46 @@ public final class PaymentPolicy {
                 !host.isBlank() && host.equals(booking.get("ownerUid")),
                 "Booking này chưa thuộc kênh thanh toán demo đã cấu hình.");
         require(
-                "CONFIRMED".equals(booking.get("status")),
-                "Host cần xác nhận booking trước khi thanh toán.");
-        require(startMillis(booking) > now, "Đã tới giờ bắt đầu thuê.");
+                instant(booking) ? "PENDING".equals(booking.get("status")) : "CONFIRMED".equals(booking.get("status")),
+                "Booking không còn trong trạng thái cho phép thanh toán.");
+        require(deadline(booking) > now, "Phiên thanh toán đã hết hạn.");
         require(
                 !Set.of("PAID", "REVIEW_REQUIRED")
                         .contains(String.valueOf(booking.get("paymentStatus"))),
                 "Booking đã ghi nhận tiền; không tạo thêm QR.");
         amount(booking);
+    }
+
+    public static boolean instant(Map<String, Object> booking) {
+        return "INSTANT_5M".equals(booking.get("paymentFlow"));
+    }
+
+    public static long deadline(Map<String, Object> booking) {
+        if (!instant(booking)) return startMillis(booking);
+        require(booking.get("createdAt") instanceof Timestamp, "Thiếu thời điểm tạo trên server.");
+        return Math.min(startMillis(booking), ((Timestamp) booking.get("createdAt")).toDate().getTime() + 300000L);
+    }
+
+    // Chỉ dùng giao dịch đã đọc qua API có chữ ký. Webhook chậm không đồng nghĩa trả tiền muộn.
+    public static boolean paidInTime(JsonNode remote, long expected, long deadline, long now) {
+        if (now < deadline) return true;
+        long beforeDeadline = 0;
+        for (JsonNode transaction : remote.path("transactions")) {
+            String text = transaction.path("transactionDateTime").asText();
+            try {
+                Instant at;
+                try { at = OffsetDateTime.parse(text).toInstant(); }
+                catch (java.time.format.DateTimeParseException local) {
+                    at = LocalDateTime.parse(text, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                            .atZone(ZoneId.of("Asia/Ho_Chi_Minh")).toInstant();
+                }
+                long amount = transaction.path("amount").asLong();
+                if (at.toEpochMilli() < deadline && amount > 0) beforeDeadline = Math.addExact(beforeDeadline, amount);
+            } catch (RuntimeException invalid) {
+                // Thiếu mốc ngân hàng đáng tin thì giữ ở diện đối soát, không tự suy đoán.
+            }
+        }
+        return beforeDeadline >= expected;
     }
 
     public static long startMillis(Map<String, Object> booking) {
@@ -61,7 +96,7 @@ public final class PaymentPolicy {
 
     // Tiền đến muộn vẫn được ghi nhận, nhưng không phục hồi booking hoặc lịch đã nhả.
     public static boolean needsReview(Map<String, Object> booking) {
-        return !Set.of("CONFIRMED", "CHECKED_IN", "COMPLETED")
+        return !(instant(booking) && "PENDING".equals(booking.get("status"))) && !Set.of("CONFIRMED", "CHECKED_IN", "COMPLETED")
                 .contains(String.valueOf(booking.get("status")));
     }
 

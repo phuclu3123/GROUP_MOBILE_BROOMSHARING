@@ -100,17 +100,22 @@ public class BookingSuccessActivity extends SessionActivity {
 
                     // Từ đây đã có dữ liệu booking để đưa lên giao diện.
                     Booking item = state.data;
+                    boolean successful = java.util.Arrays.asList("CONFIRMED", "CHECKED_IN", "COMPLETED").contains(item.status)
+                            && !"REVIEW_REQUIRED".equals(item.paymentStatus);
+                    b.bookingOutcomeIcon.setVisibility(successful ? View.VISIBLE : View.GONE);
+                    b.bookingOutcomeIcon.setContentDescription("Đặt chỗ đã xác nhận");
+                    if (item.isInstantPayment()) b.tvConfirmationTitle.setText(FormatUtils.bookingStatus(item));
                     boolean received =
                             "PAID".equals(item.paymentStatus)
                                     || "REVIEW_REQUIRED".equals(item.paymentStatus);
                     b.bookingPayment.setEnabled(
                             received
-                                    || ("CONFIRMED".equals(item.status)
+                                    || (("CONFIRMED".equals(item.status) || (item.isInstantPayment() && "PENDING".equals(item.status) && item.paymentDeadline() > System.currentTimeMillis()))
                                             && item.startAt != null
                                             && item.startAt.getTime()
                                                     > System.currentTimeMillis()));
                     b.bookingPayment.setText(
-                            received ? "Xem giao dịch" : "Thanh toán trả trước 40%");
+                            received ? "Xem giao dịch" : item.isInstantPayment() ? "Tiếp tục thanh toán" : "Thanh toán trả trước 40%");
                     // Calendar Intent không ghi thẳng lịch; Guest xác nhận trong ứng dụng Lịch.
                     b.bookingCalendar.setVisibility(
                             BookingCalendar.canSave(item, System.currentTimeMillis())
@@ -164,7 +169,7 @@ public class BookingSuccessActivity extends SessionActivity {
                                     + "\nđến "
                                     + TimeUtils.formatVietnam(item.endAt));
                     b.tvConfirmationMode.setText(
-                            FormatUtils.bookingStatus(item.status)
+                            FormatUtils.bookingStatus(item)
                                     + " • "
                                     + (Room.MODE_HOURLY.equals(item.activeMode)
                                             ? "Thuê theo giờ"
@@ -211,12 +216,16 @@ public class BookingSuccessActivity extends SessionActivity {
                                                                     + " theo booking để xác minh"
                                                                     + " quyền đánh giá."
                                                             : "EXPIRED".equals(item.status)
-                                                                    ? "Yêu cầu chưa được duyệt khi"
+                                                                    ? item.isInstantPayment()
+                                                                        ? "Đặt chỗ không thành công do hết hạn thanh toán. Lịch tạm giữ đã được giải phóng; bạn có thể chọn lịch và đặt lại."
+                                                                        : "Yêu cầu chưa được duyệt khi"
                                                                           + " đến giờ bắt đầu. Lịch"
                                                                           + " đã được nhả; booking"
                                                                           + " được giữ trong lịch"
                                                                           + " sử."
-                                                                    : ("PENDING".equals(item.status)
+                                                                    : item.isInstantPayment() && "PENDING".equals(item.status)
+                                                                            ? "Lịch đang tạm giữ 5 phút để thanh toán. Chỉ xác nhận khi server ghi nhận đủ 40%. Thoát màn hình không kéo dài thời hạn."
+                                                                            : ("PENDING".equals(item.status)
                                                                                     ? "Đang giữ"
                                                                                           + " chỗ,"
                                                                                           + " chờ Host"
@@ -227,6 +236,8 @@ public class BookingSuccessActivity extends SessionActivity {
                                                                                             item,
                                                                                             System
                                                                                                     .currentTimeMillis()));
+                    if ("REVIEW_REQUIRED".equals(item.paymentStatus))
+                        b.tvConfirmationNote.setText("Đã ghi nhận tiền nhưng chưa thể xác nhận đặt chỗ hoặc có sai lệch giao dịch. Liên hệ Host/Admin để đối soát. App chưa tự động hoàn tiền.");
                 });
 
         // Bắt đầu nhận dữ liệu chi tiết ngay khi observer đã được đăng ký.

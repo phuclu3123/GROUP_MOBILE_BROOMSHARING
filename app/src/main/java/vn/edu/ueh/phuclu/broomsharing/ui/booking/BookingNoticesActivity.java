@@ -57,6 +57,7 @@ public class BookingNoticesActivity extends SessionActivity {
         }
         uid = profile.uid;
         b = ActivityBookingNoticesBinding.bind(findViewById(R.id.workspaceRoot));
+        vn.edu.ueh.phuclu.broomsharing.ui.common.CheckoutReminder.attach(this, b.pendingCheckout.getRoot(), profile.uid, null);
         ManagementNavigation.applyInsets(this);
         model = new ViewModelProvider(this).get(BookingNoticeViewModel.class);
         b.noticeToolbar.setNavigationOnClickListener(v -> finish());
