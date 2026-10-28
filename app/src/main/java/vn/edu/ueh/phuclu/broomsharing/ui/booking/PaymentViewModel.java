@@ -17,29 +17,26 @@ public final class PaymentViewModel extends ViewModel {
     private String bookingId;
     private boolean busy;
     private Payment lastKnown;
-    private boolean initialRequestFailed;
     public final MutableLiveData<Long> clock = new MutableLiveData<>(System.currentTimeMillis());
     private final Handler handler = new Handler(Looper.getMainLooper());
     private boolean visible;
-    private long lastRefresh;
     private final Runnable tick = new Runnable() {
         public void run() {
             if (!visible) return;
             clock.setValue(System.currentTimeMillis());
-            if (!initialRequestFailed && System.currentTimeMillis() - lastRefresh >= 15000) load(false);
+            // Đồng hồ chỉ cập nhật UI. Backend đối soát tiền; listener nhận kết quả thực tế.
             handler.postDelayed(this, 1000);
         }
     };
 
-    // Chỉ chạy đồng hồ/poll khi màn hình đang mở; không tạo QR lại theo timer.
-    // Bắt đầu đối soát định kỳ khi màn thanh toán hoạt động; listener và backend vẫn là nguồn trạng thái tiền.
+    // Chỉ chạy đồng hồ khi màn hình đang mở; không gọi API mỗi giây hoặc sau khi QR đã hết hạn.
     public void startUpdates() {
         if (visible) return;
         visible = true;
         handler.post(tick);
     }
 
-    // Ngừng lịch đối soát của màn hình để không gửi request khi View đã dừng.
+    // Dừng đồng hồ khi View không còn hiển thị; kết quả tiền vẫn do backend và listener quyết định.
     public void stopUpdates() {
         visible = false;
         handler.removeCallbacks(tick);
@@ -79,8 +76,6 @@ public final class PaymentViewModel extends ViewModel {
         UiState<Payment> previous = state.getValue();
         if (previous != null && previous.data != null && previous.data.received()) return;
         busy = true;
-        if (create) initialRequestFailed = false;
-        lastRefresh = System.currentTimeMillis();
         if (previous == null || previous.data == null) state.setValue(UiState.loading());
         repository.request(
                 bookingId,
@@ -88,7 +83,6 @@ public final class PaymentViewModel extends ViewModel {
                 new ResultCallback<Payment>() {
                     public void onSuccess(Payment p) {
                         busy = false;
-                        initialRequestFailed = false;
                         if (lastKnown != null && !lastKnown.canReplaceWith(p)) return;
                         lastKnown = p;
                         state.setValue(UiState.success(p));
@@ -96,7 +90,6 @@ public final class PaymentViewModel extends ViewModel {
 
                     public void onError(Exception e) {
                         busy = false;
-                        if (lastKnown == null) initialRequestFailed = true;
                         UiState<Payment> current = state.getValue();
                         if (current == null || current.data == null || !current.data.received())
                             state.setValue(UiState.error(e));

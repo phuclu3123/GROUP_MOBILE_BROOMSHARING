@@ -20,16 +20,15 @@
             <TextView style="@style/WorkspaceBody" android:text="@string/workspace_verify_note" android:layout_marginTop="24dp" />
         </LinearLayout>
     </ScrollView>
-    <LinearLayout android:id="@+id/adminWorkPanel" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:orientation="horizontal" android:visibility="gone">
-        <ScrollView android:layout_width="240dp" android:layout_height="match_parent">
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
-                <TextView android:id="@+id/sectionHint" style="@style/WorkspaceBody" android:text="" android:padding="16dp" />
-                <com.google.android.material.tabs.TabLayout android:id="@+id/adminTabs" android:layout_width="match_parent" android:layout_height="wrap_content" app:tabMode="scrollable" app:tabTextColor="@color/text_secondary" app:tabSelectedTextColor="@color/teal_dark" />
-                <TextView android:id="@+id/tvFeedback" style="@style/WorkspaceBody" android:text="" android:padding="16dp" android:accessibilityLiveRegion="polite" />
-                <ProgressBar android:id="@+id/progressBar" android:layout_width="28dp" android:layout_height="28dp" android:layout_gravity="center" android:visibility="gone" />
-            </LinearLayout>
-        </ScrollView>
-        <androidx.recyclerview.widget.RecyclerView android:id="@+id/reviewList" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:clipToPadding="false" android:padding="16dp" />
+    <!-- Điện thoại ngang: dành chiều rộng cho thẻ và giữ đủ ba tab, không ép vào sidebar. -->
+    <LinearLayout android:id="@+id/adminWorkPanel" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:orientation="vertical" android:visibility="gone">
+        <TextView android:id="@+id/sectionHint" style="@style/WorkspaceBody" android:text="" android:visibility="gone" />
+        <com.google.android.material.tabs.TabLayout android:id="@+id/adminTabs" android:layout_width="match_parent" android:layout_height="48dp" app:tabMode="fixed" app:tabGravity="fill" app:tabMinWidth="0dp" app:tabPaddingStart="8dp" app:tabPaddingEnd="8dp" app:tabTextAppearance="@style/AdminCompactTabText" app:tabTextColor="@color/text_secondary" app:tabSelectedTextColor="@color/teal_dark" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingStart="16dp" android:paddingEnd="16dp">
+            <TextView android:id="@+id/tvFeedback" style="@style/WorkspaceBody" android:layout_width="0dp" android:layout_weight="1" android:text="" android:textSize="14sp" android:paddingTop="4dp" android:paddingBottom="4dp" android:accessibilityLiveRegion="polite" />
+            <ProgressBar android:id="@+id/progressBar" android:layout_width="24dp" android:layout_height="24dp" android:visibility="gone" />
+        </LinearLayout>
+        <androidx.recyclerview.widget.RecyclerView android:id="@+id/reviewList" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="true" android:paddingStart="12dp" android:paddingEnd="12dp" android:paddingTop="4dp" android:paddingBottom="12dp" />
     </LinearLayout>
     <include layout="@layout/view_management_navigation" />
 </LinearLayout>

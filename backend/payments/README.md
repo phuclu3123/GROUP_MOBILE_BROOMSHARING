@@ -52,7 +52,9 @@ Backend đối soát phiên giữ chỗ ngay cả khi app bị đóng trước k
 
 Trạng thái tiền: `CREATING`, `PENDING`, `PAID`, `CANCELLED`, `EXPIRED`, `REVIEW_REQUIRED`. Booking giữ `UNAVAILABLE` trước khi dùng API, `PENDING` khi đã tạo yêu cầu, `PAID` khi payOS xác nhận nhận đủ, `REVIEW_REQUIRED` khi tiền đến cho booking đã hủy hoặc số nhận khác số yêu cầu. Webhook lặp và kết quả đối chiếu đến muộn không hạ trạng thái đã nhận tiền.
 
-Khi Java đang chạy, tác vụ đối soát mỗi 15 giây kiểm tra tối đa 50 payment đang tạo/chờ theo cursor, hủy link chưa trả nếu booking đã khép, Host bị khóa hoặc QR quá hạn. Một lỗi provider không làm dừng các đơn khác; lần sau sẽ thử lại. Màn Android đang mở cũng cập nhật thời hạn và đối soát định kỳ, không tự xác nhận đã nhận tiền. Nếu thanh toán thắng race với hủy, server vẫn ghi nhận tiền để đối soát, không phục hồi booking/lịch đã nhả.
+Khi Java đang chạy, hai listener `limit(1)` nhận biết hold INSTANT_5M hoặc payment đang tạo/chờ. Chỉ khi có việc, tác vụ theo nhịp 15 giây mới quét tối đa 50 payment theo cursor, hủy link chưa trả nếu booking đã khép, Host bị khóa hoặc QR quá hạn. Khi chưa nhận snapshot hoặc listener lỗi, worker vẫn được phép đối soát để tránh bỏ sót nhả lịch. Một lỗi provider không làm dừng các đơn khác; lần sau sẽ thử lại. Android nhận trạng thái qua listener và chỉ cập nhật đồng hồ tại máy, không gọi đối soát bằng timer ở màn QR hoặc notification service. Nếu thanh toán thắng race với hủy, server vẫn ghi nhận tiền để đối soát, không phục hồi booking/lịch đã nhả.
+
+Log `Payment sync` cho biết số lượt quét, nhịp bỏ qua và có việc chờ hay không. Xem [nguyên nhân reads nền và bằng chứng tối ưu](../../docs/testing/firestore-read-optimization-2026-10-28.md); không coi listener hoặc query rỗng là luôn miễn phí.
 
 Webhook cập nhật khi server đang hoạt động; nút kiểm tra giao dịch và quay về màn thanh toán đối chiếu trực tiếp để bù webhook bị lỡ. Sau khi server dừng, tác vụ đối soát cũng dừng và payOS không thể gọi vào máy; cần bật server/tunnel khi demo. Hủy link chưa thanh toán không phải thao tác hoàn tiền.
 

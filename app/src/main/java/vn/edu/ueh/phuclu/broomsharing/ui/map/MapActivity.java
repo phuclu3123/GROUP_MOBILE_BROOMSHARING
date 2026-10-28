@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 import org.maplibre.android.MapLibre;
 import org.maplibre.android.camera.CameraUpdateFactory;
@@ -344,6 +345,12 @@ public class MapActivity extends SessionActivity {
     private void showResults() {
         if (resultsDialog != null) return;
         View view = getLayoutInflater().inflate(R.layout.view_map_results, null);
+        // Giới hạn theo vùng màn hình hiện có; danh sách tự cuộn thay vì tràn khi xoay ngang.
+        View root = binding.getRoot();
+        int available = root.getHeight() - root.getPaddingTop() - root.getPaddingBottom();
+        int height = Math.min(Math.round(600 * getResources().getDisplayMetrics().density),
+                Math.round(available * 0.9f));
+        view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
         RecyclerView list = view.findViewById(R.id.mapRooms);
         list.setLayoutManager(new LinearLayoutManager(this));
         list.setAdapter(officeAdapter);
@@ -355,6 +362,9 @@ public class MapActivity extends SessionActivity {
                     resultsDialog = null;
                 });
         resultsDialog.show();
+        // Nút Danh sách phải mở ngay các phòng, không chỉ dừng ở phần tiêu đề thu gọn.
+        resultsDialog.getBehavior().setSkipCollapsed(true);
+        resultsDialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
     }
 
     private void closeResults() {

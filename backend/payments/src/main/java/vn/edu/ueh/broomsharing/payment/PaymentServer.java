@@ -179,12 +179,14 @@ public final class PaymentServer {
                         new ArrayBlockingQueue<>(100),
                         new ThreadPoolExecutor.CallerRunsPolicy()));
         server.start();
+        PaymentWorkMonitor pendingWork = new PaymentWorkMonitor(database);
         ScheduledExecutorService paymentSync = Executors.newSingleThreadScheduledExecutor();
         paymentSync.scheduleWithFixedDelay(() -> {
-            try { service.reconcilePending(); }
+            try { pendingWork.runIfNeeded(service::reconcilePending); }
             catch (Exception error) {
                 System.err.println("Payment sync unavailable: " + error.getClass().getSimpleName());
             }
+            if (pendingWork.runs() % 4 == 0) System.out.println(pendingWork.summary());
         }, 0, 15, TimeUnit.SECONDS);
         System.out.println(
                 "BroomSharing Java payment server listening on " + server.getAddress().getPort());
@@ -193,6 +195,7 @@ public final class PaymentServer {
                         new Thread(
                                 () -> {
                                     paymentSync.shutdownNow();
+                                    pendingWork.close();
                                     server.stop(2);
                                     app.delete();
                                 }));

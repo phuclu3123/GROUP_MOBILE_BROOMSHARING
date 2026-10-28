@@ -1,44 +1,16 @@
-\chapstart
-\section{QUY TRÌNH THỰC THI VÀ KIỂM THỬ}
-\subsection{Quy trình đăng ký và đăng nhập}
-Người dùng nhập thông tin cơ bản, hệ thống kiểm tra dữ liệu hợp lệ và xác lập phiên đăng nhập. Sau khi đăng nhập, giao diện có thể điều chỉnh theo quyền User hoặc Owner. Nếu tích hợp Firebase Authentication, danh tính đăng nhập cần liên hệ nhất quán với document hồ sơ trong \texttt{users}; tài khoản không được coi là hợp lệ chỉ dựa vào dữ liệu do client tự khai báo \parencite{firebase_security}.
-
-\subsection{Quy trình tìm kiếm và đặt thuê không gian}
-\begin{enumerate}[leftmargin=*]
-\item \textbf{Khám phá:} người dùng mở danh sách, tra cứu từ khóa hoặc lọc địa điểm, giá, kỳ thuê.
-\item \textbf{Đối chiếu:} xem mô tả, ảnh, giá và điều kiện sử dụng của không gian được chọn.
-\item \textbf{Chọn thời gian:} nhập ngày bắt đầu/kết thúc theo quy ước đặt phòng hoặc kỳ thuê.
-\item \textbf{Kiểm tra:} đánh giá tính hợp lệ, điều kiện sẵn có và giá dự kiến.
-\item \textbf{Gửi yêu cầu:} tạo document booking với trạng thái ban đầu phù hợp.
-\item \textbf{Theo dõi:} hiển thị trạng thái cập nhật trong lịch sử đặt chỗ.
-\end{enumerate}
-
-\subsection{Quy trình đăng và quản lý không gian}
-Chủ không gian tạo bản ghi mới bằng cách nhập tên, địa chỉ, ảnh, tiện ích, thời gian sẵn có và giá theo đơn vị quy định. Trước khi công bố, thông tin bắt buộc cần hợp lệ. Khi nhận booking, chủ không gian xem chi tiết yêu cầu, cập nhật trạng thái theo quyền được phép và theo dõi các mốc thời gian đã được xác nhận. Nếu áp dụng duyệt tin bởi Admin, trạng thái ``chờ duyệt'' sẽ được xét riêng thay vì công bố trực tiếp.
-
-\subsection{Quy trình xác nhận và QR check-in}
-Sau khi booking được chấp thuận, hệ thống có thể cung cấp một mã tham chiếu hoặc mã QR cho bước nhận không gian. Phương án QR cần gắn với booking cụ thể, có hạn sử dụng và chỉ chấp nhận xác nhận một lần theo đúng chính sách. Chức năng này được giữ ở mức \textbf{định hướng nghiệp vụ}, do chưa có căn cứ về việc quét, sinh mã và xác nhận tại thiết bị đã được cài đặt đầy đủ.
-
-\subsection{Thiết kế các ca kiểm thử}
-Các bảng dưới đây là bộ ca kiểm thử cần thực hiện trên emulator/thiết bị và tài khoản thử nghiệm. Cột kết quả được để trống có chủ ý: chỉ ghi nhận sau khi thu thập ảnh hoặc log thực thi.
-\begin{longtable}{@{}p{1.5cm}p{5.0cm}p{5.5cm}p{2.5cm}@{}}
-\caption{Ma trận kiểm thử chức năng}\label{tab:tests}\\\toprule
-\textbf{Mã}&\textbf{Tình huống}&\textbf{Kết quả mong đợi}&\textbf{Kết quả thực tế}\cr\midrule\endfirsthead
-\toprule\textbf{Mã}&\textbf{Tình huống}&\textbf{Kết quả mong đợi}&\textbf{Kết quả thực tế}\cr\midrule\endhead
-TC-01& Vào màn hình khám phá khi có dữ liệu.& Danh sách hiển thị đầy đủ thông tin chính.&Chưa kiểm thử\\
-TC-02& Bộ lọc không khớp tin nào.& Hiện thông báo rỗng, không crash.&Chưa kiểm thử\\
-TC-03& Mở màn hình chi tiết từ một item.& Hiển thị đúng mã không gian được chọn.&Chưa kiểm thử\\
-TC-04& Chọn ngày kết thúc trước ngày bắt đầu.& Chặn yêu cầu, giải thích lỗi.&Chưa kiểm thử\\
-TC-05& Đặt trùng khung thời gian đã xác nhận.& Không phát sinh booking xác nhận trùng.&Chưa kiểm thử\\
-TC-06& Owner sửa tin của người khác.& Hệ thống từ chối ghi dữ liệu.&Chưa kiểm thử\\
-TC-07& Mất kết nối khi gửi yêu cầu.& Hiển thị trạng thái lỗi/thử lại phù hợp.&Chưa kiểm thử\\
-TC-08& Đăng tin thiếu tên hoặc giá.& Báo trường bắt buộc, không ghi sai dữ liệu.&Chưa kiểm thử\\
-TC-09& Xoay màn hình khi đang xem danh sách.& Trạng thái UI không sai lệch nghiêm trọng.&Chưa kiểm thử\\
-TC-10& QR đã dùng hoặc hết hạn (nếu tích hợp).& Không chấp nhận tái sử dụng.&Chưa kiểm thử\\
-TC-11& Bật bản đồ và cho phép truy cập vị trí.& Đọc tọa độ hợp lệ, hiển thị marker không gian.&Chưa kiểm thử\\
-TC-12& Yêu cầu chỉ đường đến không gian.& Dữ liệu tuyến trả về được xử lý hoặc hiển thị lỗi mạng phù hợp.&Chưa kiểm thử\\
-TC-13& Thêm ảnh từ thiết bị lên Cloudinary.& Chỉ ghi URL vào Firestore sau khi upload thành công.&Chưa kiểm thử\\\bottomrule
-\end{longtable}
-
-\subsection{Đánh giá giới hạn và chứng cứ thực thi}
-Một báo cáo hoàn chỉnh cần có hình chụp giao diện từ thiết bị/emulator, một ví dụ document Firestore đã lưu và minh chứng kiểm tra ít nhất một quy trình đầu-cuối. Ở bản dựng này, thông tin đó chưa có trong tài liệu đầu vào, vì vậy chưa thể kết luận về tỷ lệ kiểm thử đạt, độ ổn định hay thời gian đáp ứng của hệ thống. Không gán các chỉ số giả định để thay thế cho kết quả đo thật.
+﻿\chapstart
+\section{QUY TRÌNH THỰC THI}
+\label{sec:execution-flows}
+\begingroup
+\setlist[enumerate]{leftmargin=1.27cm,itemsep=3pt,topsep=4pt}
+\setlength{\emergencystretch}{1em}
+\widowpenalty=10000
+\clubpenalty=10000
+% Hoàng: 6.1; Trúc: 6.2; Hoàng: 6.3.1, 6.3.2 và 6.5. Không viết thay.
+\IfFileExists{chapters/chapter6-hoang-registration.tex}{\input{chapters/chapter6-hoang-registration}}{}
+\IfFileExists{chapters/chapter6-truc-login.tex}{\input{chapters/chapter6-truc-login}}{}
+\IfFileExists{chapters/chapter6-hoang-publishing.tex}{\input{chapters/chapter6-hoang-publishing}}{}
+\setcounter{subsection}{3}
+\input{chapters/chapter6-phuc-booking}
+\IfFileExists{chapters/chapter6-hoang-usage.tex}{\input{chapters/chapter6-hoang-usage}}{}
+\endgroup

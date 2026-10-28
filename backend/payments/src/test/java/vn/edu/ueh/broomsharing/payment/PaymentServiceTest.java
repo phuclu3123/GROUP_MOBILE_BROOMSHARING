@@ -362,6 +362,52 @@ public class PaymentServiceTest {
         assertEquals("PENDING", db.collection("bookings").document("legacy_000").get().get().getString("status"));
     }
 
+    // Máy chủ rảnh không được quét lặp; đơn mới phải đánh thức đối soát và vẫn nhả đúng lịch.
+    @Test public void idleMonitorWakesForNewHoldAndSleepsAfterExpiry() throws Exception {
+        try (PaymentWorkMonitor monitor = new PaymentWorkMonitor(db)) {
+            awaitWork(monitor, false);
+            int[] sweeps = {0};
+            PaymentWorkMonitor.Sweep sweep = () -> { sweeps[0]++; service.reconcilePending(); };
+            for (int i = 0; i < 20; i++) monitor.runIfNeeded(sweep);
+            assertEquals(0, sweeps[0]);
+            db.collection("bookings").document("legacy_pending")
+                    .set(Map.of("status", "PENDING", "schemaVersion", 1)).get();
+            monitor.runIfNeeded(sweep);
+            assertEquals(0, sweeps[0]);
+            String room = instant(false);
+            awaitWork(monitor, true);
+            expireClock();
+            monitor.runIfNeeded(sweep);
+            assertEquals(1, sweeps[0]);
+            assertEquals("EXPIRED", booking().getString("status"));
+            assertEquals(List.of(20L), db.collection("availabilityMonths")
+                    .document(room + "_202611").get().get().get("slotsBusy"));
+            awaitWork(monitor, false);
+            monitor.runIfNeeded(sweep);
+            assertEquals(1, sweeps[0]);
+        }
+    }
+
+    private static void awaitWork(PaymentWorkMonitor monitor, boolean expected) throws Exception {
+        long deadline = System.nanoTime() + java.util.concurrent.TimeUnit.SECONDS.toNanos(10);
+        while (monitor.hasWork() != expected && System.nanoTime() < deadline) Thread.sleep(20);
+        assertEquals("Listener work state", expected, monitor.hasWork());
+    }
+
+    @Test public void idleMonitorAlsoWakesForLegacyPaymentWithoutPendingHold() throws Exception {
+        try (PaymentWorkMonitor monitor = new PaymentWorkMonitor(db)) {
+            awaitWork(monitor, false);
+            service.checkout("guest", id);
+            awaitWork(monitor, true);
+            db.collection("payments").document(id)
+                    .update("expiresAt", System.currentTimeMillis() / 1000 - 1).get();
+            monitor.runIfNeeded(service::reconcilePending);
+            assertEquals("EXPIRED", db.collection("payments").document(id).get().get().getString("status"));
+            assertEquals("CONFIRMED", booking().getString("status"));
+            awaitWork(monitor, false);
+        }
+    }
+
     @Test public void expiredMoneyNeverConfirmsEvenBeforeCleanup() throws Exception {
         String room = instant(false); service.checkout("guest", id); expireClock();
         provider.status = "PAID";

@@ -25,5 +25,8 @@ Chỉ giữ tài liệu phản ánh code hiện tại. Ứng dụng dùng **Java
 
 - [Đối chiếu yêu cầu Firestore, responsive, offline và API ngày 28/10](testing/course-requirements-check-2026-10-28.md).
 - [Biên bản QA cuối và các giới hạn còn lại](testing/final-qa-2026-10-28.md).
+- [Nguyên nhân reads nền, bản sửa và bằng chứng đo ngày 28/10](testing/firestore-read-optimization-2026-10-28.md).
+- [Responsive điện thoại/tablet và giới hạn đã kiểm tra](testing/responsive-2026-10-28.md).
+- [Bàn giao phần Phúc Chương 5–6 và ảnh hỗ trợ thành viên](report/phuc-chapter5-6-handoff.md).
 
 File phân công `.xlsx` và slide gốc vẫn ở đường dẫn người dùng cung cấp tại thư mục dự án; không phải mã nguồn ứng dụng. Các báo cáo cũ, log Functions, ảnh/log thử lặp và tài liệu mô tả kiến trúc đã bỏ không được giữ lẫn với hướng dẫn hiện tại.

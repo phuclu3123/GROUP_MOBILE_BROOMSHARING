@@ -64,7 +64,7 @@ public class HostDashboardActivity extends SessionActivity {
         ManagementNavigation.applyInsets(this);
         model = new ViewModelProvider(this).get(HostViewModel.class);
         b.tvHostRoleStatus.setText(getString(R.string.workspace_greeting, profile.name));
-        b.btnRefresh.setOnClickListener(v -> model.loadDashboard());
+        b.btnRefresh.setOnClickListener(v -> model.watchDashboard());
         b.cardBookingRequests.setOnClickListener(
                 v -> startActivity(new Intent(this, HostBookingsActivity.class)));
         b.btnManageSpaces.setOnClickListener(v -> showTab(R.id.host_spaces));
@@ -175,7 +175,7 @@ public class HostDashboardActivity extends SessionActivity {
                                 }
                             }
                         });
-        model.loadDashboard();
+        model.resumeDashboard();
     }
 
     private void renderSpaces() {
@@ -248,7 +248,7 @@ public class HostDashboardActivity extends SessionActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (model != null) model.watchDashboard();
+        if (model != null) model.resumeDashboard();
     }
 
     @Override

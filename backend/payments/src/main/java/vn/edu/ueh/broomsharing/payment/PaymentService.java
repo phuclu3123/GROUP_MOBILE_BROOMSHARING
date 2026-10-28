@@ -215,7 +215,7 @@ public final class PaymentService {
     }
 
     // Lọc flow ngay trên Firestore để vòng quét không đọc lại các đơn PENDING lịch sử mỗi 15 giây.
-    // Hai điều kiện equality dùng index đơn được Firestore ghép; giữ cursor theo document ID.
+    // Giữ cursor theo document ID; hiệu quả index cần đối chiếu execution plan của database.
     Query pendingInstantHolds() {
         return db.collection("bookings").whereEqualTo("status", "PENDING")
                 .whereEqualTo("paymentFlow", "INSTANT_5M")

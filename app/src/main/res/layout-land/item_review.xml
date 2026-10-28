@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Thẻ ngang: nội dung và thao tác song song để nút không rơi dưới vùng nhìn. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp" android:padding="12dp"
+    android:orientation="horizontal" android:gravity="top" android:background="@drawable/bg_card">
+    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+        android:layout_weight="1" android:orientation="vertical" android:layout_marginEnd="16dp">
+        <TextView android:id="@+id/title" style="@style/WorkspaceSection"
+            android:textSize="16sp" android:maxLines="2" android:ellipsize="end" />
+        <ImageView android:id="@+id/cover" android:layout_width="match_parent"
+            android:layout_height="80dp" android:layout_marginTop="8dp"
+            android:scaleType="centerCrop" android:contentDescription="Chạm để xem ảnh tiếp theo"
+            android:visibility="gone" />
+        <TextView android:id="@+id/details" style="@style/WorkspaceBody"
+            android:layout_marginTop="6dp" android:textSize="14sp"
+            android:maxLines="3" android:ellipsize="end" />
+    </LinearLayout>
+    <LinearLayout android:layout_width="192dp" android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <com.google.android.material.button.MaterialButton android:id="@+id/viewDetails"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:minHeight="48dp" android:textSize="13sp" android:textAllCaps="false"
+            android:text="@string/workspace_view_details" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/evidence"
+            style="@style/WorkspaceAction" android:layout_width="match_parent"
+            android:layout_marginTop="0dp" android:minHeight="48dp" android:textSize="13sp"
+            android:visibility="gone" android:text="@string/admin_evidence" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <com.google.android.material.button.MaterialButton android:id="@+id/reject"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                android:layout_marginEnd="8dp" android:minWidth="0dp" android:minHeight="48dp"
+                android:textSize="13sp" android:textAllCaps="false" android:text="Từ chối"
+                android:textColor="@color/danger" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/approve"
+                android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                android:minWidth="0dp" android:minHeight="48dp" android:textSize="13sp"
+                android:textAllCaps="false" android:text="Duyệt" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

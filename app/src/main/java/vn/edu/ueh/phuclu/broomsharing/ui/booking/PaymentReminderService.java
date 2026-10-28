@@ -24,23 +24,14 @@ public final class PaymentReminderService extends Service {
     private List<Payment> payments = new ArrayList<>();
     private ListenerRegistration listener;
     private String uid;
-    private long latestDeadline, lastCheck;
+    private long latestDeadline;
     private boolean started, disposed;
     private FirebaseAuth.AuthStateListener authListener;
     private final Runnable tick = new Runnable() {
         @Override public void run() {
             if (disposed) return;
             render();
-            if (System.currentTimeMillis() - lastCheck >= 15000) {
-                lastCheck = System.currentTimeMillis();
-                for (Payment payment : new ArrayList<>(payments))
-                    if (tracked.contains(payment.bookingId) && !payment.received()
-                            && ("PENDING".equals(payment.status) || "CREATING".equals(payment.status)))
-                        repository.request(payment.bookingId, false, new ResultCallback<Payment>() {
-                            public void onSuccess(Payment value) { }
-                            public void onError(Exception error) { }
-                        });
-            }
+            // Nhắc giờ tại máy; trạng thái tiền đến từ listener, không quét lại backend song song.
             if (!disposed) handler.postDelayed(this, 1000);
         }
     };

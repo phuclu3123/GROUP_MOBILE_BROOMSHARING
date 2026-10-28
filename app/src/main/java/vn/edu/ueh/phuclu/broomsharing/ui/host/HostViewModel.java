@@ -127,6 +127,11 @@ public class HostViewModel extends AndroidViewModel {
     private List<Room> dashboardRooms;
     private List<Booking> dashboardBookings;
 
+    // Hồ sơ có thể sẵn sàng trước hoặc sau onResume; chỉ gắn một bộ listener cho mỗi lần mở.
+    public void resumeDashboard() {
+        if (dashboardListeners.isEmpty()) watchDashboard();
+    }
+
     // Ba luồng độc lập giữ dashboard đúng khi thiết bị khác đặt phòng hoặc Admin xét duyệt.
     // Theo dõi phòng và booking thuộc Host; thống kê và danh sách lấy từ các snapshot cùng phiên.
     public void watchDashboard() {
