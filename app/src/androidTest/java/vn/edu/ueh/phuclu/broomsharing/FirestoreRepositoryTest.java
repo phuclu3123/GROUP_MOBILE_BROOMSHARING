@@ -264,7 +264,46 @@ public class FirestoreRepositoryTest {
     private String create(BookingRepository repo, Booking b) throws Exception {
         Answer<String> answer = new Answer<>();
         repo.create(b, answer);
-        return answer.result();
+        String id = answer.result();
+        // Các ca khép lượt bên dưới dùng dữ liệu lịch sử đã có trước INSTANT_5M.
+        // Không giả Host duyệt được booking mới: chuẩn bị fixture riêng, chỉ tại emulator.
+        prepareHistoricalFixture(id);
+        return id;
+    }
+
+    private JSONObject fixture(String path) throws Exception {
+        assertFalse("Historical preparation must never run against cloud", cloud);
+        HttpURLConnection connection = (HttpURLConnection) new URL(
+                "http://10.0.2.2:8085/v1/projects/" + project + "/databases/"
+                        + FirebaseConfig.FIRESTORE_DATABASE_ID + "/documents/" + path).openConnection();
+        connection.setRequestProperty("Authorization", "Bearer owner");
+        connection.setConnectTimeout(10000);
+        connection.setReadTimeout(10000);
+        try (InputStream in = connection.getInputStream()) {
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            byte[] buffer = new byte[8192];
+            int read;
+            while ((read = in.read(buffer)) != -1) bytes.write(buffer, 0, read);
+            return new JSONObject(bytes.toString(StandardCharsets.UTF_8.name()));
+        } finally { connection.disconnect(); }
+    }
+
+    private void prepareHistoricalFixture(String id) throws Exception {
+        JSONObject booking = fixture("bookings/" + id).getJSONObject("fields");
+        booking.put("paymentFlow", value(""));
+        JSONArray keys = booking.getJSONObject("monthKeys").getJSONObject("arrayValue").getJSONArray("values");
+        for (int i = 0; i < keys.length(); i++) {
+            String key = keys.getJSONObject(i).getString("stringValue");
+            JSONObject month = fixture("availabilityMonths/" + key).getJSONObject("fields");
+            JSONArray previous = month.optJSONObject("pendingPaymentIds") == null ? new JSONArray()
+                    : month.getJSONObject("pendingPaymentIds").getJSONObject("arrayValue").optJSONArray("values");
+            JSONArray remaining = new JSONArray();
+            if (previous != null) for (int n = 0; n < previous.length(); n++)
+                if (!id.equals(previous.getJSONObject(n).getString("stringValue"))) remaining.put(previous.getJSONObject(n));
+            month.put("pendingPaymentIds", new JSONObject().put("arrayValue", new JSONObject().put("values", remaining)));
+            rest("PATCH", "availabilityMonths/" + key, new JSONObject().put("fields", month));
+        }
+        rest("PATCH", "bookings/" + id, new JSONObject().put("fields", booking));
     }
 
     private ReviewItem review(String kind, String id, String status) {
@@ -327,7 +366,7 @@ public class FirestoreRepositoryTest {
         }
         assumeTrue(
                 "Explicit Firestore emulator build required",
-                cloud || "10.0.2.2".equals(installedHost));
+                !cloud && "10.0.2.2".equals(installedHost));
         if (cloud) {
             assertEquals("Cloud acceptance requires a cloud APK", "", installedHost);
             assertEquals("broom-sharing-firebase-mobile", project);
@@ -348,6 +387,10 @@ public class FirestoreRepositoryTest {
                     guest = actor("guest", "GUEST"),
                     other = actor("other", "GUEST"),
                     admin = actor("admin", "ADMIN");
+            // Cấu hình kênh demo tách biệt ở emulator; không đổi Host nhận tiền trên cloud.
+            seed("appConfig/payments", new HashMap<String, Object>() {{
+                put("flow", "INSTANT_5M"); put("demoHostUid", host.uid);
+            }});
             signIn(host);
             task(
                     db.collection("publicHosts")
@@ -420,7 +463,10 @@ public class FirestoreRepositoryTest {
                             .toObject(Booking.class);
             assertEquals(100000, persisted.totalAmount, 0);
             assertEquals("UNAVAILABLE", persisted.paymentStatus);
-            assertEquals(bookingId, create(winning, winningRequest));
+            assertEquals("INSTANT_5M", persisted.paymentFlow);
+            Answer<String> retried = new Answer<>();
+            winning.create(winningRequest, retried);
+            assertEquals(bookingId, retried.result());
             checkpoint(
                     "Two real guests race: one wins; price is recalculated; identical retry returns"
                         + " original booking");
@@ -429,6 +475,12 @@ public class FirestoreRepositoryTest {
             cannotConfirm.rejected();
             String adjacent = create(losing, request(room.getId(), day, 10, 0));
             signIn(host);
+            Answer<String> hostCannotConfirm = new Answer<>();
+            new BookingRepository().transition(bookingId, "CONFIRMED", "", hostCannotConfirm);
+            hostCannotConfirm.rejected();
+            checkpoint("Current instant booking: neither Guest nor Host may confirm before server payment");
+            // Từ đây kiểm tương thích lịch sử; không phải bằng chứng thanh toán mới thành công.
+            prepareHistoricalFixture(bookingId);
             transition(new BookingRepository(), bookingId, "CONFIRMED", "");
             Room changed =
                     task(db.collection("rooms").document(room.getId()).get(Source.SERVER))
@@ -469,7 +521,7 @@ public class FirestoreRepositoryTest {
             assertEquals(2, month.slotsBusy.size());
             assertEquals(Collections.singleton(adjacent), month.hourlyBookings.keySet());
             checkpoint(
-                    "Host confirms; occupied schedule and counter edits denied; cancel/reject"
+                    "Historical fixture: Host confirms; occupied schedule and counter edits denied; cancel/reject"
                         + " release exactly their slots");
             signIn(admin);
             Answer<String> suspend = new Answer<>();
@@ -1497,9 +1549,13 @@ public class FirestoreRepositoryTest {
     }
 
     private void capture(String file) throws Exception {
-        android.graphics.Bitmap image =
-                InstrumentationRegistry.getInstrumentation().getUiAutomation().takeScreenshot();
-        assertNotNull(image);
+        // Sau recreate, Surface có thể chưa sẵn dù View đã bind. Chỉ thử lại ngắn, vẫn fail nếu không chụp được.
+        android.graphics.Bitmap image = null;
+        for (int attempt = 0; attempt < 8 && image == null; attempt++) {
+            image = InstrumentationRegistry.getInstrumentation().getUiAutomation().takeScreenshot();
+            if (image == null) SystemClock.sleep(250);
+        }
+        assertNotNull("No screenshot after the recreated screen settled", image);
         try (FileOutputStream out =
                 new FileOutputStream(new File(context.getExternalFilesDir(null), file))) {
             image.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, out);

@@ -9,6 +9,7 @@ public final class PendingCheckout {
     public final Payment payment;
     private PendingCheckout(Booking booking, Payment payment) { this.booking = booking; this.payment = payment; }
 
+    // Ghép payment với booking cùng UID/phòng, lọc đúng PENDING còn hạn và có QR/link thực tế.
     public static List<PendingCheckout> select(String uid, String roomId, List<Booking> bookings, List<Payment> payments, long now) {
         Map<String, Payment> byBooking = new HashMap<>();
         for (Payment payment : payments) byBooking.put(payment.bookingId, payment);

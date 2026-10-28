@@ -21,4 +21,9 @@ Chỉ giữ tài liệu phản ánh code hiện tại. Ứng dụng dùng **Java
 | Bộ đếm phòng cũ, phiên bản booking và chuyển đổi dữ liệu cloud | [Tương thích phòng cũ](testing/room-counter-compatibility-2026-10-25.md) |
 | Khép lượt đang sử dụng của Host bị khóa, khách không đến và quyền đánh giá | [Chính sách và nghiệm thu 26/10](testing/booking-resolution-2026-10-26.md) |
 
+## Kiểm tra trước khi nộp
+
+- [Đối chiếu yêu cầu Firestore, responsive, offline và API ngày 28/10](testing/course-requirements-check-2026-10-28.md).
+- [Biên bản QA cuối và các giới hạn còn lại](testing/final-qa-2026-10-28.md).
+
 File phân công `.xlsx` và slide gốc vẫn ở đường dẫn người dùng cung cấp tại thư mục dự án; không phải mã nguồn ứng dụng. Các báo cáo cũ, log Functions, ảnh/log thử lặp và tài liệu mô tả kiến trúc đã bỏ không được giữ lẫn với hướng dẫn hiện tại.

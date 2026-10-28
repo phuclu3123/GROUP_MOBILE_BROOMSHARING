@@ -33,6 +33,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/*
+   Màn hình Host theo dõi booking, lịch và các thao tác sử dụng phòng.
+   Booking INSTANT_5M do backend xác nhận khi nhận tiền; quyền xử lý lịch sử không cấp quyền duyệt lượt mới.
+*/
 public class HostBookingsActivity extends SessionActivity {
 
     private ActivityHostBookingsBinding binding;
@@ -309,7 +313,7 @@ public class HostBookingsActivity extends SessionActivity {
         for (Booking b : fullList) {
             if (roomId != null && !roomId.equals(b.getRoomId())) continue;
             String status =
-                    b.getStatus() != null ? b.getStatus().toUpperCase() : Booking.STATUS_PENDING;
+                    b.getStatus() != null ? b.getStatus().toUpperCase(java.util.Locale.ROOT) : Booking.STATUS_PENDING;
             if ("ALL".equals(currentFilter)) {
                 filtered.add(b);
             } else if (currentFilter.equals(status)) {

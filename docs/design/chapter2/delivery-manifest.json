@@ -1,0 +1,27 @@
+{
+  "sourceFolder": "C:\\Users\\ADMIN\\OneDrive\\Tài liệu\\Diagram\\DE_Dia\\drive-download-20261027T010946Z-1-001",
+  "backup": "C:\\Users\\ADMIN\\OneDrive\\Tài liệu\\Diagram\\DE_Dia\\drive-download-20261027T010946Z-1-001\\_backup-before-chapter2-20261027",
+  "files": [
+    {
+      "file": "usecase_decomposition_v2.drawio",
+      "originalSha256": "8589e7729f002f9ee195fcc85fe1bab246af45f18791cf030bd0328ef9ba02ee",
+      "revisedSha256": "0187590544841192ad25a20940099840f7c98f18f9097178de6b0980ab4a78a6",
+      "pdfSha256": "f3223503a9429dcfe534772afc0ff0d8f49aa4c94be3ca389127e7a006eff89d"
+    },
+    {
+      "file": "usecase_diagram_v2.drawio",
+      "originalSha256": "32fe849cb6875565820fea977f180231f52b7b4f23341da89b94338a049e246e",
+      "revisedSha256": "cd4e4a574c3b5e2cd60726c46ecb24eb42c636dee0e377597b0d4c02a21862f3",
+      "pdfSha256": "2f1dcb0e1d04e738a72d0eb420e66aef229aaf48a3ee21bcee573de22254d145"
+    },
+    {
+      "file": "workflow_diagram_v2.drawio",
+      "originalSha256": "7470975a6abcd4f9d4387d5d70d906c218b75811e74df3438a0fc8a7bbb2c93b",
+      "revisedSha256": "7f1d39a1824cb04a2916f7666a1dac0276773bb94ec1bed4130f92eba0a0b4c0",
+      "pdfSha256": "56ea0578374bbc9e634bd65f5e9611bea6e5da5a3485a53680071ac164af2282"
+    }
+  ],
+  "presentation": "No figure titles or prose notes; Host generalizes Guest; native editable cells.",
+  "coverageReview": "Host cancellation and customer chat; Admin blocked-Host handling, usage verification and calendar reconciliation; explicit Guest reset password and map/directions.",
+  "flowReview": "19 pages audited; orthogonal aligned workflow, business branches reconciled with code; approved use-case file unchanged."
+}

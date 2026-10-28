@@ -24,6 +24,7 @@ public class AdminRepository {
     // Hàng đợi chỉ dành cho Admin đang ACTIVE; quyền vẫn được Rules kiểm lại lúc đọc và ghi.
     private final FirebaseFirestore db = FirebaseHelper.getFirestore();
 
+    // Đọc và chuẩn hóa đúng nhóm hàng đợi quản trị; các loại hồ sơ vẫn có collection và điều kiện xử lý riêng.
     public void load(String kind, ResultCallback<List<ReviewItem>> cb) {
         if (FirebaseAuth.getInstance().getCurrentUser() == null) {
             cb.onError(new Exception("Vui lòng đăng nhập lại."));
@@ -373,6 +374,8 @@ public class AdminRepository {
         }
     }
 
+    // Đọc lại người xử lý và đối tượng trong transaction trước khi duyệt.
+    // Cấp quyền Host hoặc hạn chế tài khoản/phòng đi cùng bản ghi xét duyệt và audit tương ứng.
     public void review(
             ReviewItem item,
             boolean approve,
@@ -677,6 +680,7 @@ public class AdminRepository {
                 .addOnFailureListener(cb::onError);
     }
 
+    // Đọc bằng chứng từ nguồn được chấp nhận; quyền xem hồ sơ không tự cấp quyền tải tệp ở dịch vụ lưu trữ.
     public void evidence(String id, String path, ResultCallback<byte[]> cb) {
         if (path != null && path.contains("/broomsharing/hostIdentity/")) {
             hostEvidence(id, path, cb);
@@ -815,6 +819,7 @@ public class AdminRepository {
                         : Collections.singletonList(doc.getString("evidencePath"));
     }
 
+    // Kiểm định dạng và nguồn bằng chứng trước khi mở, tránh dùng một URL tùy ý làm chứng cứ đã xét duyệt.
     private boolean validEvidence(String owner, String path, String id) {
         if (owner == null || path == null || id == null) return false;
         if (path.startsWith("https://")) {

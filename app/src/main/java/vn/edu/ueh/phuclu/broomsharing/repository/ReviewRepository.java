@@ -16,6 +16,7 @@ import java.util.*;
 public class ReviewRepository {
     private final FirebaseFirestore db = FirebaseHelper.getFirestore();
 
+    // Nghe nhận xét theo phòng, sắp xếp mới nhất và bỏ snapshot cache/ghi chưa xác nhận để tránh hiển thị thành công sớm.
     public ListenerRegistration watch(String roomId, ResultCallback<List<RoomReview>> cb) {
         BookingPolicy.id(roomId);
         final String uid = FirebaseAuth.getInstance().getUid();
@@ -42,6 +43,7 @@ public class ReviewRepository {
                         });
     }
 
+    // Kiểm lại Guest, trạng thái khép lượt và xác nhận sử dụng; document ID là bookingId nên mỗi lượt chỉ có một đánh giá.
     public void submit(String bookingId, int rating, String text, ResultCallback<String> cb) {
         final String uid = FirebaseAuth.getInstance().getUid();
         final String comment = text == null ? "" : text.trim();

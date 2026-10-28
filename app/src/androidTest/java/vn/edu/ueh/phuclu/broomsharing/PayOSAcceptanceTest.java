@@ -87,13 +87,15 @@ public class PayOSAcceptanceTest {
     }
 
     @Test
-    public void realConfirmedBookingCreatesQrAndDisplaysIt() throws Exception {
+    public void instantBookingCreatesQrWithoutHostApprovalAndReusesDeadline() throws Exception {
         assumeTrue("true".equals(InstrumentationRegistry.getArguments().getString("runPayosLive")));
         assertTrue(BuildConfig.FIRESTORE_EMULATOR_HOST.isEmpty());
         assertTrue(PaymentRepository.configured());
-        output = new File(context.getExternalFilesDir(null), "payos-acceptance");
+        output = new File(context.getFilesDir(), "payos-acceptance");
         assertTrue(output.isDirectory() || output.mkdirs());
-        try (InputStream in = new FileInputStream(new File(output, "accounts.properties"))) {
+        // Credential nằm trong vùng private của APK debug, không nằm trong gói cài hoặc thư viện ảnh.
+        File privateAccounts = new File(context.getFilesDir(), "payos-acceptance/accounts.properties");
+        try (InputStream in = new FileInputStream(privateAccounts)) {
             accounts.load(in);
         }
         receipt.put("scope", "Live Firebase/Cloudinary/payOS QR; no bank transfer");
@@ -150,7 +152,7 @@ public class PayOSAcceptanceTest {
             r.setCloseTime("22:00");
             r.setAmenities(Arrays.asList("Wi-Fi", "Điều hòa"));
             r.setRules("Phòng và giá chỉ dùng demo API; ảnh minh họa từ bộ ảnh có nguồn của nhóm.");
-            r.setRentalPolicy("Trả trước 40% sau xác nhận. Bản demo chưa có API hoàn tiền.");
+            r.setRentalPolicy("Trả trước 40% qua QR ngay khi đặt; giữ lịch tối đa 5 phút. Chưa hỗ trợ hoàn tiền tự động.");
             r.setRenewalPolicy("Liên hệ Host; không tự gia hạn.");
             r.setImageUrls(photos);
             r.setApprovalStatus(Room.STATUS_PENDING_REVIEW);
@@ -185,33 +187,41 @@ public class PayOSAcceptanceTest {
                         .plusDays(1)
                         .atTime(10, 0)
                         .atZone(ZoneId.of("Asia/Ho_Chi_Minh"));
-        request.startAt = Date.from(start.toInstant());
-        request.endAt = Date.from(start.plusHours(1).toInstant());
+        // Tìm một giờ còn trống bằng Repository; không ghi đè lượt demo đã có để chạy lại test.
+        boolean available = false;
+        for (int day = 0; day < 14 && !available; day++) {
+            request.startAt = Date.from(start.plusDays(day).toInstant());
+            request.endAt = Date.from(start.plusDays(day).plusHours(1).toInstant());
+            Answer<Booking> quote = new Answer<>();
+            new BookingRepository().quote(request, quote);
+            try { quote.get(); available = true; }
+            catch (ExecutionException conflict) { /* Thử ngày kế tiếp; create vẫn kiểm lại atomically. */ }
+        }
+        assertTrue("Need an available demo period", available);
         Answer<String> created = new Answer<>();
         new BookingRepository().create(request, created);
         String id = created.get();
         receipt.put("bookingId", id);
         check("Guest creates PENDING booking with paidAmount=0 through app transaction");
         assertEquals(0L, read("bookings", id).getLong("paidAmount").longValue());
-        try {
-            payment(id, true);
-            fail("PENDING booking must not create a payment");
-        } catch (ExecutionException expected) {
-            assertNotNull(expected.getCause());
-        }
-        assertFalse(read("payments", id).exists());
-        check("Payment before Host confirmation is rejected without creating an order");
+        Booking pending = read("bookings", id).toObject(Booking.class);
+        assertEquals("INSTANT_5M", pending.paymentFlow);
+        assertEquals("PENDING", pending.status);
+        long deadline = pending.paymentDeadline();
+        assertTrue(deadline > System.currentTimeMillis());
+        assertTrue(deadline - pending.createdAt.getTime() <= 300000L);
         login("applicant");
         Answer<String> confirmed = new Answer<>();
         new BookingRepository().transition(id, "CONFIRMED", "", confirmed);
-        assertEquals(id, confirmed.get());
+        try { confirmed.get(); fail("Host cannot confirm an unpaid instant booking"); }
+        catch (ExecutionException expected) { assertNotNull(expected.getCause()); }
         try {
             payment(id, true);
             fail("Host cannot create QR on Guest's behalf");
         } catch (ExecutionException expected) {
             assertNotNull(expected.getCause());
         }
-        check("Host confirms booking; Host cannot pay as the Guest");
+        check("Host cannot approve an instant booking or create QR on Guest's behalf");
         login("guest");
         Payment p = payment(id, true);
         assertEquals(2000, p.amount);
@@ -221,6 +231,8 @@ public class PayOSAcceptanceTest {
         assertTrue(p.checkoutUrl.startsWith("https://pay.payos.vn/"));
         Payment again = payment(id, true);
         assertEquals(p.orderCode, again.orderCode);
+        assertEquals(p.expiresAt, again.expiresAt);
+        assertEquals(deadline, read("bookings", id).toObject(Booking.class).paymentDeadline());
         Payment status = payment(id, false);
         assertEquals("PENDING", status.status);
         assertEquals(0, status.paidAmount);
@@ -273,7 +285,20 @@ public class PayOSAcceptanceTest {
             }
         }
         assertEquals(p.orderCode, read("payments", id).getLong("orderCode").longValue());
+        // Kết thúc đúng lượt thử, giữ lịch sử và phòng PAYOS cho video demo sau này.
+        Answer<String> cancelled = new Answer<>();
+        new BookingRepository().transition(id, "CANCELLED", "[QA] Kết thúc kiểm tra QR, không chuyển tiền.", cancelled);
+        assertEquals(id, cancelled.get());
+        Payment closed = payment(id, false);
+        assertTrue("Provider link must stop accepting payment after cancellation",
+                "CANCELLED".equals(closed.status) || "EXPIRED".equals(closed.status));
+        assertEquals("CANCELLED", read("bookings", id).getString("status"));
+        for (String monthKey : pending.monthKeys) {
+            AvailabilityMonth month = read("availabilityMonths", monthKey).toObject(AvailabilityMonth.class);
+            assertFalse(month.hourlyBookings.containsKey(id));
+            assertFalse(month.pendingPaymentIds.contains(id));
+        }
         receipt.put("accepted", true);
-        check("Actual QR screen renders, survives recreation and retains the same provider order");
+        check("QR renders without Host approval, survives recreation, keeps its deadline; cancel closes link and releases only this booking");
     }
 }

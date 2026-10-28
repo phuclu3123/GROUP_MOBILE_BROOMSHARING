@@ -1,0 +1,13 @@
+{
+  "bookingId": "2038c8e676cb16c7653cf4e87a0b1297514d9a1ac294351944835b91ae471f00",
+  "status": "EXPIRED",
+  "paymentStatus": "UNPAID",
+  "paidAmount": 0,
+  "createdAt": "2026-10-27T19:00:24.931Z",
+  "closedAt": "2026-10-27T19:05:25.017Z",
+  "providerOrderCode": 63474697736862,
+  "providerStatus": "EXPIRED",
+  "onlyOwnHoldReleased": true,
+  "historyRetained": true,
+  "verifiedAt": "2026-10-27T19:12:25.076139+00:00"
+}

@@ -8,6 +8,7 @@ import vn.edu.ueh.phuclu.broomsharing.model.*;
 public final class BookingAvailability {
     private BookingAvailability() {}
 
+    // So sánh khoảng nửa mở [startAt,endAt) để hai lượt tiếp giáp không bị coi là trùng giờ.
     public static String conflict(Room room, List<Booking> held, Date from, Date to) {
         for (RoomBlackout range : room.getBlackoutRanges())
             if (HostSchedule.overlaps(from, to, range.getStartAt(), range.getEndAt()))

@@ -16,12 +16,14 @@ public class FavoritesRepository {
         if(uid==null)throw new IllegalStateException("Vui lòng đăng nhập lại.");
         return FirebaseHelper.getFirestore().collection("users").document(uid).collection("favorites");
     }
+    // Đọc danh sách đã lưu và ghép lại thông tin phòng để phản ánh trạng thái hiện tại.
     public void load(ResultCallback<List<Favorite>> cb) {
         try {mine().limit(100).get(Source.SERVER).addOnSuccessListener(rows->{
             List<Favorite> list=new ArrayList<>();for(DocumentSnapshot doc:rows){Favorite item=doc.toObject(Favorite.class);if(item!=null){item.roomId=doc.getId();list.add(item);}}
             list.sort(Comparator.comparing((Favorite item)->item.createdAt,Comparator.nullsLast(Comparator.reverseOrder())));cb.onSuccess(list);
         }).addOnFailureListener(cb::onError);}catch(Exception e){cb.onError(e);}
     }
+    // Thêm hoặc bỏ yêu thích dưới UID hiện tại; đây là quyền lưu phòng, không phải quyền giữ lịch.
     public void set(String roomId,String name,boolean saved,ResultCallback<Boolean> cb) {
         try {
             if(roomId==null||!roomId.matches("[a-zA-Z0-9_-]{1,128}"))throw new IllegalArgumentException("Mã phòng không hợp lệ.");

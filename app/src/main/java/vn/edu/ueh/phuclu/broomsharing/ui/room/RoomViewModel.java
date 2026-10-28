@@ -71,6 +71,7 @@ public class RoomViewModel extends ViewModel {
         if (rooms.getValue() == null) load();
     }
 
+    // Lưu bộ lọc và tải tiếp các trang cần thiết để tìm kiếm không chỉ giới hạn ở trang đầu.
     public void filter(String search, String area, String type, String mode) {
         this.search = search;
         this.area = area;
@@ -111,6 +112,7 @@ public class RoomViewModel extends ViewModel {
         if (!loading && hasMore) fetch(false);
     }
 
+    // Đọc trang kế tiếp qua Repository, quản lý cursor và cờ đang tải để tránh request trùng.
     private void fetch(boolean refresh) {
         loading = true;
         final int token = ++request;
@@ -145,6 +147,7 @@ public class RoomViewModel extends ViewModel {
         handler.post(tick);
     }
 
+    // Đăng ký lịch công khai cho các phòng cần hiển thị nhãn tháng/quý, không đọc chi tiết khách khác.
     private void watchCalendars() {
         if (!calendarsActive) return;
         final int run = calendarGeneration;
@@ -170,6 +173,7 @@ public class RoomViewModel extends ViewModel {
         calendarListeners.clear(); calendars.clear(); calendarErrors.clear();
     }
 
+    // Ngừng nguồn lịch khi rời màn hình; quay lại sẽ nghe dữ liệu hiện tại thay vì dùng nhãn cũ mãi.
     public void pauseCalendars() {
         calendarsActive = false;
         handler.removeCallbacks(tick);

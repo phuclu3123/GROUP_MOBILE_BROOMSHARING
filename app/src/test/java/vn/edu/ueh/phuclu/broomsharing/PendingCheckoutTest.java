@@ -6,6 +6,10 @@ import org.junit.Test;
 import vn.edu.ueh.phuclu.broomsharing.model.*;
 import vn.edu.ueh.phuclu.broomsharing.utils.PendingCheckout;
 
+/*
+   Kiểm thử noPaymentNeverShowsResume, creatingWithoutQrNeverShowsResume, pendingWithoutAnyUsableLinkNeverShowsResume.
+   Dữ liệu được tạo trong test; kết quả này không thay cho nghiệm thu thao tác trên thiết bị hoặc cloud.
+*/
 public class PendingCheckoutTest {
     private Booking booking() {
         Booking b = new Booking(); b.id = "booking"; b.guestUid = "guest";

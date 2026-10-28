@@ -1,0 +1,75 @@
+{
+  "date": "2026-10-27",
+  "decision": "Accepted as the primary Host and Admin use-case views at business-goal level. No requirement to add include or extend to every diagram.",
+  "scope": "Diagram/source/permission audit, not a new runtime acceptance test.",
+  "diagramSha256": "cd4e4a574c3b5e2cd60726c46ecb24eb42c636dee0e377597b0d4c02a21862f3",
+  "pdfSha256": "2f1dcb0e1d04e738a72d0eb420e66aef229aaf48a3ee21bcee573de22254d145",
+  "pages": [
+    {
+      "page": "02. Host",
+      "useCases": [
+        "Quản lý tòa nhà",
+        "Tạo và sửa bài đăng phòng",
+        "Thiết lập giá và lịch cho thuê",
+        "Gửi bài đăng xét duyệt",
+        "Tạm dừng hoặc mở lại phòng",
+        "Xác nhận hoặc từ chối booking",
+        "Hủy booking cho thuê",
+        "Chat với khách thuê",
+        "Ghi nhận khách đến nhận phòng",
+        "Hoàn tất lượt thuê",
+        "Ghi nhận khách không đến",
+        "Gửi minh chứng vị trí/ảnh",
+        "Phản hồi báo cáo của khách",
+        "Xem lịch và thống kê hoạt động"
+      ],
+      "count": 14,
+      "allEdgesAttached": true,
+      "embeddedFonts": true,
+      "rasterImages": 0
+    },
+    {
+      "page": "03. Admin",
+      "useCases": [
+        "Xét duyệt đơn làm Host",
+        "Xét duyệt minh chứng vị trí và hình ảnh",
+        "Duyệt hoặc từ chối bài đăng",
+        "Đình chỉ hoặc gỡ đình chỉ phòng",
+        "Khóa hoặc mở khóa Host",
+        "Xử lý báo cáo vi phạm",
+        "Xử lý booking của Host bị khóa",
+        "Xác minh việc sử dụng",
+        "Đối soát lịch giữ chỗ của phòng",
+        "Tra cứu nhật ký nghiệp vụ"
+      ],
+      "count": 10,
+      "allEdgesAttached": true,
+      "embeddedFonts": true,
+      "rasterImages": 0
+    }
+  ],
+  "sourceHashes": {
+    "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/HostRepository.java": "165781a38bca86ca84a455e0617fb2b93e57f8c9373fbe5358123d44951bea5a",
+    "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/BookingRepository.java": "7cd4c5c883752fab7e5f76932c97b423c728779694f0dd9715f6a3dddd3d13de",
+    "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/AdminRepository.java": "e8411d738f1ea8ff33d7e8f6aac9289c5eb7bb7278fd5a878269f5324a1781fe",
+    "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/ReportRepository.java": "d645a19b9c4455c0ef58c881b6d9863da424722f3e6fe07e09fa2207d09730f6",
+    "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/utils/BookingResolutionPolicy.java": "57002c16174e52bc8f0f23f294082266c1dea3d9d951f1b1f8a21f3ade2faf30",
+    "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/host/HostBookingsActivity.java": "d4925ba252b5bc5eec75f9a3ff486687a40298eedb9f198da21d688d033b35c6",
+    "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/admin/AdminBookingsActivity.java": "bb22b1591c25045ba3b73fd7414b34043464edf7b4b64689ea6d2462c2fd4d17",
+    "firestore.rules": "04123917e2a54487ff13af16b806c1deed2891121832e0426f1a66fbd42a4fe9"
+  },
+  "relationshipDecision": {
+    "association": "Actor participation; no process ordering implied.",
+    "hostGeneralization": "Host inherits shared renter goals on overview.",
+    "include": "Calendar release can remain in use-case specifications and workflow. No added support ellipse needed at this level.",
+    "extend": "Do not connect combined suspend/unsuspend or block/unblock use cases to report handling; reports only invoke the restrictive action."
+  },
+  "verifiedConstraints": [
+    "Host cancellation has a reason and occurs before rental start.",
+    "NO_SHOW is after endAt and requires a reason.",
+    "Admin blocked-Host handling is per booking.",
+    "Admin usage correction is not always limited to blocked Hosts.",
+    "Unsuspending a room returns INACTIVE; Host must reopen ACTIVE.",
+    "Host statistics are room/request counts, not a revenue ledger."
+  ]
+}

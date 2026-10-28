@@ -7,6 +7,10 @@ import vn.edu.ueh.phuclu.broomsharing.model.UserRole;
 import vn.edu.ueh.phuclu.broomsharing.utils.AuthValidation;
 import static org.junit.Assert.*;
 
+/*
+   Kiểm thử typedPhoneDoesNotBecomeAVerifiedIdentity, localAndInternationalPhoneFormatsAreNormalized, invalidPhoneIsNotSilentlyConvertedToAValidOne.
+   Dữ liệu được tạo trong test; kết quả này không thay cho nghiệm thu thao tác trên thiết bị hoặc cloud.
+*/
 public class AuthValidationTest {
     @Test public void typedPhoneDoesNotBecomeAVerifiedIdentity() {
         UserProfile profile =

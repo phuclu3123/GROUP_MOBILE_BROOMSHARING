@@ -57,6 +57,8 @@ public final class PaymentRepository {
                 });
     }
 
+    // Gửi ID token Firebase và bookingId tới backend; không gửi số tiền từ form làm căn cứ thanh toán.
+    // create chọn tạo/lấy lại QR, còn đối soát chỉ đọc kết quả; client không được tự ghi PAID.
     public void request(String bookingId, boolean create, ResultCallback<Payment> callback) {
         FirebaseUser user = auth.getCurrentUser();
         if (user == null
@@ -144,6 +146,7 @@ public final class PaymentRepository {
                 .addOnFailureListener(callback::onError);
     }
 
+    // Nghe document giao dịch của booking, chỉ nhận dữ liệu phù hợp phiên đang đăng nhập.
     public ListenerRegistration watch(String id, ResultCallback<Payment> callback) {
         return FirebaseHelper.getFirestore()
                 .collection("payments")
@@ -164,6 +167,7 @@ public final class PaymentRepository {
     }
 
     // Chỉ các giao dịch của tài khoản đang đăng nhập; cache chưa xác nhận không bật nút trả tiền.
+    // Nghe giao dịch của chính Guest để dựng nhắc thanh toán; không tạo giao dịch chỉ vì mở danh sách.
     public ListenerRegistration watchMine(ResultCallback<java.util.List<Payment>> callback) {
         FirebaseUser user = auth.getCurrentUser();
         if (user == null) throw new IllegalStateException("Vui lòng đăng nhập lại.");

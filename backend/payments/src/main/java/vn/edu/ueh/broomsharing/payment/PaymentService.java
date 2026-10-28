@@ -21,6 +21,8 @@ public final class PaymentService {
         this.base = base;
     }
 
+    // Khóa mã đơn trong Firestore trước, gọi nhà cung cấp ngoài transaction, rồi lưu kết quả.
+    // Retry dùng lại orderCode và hạn cũ; không tạo một lần thu mới cho cùng booking.
     public Map<String, Object> checkout(String uid, String id) throws Exception {
         validId(id);
         DocumentReference booking = db.collection("bookings").document(id);
@@ -151,6 +153,7 @@ public final class PaymentService {
         return refresh(uid, id);
     }
 
+    // Đối soát chủ động khi app mở lại hoặc webhook bị lỡ; kiểm UID trước khi trả dữ liệu giao dịch.
     public Map<String, Object> refresh(String uid, String id) throws Exception {
         validId(id);
         DocumentSnapshot actor = db.collection("users").document(uid).get().get();
@@ -175,6 +178,7 @@ public final class PaymentService {
         return publicView(db.collection("payments").document(id).get().get().getData());
     }
 
+    // SDK payOS xác thực chữ ký trước khi ánh xạ orderCode về booking và áp dụng kết quả tiền.
     public void webhook(byte[] body) throws Exception {
         JsonNode data = provider.verify(body);
         PaymentPolicy.require(
@@ -190,6 +194,7 @@ public final class PaymentService {
     // Server tiếp tục khép QR dù người dùng đã đóng app. Mỗi lượt có giới hạn và cursor.
     private DocumentSnapshot pendingCursor, holdCursor;
 
+    // Tác vụ định kỳ xử lý một trang giao dịch đang chờ; lỗi một đơn không chặn các đơn còn lại.
     public synchronized void reconcilePending() throws Exception {
         // App có thể mất mạng sau khi giữ lịch và trước khi gọi tạo QR.
         expireUnstartedHolds();
@@ -209,9 +214,17 @@ public final class PaymentService {
         }
     }
 
-    private void expireUnstartedHolds() throws Exception {
-        Query query = db.collection("bookings").whereEqualTo("status", "PENDING")
+    // Lọc flow ngay trên Firestore để vòng quét không đọc lại các đơn PENDING lịch sử mỗi 15 giây.
+    // Hai điều kiện equality dùng index đơn được Firestore ghép; giữ cursor theo document ID.
+    Query pendingInstantHolds() {
+        return db.collection("bookings").whereEqualTo("status", "PENDING")
+                .whereEqualTo("paymentFlow", "INSTANT_5M")
                 .orderBy(FieldPath.documentId()).limit(50);
+    }
+
+    // Nhả các lượt giữ tạm đã hết hạn nhưng chưa tạo được giao dịch, giữ booking để tra cứu lịch sử.
+    private void expireUnstartedHolds() throws Exception {
+        Query query = pendingInstantHolds();
         if (holdCursor != null) query = query.startAfter(holdCursor);
         List<QueryDocumentSnapshot> rows = query.get().get().getDocuments();
         holdCursor = rows.size() == 50 ? rows.get(rows.size() - 1) : null;

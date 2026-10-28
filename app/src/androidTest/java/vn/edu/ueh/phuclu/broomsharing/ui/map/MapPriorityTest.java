@@ -11,6 +11,9 @@ import vn.edu.ueh.phuclu.broomsharing.repository.ResultCallback;
 import vn.edu.ueh.phuclu.broomsharing.utils.MapArea;
 import static org.junit.Assert.*;
 
+/*
+   Kiểm thử samePointStaysInAppAndFailureFallsBackOnlyAfterProviderAttempt.
+*/
 public class MapPriorityTest {
     static class Provider extends MapRepository {
         int attempts; boolean fail;

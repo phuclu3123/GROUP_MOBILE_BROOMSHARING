@@ -339,6 +339,29 @@ public class PaymentServiceTest {
             assertEquals("", db.collection("availabilityMonths").document(room+"_"+suffix).get().get().getString("fixedBookingId"));
     }
 
+    // Nhiều đơn cũ đứng trước ID hiện tại không được chiếm trang quét hoặc tốn lượt đọc định kỳ.
+    @Test public void pendingHoldQueryExcludesLegacyAndTerminalHistory() throws Exception {
+        instant(false);
+        WriteBatch batch = db.batch();
+        for (int i = 0; i < 60; i++) {
+            batch.set(db.collection("bookings").document(String.format(Locale.ROOT, "legacy_%03d", i)),
+                    Map.of("status", "PENDING", "paymentStatus", "DEMO_PENDING"));
+        }
+        batch.set(db.collection("bookings").document("old_expired_instant"),
+                Map.of("status", "EXPIRED", "paymentFlow", "INSTANT_5M"));
+        batch.set(db.collection("bookings").document("old_confirmed_instant"),
+                Map.of("status", "CONFIRMED", "paymentFlow", "INSTANT_5M"));
+        batch.commit().get();
+        var rows = service.pendingInstantHolds().get().get().getDocuments();
+        assertEquals(1, rows.size());
+        assertEquals(id, rows.get(0).getId());
+        expireClock();
+        service.reconcilePending();
+        assertEquals("EXPIRED", booking().getString("status"));
+        assertTrue(service.pendingInstantHolds().get().get().isEmpty());
+        assertEquals("PENDING", db.collection("bookings").document("legacy_000").get().get().getString("status"));
+    }
+
     @Test public void expiredMoneyNeverConfirmsEvenBeforeCleanup() throws Exception {
         String room = instant(false); service.checkout("guest", id); expireClock();
         provider.status = "PAID";

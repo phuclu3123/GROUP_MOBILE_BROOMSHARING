@@ -38,12 +38,14 @@ public class AdminBookingsViewModel extends ViewModel {
         resolve(id, "CANCELLED", reason);
     }
 
+    // Chuyển yêu cầu khép từng lượt sang Repository, không hủy hàng loạt khi Host bị khóa.
     public void resolve(String id, String target, String reason) {
         if (busy()) return;
         action.setValue(UiState.loading());
         repository.transition(id, target, reason, result());
     }
 
+    // Yêu cầu đối soát phòng để bộ đếm và khóa lịch khớp với booking thực tế.
     public void reconcile(String roomId) {
         if (busy()) return;
         action.setValue(UiState.loading());

@@ -4,6 +4,10 @@ import org.junit.Test;
 import vn.edu.ueh.phuclu.broomsharing.model.MapPoint;
 import static org.junit.Assert.*;
 
+/*
+   Kiểm thử q8SourceAddressesAreFilteredAroundChosenOrigin.
+   Dữ liệu được tạo trong test; kết quả này không thay cho nghiệm thu thao tác trên thiết bị hoặc cloud.
+*/
 public class MapAreaTest {
     @Test public void q8SourceAddressesAreFilteredAroundChosenOrigin(){
         MapPoint origin=new MapPoint(10.737316559278344,106.65579043328762,"Bùi Minh Trực");

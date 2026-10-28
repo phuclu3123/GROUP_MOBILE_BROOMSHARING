@@ -6,6 +6,10 @@ import vn.edu.ueh.phuclu.broomsharing.model.Booking;
 import vn.edu.ueh.phuclu.broomsharing.utils.CancellationPolicy;
 import static org.junit.Assert.*;
 
+/*
+   Kiểm thử hourlyBoundariesAreInclusiveAndNoRefundAfterPartialWindow, fixedUsesSevenDaysAndFortyEightHoursForMonthAndQuarter, alreadyStartedIsNotOrdinaryCancellation.
+   Dữ liệu được tạo trong test; kết quả này không thay cho nghiệm thu thao tác trên thiết bị hoặc cloud.
+*/
 public class CancellationPolicyTest {
     private Booking booking(String mode) { Booking b=new Booking();b.activeMode=mode;b.startAt=new Date(2000000000L);return b; }
     @Test public void hourlyBoundariesAreInclusiveAndNoRefundAfterPartialWindow() {

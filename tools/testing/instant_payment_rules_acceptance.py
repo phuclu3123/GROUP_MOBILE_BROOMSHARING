@@ -8,6 +8,7 @@ import json
 from pathlib import Path
 import runpy
 import sys
+import uuid
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.argv = [str(ROOT / 'tools/testing/firestore_rules_probe.py')]
@@ -16,6 +17,7 @@ with contextlib.redirect_stdout(io.StringIO()):
 call, encode, write = p['call'], p['encode'], p['write']
 db = p['DB']
 results = []
+run_id = uuid.uuid4().hex
 
 
 def expect(label, function, allowed):
@@ -44,7 +46,8 @@ def reset_calendar():
 
 
 def creation(label, edit=None):
-    identity = hashlib.sha256(label.encode()).hexdigest()
+    # Mỗi lần chạy có định danh riêng, tránh ALREADY_EXISTS từ bằng chứng của lần trước.
+    identity = hashlib.sha256((run_id + ':' + label).encode()).hexdigest()
     payload = json.loads(json.dumps(p['w']).replace(p['id'], identity))
     if edit:
         edit(payload)

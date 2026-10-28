@@ -161,6 +161,7 @@ public class EvidencePreviewActivity extends SessionActivity {
                         .putExtra("PATH", getIntent().getStringExtra("PATH")));
     }
 
+    // Đóng tài nguyên PDF khi thay tệp hoặc hủy màn hình để không giữ descriptor của bản xem cũ.
     private void closePdf() {
         if (pdf != null) {
             pdf.close();

@@ -7,6 +7,10 @@ import org.junit.Test;
 import vn.edu.ueh.phuclu.broomsharing.model.*;
 import vn.edu.ueh.phuclu.broomsharing.utils.*;
 
+/*
+   Kiểm thử temporaryHoldHasFiveMinuteDeadlineCappedByStart, temporaryAndExpiredLabelsDoNotClaimSuccess, hostCannotConfirmInstantBooking.
+   Dữ liệu được tạo trong test; kết quả này không thay cho nghiệm thu thao tác trên thiết bị hoặc cloud.
+*/
 public class InstantBookingTest {
     private Date at(String day) {
         return Date.from(LocalDateTime.parse(day).atZone(HostSchedule.ZONE).toInstant());

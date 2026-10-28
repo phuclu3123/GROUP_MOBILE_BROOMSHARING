@@ -39,6 +39,7 @@ public class ChatViewModel extends ViewModel {
         return sessionUid;
     }
 
+    // Nghe các hội thoại có UID hiện tại là thành viên, không truy vấn toàn bộ chat của hệ thống.
     public void watchInbox() {
         if (inboxListener != null) return;
         if (sessionUid == null || !sessionUid.equals(repository.uid())) return;
@@ -131,6 +132,7 @@ public class ChatViewModel extends ViewModel {
     }
 
     // Chỉ đánh dấu đã đọc khi đang xem cuối hội thoại và dữ liệu tin đã về đủ.
+    // Chỉ nâng mốc đọc khi người nhận đang xem vùng tin mới; mở danh sách không tự coi mọi tin đã đọc.
     private void acknowledgeIfVisible() {
         Conversation c = conversation.getValue();
         UiState<List<ChatMessage>> rows = messages.getValue();
@@ -159,6 +161,7 @@ public class ChatViewModel extends ViewModel {
                 });
     }
 
+    // Đọc trang tin cũ theo cursor, ghép với tin mới mà không đánh lại sequence.
     public void older() {
         limit += 50;
         watchMessages();
@@ -168,6 +171,7 @@ public class ChatViewModel extends ViewModel {
         return size >= limit;
     }
 
+    // Gửi nội dung qua Repository; sequence, preview và bộ đếm người nhận được ghi atomically ở tầng dữ liệu.
     public void send(String body, String roomId) {
         if (sessionUid == null || !sessionUid.equals(repository.uid())) {
             action.setValue(
@@ -202,6 +206,7 @@ public class ChatViewModel extends ViewModel {
     }
 
     // Gỡ listener khi rời màn hình để không tiếp tục nhận cập nhật không cần thiết.
+    // Tháo listener khi đổi hội thoại hoặc rời màn hình, tránh cập nhật nhầm luồng tin.
     public void stop() {
         viewingLatest = false;
         if (inboxListener != null) inboxListener.remove();

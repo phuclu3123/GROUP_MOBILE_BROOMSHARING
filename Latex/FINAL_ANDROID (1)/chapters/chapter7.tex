@@ -1,0 +1,21 @@
+\chapstart
+\section{KẾT LUẬN VÀ HƯỚNG MỞ RỘNG}
+\subsection{Kết luận của giai đoạn thiết kế}
+BroomSharing đề xuất một mô hình ứng dụng Android để khai thác và chia sẻ không gian còn trống theo ngày hoặc tháng. Báo cáo xác định được nhóm tác nhân User, Owner và Admin (mở rộng), các thao tác chính gồm tìm kiếm, đọc chi tiết, đăng không gian, gửi yêu cầu thuê và quản lý booking. Lược đồ dữ liệu dự kiến tập trung vào các collection \texttt{users}, \texttt{spaces} và \texttt{bookings}, cho phép mô tả rõ các liên kết logic cốt lõi.
+
+Về kiến trúc, cách tổ chức Java + XML theo MVVM + Repository + Model giúp tách công việc hiển thị giao diện khỏi việc truy cập Firebase \parencite{android_arch,android_data}. Tuy nhiên, đây là kết quả phân tích và thiết kế, không thay cho việc kiểm tra implementation, kiểm thử và khả năng hoạt động thực tế của ứng dụng ở thời điểm nộp bài.
+
+\subsection{Những hạn chế hiện tại}
+Bản báo cáo được biên soạn từ tài liệu mẫu môn học và thông tin nghiệp vụ đã trao đổi, không được cung cấp trực tiếp mã nguồn BroomSharing hoặc bản xuất Firestore để đối chiếu. Vì vậy tên lớp, bộ sưu tập dữ liệu, trạng thái booking và sự hiện diện của các màn hình là phương án đề xuất. Không có căn cứ xác nhận thanh toán trong ứng dụng, đồng bộ lịch theo thời gian thực, chat hoàn chỉnh, QR check-in, quy trình duyệt tin hoặc kiểm thử thiết bị đã hoàn thành.
+
+\subsection{Hướng phát triển}
+\begin{itemize}
+\item Hoàn thiện luồng bản đồ MapLibre, marker từ Firestore, MapTiler geocoding và openrouteservice directions; kiểm chứng giới hạn API key và quota trên môi trường thử nghiệm.
+\item Hoàn thiện upload ảnh Cloudinary có kiểm soát, thử nghiệm các tình huống lỗi mạng và giới hạn dung lượng.
+\item Hoàn thiện bộ lọc theo vị trí, giá, kỳ thuê và tiện ích, đồng thời tối ưu dữ liệu tìm kiếm.
+\item Xây dựng cơ chế kiểm tra chồng lấn booking đáng tin cậy tại tầng dữ liệu hoặc backend.
+\item Cải thiện chất lượng tin đăng bằng quy trình duyệt nội dung và báo cáo thông tin không chính xác.
+\item Bổ sung thông báo trạng thái booking, đánh giá sau sử dụng và lịch sử giao dịch.
+\item Nghiên cứu QR check-in/check-out có điều kiện và cơ chế ngăn sử dụng lại mã.
+\item Thực hiện kiểm thử chức năng, bảo mật và hiệu năng trước khi phát hành thử nghiệm.
+\end{itemize}

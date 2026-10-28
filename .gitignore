@@ -37,6 +37,9 @@ backend/payments/.runtime/
 /data/demo/video-credentials.local.properties
 /data/demo/profile-identity-credentials.local.properties
 /data/demo/video-business.local.json
+
+# Local QA builds, archived experiments and temporary evidence inputs.
+/tmp/
 /output/verification/cloud-business-2026-10-24/
 
 # Generated artifacts for the booking business acceptance run
@@ -46,3 +49,20 @@ backend/payments/.runtime/
 /output/verification/member-integration-2026-10-25/
 /output/verification/payos-2026-10-26/
 /output/verification/room-counter-compatibility-2026-10-25/
+
+# Downloaded author/reference inputs stay local; report sources/assets are under Latex/.
+/Broom_Viet/
+# Runtime captures, APKs and cloud snapshots are not source. Reviewed small receipts
+# and final report PDFs may be added explicitly; never add this whole directory.
+/output/
+
+# LaTeX intermediates and the obsolete chapter-only preview.
+/Latex/**/*.aux
+/Latex/**/*.bcf
+/Latex/**/*.log
+/Latex/**/*.out
+/Latex/**/*.run.xml
+/Latex/**/*.synctex.gz
+/Latex/**/*.data.minted
+/Latex/**/chapter4-preview.*
+/Latex/**/Resources/publication_figures/

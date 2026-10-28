@@ -304,7 +304,7 @@ public class BookingResolutionAcceptanceTest {
         try (InputStream in =
                 new FileInputStream(
                         new File(
-                                context.getExternalFilesDir(null),
+                                context.getFilesDir(),
                                 "resolution-credentials.properties"))) {
             credentials.load(in);
         }

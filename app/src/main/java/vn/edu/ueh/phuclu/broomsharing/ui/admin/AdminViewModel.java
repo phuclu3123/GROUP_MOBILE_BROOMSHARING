@@ -43,6 +43,7 @@ public class AdminViewModel extends ViewModel {
                 });
     }
 
+    // Chuyển ý định xét duyệt cùng căn cứ đã xem bằng chứng xuống Repository; role không được nâng ngay trên View.
     public void review(ReviewItem item, boolean approve, String reason) {
         if (operation.getValue() != null && operation.getValue().loading) return;
         operation.setValue(UiState.loading());

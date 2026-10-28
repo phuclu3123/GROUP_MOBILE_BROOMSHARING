@@ -14,6 +14,10 @@ import vn.edu.ueh.phuclu.broomsharing.R;
 import vn.edu.ueh.phuclu.broomsharing.model.Room;
 import vn.edu.ueh.phuclu.broomsharing.utils.FormatUtils;
 
+/*
+   Hiển thị phòng thuộc Host, gồm trạng thái xét duyệt, công bố và hình thức thuê.
+   Mở form sửa hoặc lịch bằng ID phòng, không tự cập nhật lịch từ Adapter.
+*/
 public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
 
     public interface OnRoomClickListener {

@@ -282,11 +282,10 @@
         android:textSize="14sp"
         android:textStyle="bold" />
 
-    <ScrollView
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="160dp"
-        android:layout_marginTop="6dp"
-        android:fillViewport="true">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp">
 
         <LinearLayout
             android:id="@+id/layoutSelectedDayBookings"
@@ -303,6 +302,6 @@
                 android:textColor="@color/text_secondary"
                 android:textSize="13sp" />
         </LinearLayout>
-    </ScrollView>
+    </FrameLayout>
 </LinearLayout>
 </ScrollView>

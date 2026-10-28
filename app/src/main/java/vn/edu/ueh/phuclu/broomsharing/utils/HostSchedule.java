@@ -26,6 +26,7 @@ public final class HostSchedule {
                 || "CHECKED_IN".equals(b.getStatus());
     }
 
+    // Kiểm ngày hoạt động, giờ mở và các khoảng khóa theo múi giờ nghiệp vụ dùng chung.
     public static String validate(Room r) {
         try {
             if (r.getBlackoutDates().size() > 16)

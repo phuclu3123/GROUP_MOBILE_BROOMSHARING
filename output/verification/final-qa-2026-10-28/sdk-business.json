@@ -1,0 +1,10 @@
+{
+  "variant": "emulator",
+  "class": "vn.edu.ueh.phuclu.broomsharing.FirestoreRepositoryTest#javaBookingTransactionsAdminAndRules",
+  "passed": true,
+  "apkHashes": {
+    "app.apk": "34871e7c460538c4675fa55052154f54693eb67ef0df8c75bb6699962c81da65",
+    "test.apk": "427b7e98526f9be8dc8f6057d978b6ac7ecea1ba8ec719ad3faa182e9f4e6bbb"
+  },
+  "tests": 1
+}

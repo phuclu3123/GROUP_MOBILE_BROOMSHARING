@@ -8,6 +8,10 @@ import org.junit.*;
 
 import java.util.*;
 
+/*
+   Các ca kiểm thử hồi quy của PaymentPolicyTest.
+   Dữ liệu được tạo trong test; kết quả này không thay cho nghiệm thu thao tác trên thiết bị hoặc cloud.
+*/
 public class PaymentPolicyTest {
     private Map<String, Object> b;
 

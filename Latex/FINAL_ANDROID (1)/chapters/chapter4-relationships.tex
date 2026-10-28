@@ -1,0 +1,104 @@
+\Needspace{7\baselineskip}
+Các quan hệ của nhóm tài khoản có hai nền tảng khác nhau: UID liên kết hồ sơ với danh tính Authentication, còn đường dẫn document xác định dữ liệu con thuộc người dùng nào. Bảng~\ref{tab:ch4-relations-accounts} đặt các liên kết này cạnh alias username, bản chiếu Host và đơn đăng ký để làm rõ rằng chúng cùng xoay quanh một tài khoản. Những trường người duyệt hoặc người quản trị lại trỏ tới tài khoản thực hiện xử lý, không phải chủ sở hữu của đơn hay hồ sơ bị tác động.
+
+\begingroup\small\setstretch{1.12}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{5.1cm}>{\raggedright\arraybackslash}p{4.0cm}>{\raggedright\arraybackslash}p{6.15cm}@{}}
+\caption{Liên kết của nhóm tài khoản và dữ liệu thuộc tài khoản}\label{tab:ch4-relations-accounts}\\
+\toprule Nguồn liên kết & Đích & Bội số và điều kiện \\ \midrule\endfirsthead
+\toprule Nguồn liên kết & Đích & Bội số và điều kiện \\ \midrule\endhead
+\midrule\multicolumn{3}{r}{\small Còn tiếp ở trang sau}\\\endfoot
+\bottomrule\endlastfoot
+\texttt{users/\allowbreak{}\{uid\},\allowbreak{} khóa document} & \texttt{Authentication UID} & 1 theo thiết kế đăng ký; hai dịch vụ không có transaction chung, có thể phát sinh tài khoản/hồ sơ thiếu cần xử lý. \\*
+\texttt{public\allowbreak{}Hosts.\allowbreak{}uid /\allowbreak{} khóa document} & \texttt{users/\allowbreak{}\{uid\}} & 1; User có 0..1 bản chiếu. \\
+\texttt{usernames.\allowbreak{}uid} & \texttt{users/\allowbreak{}\{uid\}} & 1; theo đăng ký hiện tại User có một alias username. \\
+\texttt{host\allowbreak{}Applications.\allowbreak{}applicant\allowbreak{}Uid} & \texttt{users/\allowbreak{}\{uid\}} & 1; User có 0..1 document đơn hiện hành. \\
+\texttt{host\allowbreak{}Applications.\allowbreak{}reviewed\allowbreak{}By} & \texttt{users/\allowbreak{}\{uid\}} & 0..1 Admin. \\
+\texttt{users.\allowbreak{}moderated\allowbreak{}By} & \texttt{users/\allowbreak{}\{uid\}} & 0..1 Admin; quan hệ tự tham chiếu. \\
+\texttt{users/\allowbreak{}\{uid\} chứa favorites} & \texttt{users/\allowbreak{}\{uid\}/\allowbreak{}favorites/\allowbreak{}\{room\allowbreak{}Id\}} & Quan hệ chứa 1 đến 0..N. \\
+\texttt{favorites.\allowbreak{}room\allowbreak{}Id} & \texttt{rooms/\allowbreak{}\{room\allowbreak{}Id\}} & 1 Room cho mỗi Favorite; quan hệ nhiều với nhiều giữa User và Room thông qua Favorite. \\*
+\texttt{users/\allowbreak{}\{uid\} chứa notice\allowbreak{}Reads} & \texttt{users/\allowbreak{}\{uid\}/\allowbreak{}notice\allowbreak{}Reads/\allowbreak{}\{event\allowbreak{}Id\}} & Quan hệ chứa 1 đến 0..N; eventId là định danh dẫn xuất, không phải FK notifications. \\
+\end{longtable}\endgroup
+
+\Needspace{3\baselineskip}
+Quan hệ từ \texttt{users.\allowbreak{}moderated\allowbreak{}By} trở lại \texttt{users} là một trường hợp tự tham chiếu giữa hai tài khoản có vai trò khác nhau trong thao tác quản trị. Favorite còn nối người dùng với Room thông qua document con, tạo quan hệ nhiều với nhiều ở mức nghiệp vụ. Các liên kết đó bổ sung ý nghĩa cho cây lưu trữ mà không biến bản chiếu hoặc subcollection thành một loại tài khoản khác.
+
+\Needspace{7\baselineskip}
+Trong nhóm không gian và đặt chỗ, quan hệ sở hữu phải được phân biệt với quan hệ sử dụng. Room trỏ tới Building và Host của tài sản, còn Booking trỏ tới cả người thuê lẫn Host của yêu cầu. Bảng~\ref{tab:ch4-relations-booking} thể hiện đồng thời các liên kết này và các khóa lịch tháng. Điều kiện cùng owner UID giữa phòng và tòa nhà giúp một yêu cầu thuê không kết hợp nhầm tài sản của hai chủ khác nhau.
+
+\begingroup\small\setstretch{1.12}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{5.1cm}>{\raggedright\arraybackslash}p{4.0cm}>{\raggedright\arraybackslash}p{6.15cm}@{}}
+\caption{Liên kết của nhóm không gian, booking và lịch tháng}\label{tab:ch4-relations-booking}\\
+\toprule Nguồn liên kết & Đích & Bội số và điều kiện \\ \midrule\endfirsthead
+\toprule Nguồn liên kết & Đích & Bội số và điều kiện \\ \midrule\endhead
+\midrule\multicolumn{3}{r}{\small Còn tiếp ở trang sau}\\\endfoot
+\bottomrule\endlastfoot
+\texttt{buildings.\allowbreak{}owner\allowbreak{}Uid} & \texttt{users/\allowbreak{}\{uid\}} & 1 Host. \\*
+\texttt{rooms.\allowbreak{}owner\allowbreak{}Uid} & \texttt{users/\allowbreak{}\{uid\}} & 1 Host. \\
+\texttt{rooms.\allowbreak{}building\allowbreak{}Id} & \texttt{buildings/\allowbreak{}\{building\allowbreak{}Id\}} & 1; cùng ownerUid. \\
+\texttt{rooms.\allowbreak{}reviewed\allowbreak{}By} & \texttt{users/\allowbreak{}\{uid\}} & 0..1 Admin. \\
+\texttt{rooms.\allowbreak{}moderated\allowbreak{}By} & \texttt{users/\allowbreak{}\{uid\}} & 0..1 Admin. \\
+\texttt{rooms.\allowbreak{}last\allowbreak{}Booking\allowbreak{}Id} & \texttt{bookings/\allowbreak{}\{booking\allowbreak{}Id\}} & 0..1; liên kết kỹ thuật gần nhất. \\
+\texttt{bookings.\allowbreak{}room\allowbreak{}Id} & \texttt{rooms/\allowbreak{}\{room\allowbreak{}Id\}} & 1; Room có 0..N booking qua thời gian. \\
+\texttt{bookings.\allowbreak{}guest\allowbreak{}Uid} & \texttt{users/\allowbreak{}\{uid\}} & 1 người thuê. \\
+\texttt{bookings.\allowbreak{}owner\allowbreak{}Uid} & \texttt{users/\allowbreak{}\{uid\}} & 1 Host; khác guestUid. \\
+\texttt{bookings.\allowbreak{}cancelled\allowbreak{}By\allowbreak{}Uid} & \texttt{users/\allowbreak{}\{uid\}} & 0..1; bên thuê hoặc Host. \\
+\texttt{bookings.\allowbreak{}month\allowbreak{}Keys[]} & \texttt{availability\allowbreak{}Months/\allowbreak{}\{room\allowbreak{}Id\_\allowbreak{}yyyy\allowbreak{}MM\}} & 1 hoặc 3 ở schema 2; một tháng có thể phục vụ nhiều booking giờ. \\
+\texttt{availability\allowbreak{}Months.\allowbreak{}room\allowbreak{}Id} & \texttt{rooms/\allowbreak{}\{room\allowbreak{}Id\}} & 1; Room có 0..N tháng lịch. \\
+\texttt{availability\allowbreak{}Months.\allowbreak{}fixed\allowbreak{}Booking\allowbreak{}Id} & \texttt{bookings/\allowbreak{}\{booking\allowbreak{}Id\}} & 0..1 booking giữ cả tháng. \\
+\texttt{availability\allowbreak{}Months.\allowbreak{}hourly\allowbreak{}Bookings.\allowbreak{}\{booking\allowbreak{}Id\}} & \texttt{bookings/\allowbreak{}\{booking\allowbreak{}Id\}} & 0..N, liên kết bằng key của map. \\*
+\texttt{availability\allowbreak{}Months.\allowbreak{}last\allowbreak{}Booking\allowbreak{}Id} & \texttt{bookings/\allowbreak{}\{booking\allowbreak{}Id\}} & 0..1 lần tác động gần nhất. \\
+\end{longtable}\endgroup
+
+\Needspace{3\baselineskip}
+Các liên kết \texttt{last\allowbreak{}Booking\allowbreak{}Id}, \texttt{fixed\allowbreak{}Booking\allowbreak{}Id} và khóa động của \texttt{hourly\allowbreak{}Bookings} phục vụ những mục đích khác nhau. Last booking ID chỉ cho biết booking vừa tác động, không phải danh sách toàn bộ lịch sử thuê; fixed booking ID và map thuê giờ mới xác định các khóa đang được giữ tương ứng. Vì vậy, các đường nối qua lại giữa Booking và lịch tháng phản ánh cơ chế cập nhật nhất quán, không tạo thêm tầng subcollection.
+
+\Needspace{7\baselineskip}
+Quan hệ chat được đọc theo hai lớp: lớp chứa tin nhắn thuộc hội thoại và lớp ID liên kết ngữ cảnh với tài khoản, Room hoặc Booking. Trong Bảng~\ref{tab:ch4-relations-chat}, cặp guest UID và host UID phải khớp danh sách hai thành viên; sender UID của mỗi message xác định ai trong cặp đã gửi tin. Các trường Room và Booking cung cấp ngữ cảnh, không mở rộng quyền đọc cho một tài khoản ngoài danh sách thành viên.
+
+\begingroup\small\setstretch{1.12}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{5.1cm}>{\raggedright\arraybackslash}p{4.0cm}>{\raggedright\arraybackslash}p{6.15cm}@{}}
+\caption{Liên kết của nhóm hội thoại, thành viên và ngữ cảnh}\label{tab:ch4-relations-chat}\\
+\toprule Nguồn liên kết & Đích & Bội số và điều kiện \\ \midrule\endfirsthead
+\toprule Nguồn liên kết & Đích & Bội số và điều kiện \\ \midrule\endhead
+\midrule\multicolumn{3}{r}{\small Còn tiếp ở trang sau}\\\endfoot
+\bottomrule\endlastfoot
+\texttt{conversations.\allowbreak{}guest\allowbreak{}Uid} & \texttt{users/\allowbreak{}\{uid\}} & 1 bên thuê. \\*
+\texttt{conversations.\allowbreak{}host\allowbreak{}Uid} & \texttt{users/\allowbreak{}\{uid\}} & 1 Host. \\
+\texttt{conversations.\allowbreak{}member\allowbreak{}Uids[]} & \texttt{users/\allowbreak{}\{uid\}} & Đúng 2, cùng cặp guestUid/hostUid. \\
+\texttt{conversations.\allowbreak{}room\allowbreak{}Id} & \texttt{rooms/\allowbreak{}\{room\allowbreak{}Id\}} & 1 ngữ cảnh khởi tạo của luồng hiện có; không có nghĩa chỉ chat về một phòng. \\
+\texttt{conversations.\allowbreak{}booking\allowbreak{}Id} & \texttt{bookings/\allowbreak{}\{booking\allowbreak{}Id\}} & 0..1 ngữ cảnh khởi tạo. \\
+\texttt{conversations.\allowbreak{}last\allowbreak{}Sender\allowbreak{}Uid} & \texttt{users/\allowbreak{}\{uid\}} & 0..1; rỗng khi chưa có tin. \\
+\texttt{conversations.\allowbreak{}last\allowbreak{}Message\allowbreak{}Id} & \texttt{conversations/\allowbreak{}\{guest\allowbreak{}Uid:host\allowbreak{}Uid\}/\allowbreak{}messages/\allowbreak{}\{message\allowbreak{}Id\}} & 0..1 tin cuối trong chính hội thoại. \\
+\texttt{conversations/\allowbreak{}\{guest\allowbreak{}Uid:host\allowbreak{}Uid\} chứa messages} & \texttt{conversations/\allowbreak{}\{guest\allowbreak{}Uid:host\allowbreak{}Uid\}/\allowbreak{}messages/\allowbreak{}\{message\allowbreak{}Id\}} & Quan hệ chứa 1 đến 0..N. \\
+\texttt{messages.\allowbreak{}sender\allowbreak{}Uid} & \texttt{users/\allowbreak{}\{uid\}} & 1, phải là thành viên. \\*
+\texttt{messages.\allowbreak{}room\allowbreak{}Id} & \texttt{rooms/\allowbreak{}\{room\allowbreak{}Id\}} & 0..1, phòng thuộc Host của hội thoại. \\
+\end{longtable}\endgroup
+
+\Needspace{3\baselineskip}
+Liên kết tới message cuối dùng để kiểm tra và hiển thị preview của cùng hội thoại, trong khi toàn bộ lịch sử vẫn nằm ở subcollection messages. Một message có thể mang ngữ cảnh một phòng của Host mà cuộc trao đổi đang đề cập, nên không nên diễn giải room ID khởi tạo thành giới hạn rằng hội thoại chỉ được nói về duy nhất một phòng.
+
+\Needspace{7\baselineskip}
+Ở nhóm quản trị, cùng một UID có thể xuất hiện với ý nghĩa người nộp, người báo cáo, chủ phòng hoặc người duyệt; xác định đúng vai trò của từng trường là điều kiện để đọc đúng quan hệ. Bảng~\ref{tab:ch4-relations-administration} bổ sung các đích Room, Building và tài khoản cho hồ sơ xác minh, báo cáo và audit. Những liên kết tùy theo loại hồ sơ được đánh dấu có thể vắng, thay vì buộc mọi hồ sơ xác minh phải cùng có cả Room lẫn Building.
+
+\begingroup\small\setstretch{1.12}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{5.1cm}>{\raggedright\arraybackslash}p{4.0cm}>{\raggedright\arraybackslash}p{6.15cm}@{}}
+\caption{Liên kết của nhóm hồ sơ quản trị và đích nhật ký}\label{tab:ch4-relations-administration}\\
+\toprule Nguồn liên kết & Đích & Bội số và điều kiện \\ \midrule\endfirsthead
+\toprule Nguồn liên kết & Đích & Bội số và điều kiện \\ \midrule\endhead
+\midrule\multicolumn{3}{r}{\small Còn tiếp ở trang sau}\\\endfoot
+\bottomrule\endlastfoot
+\texttt{property\allowbreak{}Verifications.\allowbreak{}owner\allowbreak{}Uid} & \texttt{users/\allowbreak{}\{uid\}} & 1 Host. \\*
+\texttt{property\allowbreak{}Verifications.\allowbreak{}room\allowbreak{}Id} & \texttt{rooms/\allowbreak{}\{room\allowbreak{}Id\}} & 0..1 theo loại/ngữ cảnh. \\
+\texttt{property\allowbreak{}Verifications.\allowbreak{}building\allowbreak{}Id} & \texttt{buildings/\allowbreak{}\{building\allowbreak{}Id\}} & 0..1 theo loại/ngữ cảnh; code ưu tiên roomId. \\
+\texttt{property\allowbreak{}Verifications.\allowbreak{}reviewed\allowbreak{}By} & \texttt{users/\allowbreak{}\{uid\}} & 0..1 Admin. \\
+\texttt{reports.\allowbreak{}reporter\allowbreak{}Uid} & \texttt{users/\allowbreak{}\{uid\}} & 1 người báo. \\
+\texttt{reports.\allowbreak{}owner\allowbreak{}Uid} & \texttt{users/\allowbreak{}\{uid\}} & 1 Host liên quan. \\
+\texttt{reports.\allowbreak{}room\allowbreak{}Id} & \texttt{rooms/\allowbreak{}\{room\allowbreak{}Id\}} & 1. \\
+\texttt{reports.\allowbreak{}reviewed\allowbreak{}By} & \texttt{users/\allowbreak{}\{uid\}} & 0..1 Admin. \\
+\texttt{audit\allowbreak{}Logs.\allowbreak{}actor\allowbreak{}Uid} & \texttt{users/\allowbreak{}\{uid\}} & 1 người thực hiện theo contract app; dữ liệu tác vụ ngoài app có thể dùng định danh khác cần đối chiếu. \\*
+\texttt{audit\allowbreak{}Logs.\allowbreak{}target\allowbreak{}Path} & \texttt{document được chỉ định} & Đường dẫn đích thay đổi theo hành động; không có collection đích cố định và cần kiểm tra sự tồn tại của document. \\
+\end{longtable}\endgroup
+
+\Needspace{3\baselineskip}
+Riêng \texttt{audit\allowbreak{}Logs.\allowbreak{}target\allowbreak{}Path} có đích thay đổi theo hành động và cần được kiểm tra trong ngữ cảnh của nhật ký. RentalPlace không có trường tham chiếu tới Host hoặc Booking trong cấu trúc đang dùng, nên không bổ sung đường nối sở hữu giả cho dữ liệu tham khảo. Các đường dẫn bằng chứng của hồ sơ xác minh hướng tới tệp ở Storage, được trình bày trong phần bảo vệ tệp thay vì coi là quan hệ chứa giữa các collection Firestore.
+

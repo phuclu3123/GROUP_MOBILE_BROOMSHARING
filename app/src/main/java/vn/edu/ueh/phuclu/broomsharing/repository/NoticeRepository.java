@@ -12,6 +12,7 @@ import vn.edu.ueh.phuclu.broomsharing.utils.FirebaseHelper;
  */
 public class NoticeRepository {
     private final FirebaseFirestore db=FirebaseHelper.getFirestore();
+    // Nghe mốc đọc dưới users/{uid}/noticeReads của đúng tài khoản đang dùng.
     public ListenerRegistration watch(String uid,ResultCallback<Set<String>> cb){
         return db.collection("users").document(uid).collection("noticeReads").addSnapshotListener(MetadataChanges.INCLUDE,(rows,e)->{
             if(!uid.equals(FirebaseAuth.getInstance().getUid()))return;
@@ -19,6 +20,7 @@ public class NoticeRepository {
             Set<String> ids=new HashSet<>();for(DocumentSnapshot d:rows)ids.add(d.getId());cb.onSuccess(ids);
         });
     }
+    // Lưu thời điểm đọc bằng server timestamp cho định danh sự kiện dẫn xuất, không sao chép nội dung thông báo.
     public void read(String uid,String id,ResultCallback<String> cb){
         if(uid==null||!uid.equals(FirebaseAuth.getInstance().getUid())||id==null||!id.matches("[A-Za-z0-9:_-]{1,256}")){cb.onError(new Exception("Phiên thông báo không hợp lệ."));return;}
         db.collection("users").document(uid).collection("noticeReads").document(id).set(Collections.singletonMap("readAt",FieldValue.serverTimestamp())).addOnSuccessListener(v->cb.onSuccess(id)).addOnFailureListener(cb::onError);

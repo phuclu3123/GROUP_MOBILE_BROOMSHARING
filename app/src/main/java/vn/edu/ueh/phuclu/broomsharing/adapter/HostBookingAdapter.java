@@ -21,6 +21,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
+/*
+   Bind booking của Host theo trạng thái và thời gian thuê.
+   Các callback chỉ yêu cầu thao tác; Repository và Rules kiểm lại điều kiện khi ghi.
+*/
 public class HostBookingAdapter extends RecyclerView.Adapter<HostBookingAdapter.BookingViewHolder> {
 
     public interface OnBookingActionListener {
@@ -167,7 +171,7 @@ public class HostBookingAdapter extends RecyclerView.Adapter<HostBookingAdapter.
             // Status Badge & Action buttons
             String status =
                     item.getStatus() != null
-                            ? item.getStatus().toUpperCase()
+                            ? item.getStatus().toUpperCase(java.util.Locale.ROOT)
                             : Booking.STATUS_PENDING;
             switch (status) {
                 case Booking.STATUS_PENDING:

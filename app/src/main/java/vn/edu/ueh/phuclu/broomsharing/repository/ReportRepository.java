@@ -45,6 +45,7 @@ public class ReportRepository {
                         });
     }
 
+    // Host phản hồi báo cáo còn mở thuộc tài sản của mình, không được sửa kết luận quản trị.
     public void reply(String id, String response, ResultCallback<String> cb) {
         String uid = FirebaseAuth.getInstance().getUid(),
                 text = response == null ? "" : response.trim();
@@ -88,6 +89,7 @@ public class ReportRepository {
     public static final List<String> REASONS =
             Arrays.asList("Sai thông tin", "Ảnh không khớp", "Nghi ngờ gian lận", "Khác");
 
+    // Đọc lại phòng và người báo trước khi tạo hồ sơ; không nhận ownerUid tùy ý từ màn hình.
     public void submit(
             String id,
             String roomId,
@@ -185,6 +187,7 @@ public class ReportRepository {
                 .addOnFailureListener(cb::onError);
     }
 
+    // Ghi kết luận cùng tác động quản trị và audit trong transaction; không xóa lịch sử booking liên quan.
     public void resolve(
             String id, String status, String action, String reason, ResultCallback<String> cb) {
         String uid = FirebaseAuth.getInstance().getUid(),

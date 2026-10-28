@@ -27,6 +27,7 @@ public class Payment {
         return "PENDING".equals(status) && remainingSeconds(nowMillis) > 0;
     }
 
+    // Ngăn snapshot cũ ghi đè kết quả đã nhận tiền hoặc dữ liệu khác mã đơn đang được quan sát.
     public boolean canReplaceWith(Payment next) {
         if (received()) return next.received();
         if ("CANCELLED".equals(status) || "EXPIRED".equals(status))

@@ -11,6 +11,7 @@ import java.util.*;
 public final class PaymentPolicy {
     private PaymentPolicy() {}
 
+    // Tính khoản trả trước từ snapshot đã chốt; không tin số tiền do Android gửi lên.
     public static long amount(Map<String, Object> booking) {
         require(
                 Objects.equals(booking.get("schemaVersion"), 2L)
@@ -51,6 +52,7 @@ public final class PaymentPolicy {
         return "INSTANT_5M".equals(booking.get("paymentFlow"));
     }
 
+    // Hạn giữ tạm không vượt createdAt + 5 phút hoặc giờ bắt đầu thuê, tùy mốc nào tới trước.
     public static long deadline(Map<String, Object> booking) {
         if (!instant(booking)) return startMillis(booking);
         require(booking.get("createdAt") instanceof Timestamp, "Thiếu thời điểm tạo trên server.");
@@ -58,6 +60,7 @@ public final class PaymentPolicy {
     }
 
     // Chỉ dùng giao dịch đã đọc qua API có chữ ký. Webhook chậm không đồng nghĩa trả tiền muộn.
+    // Đối chiếu số tiền và thời điểm ngân hàng nhận, không dùng riêng lúc webhook tới làm căn cứ.
     public static boolean paidInTime(JsonNode remote, long expected, long deadline, long now) {
         if (now < deadline) return true;
         long beforeDeadline = 0;

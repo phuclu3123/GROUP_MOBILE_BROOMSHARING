@@ -51,6 +51,9 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 
+/*
+   Kiểm thử reportFormAdministratorDecisionAndNoticeReadState, nearbyRealDataRecreationAndMapResult, mapPickerReturnsToSameMap.
+*/
 public class PhucPhase3UiTest {
     private final Instrumentation device=InstrumentationRegistry.getInstrumentation();
     private final Context context=device.getTargetContext();private Properties p;

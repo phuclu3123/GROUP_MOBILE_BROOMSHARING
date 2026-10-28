@@ -14,6 +14,7 @@ public final class FixedRentalBadge {
         return new FixedRentalBadge(loading ? "Đang kiểm tra lịch" : "Chưa xác định lịch", "Mở phòng để kiểm tra kỳ thuê cụ thể.", 0);
     }
 
+    // Dựng nhãn từ lịch thực tế, phân biệt giữ tạm, đặt trước và kỳ thuê còn tối đa 3 ngày.
     public static FixedRentalBadge from(Room room, List<Booking> windows, LocalDate loadedUntil, long now) {
         LocalDate today = Instant.ofEpochMilli(now).atZone(HostSchedule.ZONE).toLocalDate();
         int months = room.getPricePerMonth() > 0 ? 1 : 3;

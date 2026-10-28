@@ -128,6 +128,7 @@ public class HostViewModel extends AndroidViewModel {
     private List<Booking> dashboardBookings;
 
     // Ba luồng độc lập giữ dashboard đúng khi thiết bị khác đặt phòng hoặc Admin xét duyệt.
+    // Theo dõi phòng và booking thuộc Host; thống kê và danh sách lấy từ các snapshot cùng phiên.
     public void watchDashboard() {
         stopDashboard();
         final int run = dashboardGeneration;
@@ -190,6 +191,7 @@ public class HostViewModel extends AndroidViewModel {
         }
     }
 
+    // Tổng hợp trạng thái từ dữ liệu dashboard đã nhận; không cộng doanh thu dự kiến thành tiền đã thu.
     private void dashboardStats() {
         if (dashboardRooms == null || dashboardBookings == null) return;
         HostStats value = new HostStats();
@@ -204,6 +206,7 @@ public class HostViewModel extends AndroidViewModel {
         stats.setValue(UiState.success(value));
     }
 
+    // Tháo listener dashboard, giữ việc giải phóng vòng đời tách khỏi thay đổi tài sản.
     public void stopDashboard() {
         dashboardGeneration++;
         for (ListenerRegistration listener : dashboardListeners) listener.remove();
@@ -294,6 +297,7 @@ public class HostViewModel extends AndroidViewModel {
                 });
     }
 
+    // Lưu form qua HostRepository sau upload; lỗi ghi dữ liệu phải giữ trạng thái để người dùng thử lại.
     private void persistRoom(
             Room value,
             List<String> old,
@@ -321,6 +325,7 @@ public class HostViewModel extends AndroidViewModel {
                 });
     }
 
+    // Nghe booking cho màn Host và cập nhật dữ liệu lọc, thay vì để Adapter tự truy cập Firestore.
     public void loadBookings() {
         try {
             stopBookings();
@@ -345,6 +350,7 @@ public class HostViewModel extends AndroidViewModel {
 
     private ListenerRegistration bookingListener;
 
+    // Dừng nguồn booking khi màn hình không còn theo dõi.
     public void stopBookings() {
         if (bookingListener != null) bookingListener.remove();
         bookingListener = null;

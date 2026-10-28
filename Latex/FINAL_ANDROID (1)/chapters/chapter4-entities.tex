@@ -1,0 +1,455 @@
+\Needspace{10\baselineskip}
+\subsubsection{Tài khoản, bản chiếu và dữ liệu thuộc tài khoản}
+
+\Needspace{7\baselineskip}
+Hồ sơ tài khoản trong Bảng~\ref{tab:ch4-users-uid} nối danh tính đăng nhập với dữ liệu nghiệp vụ của ứng dụng. UID xác định chủ hồ sơ, còn \texttt{role} và \texttt{status} được các điều kiện phân quyền sử dụng để quyết định thao tác được phép. Hai trường tên có mục đích khác nhau: \texttt{name} dùng để hiển thị, trong khi \texttt{username} phục vụ tra cứu đăng nhập. Các thông tin liên hệ được lưu cùng hồ sơ để luồng đặt chỗ lấy dữ liệu người thuê khi tạo booking.
+
+\begingroup\small\setstretch{1.12}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{4.35cm}>{\raggedright\arraybackslash}p{2.75cm}>{\raggedright\arraybackslash}p{8.15cm}@{}}
+\caption{Hồ sơ tài khoản tại \texttt{users/\allowbreak{}\{uid\}}}\label{tab:ch4-users-uid}\\
+\toprule Trường & Kiểu dữ liệu & Ý nghĩa và ràng buộc \\ \midrule\endfirsthead
+\multicolumn{3}{l}{\small Hồ sơ tài khoản (tiếp theo)}\\
+\toprule Trường & Kiểu dữ liệu & Ý nghĩa và ràng buộc \\ \midrule\endhead
+\midrule\multicolumn{3}{r}{\small Còn tiếp ở trang sau}\\\endfoot
+\bottomrule\endlastfoot
+\texttt{uid} & \texttt{string} & Cùng UID với document ID và Authentication. \\*
+\texttt{schema\allowbreak{}Version} & \texttt{integer} & Hiện 1. \\
+\texttt{name} & \texttt{string} & Tên hiển thị. \\
+\texttt{username} & \texttt{string} & Username đã chuẩn hóa. \\
+\texttt{email} & \texttt{string} & Email tài khoản. \\
+\texttt{phone} & \texttt{string} & Số điện thoại, đăng ký chuẩn hóa dạng quốc tế. \\
+\texttt{phone\allowbreak{}Verified} & \texttt{boolean} & Mặc định false; không phải xác minh email. \\
+\texttt{role} & \texttt{string} & GUEST, HOST, ADMIN. \\
+\texttt{status} & \texttt{string} & ACTIVE, BLOCKED. \\
+\texttt{created\allowbreak{}At} & \texttt{timestamp} & Thời gian server khi đăng ký. \\
+\texttt{updated\allowbreak{}At} & \texttt{timestamp} & Lần cập nhật. \\
+\texttt{moderation\allowbreak{}Reason} & \texttt{string} & Lý do quản trị, phát sinh khi xử lý. \\
+\texttt{moderated\allowbreak{}By} & \texttt{string} & UID Admin xử lý. \\*
+\texttt{photo\allowbreak{}Url} & \texttt{unknown} & Rules cho phép cập nhật tên trường này nhưng chưa kiểm tra kiểu; Repository chưa có luồng ghi tương ứng được xác nhận. \\
+\end{longtable}\endgroup
+
+\Needspace{3\baselineskip}
+Guest, Host và Admin được phân biệt bằng giá trị vai trò trong cùng cấu trúc hồ sơ. Khi một Host thuê không gian của người khác, UID đó vẫn được dùng làm người thuê của booking; ứng dụng không cần tạo thêm một hồ sơ Guest tương ứng. Trường \texttt{phone\allowbreak{}Verified} cũng cần được hiểu đúng phạm vi: giá trị mặc định là false, không đại diện cho xác minh email hay việc hồ sơ Host đã được duyệt.
+
+\Needspace{7\baselineskip}
+Khi ghép dữ liệu phòng để hiển thị, \texttt{Room\allowbreak{}Repository} đọc tên và trạng thái Host từ bản chiếu \texttt{public\allowbreak{}Hosts}. Bảng~\ref{tab:ch4-publicHosts-uid} cho thấy bản chiếu chỉ giữ thông tin cần cho ngữ cảnh đó, thay vì sao chép toàn bộ email, số điện thoại và thuộc tính quản trị của hồ sơ tài khoản. Document sử dụng cùng UID với \texttt{users}, do đó đây là một cách biểu diễn bổ sung của tài khoản Host, không phải một loại người dùng mới.
+
+\par\medskip\noindent\begin{minipage}{\linewidth}\small\setstretch{1.12}
+\captionof{table}{Bản chiếu Host tại \texttt{public\allowbreak{}Hosts/\allowbreak{}\{uid\}}}\label{tab:ch4-publicHosts-uid}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{4.35cm}>{\raggedright\arraybackslash}p{2.75cm}>{\raggedright\arraybackslash}p{8.15cm}@{}}
+\toprule Trường & Kiểu dữ liệu & Ý nghĩa và ràng buộc \\ \midrule
+\texttt{uid} & \texttt{string} & Liên kết users cùng UID. \\*
+\texttt{name} & \texttt{string} & Tên Host. \\*
+\texttt{status} & \texttt{string} & Đồng bộ trạng thái users, ACTIVE/BLOCKED. \\
+\bottomrule\end{tabular}\end{minipage}\par\medskip
+
+\Needspace{3\baselineskip}
+Sự nhất quán của bản chiếu được duy trì bằng luồng ghi và điều kiện Rules đối chiếu tên, trạng thái với hồ sơ Host sau thao tác. Cơ chế này khác với việc mọi trường sao chép trong Firestore tự cập nhật khi dữ liệu nguồn đổi. Tên collection cũng không quyết định mức công khai: quyền đọc hiện yêu cầu tài khoản đang hoạt động.
+
+\Needspace{7\baselineskip}
+Luồng đăng nhập bằng tên tài khoản cần tìm email trước khi gọi Firebase Authentication. Cấu trúc ở Bảng~\ref{tab:ch4-usernames-normalizedUsername} dùng tên đăng nhập đã chuẩn hóa làm document ID để tra cứu trực tiếp, sau đó lấy UID và email tương ứng. Cách tổ chức này tách nhiệm vụ tìm tài khoản khỏi việc kiểm tra mật khẩu; document alias chỉ cung cấp thông tin ánh xạ cho bước xác thực tiếp theo.
+
+\par\medskip\noindent\begin{minipage}{\linewidth}\small\setstretch{1.12}
+\captionof{table}{Chỉ mục tên đăng nhập tại \texttt{usernames/\allowbreak{}\{normalized\allowbreak{}Username\}}}\label{tab:ch4-usernames-normalizedUsername}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{4.35cm}>{\raggedright\arraybackslash}p{2.75cm}>{\raggedright\arraybackslash}p{8.15cm}@{}}
+\toprule Trường & Kiểu dữ liệu & Ý nghĩa và ràng buộc \\ \midrule
+\texttt{uid} & \texttt{string} & Liên kết users/Authentication. \\*
+\texttt{email} & \texttt{string} & Email đưa vào Firebase Authentication sau lookup. \\
+\bottomrule\end{tabular}\end{minipage}\par\medskip
+
+\Needspace{3\baselineskip}
+Khi đăng ký, Repository kiểm tra alias và ghi hồ sơ cùng ánh xạ username trong một transaction Firestore. Tuy nhiên, việc tạo danh tính Authentication nằm ở dịch vụ khác, nên không được xem toàn bộ quá trình là một transaction chung giữa hai dịch vụ. Quyền tra cứu alias trước đăng nhập và phạm vi thông tin email được phân tích ở mục 4.4.
+
+\Needspace{7\baselineskip}
+Đơn đăng ký Host là dữ liệu xét duyệt trước khi tài khoản có quyền cho thuê. Bảng~\ref{tab:ch4-hostApplications-uid} tập hợp thông tin do người nộp khai báo, trạng thái xử lý và thông tin người duyệt. Document ID là UID người nộp, vì vậy mỗi tài khoản có một document đơn hiện hành. Trường \texttt{identity\allowbreak{}Doc} trong cấu trúc này là chuỗi thông tin giấy tờ, không đồng nghĩa với việc tệp PDF hoặc ảnh giấy tờ được lưu nhị phân trong document.
+
+\begingroup\small\setstretch{1.12}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{4.35cm}>{\raggedright\arraybackslash}p{2.75cm}>{\raggedright\arraybackslash}p{8.15cm}@{}}
+\caption{Đơn đăng ký Host tại \texttt{host\allowbreak{}Applications/\allowbreak{}\{uid\}}}\label{tab:ch4-hostApplications-uid}\\
+\toprule Trường & Kiểu dữ liệu & Ý nghĩa và ràng buộc \\ \midrule\endfirsthead
+\multicolumn{3}{l}{\small Đơn đăng ký Host (tiếp theo)}\\
+\toprule Trường & Kiểu dữ liệu & Ý nghĩa và ràng buộc \\ \midrule\endhead
+\midrule\multicolumn{3}{r}{\small Còn tiếp ở trang sau}\\\endfoot
+\bottomrule\endlastfoot
+\texttt{id} & \texttt{string} & Cùng UID/document ID. \\*
+\texttt{schema\allowbreak{}Version} & \texttt{integer} & Hiện 1. \\
+\texttt{applicant\allowbreak{}Uid} & \texttt{string} & Người nộp, liên kết users. \\
+\texttt{full\allowbreak{}Name} & \texttt{string} & Họ tên khai trong đơn. \\
+\texttt{phone} & \texttt{string} & Số liên hệ. \\
+\texttt{email} & \texttt{string} & Email liên hệ. \\
+\texttt{organization\allowbreak{}Type} & \texttt{string} & Loại cá nhân/tổ chức. \\
+\texttt{identity\allowbreak{}Doc} & \texttt{string} & Thông tin giấy tờ dạng chuỗi, không phải file nhị phân. \\
+\texttt{status} & \texttt{string} & PENDING, APPROVED, REJECTED. \\
+\texttt{rejection\allowbreak{}Reason} & \texttt{string} & Lý do/kết quả duyệt, có thể rỗng. \\
+\texttt{created\allowbreak{}At} & \texttt{timestamp} & Thời gian tạo. \\
+\texttt{updated\allowbreak{}At} & \texttt{timestamp} & Thời gian cập nhật. \\*
+\texttt{reviewed\allowbreak{}By} & \texttt{string} & UID Admin duyệt. \\
+\end{longtable}\endgroup
+
+\Needspace{3\baselineskip}
+Trạng thái của đơn và trạng thái của tài khoản giải quyết hai việc khác nhau: một bên mô tả kết quả đề nghị trở thành Host, bên còn lại kiểm soát khả năng sử dụng hệ thống. Khi đơn bị từ chối được nộp lại, luồng hiện tại cập nhật chính document đó về PENDING. Vì vậy, bảng này mô tả hồ sơ đang xử lý, không phải một tập lịch sử nhiều đơn cho cùng người nộp.
+
+\Needspace{7\baselineskip}
+Chức năng yêu thích ghi nhận phòng mà một tài khoản muốn xem lại, không tham gia giữ lịch thuê. Với cách lưu trong Bảng~\ref{tab:ch4-users-uid-favorites-roomId}, UID chủ danh sách đã có ở đường dẫn cha và room ID đồng thời là document ID. Một cặp tài khoản và phòng vì vậy được biểu diễn tại một vị trí xác định; thao tác lưu lại dùng \texttt{set()}, còn bỏ yêu thích xóa đúng document con đó.
+
+\par\medskip\noindent\begin{minipage}{\linewidth}\small\setstretch{1.12}
+\captionof{table}{Phòng yêu thích tại \texttt{users/\allowbreak{}\{uid\}/\allowbreak{}favorites/\allowbreak{}\{room\allowbreak{}Id\}}}\label{tab:ch4-users-uid-favorites-roomId}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{4.35cm}>{\raggedright\arraybackslash}p{2.75cm}>{\raggedright\arraybackslash}p{8.15cm}@{}}
+\toprule Trường & Kiểu dữ liệu & Ý nghĩa và ràng buộc \\ \midrule
+\texttt{room\allowbreak{}Id} & \texttt{string} & Liên kết rooms. \\*
+\texttt{room\allowbreak{}Name} & \texttt{string} & Snapshot tên lúc lưu. \\*
+\texttt{created\allowbreak{}At} & \texttt{timestamp} & Thời gian lưu. \\
+\bottomrule\end{tabular}\end{minipage}\par\medskip
+
+\Needspace{3\baselineskip}
+Tên phòng được lưu như một snapshot để hiển thị danh sách, còn \texttt{room\allowbreak{}Id} là liên kết dùng khi truy cập dữ liệu phòng. Tên trong Favorite có thể khác tên phòng sau lần chỉnh sửa tiếp theo, vì Repository không có cơ chế tự đồng bộ toàn bộ Favorite. Việc xóa một Favorite chỉ bỏ dấu lưu của tài khoản, không xóa phòng hoặc tác động tới booking.
+
+\Needspace{7\baselineskip}
+Nội dung cập nhật về booking được ứng dụng suy ra từ dữ liệu nghiệp vụ; phần cần lưu riêng cho mỗi người nhận là mốc đã đọc. Do đó, Bảng~\ref{tab:ch4-users-uid-noticeReads-eventId} chỉ có \texttt{read\allowbreak{}At}, còn định danh sự kiện nằm trong document ID. \texttt{Notice\allowbreak{}Repository} theo dõi nhánh của tài khoản hiện tại để lấy tập sự kiện đã đọc, rồi dữ liệu đó được dùng khi xác định trạng thái chưa đọc trên giao diện.
+
+\par\medskip\noindent\begin{minipage}{\linewidth}\small\setstretch{1.12}
+\captionof{table}{Trạng thái đã đọc tại \texttt{users/\allowbreak{}\{uid\}/\allowbreak{}notice\allowbreak{}Reads/\allowbreak{}\{event\allowbreak{}Id\}}}\label{tab:ch4-users-uid-noticeReads-eventId}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{4.35cm}>{\raggedright\arraybackslash}p{2.75cm}>{\raggedright\arraybackslash}p{8.15cm}@{}}
+\toprule Trường & Kiểu dữ liệu & Ý nghĩa và ràng buộc \\ \midrule
+\texttt{read\allowbreak{}At} & \texttt{timestamp} & Thời gian server xác nhận đã đọc. \\
+\bottomrule\end{tabular}\end{minipage}\par\medskip
+
+\Needspace{3\baselineskip}
+Việc tách mốc đã đọc khỏi nội dung sự kiện giúp hai tài khoản theo dõi trạng thái đọc độc lập mà không sửa booking nguồn. Khi ghi nhận đã đọc, Repository dùng thời gian máy chủ. Event ID là định danh của sự kiện dẫn xuất, không phải một trường liên kết tới document chứa tiêu đề, nội dung hay người gửi trong chính subcollection này.
+
+\Needspace{10\baselineskip}
+\subsubsection{Không gian, đặt chỗ và lịch giữ chỗ}
+
+\Needspace{7\baselineskip}
+Building mô tả địa điểm dùng chung cho các phòng trong cùng tòa nhà, gồm chủ sở hữu, địa chỉ, người liên hệ và chỉ dẫn đến nơi. Các thuộc tính trong Bảng~\ref{tab:ch4-buildings-buildingId} giúp tách thông tin địa điểm khỏi giá và điều kiện thuê của từng Room. Quan hệ với phòng được xác định bằng \texttt{rooms.\allowbreak{}building\allowbreak{}Id}; khi tạo booking, Repository còn kiểm tra tòa nhà đang hoạt động và chủ tòa nhà khớp chủ phòng.
+
+\begingroup\small\setstretch{1.12}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{4.35cm}>{\raggedright\arraybackslash}p{2.75cm}>{\raggedright\arraybackslash}p{8.15cm}@{}}
+\caption{Thông tin tòa nhà tại \texttt{buildings/\allowbreak{}\{building\allowbreak{}Id\}}}\label{tab:ch4-buildings-buildingId}\\
+\toprule Trường & Kiểu dữ liệu & Ý nghĩa và ràng buộc \\ \midrule\endfirsthead
+\multicolumn{3}{l}{\small Thông tin tòa nhà (tiếp theo)}\\
+\toprule Trường & Kiểu dữ liệu & Ý nghĩa và ràng buộc \\ \midrule\endhead
+\midrule\multicolumn{3}{r}{\small Còn tiếp ở trang sau}\\\endfoot
+\bottomrule\endlastfoot
+\texttt{id} & \texttt{string} & Document ID. \\*
+\texttt{schema\allowbreak{}Version} & \texttt{integer} & Hiện 1. \\
+\texttt{owner\allowbreak{}Uid} & \texttt{string} & Host sở hữu, liên kết users. \\
+\texttt{name} & \texttt{string} & Tên tòa nhà. \\
+\texttt{address} & \texttt{string} & Địa chỉ. \\
+\texttt{district} & \texttt{string} & Khu vực/quận. \\
+\texttt{contact\allowbreak{}Phone} & \texttt{string} & Số liên hệ địa điểm. \\
+\texttt{contact\allowbreak{}Name} & \texttt{string} & Người liên hệ. \\
+\texttt{latitude} & \texttt{double} & Vĩ độ. \\
+\texttt{longitude} & \texttt{double} & Kinh độ. \\
+\texttt{location} & \texttt{geopoint/\allowbreak{}null} & Getter getLocation() có thể được serialize khi ghi POJO; dataset cũ chỉ có latitude/longitude. Không coi cả hai biểu diễn là luôn hiện diện hoặc tự đồng bộ ngoài getter/setter Java. \\
+\texttt{direction\allowbreak{}Guide} & \texttt{string} & Hướng dẫn đến/lối vào. \\
+\texttt{cover\allowbreak{}Url} & \texttt{string} & URL ảnh bìa. \\
+\texttt{status} & \texttt{string} & Mặc định ACTIVE; luồng hiện tại không xác định thêm enum hoàn chỉnh. \\
+\texttt{created\allowbreak{}At} & \texttt{timestamp} & Thời gian tạo. \\*
+\texttt{updated\allowbreak{}At} & \texttt{timestamp} & Thời gian cập nhật. \\
+\end{longtable}\endgroup
+
+\Needspace{3\baselineskip}
+Tọa độ phục vụ hiển thị vị trí, trong khi địa chỉ và chỉ dẫn cung cấp thông tin đến nơi cho người thuê. Model có cả latitude, longitude và getter tạo GeoPoint, nhưng điều đó không chứng minh mọi document cũ đều lưu đủ các biểu diễn. Khi đối chiếu dữ liệu, cần phân biệt giá trị được tính từ getter với trường đã được ghi thực tế, thay vì coi chúng là ba nguồn vị trí độc lập.
+
+\Needspace{7\baselineskip}
+Room là đơn vị không gian mà người dùng xem và đặt thuê. Bảng~\ref{tab:ch4-rooms-roomId} kết hợp mô tả vật lý, liên kết tòa nhà và Host, biểu giá, điều kiện nhận thuê cùng các trường quản trị tin đăng. Cấu trúc này cho phép \texttt{Booking\allowbreak{}Policy} tính phương án thuê từ dữ liệu phòng hiện tại, trong khi màn hình danh sách và chi tiết sử dụng cùng room ID để truy cập thông tin.
+
+\begingroup\small\setstretch{1.12}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{4.35cm}>{\raggedright\arraybackslash}p{2.75cm}>{\raggedright\arraybackslash}p{8.15cm}@{}}
+\caption{Thông tin không gian cho thuê tại \texttt{rooms/\allowbreak{}\{room\allowbreak{}Id\}}}\label{tab:ch4-rooms-roomId}\\
+\toprule Trường & Kiểu dữ liệu & Ý nghĩa và ràng buộc \\ \midrule\endfirsthead
+\multicolumn{3}{l}{\small Thông tin không gian cho thuê (tiếp theo)}\\
+\toprule Trường & Kiểu dữ liệu & Ý nghĩa và ràng buộc \\ \midrule\endhead
+\midrule\multicolumn{3}{r}{\small Còn tiếp ở trang sau}\\\endfoot
+\bottomrule\endlastfoot
+\texttt{id} & \texttt{string} & Document ID. \\*
+\texttt{schema\allowbreak{}Version} & \texttt{integer} & Hiện 1. \\
+\texttt{building\allowbreak{}Id} & \texttt{string} & Liên kết buildings. \\
+\texttt{building\allowbreak{}Name} & \texttt{string} & Tên tòa nhà sao chép. \\
+\texttt{owner\allowbreak{}Uid} & \texttt{string} & Host, phải khớp chủ Building. \\
+\texttt{room\allowbreak{}Name} & \texttt{string} & Tên không gian. \\
+\texttt{room\allowbreak{}Type} & \texttt{string} & Loại không gian, ví dụ bàn/phòng riêng/phòng họp/mặt bằng. \\
+\texttt{capacity} & \texttt{integer} & Sức chứa. \\
+\texttt{area} & \texttt{double} & Diện tích m². \\
+\texttt{floor} & \texttt{string} & Tầng. \\
+\texttt{address} & \texttt{string} & Địa chỉ sao chép. \\
+\texttt{active\allowbreak{}Mode} & \texttt{string} & HOURLY hoặc FIXED. \\
+\texttt{price\allowbreak{}Per\allowbreak{}Hour} & \texttt{double} & Giá thuê giờ VND. \\
+\texttt{price\allowbreak{}Per\allowbreak{}Day} & \texttt{double} & Trường cũ, không suy ra có luồng đặt theo ngày. \\
+\texttt{price\allowbreak{}Per\allowbreak{}Month} & \texttt{double} & Giá tháng VND. \\
+\texttt{price\allowbreak{}Per\allowbreak{}Quarter} & \texttt{double} & Giá quý VND. \\
+\texttt{deposit} & \texttt{double} & Trường cọc cũ; không dùng để tính khoản trả trước 40\% của booking mới. \\
+\texttt{open\allowbreak{}Time} & \texttt{string} & HH:mm. \\
+\texttt{close\allowbreak{}Time} & \texttt{string} & HH:mm. \\
+\texttt{amenities} & \texttt{array\textless{}\allowbreak{}string\textgreater{}} & Tiện ích. \\
+\texttt{rules} & \texttt{string} & Nội quy. \\
+\texttt{approval\allowbreak{}Status} & \texttt{string} & DRAFT, PENDING\_REVIEW, APPROVED, REJECTED. \\
+\texttt{listing\allowbreak{}Status} & \texttt{string} & ACTIVE, INACTIVE, SUSPENDED. \\
+\texttt{image\allowbreak{}Urls} & \texttt{array\textless{}\allowbreak{}string\textgreater{}} & URL ảnh, Rules giới hạn tối đa 6. \\
+\texttt{blackout\allowbreak{}Dates} & \texttt{array\textless{}\allowbreak{}string\textgreater{}} & Ngày khóa YYYY-MM-DD. \\
+\texttt{blackout\allowbreak{}Ranges} & \texttt{array\textless{}\allowbreak{}map\textgreater{}} & Khoảng khóa lịch nhúng, không phải collection. \\
+\texttt{blackout\allowbreak{}Ranges[].\allowbreak{}start\allowbreak{}At} & \texttt{timestamp} & Bắt đầu khoảng khóa. \\
+\texttt{blackout\allowbreak{}Ranges[].\allowbreak{}end\allowbreak{}At} & \texttt{timestamp} & Kết thúc loại trừ. \\
+\texttt{blackout\allowbreak{}Ranges[].\allowbreak{}reason} & \texttt{string} & Lý do khóa. \\
+\texttt{working\allowbreak{}Days} & \texttt{array\textless{}\allowbreak{}integer\textgreater{}} & Thứ ISO 1..7. \\
+\texttt{slot\allowbreak{}Minutes} & \texttt{integer} & Bước chọn giờ; không đồng nhất với slot kỹ thuật 30 phút. \\
+\texttt{min\allowbreak{}Booking\allowbreak{}Minutes} & \texttt{integer} & Thời lượng thuê tối thiểu. \\
+\texttt{fixed\allowbreak{}Start\allowbreak{}Month} & \texttt{string} & Tháng nhận thuê cố định YYYY-MM. \\
+\texttt{renewal\allowbreak{}Policy} & \texttt{string} & Chính sách gia hạn. \\
+\texttt{rental\allowbreak{}Policy} & \texttt{string} & Chính sách thuê. \\
+\texttt{location\allowbreak{}Verification} & \texttt{string} & Mặc định UNVERIFIED; thao tác Admin có thể ghi ADMIN\_REVIEWED. \\
+\texttt{photos\allowbreak{}Verification} & \texttt{string} & Trạng thái xác minh ảnh; mặc định UNVERIFIED, thao tác Admin có thể ghi ADMIN\_REVIEWED. \\
+\texttt{rejection\allowbreak{}Reason} & \texttt{string} & Lý do/kết quả xét duyệt. \\
+\texttt{booking\allowbreak{}Revision} & \texttt{integer} & Tăng khi thay đổi booking/lịch liên quan. \\
+\texttt{last\allowbreak{}Booking\allowbreak{}Id} & \texttt{string} & Booking gần nhất tác động lịch/phòng, rỗng khi chưa có. \\
+\texttt{created\allowbreak{}At} & \texttt{timestamp} & Thời gian tạo. \\
+\texttt{updated\allowbreak{}At} & \texttt{timestamp} & Lần cập nhật. \\
+\texttt{reviewed\allowbreak{}By} & \texttt{string} & UID Admin xét duyệt tin. \\
+\texttt{moderation\allowbreak{}Reason} & \texttt{string} & Lý do đình chỉ/gỡ đình chỉ. \\*
+\texttt{moderated\allowbreak{}By} & \texttt{string} & UID Admin quản trị. \\
+\end{longtable}\endgroup
+
+\Needspace{3\baselineskip}
+Hai trường \texttt{approval\allowbreak{}Status} và \texttt{listing\allowbreak{}Status} thể hiện hai trục trạng thái khác nhau: kết quả xét duyệt nội dung và trạng thái khai thác tin. Một phòng đã được duyệt vẫn có thể ngừng hiển thị hoặc bị đình chỉ, nên điều kiện đọc công khai phải xét cả hai. Các cấu hình lịch trong Room mô tả điều kiện nhận đặt; tập slot đã bị booking chiếm lại được lưu trong lịch tháng riêng.
+
+\Needspace{7\baselineskip}
+Booking ghi lại một yêu cầu thuê cụ thể, gồm hai bên tham gia, không gian, khoảng thời gian và kết quả xử lý. Các trường snapshot trong Bảng~\ref{tab:ch4-bookings-bookingId} giữ tên phòng, địa chỉ, thông tin người thuê và giá áp dụng lúc đặt. Nhờ đó, dữ liệu của yêu cầu đã tạo được phân biệt với thông tin phòng có thể thay đổi về sau. Luồng tạo hiện tại ghi \texttt{schema\allowbreak{}Version} bằng 2 để nhận diện cấu trúc booking được dùng cùng cơ chế lịch tháng.
+
+\begingroup\small\setstretch{1.12}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{4.35cm}>{\raggedright\arraybackslash}p{2.75cm}>{\raggedright\arraybackslash}p{8.15cm}@{}}
+\caption{Thông tin đặt chỗ tại \texttt{bookings/\allowbreak{}\{booking\allowbreak{}Id\}}}\label{tab:ch4-bookings-bookingId}\\
+\toprule Trường & Kiểu dữ liệu & Ý nghĩa và ràng buộc \\ \midrule\endfirsthead
+\multicolumn{3}{l}{\small Thông tin đặt chỗ (tiếp theo)}\\
+\toprule Trường & Kiểu dữ liệu & Ý nghĩa và ràng buộc \\ \midrule\endhead
+\midrule\multicolumn{3}{r}{\small Còn tiếp ở trang sau}\\\endfoot
+\bottomrule\endlastfoot
+\texttt{id} & \texttt{string} & Document ID. \\*
+\texttt{schema\allowbreak{}Version} & \texttt{integer} & Class mặc định 1, luồng tạo mới ghi 2. \\
+\texttt{room\allowbreak{}Id} & \texttt{string} & Liên kết rooms. \\
+\texttt{room\allowbreak{}Name} & \texttt{string} & Snapshot tên phòng. \\
+\texttt{room\allowbreak{}Address} & \texttt{string} & Snapshot địa chỉ. \\
+\texttt{owner\allowbreak{}Uid} & \texttt{string} & Host của booking. \\
+\texttt{guest\allowbreak{}Uid} & \texttt{string} & Người thuê; tài khoản role HOST cũng có thể thuê. \\
+\texttt{guest\allowbreak{}Name} & \texttt{string} & Snapshot tên Guest. \\
+\texttt{guest\allowbreak{}Phone} & \texttt{string} & Snapshot liên hệ Guest. \\
+\texttt{status} & \texttt{string} & PENDING, CONFIRMED, CHECKED\_IN, COMPLETED, CANCELLED, REJECTED. \\
+\texttt{payment\allowbreak{}Status} & \texttt{string} & Booking mới UNAVAILABLE; UNPAID/DEMO\_PENDING là giá trị mặc định/cũ được code nhận diện, không phải thanh toán thật. \\
+\texttt{active\allowbreak{}Mode} & \texttt{string} & HOURLY/FIXED. \\
+\texttt{rejection\allowbreak{}Reason} & \texttt{string} & Lý do từ chối hoặc hủy, có thể rỗng. \\
+\texttt{start\allowbreak{}At} & \texttt{timestamp} & Thời điểm bắt đầu. \\
+\texttt{end\allowbreak{}At} & \texttt{timestamp} & Thời điểm kết thúc loại trừ. \\
+\texttt{total\allowbreak{}Amount} & \texttt{double} & Tổng tiền thuê VND. \\
+\texttt{price\allowbreak{}Snapshot} & \texttt{map} & Chụp giá/chính sách tại lúc đặt. \\
+\texttt{price\allowbreak{}Snapshot.\allowbreak{}currency} & \texttt{string} & VND. \\
+\texttt{price\allowbreak{}Snapshot.\allowbreak{}rental\allowbreak{}Amount} & \texttt{number} & Tiền thuê. \\
+\texttt{price\allowbreak{}Snapshot.\allowbreak{}fee\allowbreak{}Amount} & \texttt{integer} & Hiện 0. \\
+\texttt{price\allowbreak{}Snapshot.\allowbreak{}deposit\allowbreak{}Amount} & \texttt{number} & Khoản trả trước dự kiến, booking mới 40\%; code mới ghi số nguyên, dataset cũ có double. \\
+\texttt{price\allowbreak{}Snapshot.\allowbreak{}advance\allowbreak{}Percent} & \texttt{integer} & Booking mới 40; dataset cũ có thể thiếu. \\
+\texttt{price\allowbreak{}Snapshot.\allowbreak{}cancellation\allowbreak{}Policy\allowbreak{}Version} & \texttt{integer} & Booking mới 1; dataset cũ có thể thiếu. \\
+\texttt{price\allowbreak{}Snapshot.\allowbreak{}total\allowbreak{}Amount} & \texttt{number} & Tổng tiền. \\
+\texttt{price\allowbreak{}Snapshot.\allowbreak{}payment\allowbreak{}Due\allowbreak{}Amount} & \texttt{number} & Khoản phải trả trước dự kiến. \\
+\texttt{price\allowbreak{}Snapshot.\allowbreak{}rental\allowbreak{}Policy} & \texttt{string} & Snapshot chính sách thuê. \\
+\texttt{price\allowbreak{}Snapshot.\allowbreak{}renewal\allowbreak{}Policy} & \texttt{string} & Snapshot chính sách gia hạn. \\
+\texttt{rental\allowbreak{}Months} & \texttt{integer} & HOURLY=0, FIXED=1 hoặc 3. \\
+\texttt{slot\allowbreak{}Start} & \texttt{integer} & Slot 30 phút đầu trong tháng, FIXED=0. \\
+\texttt{slot\allowbreak{}Count} & \texttt{integer} & Số slot 30 phút liên tiếp, FIXED=0. \\
+\texttt{month\allowbreak{}Keys} & \texttt{array\textless{}\allowbreak{}string\textgreater{}} & ID availabilityMonths, 1 hoặc 3 phần tử. \\
+\texttt{slot\allowbreak{}Keys} & \texttt{array\textless{}\allowbreak{}integer\textgreater{}} & Danh sách slot giữ, FIXED rỗng. \\
+\texttt{request\allowbreak{}Fingerprint} & \texttt{string} & SHA-256 lựa chọn phòng/thời gian. \\
+\texttt{cancelled\allowbreak{}At} & \texttt{timestamp/\allowbreak{}null} & Mặc định null, khi hủy là server timestamp; dataset cũ có thể thiếu. \\
+\texttt{cancelled\allowbreak{}By\allowbreak{}Uid} & \texttt{string} & UID bên hủy, mặc định rỗng. \\
+\texttt{cancellation\allowbreak{}Refund\allowbreak{}Percent} & \texttt{integer} & Tỷ lệ chính sách 0/50/100, không xác nhận đã chuyển tiền. \\
+\texttt{refund\allowbreak{}Amount} & \texttt{number} & Mặc định double 0, thao tác hủy hiện ghi integer 0 vì chưa thu tiền. \\
+\texttt{refund\allowbreak{}Status} & \texttt{string} & Hiện NOT\_REQUIRED. \\
+\texttt{created\allowbreak{}At} & \texttt{timestamp} & Thời gian tạo. \\*
+\texttt{updated\allowbreak{}At} & \texttt{timestamp} & Lần cập nhật. \\
+\end{longtable}\endgroup
+
+\Needspace{3\baselineskip}
+Nhóm trường hủy chỉ có ý nghĩa khi đặt trong vòng đời booking và phiên bản chính sách đã lưu. Giá trị trả trước dự kiến 40\% được ghi vào snapshot, còn trạng thái thanh toán mới là UNAVAILABLE. Vì chưa có luồng thu và hoàn tiền thực tế, các trường số tiền và tỷ lệ chính sách không được diễn giải thành chứng từ tiền đã nhận hoặc đã chuyển trả.
+
+\Needspace{7\baselineskip}
+Lịch tháng là dữ liệu kỹ thuật dùng để kiểm tra và cập nhật khả năng nhận đặt của một phòng trong một tháng. Bảng~\ref{tab:ch4-availabilityMonths-roomId-yyyyMM} tách khóa giữ trọn tháng của chế độ FIXED khỏi các slot 30 phút của chế độ HOURLY. Document ID ghép room ID với tháng YYYYMM, giúp Repository xác định trực tiếp những document phải đọc trong transaction, thay vì tìm lịch bằng thông tin người thuê hoặc tên phòng.
+
+\par\medskip\noindent\begin{minipage}{\linewidth}\small\setstretch{1.12}
+\captionof{table}{Lịch giữ chỗ theo tháng tại \texttt{availability\allowbreak{}Months/\allowbreak{}\{room\allowbreak{}Id\_\allowbreak{}yyyy\allowbreak{}MM\}}}\label{tab:ch4-availabilityMonths-roomId-yyyyMM}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{4.35cm}>{\raggedright\arraybackslash}p{2.75cm}>{\raggedright\arraybackslash}p{8.15cm}@{}}
+\toprule Trường & Kiểu dữ liệu & Ý nghĩa và ràng buộc \\ \midrule
+\texttt{room\allowbreak{}Id} & \texttt{string} & Liên kết rooms. \\*
+\texttt{month\allowbreak{}Index} & \texttt{integer} & Số YYYYMM, không phải chỉ số tháng 0..11. \\
+\texttt{fixed\allowbreak{}Booking\allowbreak{}Id} & \texttt{string} & Booking giữ toàn tháng; rỗng nếu không có. \\
+\texttt{slots\allowbreak{}Busy} & \texttt{array\textless{}\allowbreak{}integer\textgreater{}} & Tập slot kỹ thuật 30 phút đang giữ. \\
+\texttt{hourly\allowbreak{}Bookings} & \texttt{map\textless{}\allowbreak{}string,\allowbreak{}array\textless{}\allowbreak{}integer\textgreater{}\allowbreak{}\textgreater{}} & Key động là bookingId, value là các slot booking đó giữ. \\
+\texttt{hourly\allowbreak{}Bookings.\allowbreak{}\{booking\allowbreak{}Id\}} & \texttt{array\textless{}\allowbreak{}integer\textgreater{}} & Liên kết theo key, không phải subcollection. \\
+\texttt{last\allowbreak{}Booking\allowbreak{}Id} & \texttt{string} & Booking vừa tác động lịch. \\*
+\texttt{updated\allowbreak{}At} & \texttt{timestamp} & Thời gian server. \\
+\bottomrule\end{tabular}\end{minipage}\par\medskip
+
+\Needspace{3\baselineskip}
+Danh sách \texttt{slots\allowbreak{}Busy} và map \texttt{hourly\allowbreak{}Bookings} cùng mô tả lịch thuê giờ ở hai góc độ: tập slot đang bận và phần slot thuộc từng booking. Khi giải phóng lịch, booking ID xác định đúng tập cần bỏ. Các biểu diễn này phải được cập nhật nhất quán trong cùng thao tác; việc một booking đang PENDING không có nghĩa lịch của nó vẫn còn trống.
+
+\Needspace{10\baselineskip}
+\subsubsection{Hội thoại và tin nhắn}
+
+\Needspace{7\baselineskip}
+Document hội thoại phục vụ hộp thư và thông tin tổng hợp của cuộc trao đổi giữa một bên thuê và một Host. Theo Bảng~\ref{tab:ch4-conversations-guestUid-hostUid}, ID được ghép theo thứ tự vai trò guest UID và host UID; phòng hoặc booking chỉ là ngữ cảnh khởi tạo. Một hội thoại đã tồn tại được dùng lại cho cặp tài khoản đó, do vậy các booking khác nhau của cùng cặp không mặc nhiên tạo các cuộc trao đổi tách biệt.
+
+\begingroup\small\setstretch{1.12}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{4.35cm}>{\raggedright\arraybackslash}p{2.75cm}>{\raggedright\arraybackslash}p{8.15cm}@{}}
+\caption{Thông tin hội thoại tại \texttt{conversations/\allowbreak{}\{guest\allowbreak{}Uid:host\allowbreak{}Uid\}}}\label{tab:ch4-conversations-guestUid-hostUid}\\
+\toprule Trường & Kiểu dữ liệu & Ý nghĩa và ràng buộc \\ \midrule\endfirsthead
+\multicolumn{3}{l}{\small Thông tin hội thoại (tiếp theo)}\\
+\toprule Trường & Kiểu dữ liệu & Ý nghĩa và ràng buộc \\ \midrule\endhead
+\midrule\multicolumn{3}{r}{\small Còn tiếp ở trang sau}\\\endfoot
+\bottomrule\endlastfoot
+\texttt{id} & \texttt{string} & GuestUid + ':' + hostUid. \\*
+\texttt{guest\allowbreak{}Uid} & \texttt{string} & Liên kết users bên thuê. \\
+\texttt{host\allowbreak{}Uid} & \texttt{string} & Liên kết users bên cho thuê. \\
+\texttt{guest\allowbreak{}Name} & \texttt{string} & Snapshot tên bên thuê. \\
+\texttt{host\allowbreak{}Name} & \texttt{string} & Snapshot tên Host. \\
+\texttt{member\allowbreak{}Uids} & \texttt{array\textless{}\allowbreak{}string\textgreater{}} & Đúng hai UID [guestUid, hostUid], dùng query inbox. \\
+\texttt{room\allowbreak{}Id} & \texttt{string} & Phòng ngữ cảnh khởi tạo. \\
+\texttt{room\allowbreak{}Name} & \texttt{string} & Tên phòng ngữ cảnh. \\
+\texttt{booking\allowbreak{}Id} & \texttt{string} & Booking ngữ cảnh khởi tạo hoặc chuỗi rỗng nếu mở từ phòng. \\
+\texttt{last\allowbreak{}Text} & \texttt{string} & Preview tin cuối, mới tạo rỗng. \\
+\texttt{last\allowbreak{}Sender\allowbreak{}Uid} & \texttt{string} & Người gửi cuối hoặc rỗng. \\
+\texttt{last\allowbreak{}Message\allowbreak{}Id} & \texttt{string} & ID tin cuối trong subcollection hoặc rỗng. \\
+\texttt{sequence} & \texttt{integer} & Số thứ tự tin gần nhất, khởi tạo 0. \\
+\texttt{guest\allowbreak{}Received} & \texttt{integer} & Tổng số tin đến Guest. \\
+\texttt{host\allowbreak{}Received} & \texttt{integer} & Tổng số tin đến Host. \\
+\texttt{guest\allowbreak{}Read} & \texttt{integer} & Mốc số tin đến Guest đã đọc. \\
+\texttt{host\allowbreak{}Read} & \texttt{integer} & Mốc số tin đến Host đã đọc. \\
+\texttt{created\allowbreak{}At} & \texttt{timestamp} & Thời gian tạo. \\*
+\texttt{updated\allowbreak{}At} & \texttt{timestamp} & Cập nhật khi gửi tin. \\
+\end{longtable}\endgroup
+
+\Needspace{3\baselineskip}
+Các bộ đếm nhận và đã đọc cho phép xác định lượng tin chưa đọc của từng bên mà không gắn cờ vào từng message. \texttt{sequence} là thứ tự chung của hội thoại, còn \texttt{guest\allowbreak{}Received} và \texttt{host\allowbreak{}Received} chỉ đếm tin đến từng người. Khi gửi tin, Repository cập nhật preview, thứ tự và bộ đếm cùng message mới trong transaction, tránh trường hợp hộp thư chỉ phản ánh một phần thao tác gửi.
+
+\Needspace{7\baselineskip}
+Mỗi tin nhắn là một document thuộc subcollection của đúng hội thoại, với cấu trúc ở Bảng~\ref{tab:ch4-conversations-guestUid-hostUid-messages-messageId}. Đường dẫn cha đã xác định cặp thành viên, nên message lưu người gửi thay vì lặp lại một trường người nhận riêng. Nội dung và thời gian tạo biểu diễn sự kiện gửi, còn \texttt{room\allowbreak{}Id} và \texttt{room\allowbreak{}Name} bổ sung ngữ cảnh nếu người gửi đính kèm phòng thuộc Host của cuộc trao đổi.
+
+\par\medskip\noindent\begin{minipage}{\linewidth}\small\setstretch{1.12}
+\captionof{table}{Thông tin tin nhắn tại \texttt{conversations/\allowbreak{}\{guest\allowbreak{}Uid:host\allowbreak{}Uid\}/\allowbreak{}messages/\allowbreak{}\{message\allowbreak{}Id\}}}\label{tab:ch4-conversations-guestUid-hostUid-messages-messageId}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{4.35cm}>{\raggedright\arraybackslash}p{2.75cm}>{\raggedright\arraybackslash}p{8.15cm}@{}}
+\toprule Trường & Kiểu dữ liệu & Ý nghĩa và ràng buộc \\ \midrule
+\texttt{id} & \texttt{string} & Cùng messageId. \\*
+\texttt{sender\allowbreak{}Uid} & \texttt{string} & Thành viên gửi, liên kết users. \\
+\texttt{text} & \texttt{string} & Nội dung 1..2000 ký tự. \\
+\texttt{room\allowbreak{}Id} & \texttt{string} & Phòng ngữ cảnh hoặc rỗng. \\
+\texttt{room\allowbreak{}Name} & \texttt{string} & Snapshot tên phòng ngữ cảnh hoặc rỗng. \\
+\texttt{sequence} & \texttt{integer} & Thứ tự tin trong conversation. \\*
+\texttt{created\allowbreak{}At} & \texttt{timestamp} & Thời gian server. \\
+\bottomrule\end{tabular}\end{minipage}\par\medskip
+
+\Needspace{3\baselineskip}
+Thứ tự tải tin dựa trên \texttt{sequence}, không chỉ phụ thuộc timestamp có thể đang chờ máy chủ giải quyết. \texttt{last\allowbreak{}Message\allowbreak{}Id} trên document hội thoại trỏ tới một message trong nhánh này để gắn preview với tin cuối. Rules hiện cho phép tạo tin hợp lệ nhưng không có nhánh sửa hoặc xóa message, phù hợp với cách lưu sự kiện gửi bất biến trong luồng hiện tại.
+
+\Needspace{10\baselineskip}
+\subsubsection{Xác minh, phản ánh, nhật ký và địa điểm tham khảo}
+
+\Needspace{7\baselineskip}
+Hồ sơ xác minh đưa thông tin cần kiểm tra vào hàng chờ quản trị theo loại LOCATION, PHOTOS hoặc IDENTITY. Bảng~\ref{tab:ch4-propertyVerifications-verificationId} mô tả chủ hồ sơ, đối tượng được đề cập, đường dẫn bằng chứng và kết quả xét duyệt. Liên kết tới Room hoặc Building phụ thuộc hồ sơ, trong khi evidenceRefs và evidencePath chỉ giữ tham chiếu tệp; chúng không biến nội dung ảnh hoặc PDF thành dữ liệu nhúng của Firestore.
+
+\begingroup\small\setstretch{1.12}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{4.35cm}>{\raggedright\arraybackslash}p{2.75cm}>{\raggedright\arraybackslash}p{8.15cm}@{}}
+\caption{Hồ sơ xác minh tại \texttt{property\allowbreak{}Verifications/\allowbreak{}\{verification\allowbreak{}Id\}}}\label{tab:ch4-propertyVerifications-verificationId}\\
+\toprule Trường & Kiểu dữ liệu & Ý nghĩa và ràng buộc \\ \midrule\endfirsthead
+\multicolumn{3}{l}{\small Hồ sơ xác minh (tiếp theo)}\\
+\toprule Trường & Kiểu dữ liệu & Ý nghĩa và ràng buộc \\ \midrule\endhead
+\midrule\multicolumn{3}{r}{\small Còn tiếp ở trang sau}\\\endfoot
+\bottomrule\endlastfoot
+\texttt{owner\allowbreak{}Uid} & \texttt{string} & Host nộp hồ sơ. \\*
+\texttt{verification\allowbreak{}Type} & \texttt{string} & LOCATION, PHOTOS, IDENTITY. \\
+\texttt{room\allowbreak{}Id} & \texttt{string} & Phòng cần xác minh; có thể rỗng/thiếu. \\
+\texttt{building\allowbreak{}Id} & \texttt{string} & Tòa nhà cần xác minh; có thể rỗng/thiếu. \\
+\texttt{description} & \texttt{string} & Mô tả. \\
+\texttt{evidence\allowbreak{}Refs} & \texttt{array\textless{}\allowbreak{}string\textgreater{}} & Đường dẫn tệp, code ưu tiên đọc danh sách này. \\
+\texttt{evidence\allowbreak{}Path} & \texttt{string} & Dạng đơn được code đọc dự phòng khi evidenceRefs không phải List. \\
+\texttt{status} & \texttt{string} & PENDING, VERIFIED, REJECTED. \\
+\texttt{rejection\allowbreak{}Reason} & \texttt{string} & Lý do/kết quả duyệt. \\
+\texttt{reviewed\allowbreak{}By} & \texttt{string} & UID Admin xử lý. \\
+\texttt{method} & \texttt{string} & ADMIN\_REVIEWED. \\
+\texttt{review\allowbreak{}Note} & \texttt{string} & Ghi chú xét duyệt. \\
+\texttt{reviewed\allowbreak{}At} & \texttt{timestamp} & Thời gian xét duyệt. \\
+\texttt{partner\allowbreak{}Name} & \texttt{string} & Code ghi rỗng, không phải tích hợp đối tác. \\
+\texttt{created\allowbreak{}At} & \texttt{timestamp} & Thời gian tạo. \\*
+\texttt{updated\allowbreak{}At} & \texttt{timestamp} & Lần cập nhật. \\
+\end{longtable}\endgroup
+
+\Needspace{3\baselineskip}
+AdminRepository ưu tiên đọc danh sách evidenceRefs và dùng evidencePath làm dạng đơn dự phòng. Các trường kết quả như \texttt{method}, \texttt{reviewed\allowbreak{}By} và \texttt{reviewed\allowbreak{}At} ghi nhận cách và thời điểm xử lý, không chứng minh có dịch vụ đối tác tự động xác thực. Quyền đọc hồ sơ và quyền mở tệp bằng chứng thuộc hai lớp kiểm soát riêng, được đối chiếu tiếp ở mục 4.4.
+
+\Needspace{7\baselineskip}
+Báo cáo về phòng kết nối phản ánh của người thuê với đúng phòng và Host liên quan. Khi tạo dữ liệu trong Bảng~\ref{tab:ch4-reports-reportId}, \texttt{Report\allowbreak{}Repository} đọc owner UID từ Room, kiểm tra phòng đang công khai và ngăn người dùng báo cáo phòng của chính mình. Các trường lý do, mô tả và trạng thái ban đầu OPEN cung cấp đầu vào cho quá trình xử lý, thay vì chỉ lưu một nhận xét không có đối tượng cụ thể.
+
+\begingroup\small\setstretch{1.12}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{4.35cm}>{\raggedright\arraybackslash}p{2.75cm}>{\raggedright\arraybackslash}p{8.15cm}@{}}
+\caption{Báo cáo về phòng tại \texttt{reports/\allowbreak{}\{report\allowbreak{}Id\}}}\label{tab:ch4-reports-reportId}\\
+\toprule Trường & Kiểu dữ liệu & Ý nghĩa và ràng buộc \\ \midrule\endfirsthead
+\multicolumn{3}{l}{\small Báo cáo về phòng (tiếp theo)}\\
+\toprule Trường & Kiểu dữ liệu & Ý nghĩa và ràng buộc \\ \midrule\endhead
+\midrule\multicolumn{3}{r}{\small Còn tiếp ở trang sau}\\\endfoot
+\bottomrule\endlastfoot
+\texttt{id} & \texttt{string} & Cùng reportId; dataset cũ có thể thiếu. \\*
+\texttt{schema\allowbreak{}Version} & \texttt{integer} & Hiện 1. \\
+\texttt{reporter\allowbreak{}Uid} & \texttt{string} & Người báo, liên kết users. \\
+\texttt{room\allowbreak{}Id} & \texttt{string} & Phòng bị báo cáo. \\
+\texttt{owner\allowbreak{}Uid} & \texttt{string} & Host lấy từ dữ liệu phòng. \\
+\texttt{reason} & \texttt{string} & Sai thông tin / Ảnh không khớp / Nghi ngờ gian lận / Khác. \\
+\texttt{description} & \texttt{string} & Mô tả 20..2000 ký tự. \\
+\texttt{status} & \texttt{string} & OPEN, RESOLVED, DISMISSED. \\
+\texttt{created\allowbreak{}At} & \texttt{timestamp} & Thời gian tạo. \\
+\texttt{updated\allowbreak{}At} & \texttt{timestamp} & Lần cập nhật. \\
+\texttt{action} & \texttt{string} & NO\_ACTION, SUSPEND\_ROOM, BLOCK\_HOST. \\
+\texttt{resolution} & \texttt{string} & Kết luận 10..1000 ký tự. \\
+\texttt{reviewed\allowbreak{}By} & \texttt{string} & UID Admin xử lý. \\
+\texttt{reviewed\allowbreak{}At} & \texttt{timestamp} & Thời gian xử lý. \\*
+\texttt{host\allowbreak{}Response} & \texttt{unknown} & Rules cho phép Host cập nhật phản hồi nhưng chưa kiểm tra kiểu; Repository chưa có luồng ghi phản hồi được xác nhận. \\
+\end{longtable}\endgroup
+
+\Needspace{3\baselineskip}
+Sau khi xử lý, trạng thái báo cáo và hành động áp dụng được lưu riêng: kết thúc một báo cáo không luôn đồng nghĩa với đình chỉ phòng hoặc khóa Host. Với các hành động có tác động, transaction cập nhật đối tượng liên quan và ghi audit cùng kết quả báo cáo. Những trường người duyệt và thời gian vì vậy giúp truy lại trách nhiệm xử lý, không phải dữ liệu do người gửi tự quyết định.
+
+\Needspace{7\baselineskip}
+Nhật ký thao tác lưu dấu thay đổi để đối chiếu ai đã thực hiện, tác động vào đâu và vì lý do gì. Cấu trúc trong Bảng~\ref{tab:ch4-auditLogs-auditId} được dùng trong các luồng như tạo hoặc chuyển trạng thái booking, quản trị phòng và giải quyết báo cáo. \texttt{target\allowbreak{}Path} chỉ đích của hành động, còn \texttt{before} và \texttt{after} ghi phần dữ liệu cần theo dõi cho hành động đó.
+
+\par\medskip\noindent\begin{minipage}{\linewidth}\small\setstretch{1.12}
+\captionof{table}{Nhật ký thao tác tại \texttt{audit\allowbreak{}Logs/\allowbreak{}\{audit\allowbreak{}Id\}}}\label{tab:ch4-auditLogs-auditId}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{4.35cm}>{\raggedright\arraybackslash}p{2.75cm}>{\raggedright\arraybackslash}p{8.15cm}@{}}
+\toprule Trường & Kiểu dữ liệu & Ý nghĩa và ràng buộc \\ \midrule
+\texttt{schema\allowbreak{}Version} & \texttt{integer} & Hiện 1. \\*
+\texttt{actor\allowbreak{}Uid} & \texttt{string} & Người thực hiện, liên kết users. \\
+\texttt{target\allowbreak{}Path} & \texttt{string} & Đường dẫn đối tượng, có thể là document hoặc đích tổng hợp của tác vụ dataset. \\
+\texttt{action} & \texttt{string} & Mã hành động. \\
+\texttt{before} & \texttt{map\textless{}\allowbreak{}string,\allowbreak{}any\textgreater{}} & Dữ liệu trước thay đổi, có thể rỗng. \\
+\texttt{after} & \texttt{map\textless{}\allowbreak{}string,\allowbreak{}any\textgreater{}} & Dữ liệu sau thay đổi, có thể rỗng. \\
+\texttt{reason} & \texttt{string} & Lý do. \\*
+\texttt{created\allowbreak{}At} & \texttt{timestamp} & Thời gian server. \\
+\bottomrule\end{tabular}\end{minipage}\par\medskip
+
+\Needspace{3\baselineskip}
+Một audit có thể chỉ chứa trạng thái trước và sau, nên không đủ để tái dựng toàn bộ document ở mọi thời điểm. Đường dẫn đích cũng thay đổi theo đối tượng được xử lý, thay vì là khóa liên kết cố định tới riêng Room hay Booking. Vì vậy, giá trị của nhật ký nằm ở việc đọc cùng mã hành động và ngữ cảnh nguồn, không ở giả định nó là bản sao đầy đủ của dữ liệu nghiệp vụ.
+
+\Needspace{7\baselineskip}
+Các địa điểm trong Bảng~\ref{tab:ch4-rentalPlaces-placeId} bổ sung dữ liệu tham khảo cho bản đồ từ nguồn công khai. Tên, địa chỉ và GeoPoint phục vụ xác định vị trí, còn các URL nguồn, nhãn tọa độ và thời điểm đối chiếu giúp truy lại căn cứ của thông tin đó. Collection này có mục đích khác với Room do Host đăng: nó không mang biểu giá, lịch nhận thuê hoặc chủ sở hữu trong ứng dụng.
+
+\par\medskip\noindent\begin{minipage}{\linewidth}\small\setstretch{1.12}
+\captionof{table}{Địa điểm tham khảo tại \texttt{rental\allowbreak{}Places/\allowbreak{}\{place\allowbreak{}Id\}}}\label{tab:ch4-rentalPlaces-placeId}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{4.35cm}>{\raggedright\arraybackslash}p{2.75cm}>{\raggedright\arraybackslash}p{8.15cm}@{}}
+\toprule Trường & Kiểu dữ liệu & Ý nghĩa và ràng buộc \\ \midrule
+\texttt{id} & \texttt{string} & Document ID. \\*
+\texttt{name} & \texttt{string} & Tên địa điểm. \\
+\texttt{address} & \texttt{string} & Địa chỉ nguồn. \\
+\texttt{location} & \texttt{geopoint} & Vị trí từ nguồn tham khảo; không phải map collection. \\
+\texttt{source\allowbreak{}Url} & \texttt{string} & URL tin nguồn. \\
+\texttt{map\allowbreak{}Source\allowbreak{}Url} & \texttt{string} & URL bản đồ nguồn. \\
+\texttt{source\allowbreak{}Coordinate\allowbreak{}Label} & \texttt{string} & Nhãn tọa độ từ nguồn. \\
+\texttt{location\allowbreak{}Note} & \texttt{string} & Ghi chú giới hạn vị trí. \\*
+\texttt{checked\allowbreak{}At} & \texttt{timestamp} & Thời điểm đối chiếu nguồn. \\
+\bottomrule\end{tabular}\end{minipage}\par\medskip
+
+\Needspace{3\baselineskip}
+Một địa điểm tham khảo xuất hiện trên bản đồ không tạo ra khả năng đặt thuê qua hệ thống. Ghi chú vị trí và thời điểm kiểm tra nguồn mô tả giới hạn dữ liệu tham khảo, không thay cho kết quả xác minh của Admin. Sự phân biệt này giúp phần bản đồ sử dụng dữ liệu bổ sung mà không tạo quan hệ giả với Host hoặc booking.
+

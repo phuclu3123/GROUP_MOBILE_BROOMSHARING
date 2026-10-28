@@ -45,6 +45,7 @@ public final class PaymentReminderService extends Service {
         }
     };
 
+    // Mặc định bật nhắc thanh toán theo UID, nhưng tôn trọng lựa chọn tắt đã được người dùng lưu.
     public static boolean enabled(Context context) {
         String uid = FirebaseAuth.getInstance().getUid();
         return uid != null && context.getSharedPreferences("payment_reminders_" + uid, MODE_PRIVATE).getBoolean("enabled", true);
@@ -132,6 +133,7 @@ public final class PaymentReminderService extends Service {
         return builder.build();
     }
 
+    // Dựng thông báo từ giao dịch đang theo dõi; hết hạn trên đồng hồ không tự xác nhận tiền hoặc tự sửa khóa lịch.
     private void render() {
         if (uid == null || disposed || !enabled(this)) return;
         Payment earliest = null;

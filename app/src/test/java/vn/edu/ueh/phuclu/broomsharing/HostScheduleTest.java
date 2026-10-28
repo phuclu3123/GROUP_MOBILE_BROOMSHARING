@@ -10,6 +10,10 @@ import vn.edu.ueh.phuclu.broomsharing.utils.HostSchedule;
 import vn.edu.ueh.phuclu.broomsharing.utils.HostValidation;
 import static org.junit.Assert.*;
 
+/*
+   Kiểm thử rejectsEmptyWeekdaysMisalignedStepAndTooLongMinimum, blackoutRequiresReasonAndExclusivePositiveRange, calendarSeparatesConfirmedBlockedFreeAndPending.
+   Dữ liệu được tạo trong test; kết quả này không thay cho nghiệm thu thao tác trên thiết bị hoặc cloud.
+*/
 public class HostScheduleTest {
     private Room room() {
         Room r = new Room(); r.setOpenTime("08:00"); r.setCloseTime("11:00");

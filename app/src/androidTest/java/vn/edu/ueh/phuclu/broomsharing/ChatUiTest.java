@@ -38,6 +38,9 @@ import vn.edu.ueh.phuclu.broomsharing.utils.FirebaseHelper;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 
+/*
+   Kiểm thử sendNavigateBadgesReadAndLocalBookingNotification.
+*/
 public class ChatUiTest {
     private final Instrumentation device=InstrumentationRegistry.getInstrumentation();
     private final Context context=device.getTargetContext();

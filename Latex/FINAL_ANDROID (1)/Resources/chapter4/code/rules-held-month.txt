@@ -1,0 +1,7 @@
+    function heldMonth(b,i) {
+      let id=monthId(b,i);
+      let m=getAfter(/databases/$(database)/documents/availabilityMonths/$(id)).data;
+      return b.monthKeys[i]==id && m.roomId==b.roomId
+        && (b.activeMode=='FIXED' ? m.fixedBookingId==b.id && m.slotsBusy.size()==0
+            : m.fixedBookingId=='' && m.hourlyBookings[b.id]==b.slotKeys && m.slotsBusy.hasAll(b.slotKeys));
+    }

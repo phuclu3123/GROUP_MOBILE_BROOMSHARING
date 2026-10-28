@@ -22,6 +22,10 @@ import vn.edu.ueh.phuclu.broomsharing.ui.admin.AdminDashboardActivity;
 import vn.edu.ueh.phuclu.broomsharing.ui.host.HostDashboardActivity;
 import vn.edu.ueh.phuclu.broomsharing.ui.room.MainActivity;
 
+/*
+   Khung chung cho các biểu mẫu xác thực: trạng thái bận, thông báo và điều hướng.
+   Xóa nội dung mật khẩu theo vòng đời màn hình, không lưu mật khẩu vào Bundle.
+*/
 public abstract class BaseAuthActivity extends AppCompatActivity {
     protected AuthViewModel model;
     protected TextView message;

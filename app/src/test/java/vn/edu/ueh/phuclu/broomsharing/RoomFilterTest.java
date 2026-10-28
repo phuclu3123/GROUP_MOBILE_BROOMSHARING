@@ -10,6 +10,10 @@ import vn.edu.ueh.phuclu.broomsharing.model.RoomListing;
 import vn.edu.ueh.phuclu.broomsharing.utils.RoomFilter;
 import static org.junit.Assert.*;
 
+/*
+   Kiểm thử sortKeepsDifferentPriceUnitsInSeparateGroups, sortUsesCurrentModePriceAndSupportsDescending.
+   Dữ liệu được tạo trong test; kết quả này không thay cho nghiệm thu thao tác trên thiết bị hoặc cloud.
+*/
 public class RoomFilterTest {
     private RoomListing item() {
         Room room = new Room();

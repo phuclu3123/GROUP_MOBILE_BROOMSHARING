@@ -49,6 +49,7 @@ public class MediaRepository implements AutoCloseable {
                         "cloudinary_recent_uploads", Context.MODE_PRIVATE);
     }
 
+    // Upload tuần tự theo thứ tự ảnh đã chọn, kiểm phiên và thư mục của đúng tài khoản/đối tượng.
     public void upload(List<Uri> uris, String kind, String id, ResultCallback<List<String>> cb) {
         final String uid = FirebaseAuth.getInstance().getUid();
         final List<Uri> selected = uris == null ? Collections.emptyList() : new ArrayList<>(uris);
@@ -141,6 +142,7 @@ public class MediaRepository implements AutoCloseable {
         if (!closed) worker.execute(() -> discardRecent(uid, urls));
     }
 
+    // Chỉ dọn các tệp vừa upload mà còn delete token hợp lệ; không coi đây là quyền xóa mọi tệp Cloudinary.
     private void discardRecent(String uid, List<String> urls) {
         for (String url : urls) {
             if (!uid.equals(cleanup.getString(url + ":uid", null))) continue;
@@ -161,6 +163,7 @@ public class MediaRepository implements AutoCloseable {
     }
 
     @Override
+    // Giải phóng tài nguyên upload khi ViewModel không còn sử dụng Repository.
     public void close() {
         closed = true;
         client.close();

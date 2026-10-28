@@ -1,0 +1,1444 @@
+[
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/adapter/BookingAdapter.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "badb958cb5f73fe6c2fdc687b7bdf2677fca876ef9f4b62107c3f1aeddb5d472"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/adapter/BuildingAdapter.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "e226926ad1e987c52cedfd64151639d56350d11a775d1036fb565830104ca83c"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/adapter/ChatMessageAdapter.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "eb1070f804fef3ad5cae161a331ebcaa71cc95d0cf45d032d8f85e43ac1acf14"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/adapter/ConversationAdapter.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "804ae3ae9e5761a32ac4b0ab36d34ff27cbbf1ec52cc0668b4eccb41be4fa05b"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/adapter/FavoritesAdapter.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "4a26a8fc8f7d2ebe5863462ee000ecddff165461368c01c36ac29cb994cc533c"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/adapter/GuestRoomAdapter.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "70c108f5b7ccf7e25b33c1041e4c619fa1c1d4ef010b92422d9845f6a9f10744"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/adapter/HostBookingAdapter.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "e80d19b3aa579d9cc5915c14d3ec07004da12fbe029cf6e0daf997f992dc61a9"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/adapter/HostReportAdapter.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "9575900fdc4cf001243a1d6bd91b7dfd0faa6c3bb03b748e38238e72f2a8ac27"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/adapter/MapOfficeAdapter.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "a6db44e91913e0abbe018e7bec407a99f0167294a1474877df48ee872f7cd8a1"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/adapter/PropertyVerificationAdapter.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "4cdc8f9ef40d58b36098a7aae583167a79997f21fa6641ac005957a292327918"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/adapter/ReviewAdapter.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "e28f92c889cce6be185ecce0c9fc0470e77873a647dbdc80c662689256655b26"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/adapter/RoomAdapter.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "d7221c278bcb8195e1c5b5153e1262dbdc7f9b1a58edd484835d68a8ff38ad57"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/adapter/SelectedImageAdapter.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "be0ddbd0494e6ecab17abf7424984729f3ba1400927ffd1bc2543698f860ef3a"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/model/AuditLog.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "4655865fc76bb305eb8703b30472dfb60ca9d756926686fe542137c3d2529f88"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/model/AvailabilityMonth.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "9e5b011f8ddfa94b98b20583e6ba71de3042885adca7149f64a27710bebf7c51"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/model/Booking.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "2ad61832e061e2e5c69d061d8369fc2d20c58a2e4a5ae1e315bea0e7fb59acfb"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/model/BookingNotice.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "6d299c2ea91b5a88e6906b0c246c57b04ec6611fcc63299f9756d4d6c53be02e"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/model/Building.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "fa4e2a41069bd032d3d8b7c5cdc780aa8b9afef93dd5d9cfa4b7cd0bd3c516cf"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/model/ChatMessage.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "66d121826e9e9e60cf1f32b5eb8ed3c7fe845c92db847bceb1b2ea152ffd9269"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/model/Conversation.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "1366d574c16c629455a38f4d5729f2202bb73103125f17c50c5681ada1e5fa4a"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/model/Favorite.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "29d542d89da92fe1f82927658b8634a2841199792681d78b2b24c51b3f0818f8"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/model/HostApplication.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "7ca9745d168aacecf07fffda91cf6c1f2d0d6bb90d2c33daa419a7a724e49b2a"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/model/HostStats.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "06362c60386d7046e2bcd69fa06902797b6e2b78b3e14901979933888ed28c77"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/model/MapPoint.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "e969915c1e3d7252e9d7dfb24f6707e71fb1fc772d740053d8c22caca9fdeb28"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/model/MapRoute.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "0b22f38f6e8a0f48bd9ce09362940fcd16196163852c2cf40ef8b7d13b528172"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/model/MediaAsset.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "8b011221007085d9f0c3e9d41f5beb664139dfdf411ca9439c292df50a1c0d97"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/model/NearbyPlace.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "2ab658799512fd5f0b3e838c342f825f01a6f7ec80f85fe95cafc343266f6d9d"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/model/Payment.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "091455558488fd7964ca05dc7b0f0921f57ceafd11ef2c304be6830ad22dda7c"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/model/PropertyVerification.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "86cf6063700883db9d3a1f909b36dc8ba8cd26483e7ab8b86f861e247a8cc032"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/model/PublicHost.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "8889e4567d93b3aa86dffcfcaa4e17dbffe85ca581064cafb9688b684dee2b57"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/model/RentalPlace.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "2faefb6468f7b7820f08f22f22516cf3b4048a7d50c06f1e288cd93eb561e3f8"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/model/ReviewItem.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "97e0caf50ae53fb691c2b3769862110bcc16c84bd4ab14d87878b243fe6542a1"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/model/Room.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "73e2b34af8f0b8d6aecfbdb5fbf8b4e0be5aacf211a17456e9d0fffa39f1e3fb"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/model/RoomBlackout.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "ce162d2c9e1b98f610048bb4681f9719917039583f9162cf340dbe4f5325ea7e"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/model/RoomListing.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "296a202f6cb1e08fa3b3c5da6bf69edb96e06334dc18c5862bf9927d06bef9b7"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/model/RoomReport.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "54bef52e0a1f8825c265a53d531b371ca61803beee217c8daab0a10f25d5bcfd"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/model/RoomReview.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "f1f2c30c32e6801f1817fadfe28d75858e2ff6d18e55a9b5ca0dbd70ccd5d970"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/model/UiState.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "f3efa98407037e4b823ea277153b03fd2268e00d9147311bc98c77db879a96de"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/model/UserProfile.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "873867c17b4c971070da3fc452d724b521e8bf4a1732d07cda9878e315c5849f"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/model/UserRole.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "9129bf995bd25cf50d11599d630665e83576fc7e2a13bde09305c75b021ca50c"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/AdminRepository.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "e4ef63159b2be1564936fb327b6a6c4fcad84251104354d4a766311070813633"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/AuthError.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "ebde90b03ea576ae28f606a447262eaa272edf24cd0df50849bb160d7831e5fe"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/AuthRepository.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "dbb4ccecb4f93642f3739e5fd9fdad78bdd231f2ba1d2cb523963bb37220ed35"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/BookingRepository.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "66e706762dba229df07d70f38093e06d3af440b64b75a42f5cfa4e5448b78239"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/ChatRepository.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "9baac4cd8ef727c57327b8d0130a95b4f274669b8e99773fa285807d1c683607"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/CloudinaryClient.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "c97e260acca27078b64ec22a11d0ae8eed8b4191bf57b5292f2c258277d2b7bf"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/EvidenceDownloader.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "de6a3df88dfcab55b3a40331d7b7ef589a4ded01d8a4165349f714c091dd4d2f"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/FavoritesRepository.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "6517405d1a5a29cddec440376d0b5fd1aee9a8f717db876ab41305493839a941"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/FirebaseAuthRepository.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "54e7976ce874a5720edc948915b42473a4dda7df4159ca87bccc11e85914797a"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/HostRepository.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "287f0c04a1e3abdc319f6f4c49bf99007d3c4bc3e1f62d89174c49de41870d6a"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/LocationRepository.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "1e9e31f2052481df3ad46e30a8b212f659b1a18ea1b4c3741ec64eb83fd6bec5"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/MapRepository.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "f3c2e64ecb9474cbc65743446fec25e2c692af7c605bab0a87240f9704c4b6a5"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/MediaRepository.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "a28fb7c6c0340c3069942a4344039399cad74d2c436b5345ddc3c59cc614d485"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/NearbyPlacesRepository.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "468db1707dcf9ecc7eb6ece6fcfa66059eea4259a1a0a748a09e1eade586be96"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/NoticeRepository.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "34c3ac7075e1a6cab0c2addf60bf14b037f0b7a6fc3aa9af853d8addbda7ab16"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/PaymentRepository.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "045d9074b8539260591a7599582823dba747b69589f76e1ebf412ba13d67206c"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/ProfileRepository.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "f1d33f698cb519ecce8654166ec2abefa6801cbc6c413126ccea4af5be8f84bd"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/PropertyVerificationRepository.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "3d4c5727d39c8b1fb26ee5cd9b10464109495eed768ec7ee4bf93af48c4e3d7e"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/PublicCalendarRepository.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "3bdff65c80db0e24832c50e4dcb7ab5dc740811613b70cb7793a9fc86d7e3a9b"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/RemoteImageClient.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "d09f42633eaaf8f8a964e820dc4727910251f2199bd81aa213b86eacad5bc408"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/ReportRepository.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "bbefc581e7def932adb43c405a8072ee4168c7cfdc8a4410a2eaaf5aeb9c4dcb"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/ResultCallback.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "787af429d6a319ae7292c8073494dac0283990c71c3668ee5afaedf8e0b0636f"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/ReviewRepository.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "343044ed500a81e7cd6b9ea8bcd81088d41c6b9c729fe6ff97e9c6c32b9620e2"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/RoomRepository.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "1e5b6e055c4bbbed4cd0912c685467425eb8e92ca1cb5fccc828ccf9ccc1d388"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/SessionGuardRepository.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "84d9ffaf012d00c604de503ea9352558e909fb42a408adc407dd5d5785da285c"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/utils/AuthValidation.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "9a7a33af7c41907aa7095ee322ae7a9c1f8a78a0395b87d90022d334184dc945"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/utils/BookingAvailability.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "68558242cc8400ef3c466f7f7f6840d89e2150dbc3851e2b55dcfd839bdc5c8e"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/utils/BookingCalendar.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "a8745c28db52eac575a4408736f7003c1536c28bd4aad050a11240c0c825772f"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/utils/BookingPolicy.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "3d689f38dd1408919f15046f7a993b63c31470615657dce578c55bd9c01ab88d"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/utils/BookingResolutionPolicy.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "57002c16174e52bc8f0f23f294082266c1dea3d9d951f1b1f8a21f3ade2faf30"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/utils/CancellationPolicy.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "a8a8b6d5222766ff4354ee683620295497552b5200cf9ffe7fcacbd370d111b0"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/utils/FirebaseConfig.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "69737b84bd4ad74d9b199b777aa536570db64a44a566a3deb6ee03a501466fda"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/utils/FirebaseHelper.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "19829cf750c3c2edae94ccb56bca779aa93814ce392939712dbedd62f8f61165"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/utils/FixedRentalBadge.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "1ea62abcbaf9b4501aaa77bee67a4dc93e9fb5e4cec9bc8540fd48eef9616c6d"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/utils/FormatUtils.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "fc2e420f4b099cfe5694deb0b50a9864998dbe4f86ebe3f83e8a2af4a196b50b"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/utils/GoogleMapsLink.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "fc17c80e373ddcd3a9fa887f2b740d5f9bc5a0beb6f01a7ab29f1e915d63de92"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/utils/HostCalendarPolicy.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "9991fc653bd1e3c4bfbbd2466b866d299e71e59f5b2ce60ecbdf39bb64661d89"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/utils/HostSchedule.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "a7578f61b21078901415c823e2c14177678b37fde1f32f88164600aa97b0cd01"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/utils/HostValidation.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "1402c06070a5c41300d625aabcaa9779e0255c1a700495fac640b59b9410391c"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/utils/MapArea.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "b2b407105218672999ce223ad59a390e09cc0d46f95eab1bc8ae188221347006"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/utils/MediaPolicy.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "9af11e8a2ad8c7dcb0c98931c6374c400c95acf70b5172b8c3d1f29962d924c3"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/utils/OnlineImages.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "2fec15d88add452d6bfe062963b7ec4f5b7c88ec64eb62a7a2a4fcd80612ed51"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/utils/PendingCheckout.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "3e69c587b6f9e828cb1c72e92807ccefe00a61144c1f7b536095865476afbf53"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/utils/ReviewPolicy.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "9298741170c614c38c9d463bfe4393e5fea3dd426200780470161eaaa8df7556"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/utils/RoomFilter.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "f39e328daf8d1874fda934a9a766ede40e9ba6286a4b9beff569555fdfa7a21d"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/utils/TimeUtils.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "83b122dfd81949b47c080d102cb5055be7628cc5862790df3da764bfda0d9f60"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/utils/UiForms.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "3b4fb85ddf62cb54ae3728f61cf348199a3f72a5abd0b9477db9892bef7db828"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/admin/AdminBookingsActivity.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "bb22b1591c25045ba3b73fd7414b34043464edf7b4b64689ea6d2462c2fd4d17"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/admin/AdminBookingsViewModel.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "4f1d8b4900a26dfaae91800b9b070862d8f0ba105bc8c167c018063c259a55fe"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/admin/AdminDashboardActivity.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "c25c98121ae489009a82dd6c6dc1172f1e69fc6c1115881cb2015e9d44b0a6c0"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/admin/AdminEvidenceViewModel.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "eb22d31df372be5c8b1649ad0854b3681eee31e9b96e318f494eba7cb3845a3c"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/admin/AdminViewModel.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "deb6abfaf5981001d840d5f2b4274a90df73a5993c211975a671fefe7f8ec8fc"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/admin/EvidencePreviewActivity.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "ca1bcac82b5ddcaa87e52bb3675f5bbfcf63d91035b76cf59977cdecb58f230b"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/auth/AuthMessages.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "ed0d6ccf9b8880f7ea14a5eeb2da34859d4489315111cb2e0f16a8f5e707c28a"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/auth/AuthViewModel.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "bf8059140e4243e7d13fc34fdba587b12e1f35bcc26ba07f7255b1b5d5cda721"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/auth/BaseAuthActivity.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "bfe205837945aaf202529907a8eaa511097991516db9ddfc4993792ba137da08"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/auth/ForgotPasswordActivity.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "4e83d838287ee6a5dfc86beb215bba2a829ce13ee2081a343b1dbdbf3796da65"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/auth/LoginActivity.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "4de03229a6681a9f19297d716dcd75391dbaf1d1650fd4bc2102afef8d938d58"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/auth/RegisterActivity.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "0a54c0b3c69f08034b9a3763ce5e2f906a119db208f8c458be049af7ac360a3a"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/auth/SessionActivity.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "55257889d6139bbd3947b4df7910d104a41a4862bc30f84fa8f8f89870a685ac"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/booking/BookingActivity.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "f3ba542fe25bf711b648d1e95138c2331ceaa766cdc3350974119a6ac01a851c"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/booking/BookingNoticesActivity.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "076dfe147820d5e8f5632e10f94fcd805f7732968dfaf42cecd4079501a71f91"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/booking/BookingNoticeViewModel.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "0ca322cec4079a7dccbe12869b8fb4c1724492ce212c8ac0c6098dbdd6eecd1f"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/booking/BookingPaymentActivity.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "319a7220496b866684f174e02d1de388e15c60026c4dfd064fa04f58c6da8fe6"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/booking/BookingSuccessActivity.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "cf4fb93c4e9faa3e3c21656a87d69404d79e68d095c0c7119876b8d3d19c2e67"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/booking/BookingViewModel.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "b8bb9761d1f0a9a5dfd248f23bb1c141c16431696d80d5dbf751bfbcf8a46b60"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/booking/MyBookingsActivity.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "a2db36e323bedaf67c933fe967cfe0df9cf9c3530cb1f4a3a3665ce0ecec94a6"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/booking/PaymentReminderService.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "e4ef91935063ca0b526dc20d57a6a965300cfdb42fabbb8519a3b8e8c80ae993"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/booking/PaymentViewModel.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "28d706640cede91dfcfcc6a90161314ba80890096e3e3fb0148ff41eaa8c1479"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/booking/PendingPaymentViewModel.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "a99213f24466576cd2b0402fed40f7eb156ada92819314c43baba0cd4b75f5cd"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/chat/ChatActivity.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "762a26b01c6bb249588f0c07689772ab622b352e791004f9aeb33726f6f13bb1"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/chat/ChatViewModel.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "f325e35e984cdce0a32bdbfa4f4c2dfd77b39546bd2adc5beaf753a8ecc8a2e4"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/chat/ConversationsActivity.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "310ada3988265c50d2cac48974e7d2585b90f4a40fef5f5ff9237a7a58a602c4"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/common/BookingNotifier.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "8311fc11492221531c0a409c856ae9b8750bff6099f3aaaec19d986df2a6ff64"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/common/CheckoutReminder.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "314a54bee391071ea3020bb8470c1f61d472d9c62066f79b2650d994d91ffcfb"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/common/GuestNavigation.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "5330049579858cc43d55499776b597a0e6d013d7c9357769014d2c4f4add8f88"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/common/ManagementNavigation.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "7e156429c0efcd51339cf5af591e7f65d3b366421d26d6ab36d6e15d7dbbc6ee"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/common/RoleAccountActivity.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "eb392b87bbb9d2240291b199935633cafb9196e445378b3d190bc5c2aafff9c0"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/common/SessionGuardViewModel.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "d7b05fa693ca7224aa60d3c9fd2863d30c7d9636f220e486da16fabbc649578b"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/favorites/FavoritesActivity.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "f0825ac6a628649b0329603d222359767b883b21a90ada6739cc004f31124f5f"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/favorites/FavoritesViewModel.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "894b40d7f8cb4631de8a128f67c3801d88de2b118283a43ddf77c48b1be959ac"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/host/AddBuildingActivity.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "c6458c1f034fdedea750c345cac34f9f159013193607078215ed1f6b7b0b0c04"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/host/CreateSpaceActivity.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "b30513770496392de4b1fa84b16c61ab7f9067eb2f60a370357e8cd6af4ea750"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/host/HostApplicationViewModel.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "02a99e04b472c498fb44e7968729306c9e2517209d5f40d1c5ecfc418adfd918"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/host/HostApplyActivity.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "5804787940379dd8491867643879c85d249e0eb1443cf69131dfb29d814193c6"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/host/HostBookingsActivity.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "ebbe2490e2f14d859c1b88203dbf12d897312c6ab607c0f6c2c98a88fb9f57c7"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/host/HostDashboardActivity.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "41762409bd30b2ef97447741767a91feed20f8a9f0018ae59581af1bb5588220"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/host/HostMonthCalendarDialog.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "821bedbf02438c876c1d06d687e0fd4f88efd6b1e3b6d05500bdc6f1c55c8512"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/host/HostReportsActivity.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "765d579992b7d25542bc658794d152ffa1c37682576fb7fc567983ffd8eaf766"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/host/HostScheduleEditor.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "48b945054fdec506bd050b33506ed52a6a0f7119298e1241043efb73ff67b6fc"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/host/HostViewModel.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "8db763127018231ad09a4e93606ad39e68d1305c02703d621b48c600a39bab59"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/host/PropertyVerificationActivity.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "716dea940bf0052e450f64f89c8b024a8777bd17bf8357d44707c71f87490818"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/host/PropertyVerificationViewModel.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "f383c3824999c66488305d8a082c9603a89e193b32580213623093697c313de5"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/map/MapActivity.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "a17215f943875477bed975e66caf6dd3127fd45b22c6d30cc0cf08ecc36dc1d4"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/map/MapViewModel.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "f79d8c3fe444fde1af0bc058ad887d238297b9cf2bee1301963d1458e55ba0cb"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/map/NearbyPlacesActivity.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "e0efc2260fe2f4af4eb332ad88309e39cd0170ccdfa823e59b8a4334fcd5fd8f"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/map/NearbyPlacesViewModel.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "63520a38bbdff8aa8a24f70860cce95499b7d443b1389ebdfb1a9aaf9c2bbe0e"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/profile/AvatarEditor.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "477d6dc1688589859c48c1042734de53924752b378e8e37459c33f42904b9941"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/profile/ProfileActivity.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "40fd329e7927f916515d4008638197856f02a1d7e29aff1d28b36338b4f590cd"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/profile/ProfilePhotoViewModel.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "ba061ffc25e8f1c4da3cc304abbba2265b3b30fb2e1472e455fc9c572f986775"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/report/ReportCenterActivity.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "8abf604e4ce3bf0cd758b903d95916bb0fa57cb519e8c40f71ef8b7d3d842e54"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/report/ReportCenterViewModel.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "944adae12c31b02796b55594054664018e34bb3e01b53a03d4a9f2046688ed56"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/report/ReportViewModel.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "118b39f37c026cc153e0cbf9c6408e0bd4419f03de707666571d334709427783"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/report/RoomReportActivity.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "48653cd71f92990d8155d8767bc6c7543cd3833dcdf02b823ab8f720b89cc2e1"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/review/RoomReviewsActivity.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "f345bf1f223a1673a7ec1c5b01cca141b515e9c71d87554bd7bbf55add2ba411"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/review/RoomReviewsViewModel.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "0e46a7f86dffe59add0562d7a4739829a9b57ffca3f9fe98f677878a6db6f994"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/room/MainActivity.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "5cf4bbaa71aa61b909f8d328444e40abe120f63b8402f9c34b2f0a3fac1e1de2"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/room/RoomViewModel.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "7b5e70b2d66582ea5646ab81f3286c62dd93acef7d2c654ce914587ed5c953cd"
+  },
+  {
+    "path": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/room/SpaceDetailActivity.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "37879799abe4b9b3eb0a63b9d0d3f10d3f8daca5bc574ffc337d0ad2d64b796e"
+  },
+  {
+    "path": "app/src/androidTest/java/vn/edu/ueh/phuclu/broomsharing/BookingResolutionAcceptanceTest.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "9fdf7a62ac906a199f1502d186ea2c91c172921e98422bc1b3f2c2f04e14b6ec"
+  },
+  {
+    "path": "app/src/androidTest/java/vn/edu/ueh/phuclu/broomsharing/ChatUiTest.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "7095035b52351c50f91e9310e0e28cc6f374712599da09d233c706d7a8c692d8"
+  },
+  {
+    "path": "app/src/androidTest/java/vn/edu/ueh/phuclu/broomsharing/CloudBookingAcceptanceTest.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "f5067dcff137505941eeac5276bfac29137e186ca18801f5b3e768f8f2b3966d"
+  },
+  {
+    "path": "app/src/androidTest/java/vn/edu/ueh/phuclu/broomsharing/CloudChatAcceptanceTest.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "d8d429122c20c9605afa9f8bbc25b042f0e3bb9c3ec5db0bd5aee0598b9a35eb"
+  },
+  {
+    "path": "app/src/androidTest/java/vn/edu/ueh/phuclu/broomsharing/CloudinaryContractTest.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "e1f4c01f7c6817c76935b0b578c0b5a9f78a944e375c456c0a7ad857b3243e11"
+  },
+  {
+    "path": "app/src/androidTest/java/vn/edu/ueh/phuclu/broomsharing/CloudinaryLiveUploadTest.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "f979f900fe3e445fbec4126e12719df065b973322858aba495c86eeacc0ebc70"
+  },
+  {
+    "path": "app/src/androidTest/java/vn/edu/ueh/phuclu/broomsharing/CloudMediaDemoAcceptanceTest.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "ba32630eb512d7e50b4a419c92b6533bbbd53ef79ea69e5b7723a88fc91e7fc4"
+  },
+  {
+    "path": "app/src/androidTest/java/vn/edu/ueh/phuclu/broomsharing/DemoFlowCheckTest.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "0f74fc407c9afa3fbaaccaa33b3e6ebc13141e6ad5fd407d9eafe7243e2e60aa"
+  },
+  {
+    "path": "app/src/androidTest/java/vn/edu/ueh/phuclu/broomsharing/FirestoreRepositoryTest.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "41510dd703b017b04999757644d08b402101b10c313da939de8e4ef1cd8881a7"
+  },
+  {
+    "path": "app/src/androidTest/java/vn/edu/ueh/phuclu/broomsharing/MapApiTest.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "55cba600f18fe94c07c8de132c549738a2565927015411a12b8d52d7306cbc89"
+  },
+  {
+    "path": "app/src/androidTest/java/vn/edu/ueh/phuclu/broomsharing/MapExperienceTest.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "9dc17bfa97cd7abc618ec470210c4973960ccdf1dc3389f837fa35537758a0a9"
+  },
+  {
+    "path": "app/src/androidTest/java/vn/edu/ueh/phuclu/broomsharing/MediaRepositoryAcceptanceTest.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "fa2521528e0efec4e02f5772827bdfbfbfaf7d4407367e64ebe4ae61463d3d65"
+  },
+  {
+    "path": "app/src/androidTest/java/vn/edu/ueh/phuclu/broomsharing/MemberIntegrationCloudTest.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "db13371f6379b936f1ec8fa8d6819742ab2cd93c0c7be7660f170da04327fd7d"
+  },
+  {
+    "path": "app/src/androidTest/java/vn/edu/ueh/phuclu/broomsharing/PayOSAcceptanceTest.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "e424a1c2055d4008560cfe99aee55385e4e3c1be4e9e19ec62afc4ddb97e6303"
+  },
+  {
+    "path": "app/src/androidTest/java/vn/edu/ueh/phuclu/broomsharing/PhucPhase3UiTest.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "d1d2cea1bb32ddad843dbb4b6377b9e788e0d401ffb8bc92f1c420598838eff4"
+  },
+  {
+    "path": "app/src/androidTest/java/vn/edu/ueh/phuclu/broomsharing/ProfileIdentityAcceptanceTest.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "5da19303dee182214c8a7bfe564ad224f13822461838f71dd68704a852bb55be"
+  },
+  {
+    "path": "app/src/androidTest/java/vn/edu/ueh/phuclu/broomsharing/RoleWorkspaceTest.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "f2678755f76d8da3eb22fa42129589fb331cee365e45d077a50380f732991c61"
+  },
+  {
+    "path": "app/src/androidTest/java/vn/edu/ueh/phuclu/broomsharing/RoomCounterCompatibilityCloudTest.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "22666ee0f43e7aeb6f7b494ef64dacf7b93c5aa6a0d37349dd9351550c4481bd"
+  },
+  {
+    "path": "app/src/androidTest/java/vn/edu/ueh/phuclu/broomsharing/repository/PaymentContractTest.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "6bd90383fb719630c6c507d7a7e9c46357a6a6a13648f20ab775dbf7abe79cab"
+  },
+  {
+    "path": "app/src/androidTest/java/vn/edu/ueh/phuclu/broomsharing/repository/PhucPhase3AcceptanceTest.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "949fbd9041f70aa77b7f73cd4c839fb7768e3e860d17acd52d2018ba56ec3517"
+  },
+  {
+    "path": "app/src/androidTest/java/vn/edu/ueh/phuclu/broomsharing/ui/auth/AuthFormValidationTest.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "737f23c54281f076f07c513f4e93cd1c52c4be3b6ff85b2002d715c20f2d06b7"
+  },
+  {
+    "path": "app/src/androidTest/java/vn/edu/ueh/phuclu/broomsharing/ui/auth/AuthUiTest.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "9ef7ce47f128134652e9b201d83653c806ae06908bb9386b29f3120ff9f873e3"
+  },
+  {
+    "path": "app/src/androidTest/java/vn/edu/ueh/phuclu/broomsharing/ui/auth/FirebasePasswordResetTest.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "6b71068a461e2f338c80862adeaa8d3482cf8e0d2b5ca4931ea3a59e47b00376"
+  },
+  {
+    "path": "app/src/androidTest/java/vn/edu/ueh/phuclu/broomsharing/ui/auth/LiveAuthTest.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "6a2b1e6d95d4615ac17083a8ddd4c36f495c402e58b5907736d3ebe03cac31e6"
+  },
+  {
+    "path": "app/src/androidTest/java/vn/edu/ueh/phuclu/broomsharing/ui/map/MapPriorityTest.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "a22bd55ae5e34bf813897652297cb06ad20307a05e352ed6b177a9ca9c4adee5"
+  },
+  {
+    "path": "app/src/test/java/vn/edu/ueh/phuclu/broomsharing/BookingPolicyTest.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "6a34ee2892c3bf5326d822380074ec3b1f5bc325d7284f13565e837fbb378d37"
+  },
+  {
+    "path": "app/src/test/java/vn/edu/ueh/phuclu/broomsharing/BookingResolutionPolicyTest.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "b35dc12ff2fffa151ac271856905caeeed435c53c26b6613db157be9adf42564"
+  },
+  {
+    "path": "app/src/test/java/vn/edu/ueh/phuclu/broomsharing/BusinessPolicyTest.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "cc7750996579652a711937debfd6cef168cf6b40c7c05ec33bd2b23ab53a7250"
+  },
+  {
+    "path": "app/src/test/java/vn/edu/ueh/phuclu/broomsharing/CancellationPolicyTest.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "40939475e820f0384b009b95e4767628e1dc1efcc99f254d9f7123b522175ca8"
+  },
+  {
+    "path": "app/src/test/java/vn/edu/ueh/phuclu/broomsharing/FixedRentalBadgeTest.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "e1fe63fa333959516fa5911c9976453dde69029d1bc7d831c28baa365a34c3bf"
+  },
+  {
+    "path": "app/src/test/java/vn/edu/ueh/phuclu/broomsharing/HostCalendarPolicyTest.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "4043d4692ff95eee2dfab412e1e4707ccd7a8a624a494de2b554136ea7d3d85f"
+  },
+  {
+    "path": "app/src/test/java/vn/edu/ueh/phuclu/broomsharing/HostScheduleTest.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "830f3d2b6d7ac452fb4a2240a23d444f42a72ebc6e7f3d54d35cf657a77a997d"
+  },
+  {
+    "path": "app/src/test/java/vn/edu/ueh/phuclu/broomsharing/HostValidationTest.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "1f04d79ae9e41eb103506ea8908c3e90c157a91f51effc900b24e6190cb786c1"
+  },
+  {
+    "path": "app/src/test/java/vn/edu/ueh/phuclu/broomsharing/InstantBookingTest.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "553f764781e9b5075455518272410887067ce858b4cd3ae7759f1345aefaf078"
+  },
+  {
+    "path": "app/src/test/java/vn/edu/ueh/phuclu/broomsharing/MediaPolicyTest.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "38576e40a4706877c7058dd2a0b337b68a30c506dd29a9767ada0077d5cb80cc"
+  },
+  {
+    "path": "app/src/test/java/vn/edu/ueh/phuclu/broomsharing/PaymentCancellationTest.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "3902d44853a90c73ce26f6e33b1f05b6c912b77269f1645b694ebb4b56502c6d"
+  },
+  {
+    "path": "app/src/test/java/vn/edu/ueh/phuclu/broomsharing/PaymentExpiryTest.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "330cdb2aa172b7e0f3dafa49cc01b4ed82ef69e9820e55b4ab6f87d0c60b91e2"
+  },
+  {
+    "path": "app/src/test/java/vn/edu/ueh/phuclu/broomsharing/PendingCheckoutTest.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "2b48ec095a048fceedcbf4175ad464f83965350ab2d1b038fa7af258e88eb4b2"
+  },
+  {
+    "path": "app/src/test/java/vn/edu/ueh/phuclu/broomsharing/RemoteImagePolicyTest.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "654c1bd874358831476802e769e8482a390f06b4aa7a65fe57518712f899522b"
+  },
+  {
+    "path": "app/src/test/java/vn/edu/ueh/phuclu/broomsharing/RoomFilterTest.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "cb274203720569861af4f3885295271714eff0c3bdaf8afcc7536efc4d5d885f"
+  },
+  {
+    "path": "app/src/test/java/vn/edu/ueh/phuclu/broomsharing/utils/MapAreaTest.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "b510eaec78d8c9a9126341f3b1a4689bfe34bd835f2b582319b1790d47e10673"
+  },
+  {
+    "path": "app/src/test/java/vn/edu/ueh/phuclu/broomsharing/ui/auth/AuthErrorMappingTest.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "31cdcefd3cb473ccba5cc3cfe2d37c8ba7ff4bfb70873bba3e39a6e561b9b777"
+  },
+  {
+    "path": "app/src/test/java/vn/edu/ueh/phuclu/broomsharing/ui/auth/AuthValidationTest.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "63ac29be5faaadd8dd703fb273353628a2460abede231b0ac5b6ee4f604002e2"
+  },
+  {
+    "path": "backend/payments/src/test/java/vn/edu/ueh/broomsharing/payment/LiveProviderCheck.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "cb418e0ba7f641a3a4d47eb07a9b8b2a12266d4caa4d08d8880c82242f1331d3"
+  },
+  {
+    "path": "backend/payments/src/test/java/vn/edu/ueh/broomsharing/payment/PaymentPolicyTest.java",
+    "commentOnlyChange": true,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "65fddc2f30e64d646e83a5a772a8a4bcca126e0c8d048f969021a23f03bf076d"
+  },
+  {
+    "path": "backend/payments/src/test/java/vn/edu/ueh/broomsharing/payment/PaymentServiceTest.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "aeb215344916ecc685ce748ea5eaf7783d7d24401c17747ee9b5c8117774b41d"
+  },
+  {
+    "path": "backend/payments/src/test/java/vn/edu/ueh/broomsharing/payment/RelayAcceptanceCheck.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "062805f9e36fadb130793e9eef7c030920398023502aeb1761fee4a7bb623eea"
+  },
+  {
+    "path": "backend/payments/src/test/java/vn/edu/ueh/broomsharing/payment/WebhookSignatureTest.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "b603ff25ed47c9cc6ceea85687081c748e661308ed767d04319baa16211544e1"
+  },
+  {
+    "path": "backend/payments/src/main/java/vn/edu/ueh/broomsharing/payment/BookingHold.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "896dc8bd67c6583dcf93917e040b016d73105d15707dbb80c14ab9d40ee40a4e"
+  },
+  {
+    "path": "backend/payments/src/main/java/vn/edu/ueh/broomsharing/payment/Config.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "7d82b42db9ee117b32cafb27fe1eadf780df741515f158ee3ec770dd58bb7b85"
+  },
+  {
+    "path": "backend/payments/src/main/java/vn/edu/ueh/broomsharing/payment/PaymentGateway.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "d4318039d10b61acaf7a2abd0ab31d1db85c168d450caa2d77a8ea0b770ae77a"
+  },
+  {
+    "path": "backend/payments/src/main/java/vn/edu/ueh/broomsharing/payment/PaymentPolicy.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "28333ab77944f1b20478bd2d7b49f2dc9e5e56c741c74789a3e74c0114132798"
+  },
+  {
+    "path": "backend/payments/src/main/java/vn/edu/ueh/broomsharing/payment/PaymentServer.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "cf054cfe686711608be1c57ce6914d0ce29723dadfa08c8ec65183408c9a7d26"
+  },
+  {
+    "path": "backend/payments/src/main/java/vn/edu/ueh/broomsharing/payment/PaymentService.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "9b714393fba0f646ee8c2764af75c138adae47e82cdef25bf34466ae7604a6d4"
+  },
+  {
+    "path": "backend/payments/src/main/java/vn/edu/ueh/broomsharing/payment/PayOSGateway.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "7e8a13d16bc009b89a41d75e2294307172ad615bb1a1556318d716bfe883221c"
+  },
+  {
+    "path": "tools/dataset/FirestoreDataset.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "547e1c8ed252c1bb7f66fa15d74ee3022d92380fd649ce92cc78cd3546a5dfa6"
+  },
+  {
+    "path": "tools/dataset/RentalPlacesDataset.java",
+    "commentOnlyChange": false,
+    "tokensUnchanged": true,
+    "hasComments": true,
+    "sha256": "4e210a5555e5d1d92deb175bf52a993f7ecfdf7296394e42ce542627349dead9"
+  }
+]

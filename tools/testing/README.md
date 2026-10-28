@@ -1,5 +1,18 @@
 # Kiểm thử nghiệp vụ
 
+## Nghiệm thu hiện tại: INSTANT_5M
+
+- Booking mới giữ lịch tạm tối đa 5 phút và mở QR ngay. Host không duyệt hoặc từ chối booking mới. Chỉ backend xác nhận nhận đủ 40% đúng hạn.
+- `CloudBookingAcceptanceTest#instantConcurrentGuestsCannotDoubleBookOrConfirmBeforePayment`: hai Guest thật tranh lịch của phòng PAYOS đã cấu hình, kiểm retry và từ chối xác nhận bằng client, sau đó hủy đúng các lượt thử và giữ lịch sử. Bật `runCloudBookingChecks=true`.
+- `PayOSAcceptanceTest#instantBookingCreatesQrWithoutHostApprovalAndReusesDeadline`: QR thật 2.000đ, không chuyển tiền; kiểm không cần Host duyệt, cùng order/deadline khi mở lại, tái tạo Activity, hủy link và nhả đúng khóa. Bật `runPayosLive=true`.
+- Hai ca cloud đọc credential từ vùng private của APK debug: `files/payos-acceptance/accounts.properties` và `files/video-credentials.local.properties`. Chép bằng `run-as`; không đóng gói credential vào APK, không commit, gỡ bản chép sau khi kiểm tra.
+- `FirestoreRepositoryTest#javaBookingTransactionsAdminAndRules` hiện chỉ chạy với APK Firestore emulator. Phần đầu kiểm tạo booking tức thời và cấm Host xác nhận; các ca vận hành lịch sử tiếp theo dùng fixture được chuẩn bị tường minh tại emulator. Không dùng kết quả của phần fixture như bằng chứng backend đã nhận tiền.
+- Bộ Rules dùng chung database emulator phải chạy lần lượt, không chạy song song với cohort SDK vì có cùng `appConfig/payments`.
+- Sau khi build đồng bộ cả hai APK cho đúng biến thể, dùng `run_device_check.py --variant cloud|emulator --name <receipt-name> --class-name <class-or-method> [--flag <opt-in>]`. Runner ghim bản sao APK và SHA, kiểm cấu hình, dùng timeout và chỉ ghi pass khi cohort đã chạy thành công, không chỉ dựa vào exit code của ADB.
+- Bằng chứng lượt kiểm tra hiện tại nằm tại `output/verification/final-qa-2026-10-28`. Các kết quả ngày cũ bên dưới chỉ phục vụ truy vết, không thay cho nghiệm thu luồng mới.
+
+## Quy trình và bằng chứng trước INSTANT_5M
+
 Ứng dụng vẫn dùng Java/XML. Các probe Rules dùng fixture và Firestore emulator trên `127.0.0.1:8085`, database `broomsharing`; không dùng kết quả emulator để kết luận đã thử cloud hoặc đã xác thực chữ ký token Firebase Auth. Các lượt cloud có opt-in và biên bản riêng bên dưới.
 
 [Công cụ đối soát phòng cũ](../maintenance/README.md) chạy cloud bằng tài khoản Admin thật sau khi được chấp thuận. `test_room_counter_migration.py` kiểm dữ liệu và database emulator riêng `counter_compatibility_qa`; `RoomCounterCompatibilityCloudTest` chỉ đọc cloud khi có `runRoomCounterReadChecks=true`. Không chạy công cụ apply như một phần của bộ test mặc định.
@@ -32,9 +45,9 @@ Chuỗi Repository kiểm Host tạo tòa nhà/phòng, Admin duyệt, Guest xem,
 
 Để tạo APK dùng database cloud, build lại với `'-PfirestoreEmulatorHost='`. Rules/index tương ứng đã triển khai ngày 24/10/2026 vào database `broomsharing`; khi đổi cấu hình ở lần sau vẫn cần triển khai và xác minh lại. Release hiện chưa có cấu hình ký phát hành; không dùng APK unsigned để cài trực tiếp.
 
-## Nghiệm thu nghiệp vụ trên cloud thật
+## Nghiệm thu nghiệp vụ trên cloud thật trước INSTANT_5M (lưu để truy vết)
 
-Chỉ chạy khi đã được chấp thuận ghi dữ liệu thử lên cloud. `prepare_cloud_business_demo.py --serve` tạo/giữ bốn tài khoản Auth thật, hồ sơ demo và bridge loopback port 8086. Bootstrap và ba lịch sử thời gian dùng quyền quản trị từ phiên Firebase CLI local; bridge giới hạn collection, prefix phòng, UID và ID booking của lượt đó. Các transaction nghiệp vụ vẫn do Android Repository gửi với ID token của từng vai trò, không đi qua bridge.
+Không chạy lại hướng dẫn cohort cũ này cho booking mới. Các lệnh dưới đây mô tả cách chuẩn bị bằng chứng lịch sử: `prepare_cloud_business_demo.py --serve` tạo/giữ bốn tài khoản Auth thật, hồ sơ demo và bridge loopback port 8086. Bootstrap và ba lịch sử thời gian dùng quyền quản trị từ phiên Firebase CLI local; bridge giới hạn collection, prefix phòng, UID và ID booking của lượt đó. Các transaction nghiệp vụ khi đó do Android Repository gửi với ID token của từng vai trò, không đi qua bridge.
 
 ```powershell
 python tools/testing/prepare_cloud_business_demo.py --serve

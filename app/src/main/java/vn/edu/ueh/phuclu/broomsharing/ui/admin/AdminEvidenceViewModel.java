@@ -12,6 +12,7 @@ import vn.edu.ueh.phuclu.broomsharing.repository.ResultCallback;
 public class AdminEvidenceViewModel extends ViewModel {
     private final AdminRepository repository = new AdminRepository();
     public final MutableLiveData<UiState<byte[]>> evidence = new MutableLiveData<>();
+    // Giữ trạng thái tải byte của bằng chứng cho màn preview, trả lỗi khi nguồn không cho phép đọc.
     public void load(String id, String path) {
         if (evidence.getValue() != null && evidence.getValue().loading) return;
         evidence.setValue(UiState.loading());

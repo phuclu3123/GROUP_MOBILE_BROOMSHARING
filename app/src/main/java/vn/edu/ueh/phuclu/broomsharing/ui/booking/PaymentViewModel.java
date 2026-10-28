@@ -32,17 +32,20 @@ public final class PaymentViewModel extends ViewModel {
     };
 
     // Chỉ chạy đồng hồ/poll khi màn hình đang mở; không tạo QR lại theo timer.
+    // Bắt đầu đối soát định kỳ khi màn thanh toán hoạt động; listener và backend vẫn là nguồn trạng thái tiền.
     public void startUpdates() {
         if (visible) return;
         visible = true;
         handler.post(tick);
     }
 
+    // Ngừng lịch đối soát của màn hình để không gửi request khi View đã dừng.
     public void stopUpdates() {
         visible = false;
         handler.removeCallbacks(tick);
     }
 
+    // Gắn đúng booking và bắt đầu quan sát giao dịch; mở lại màn hình phải dùng cùng mã đơn, không gia hạn thời hạn.
     public void bind(String id) {
         if (id == null || !id.matches("[A-Za-z0-9_-]{1,120}")) {
             state.setValue(UiState.error(new IllegalArgumentException("Thiếu mã booking.")));
@@ -70,6 +73,7 @@ public final class PaymentViewModel extends ViewModel {
         load(true);
     }
 
+    // Tạo/lấy lại QR hoặc đối soát qua Repository, đồng bộ cờ bận và lỗi cho màn hình.
     public void load(boolean create) {
         if (busy || bookingId == null) return;
         UiState<Payment> previous = state.getValue();

@@ -62,6 +62,7 @@ public class ProfilePhotoViewModel extends AndroidViewModel {
                 });
     }
 
+    // Lưu URL ảnh mới trước; chỉ dọn ảnh upload gần đây khi kết quả lưu hồ sơ cho phép.
     private void persist(String url, List<String> uploaded) {
         profiles.setPhoto(
                 owner,

@@ -24,6 +24,7 @@ public class PropertyVerificationRepository {
         return value;
     }
 
+    // Lưu hồ sơ và URL minh chứng đã kiểm tra, giữ ownerUid theo phiên và trạng thái chờ xét duyệt.
     public void submit(String id, PropertyVerification item, ResultCallback<String> cb) {
         final String actor;
         try {
@@ -151,6 +152,7 @@ public class PropertyVerificationRepository {
                 .addOnFailureListener(cb::onError);
     }
 
+    // Theo dõi hồ sơ xác minh của Host, không trộn kết quả duyệt bài đăng với kết quả duyệt bằng chứng.
     public ListenerRegistration watch(ResultCallback<List<PropertyVerification>> cb) {
         String actor = uid();
         return db.collection("propertyVerifications")

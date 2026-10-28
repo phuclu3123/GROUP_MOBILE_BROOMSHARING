@@ -1,0 +1,86 @@
+{
+  "entities": {
+    "users/{uid}": {
+      "before": "Hồ sơ tài khoản trong <TABLE> nối danh tính đăng nhập với dữ liệu nghiệp vụ của ứng dụng. UID xác định chủ hồ sơ, còn [[role]] và [[status]] được các điều kiện phân quyền sử dụng để quyết định thao tác được phép. Hai trường tên có mục đích khác nhau: [[name]] dùng để hiển thị, trong khi [[username]] phục vụ tra cứu đăng nhập. Các thông tin liên hệ được lưu cùng hồ sơ để luồng đặt chỗ lấy dữ liệu người thuê khi tạo booking.",
+      "after": "Guest, Host và Admin được phân biệt bằng giá trị vai trò trong cùng cấu trúc hồ sơ. Khi một Host thuê không gian của người khác, UID đó vẫn được dùng làm người thuê của booking; ứng dụng không cần tạo thêm một hồ sơ Guest tương ứng. Trường [[phoneVerified]] cũng cần được hiểu đúng phạm vi: giá trị mặc định là false, không đại diện cho xác minh email hay việc hồ sơ Host đã được duyệt."
+    },
+    "publicHosts/{uid}": {
+      "before": "Khi ghép dữ liệu phòng để hiển thị, [[RoomRepository]] đọc tên và trạng thái Host từ bản chiếu [[publicHosts]]. <TABLE> cho thấy bản chiếu chỉ giữ thông tin cần cho ngữ cảnh đó, thay vì sao chép toàn bộ email, số điện thoại và thuộc tính quản trị của hồ sơ tài khoản. Document sử dụng cùng UID với [[users]], do đó đây là một cách biểu diễn bổ sung của tài khoản Host, không phải một loại người dùng mới.",
+      "after": "Sự nhất quán của bản chiếu được duy trì bằng luồng ghi và điều kiện Rules đối chiếu tên, trạng thái với hồ sơ Host sau thao tác. Cơ chế này khác với việc mọi trường sao chép trong Firestore tự cập nhật khi dữ liệu nguồn đổi. Tên collection cũng không quyết định mức công khai: quyền đọc hiện yêu cầu tài khoản đang hoạt động."
+    },
+    "usernames/{normalizedUsername}": {
+      "before": "Luồng đăng nhập bằng tên tài khoản cần tìm email trước khi gọi Firebase Authentication. Cấu trúc ở <TABLE> dùng tên đăng nhập đã chuẩn hóa làm document ID để tra cứu trực tiếp, sau đó lấy UID và email tương ứng. Cách tổ chức này tách nhiệm vụ tìm tài khoản khỏi việc kiểm tra mật khẩu; document alias chỉ cung cấp thông tin ánh xạ cho bước xác thực tiếp theo.",
+      "after": "Khi đăng ký, Repository kiểm tra alias và ghi hồ sơ cùng ánh xạ username trong một transaction Firestore. Tuy nhiên, việc tạo danh tính Authentication nằm ở dịch vụ khác, nên không được xem toàn bộ quá trình là một transaction chung giữa hai dịch vụ. Quyền tra cứu alias trước đăng nhập và phạm vi thông tin email được phân tích ở mục 4.4."
+    },
+    "hostApplications/{uid}": {
+      "before": "Đơn đăng ký Host là dữ liệu xét duyệt trước khi tài khoản có quyền cho thuê. <TABLE> tập hợp thông tin do người nộp khai báo, trạng thái xử lý và thông tin người duyệt. Document ID là UID người nộp, vì vậy mỗi tài khoản có một document đơn hiện hành. Trường [[identityDoc]] trong cấu trúc này là chuỗi thông tin giấy tờ, không đồng nghĩa với việc tệp PDF hoặc ảnh giấy tờ được lưu nhị phân trong document.",
+      "after": "Trạng thái của đơn và trạng thái của tài khoản giải quyết hai việc khác nhau: một bên mô tả kết quả đề nghị trở thành Host, bên còn lại kiểm soát khả năng sử dụng hệ thống. Khi đơn bị từ chối được nộp lại, luồng hiện tại cập nhật chính document đó về PENDING. Vì vậy, bảng này mô tả hồ sơ đang xử lý, không phải một tập lịch sử nhiều đơn cho cùng người nộp."
+    },
+    "users/{uid}/favorites/{roomId}": {
+      "before": "Chức năng yêu thích ghi nhận phòng mà một tài khoản muốn xem lại, không tham gia giữ lịch thuê. Với cách lưu trong <TABLE>, UID chủ danh sách đã có ở đường dẫn cha và room ID đồng thời là document ID. Một cặp tài khoản và phòng vì vậy được biểu diễn tại một vị trí xác định; thao tác lưu lại dùng [[set()]], còn bỏ yêu thích xóa đúng document con đó.",
+      "after": "Tên phòng được lưu như một snapshot để hiển thị danh sách, còn [[roomId]] là liên kết dùng khi truy cập dữ liệu phòng. Tên trong Favorite có thể khác tên phòng sau lần chỉnh sửa tiếp theo, vì Repository không có cơ chế tự đồng bộ toàn bộ Favorite. Việc xóa một Favorite chỉ bỏ dấu lưu của tài khoản, không xóa phòng hoặc tác động tới booking."
+    },
+    "users/{uid}/noticeReads/{eventId}": {
+      "before": "Nội dung cập nhật về booking được ứng dụng suy ra từ dữ liệu nghiệp vụ; phần cần lưu riêng cho mỗi người nhận là mốc đã đọc. Do đó, <TABLE> chỉ có [[readAt]], còn định danh sự kiện nằm trong document ID. [[NoticeRepository]] theo dõi nhánh của tài khoản hiện tại để lấy tập sự kiện đã đọc, rồi dữ liệu đó được dùng khi xác định trạng thái chưa đọc trên giao diện.",
+      "after": "Việc tách mốc đã đọc khỏi nội dung sự kiện giúp hai tài khoản theo dõi trạng thái đọc độc lập mà không sửa booking nguồn. Khi ghi nhận đã đọc, Repository dùng thời gian máy chủ. Event ID là định danh của sự kiện dẫn xuất, không phải một trường liên kết tới document chứa tiêu đề, nội dung hay người gửi trong chính subcollection này."
+    },
+    "buildings/{buildingId}": {
+      "before": "Building mô tả địa điểm dùng chung cho các phòng trong cùng tòa nhà, gồm chủ sở hữu, địa chỉ, người liên hệ và chỉ dẫn đến nơi. Các thuộc tính trong <TABLE> giúp tách thông tin địa điểm khỏi giá và điều kiện thuê của từng Room. Quan hệ với phòng được xác định bằng [[rooms.buildingId]]; khi tạo booking, Repository còn kiểm tra tòa nhà đang hoạt động và chủ tòa nhà khớp chủ phòng.",
+      "after": "Tọa độ phục vụ hiển thị vị trí, trong khi địa chỉ và chỉ dẫn cung cấp thông tin đến nơi cho người thuê. Model có cả latitude, longitude và getter tạo GeoPoint, nhưng điều đó không chứng minh mọi document cũ đều lưu đủ các biểu diễn. Khi đối chiếu dữ liệu, cần phân biệt giá trị được tính từ getter với trường đã được ghi thực tế, thay vì coi chúng là ba nguồn vị trí độc lập."
+    },
+    "rooms/{roomId}": {
+      "before": "Room là đơn vị không gian mà người dùng xem và đặt thuê. <TABLE> kết hợp mô tả vật lý, liên kết tòa nhà và Host, biểu giá, điều kiện nhận thuê cùng các trường quản trị tin đăng. Cấu trúc này cho phép [[BookingPolicy]] tính phương án thuê từ dữ liệu phòng hiện tại, trong khi màn hình danh sách và chi tiết sử dụng cùng room ID để truy cập thông tin.",
+      "after": "Hai trường [[approvalStatus]] và [[listingStatus]] thể hiện hai trục trạng thái khác nhau: kết quả xét duyệt nội dung và trạng thái khai thác tin. Một phòng đã được duyệt vẫn có thể ngừng hiển thị hoặc bị đình chỉ, nên điều kiện đọc công khai phải xét cả hai. Các cấu hình lịch trong Room mô tả điều kiện nhận đặt; tập slot đã bị booking chiếm lại được lưu trong lịch tháng riêng."
+    },
+    "bookings/{bookingId}": {
+      "before": "Booking ghi lại một yêu cầu thuê cụ thể, gồm hai bên tham gia, không gian, khoảng thời gian và kết quả xử lý. Các trường snapshot trong <TABLE> giữ tên phòng, địa chỉ, thông tin người thuê và giá áp dụng lúc đặt. Nhờ đó, dữ liệu của yêu cầu đã tạo được phân biệt với thông tin phòng có thể thay đổi về sau. Luồng tạo hiện tại ghi [[schemaVersion]] bằng 2 để nhận diện cấu trúc booking được dùng cùng cơ chế lịch tháng.",
+      "after": "Nhóm trường hủy chỉ có ý nghĩa khi đặt trong vòng đời booking và phiên bản chính sách đã lưu. Giá trị trả trước dự kiến 40% được ghi vào snapshot, còn trạng thái thanh toán mới là UNAVAILABLE. Vì chưa có luồng thu và hoàn tiền thực tế, các trường số tiền và tỷ lệ chính sách không được diễn giải thành chứng từ tiền đã nhận hoặc đã chuyển trả."
+    },
+    "availabilityMonths/{roomId_yyyyMM}": {
+      "before": "Lịch tháng là dữ liệu kỹ thuật dùng để kiểm tra và cập nhật khả năng nhận đặt của một phòng trong một tháng. <TABLE> tách khóa giữ trọn tháng của chế độ FIXED khỏi các slot 30 phút của chế độ HOURLY. Document ID ghép room ID với tháng YYYYMM, giúp Repository xác định trực tiếp những document phải đọc trong transaction, thay vì tìm lịch bằng thông tin người thuê hoặc tên phòng.",
+      "after": "Danh sách [[slotsBusy]] và map [[hourlyBookings]] cùng mô tả lịch thuê giờ ở hai góc độ: tập slot đang bận và phần slot thuộc từng booking. Khi giải phóng lịch, booking ID xác định đúng tập cần bỏ. Các biểu diễn này phải được cập nhật nhất quán trong cùng thao tác; việc một booking đang PENDING không có nghĩa lịch của nó vẫn còn trống."
+    },
+    "conversations/{guestUid:hostUid}": {
+      "before": "Document hội thoại phục vụ hộp thư và thông tin tổng hợp của cuộc trao đổi giữa một bên thuê và một Host. Theo <TABLE>, ID được ghép theo thứ tự vai trò guest UID và host UID; phòng hoặc booking chỉ là ngữ cảnh khởi tạo. Một hội thoại đã tồn tại được dùng lại cho cặp tài khoản đó, do vậy các booking khác nhau của cùng cặp không mặc nhiên tạo các cuộc trao đổi tách biệt.",
+      "after": "Các bộ đếm nhận và đã đọc cho phép xác định lượng tin chưa đọc của từng bên mà không gắn cờ vào từng message. [[sequence]] là thứ tự chung của hội thoại, còn [[guestReceived]] và [[hostReceived]] chỉ đếm tin đến từng người. Khi gửi tin, Repository cập nhật preview, thứ tự và bộ đếm cùng message mới trong transaction, tránh trường hợp hộp thư chỉ phản ánh một phần thao tác gửi."
+    },
+    "conversations/{guestUid:hostUid}/messages/{messageId}": {
+      "before": "Mỗi tin nhắn là một document thuộc subcollection của đúng hội thoại, với cấu trúc ở <TABLE>. Đường dẫn cha đã xác định cặp thành viên, nên message lưu người gửi thay vì lặp lại một trường người nhận riêng. Nội dung và thời gian tạo biểu diễn sự kiện gửi, còn [[roomId]] và [[roomName]] bổ sung ngữ cảnh nếu người gửi đính kèm phòng thuộc Host của cuộc trao đổi.",
+      "after": "Thứ tự tải tin dựa trên [[sequence]], không chỉ phụ thuộc timestamp có thể đang chờ máy chủ giải quyết. [[lastMessageId]] trên document hội thoại trỏ tới một message trong nhánh này để gắn preview với tin cuối. Rules hiện cho phép tạo tin hợp lệ nhưng không có nhánh sửa hoặc xóa message, phù hợp với cách lưu sự kiện gửi bất biến trong luồng hiện tại."
+    },
+    "propertyVerifications/{verificationId}": {
+      "before": "Hồ sơ xác minh đưa thông tin cần kiểm tra vào hàng chờ quản trị theo loại LOCATION, PHOTOS hoặc IDENTITY. <TABLE> mô tả chủ hồ sơ, đối tượng được đề cập, đường dẫn bằng chứng và kết quả xét duyệt. Liên kết tới Room hoặc Building phụ thuộc hồ sơ, trong khi evidenceRefs và evidencePath chỉ giữ tham chiếu tệp; chúng không biến nội dung ảnh hoặc PDF thành dữ liệu nhúng của Firestore.",
+      "after": "AdminRepository ưu tiên đọc danh sách evidenceRefs và dùng evidencePath làm dạng đơn dự phòng. Các trường kết quả như [[method]], [[reviewedBy]] và [[reviewedAt]] ghi nhận cách và thời điểm xử lý, không chứng minh có dịch vụ đối tác tự động xác thực. Quyền đọc hồ sơ và quyền mở tệp bằng chứng thuộc hai lớp kiểm soát riêng, được đối chiếu tiếp ở mục 4.4."
+    },
+    "reports/{reportId}": {
+      "before": "Báo cáo về phòng kết nối phản ánh của người thuê với đúng phòng và Host liên quan. Khi tạo dữ liệu trong <TABLE>, [[ReportRepository]] đọc owner UID từ Room, kiểm tra phòng đang công khai và ngăn người dùng báo cáo phòng của chính mình. Các trường lý do, mô tả và trạng thái ban đầu OPEN cung cấp đầu vào cho quá trình xử lý, thay vì chỉ lưu một nhận xét không có đối tượng cụ thể.",
+      "after": "Sau khi xử lý, trạng thái báo cáo và hành động áp dụng được lưu riêng: kết thúc một báo cáo không luôn đồng nghĩa với đình chỉ phòng hoặc khóa Host. Với các hành động có tác động, transaction cập nhật đối tượng liên quan và ghi audit cùng kết quả báo cáo. Những trường người duyệt và thời gian vì vậy giúp truy lại trách nhiệm xử lý, không phải dữ liệu do người gửi tự quyết định."
+    },
+    "auditLogs/{auditId}": {
+      "before": "Nhật ký thao tác lưu dấu thay đổi để đối chiếu ai đã thực hiện, tác động vào đâu và vì lý do gì. Cấu trúc trong <TABLE> được dùng trong các luồng như tạo hoặc chuyển trạng thái booking, quản trị phòng và giải quyết báo cáo. [[targetPath]] chỉ đích của hành động, còn [[before]] và [[after]] ghi phần dữ liệu cần theo dõi cho hành động đó.",
+      "after": "Một audit có thể chỉ chứa trạng thái trước và sau, nên không đủ để tái dựng toàn bộ document ở mọi thời điểm. Đường dẫn đích cũng thay đổi theo đối tượng được xử lý, thay vì là khóa liên kết cố định tới riêng Room hay Booking. Vì vậy, giá trị của nhật ký nằm ở việc đọc cùng mã hành động và ngữ cảnh nguồn, không ở giả định nó là bản sao đầy đủ của dữ liệu nghiệp vụ."
+    },
+    "rentalPlaces/{placeId}": {
+      "before": "Các địa điểm trong <TABLE> bổ sung dữ liệu tham khảo cho bản đồ từ nguồn công khai. Tên, địa chỉ và GeoPoint phục vụ xác định vị trí, còn các URL nguồn, nhãn tọa độ và thời điểm đối chiếu giúp truy lại căn cứ của thông tin đó. Collection này có mục đích khác với Room do Host đăng: nó không mang biểu giá, lịch nhận thuê hoặc chủ sở hữu trong ứng dụng.",
+      "after": "Một địa điểm tham khảo xuất hiện trên bản đồ không tạo ra khả năng đặt thuê qua hệ thống. Ghi chú vị trí và thời điểm kiểm tra nguồn mô tả giới hạn dữ liệu tham khảo, không thay cho kết quả xác minh của Admin. Sự phân biệt này giúp phần bản đồ sử dụng dữ liệu bổ sung mà không tạo quan hệ giả với Host hoặc booking."
+    }
+  },
+  "relationships": {
+    "accounts": {
+      "before": "Các quan hệ của nhóm tài khoản có hai nền tảng khác nhau: UID liên kết hồ sơ với danh tính Authentication, còn đường dẫn document xác định dữ liệu con thuộc người dùng nào. <TABLE> đặt các liên kết này cạnh alias username, bản chiếu Host và đơn đăng ký để làm rõ rằng chúng cùng xoay quanh một tài khoản. Những trường người duyệt hoặc người quản trị lại trỏ tới tài khoản thực hiện xử lý, không phải chủ sở hữu của đơn hay hồ sơ bị tác động.",
+      "after": "Quan hệ từ [[users.moderatedBy]] trở lại [[users]] là một trường hợp tự tham chiếu giữa hai tài khoản có vai trò khác nhau trong thao tác quản trị. Favorite còn nối người dùng với Room thông qua document con, tạo quan hệ nhiều với nhiều ở mức nghiệp vụ. Các liên kết đó bổ sung ý nghĩa cho cây lưu trữ mà không biến bản chiếu hoặc subcollection thành một loại tài khoản khác."
+    },
+    "booking": {
+      "before": "Trong nhóm không gian và đặt chỗ, quan hệ sở hữu phải được phân biệt với quan hệ sử dụng. Room trỏ tới Building và Host của tài sản, còn Booking trỏ tới cả người thuê lẫn Host của yêu cầu. <TABLE> thể hiện đồng thời các liên kết này và các khóa lịch tháng. Điều kiện cùng owner UID giữa phòng và tòa nhà giúp một yêu cầu thuê không kết hợp nhầm tài sản của hai chủ khác nhau.",
+      "after": "Các liên kết [[lastBookingId]], [[fixedBookingId]] và khóa động của [[hourlyBookings]] phục vụ những mục đích khác nhau. Last booking ID chỉ cho biết booking vừa tác động, không phải danh sách toàn bộ lịch sử thuê; fixed booking ID và map thuê giờ mới xác định các khóa đang được giữ tương ứng. Vì vậy, các đường nối qua lại giữa Booking và lịch tháng phản ánh cơ chế cập nhật nhất quán, không tạo thêm tầng subcollection."
+    },
+    "chat": {
+      "before": "Quan hệ chat được đọc theo hai lớp: lớp chứa tin nhắn thuộc hội thoại và lớp ID liên kết ngữ cảnh với tài khoản, Room hoặc Booking. Trong <TABLE>, cặp guest UID và host UID phải khớp danh sách hai thành viên; sender UID của mỗi message xác định ai trong cặp đã gửi tin. Các trường Room và Booking cung cấp ngữ cảnh, không mở rộng quyền đọc cho một tài khoản ngoài danh sách thành viên.",
+      "after": "Liên kết tới message cuối dùng để kiểm tra và hiển thị preview của cùng hội thoại, trong khi toàn bộ lịch sử vẫn nằm ở subcollection messages. Một message có thể mang ngữ cảnh một phòng của Host mà cuộc trao đổi đang đề cập, nên không nên diễn giải room ID khởi tạo thành giới hạn rằng hội thoại chỉ được nói về duy nhất một phòng."
+    },
+    "administration": {
+      "before": "Ở nhóm quản trị, cùng một UID có thể xuất hiện với ý nghĩa người nộp, người báo cáo, chủ phòng hoặc người duyệt; xác định đúng vai trò của từng trường là điều kiện để đọc đúng quan hệ. <TABLE> bổ sung các đích Room, Building và tài khoản cho hồ sơ xác minh, báo cáo và audit. Những liên kết tùy theo loại hồ sơ được đánh dấu có thể vắng, thay vì buộc mọi hồ sơ xác minh phải cùng có cả Room lẫn Building.",
+      "after": "Riêng [[auditLogs.targetPath]] có đích thay đổi theo hành động và cần được kiểm tra trong ngữ cảnh của nhật ký. RentalPlace không có trường tham chiếu tới Host hoặc Booking trong cấu trúc đang dùng, nên không bổ sung đường nối sở hữu giả cho dữ liệu tham khảo. Các đường dẫn bằng chứng của hồ sơ xác minh hướng tới tệp ở Storage, được trình bày trong phần bảo vệ tệp thay vì coi là quan hệ chứa giữa các collection Firestore."
+    }
+  }
+}

@@ -101,6 +101,7 @@ public class PropertyVerificationViewModel extends AndroidViewModel {
                 });
     }
 
+    // Lưu hồ sơ sau upload bằng Repository chung, giữ UID và loại xác minh theo contract.
     private void persist(PropertyVerification item) {
         repository.submit(
                 draftId,

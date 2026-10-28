@@ -14,6 +14,7 @@ public final class PublicCalendarRepository {
         Calendar(List<Booking> windows, LocalDate until) { this.windows = windows; this.until = until; }
     }
 
+    // Nghe lịch tháng công khai của phòng để dựng nhãn khả dụng mà không đọc hồ sơ Guest khác.
     public ListenerRegistration watch(Room room, ResultCallback<Calendar> callback) {
         FirebaseFirestore db = FirebaseHelper.getFirestore();
         YearMonth first = YearMonth.now(HostSchedule.ZONE).minusMonths(2);

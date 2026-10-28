@@ -96,7 +96,7 @@ public class PropertyVerificationAdapter
                 b.tvCreatedAt.setText("Thời gian: Vừa xong");
             }
 
-            String status = item.status != null ? item.status.toUpperCase() : "PENDING";
+            String status = item.status != null ? item.status.toUpperCase(java.util.Locale.ROOT) : "PENDING";
             if ("VERIFIED".equals(status) || "APPROVED".equals(status)) {
                 b.tvStatusBadge.setText("ĐÃ DUYỆT");
                 b.tvStatusBadge.setBackgroundColor(

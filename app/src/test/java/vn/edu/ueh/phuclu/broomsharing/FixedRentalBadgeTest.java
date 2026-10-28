@@ -7,6 +7,10 @@ import org.junit.Test;
 import vn.edu.ueh.phuclu.broomsharing.model.*;
 import vn.edu.ueh.phuclu.broomsharing.utils.*;
 
+/*
+   Kiểm thử emptyConfirmedCalendarShowsActualNextStartMonth, futureLeaseIsNotDescribedAsCurrentOccupancy, temporaryHoldIsNotPresentedAsPaid.
+   Dữ liệu được tạo trong test; kết quả này không thay cho nghiệm thu thao tác trên thiết bị hoặc cloud.
+*/
 public class FixedRentalBadgeTest {
     private Date at(String value) { return Date.from(LocalDateTime.parse(value).atZone(HostSchedule.ZONE).toInstant()); }
     private Room room() {

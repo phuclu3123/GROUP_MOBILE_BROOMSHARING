@@ -224,7 +224,8 @@ public class SpaceDetailActivity extends SessionActivity {
                                         : room.getAmenities()));
         b.deposit.setText(
                 "Trả trước dự kiến: 40% tiền thuê, tính theo kỳ đã chọn.\n"
-                    + "Thanh toán ngay qua kênh Host payOS demo. Lịch được tạm giữ tối đa 5 phút khi mở QR; nhận đủ tiền mới xác nhận đặt chỗ, không cần Host duyệt.");
+                    + "Đặt chỗ qua QR hiện chỉ áp dụng cho Host payOS demo đã cấu hình; phòng của Host khác vẫn có thể xem và liên hệ. "
+                    + "Với phòng hỗ trợ thanh toán, lịch tạm giữ tối đa 5 phút khi mở QR; nhận đủ tiền đúng hạn mới xác nhận, không cần Host duyệt.");
         b.policies.setText(
                 "Chính sách hủy cho booking mới\n"
                         + CancellationPolicy.terms(room.getActiveMode())

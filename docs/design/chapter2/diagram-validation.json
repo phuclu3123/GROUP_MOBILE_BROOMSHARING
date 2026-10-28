@@ -1,0 +1,140 @@
+[
+  {
+    "file": "usecase_decomposition_v2.drawio",
+    "page": "00. Tổng quan chức năng",
+    "vertices": 19,
+    "edges": 18
+  },
+  {
+    "file": "usecase_decomposition_v2.drawio",
+    "page": "01. Tài khoản và phiên",
+    "vertices": 22,
+    "edges": 21
+  },
+  {
+    "file": "usecase_decomposition_v2.drawio",
+    "page": "02. Khám phá không gian",
+    "vertices": 22,
+    "edges": 21
+  },
+  {
+    "file": "usecase_decomposition_v2.drawio",
+    "page": "03. Tạo yêu cầu đặt chỗ",
+    "vertices": 22,
+    "edges": 21
+  },
+  {
+    "file": "usecase_decomposition_v2.drawio",
+    "page": "04. Lịch đặt và hủy",
+    "vertices": 22,
+    "edges": 21
+  },
+  {
+    "file": "usecase_decomposition_v2.drawio",
+    "page": "05. Hồ sơ Host và xác minh",
+    "vertices": 22,
+    "edges": 21
+  },
+  {
+    "file": "usecase_decomposition_v2.drawio",
+    "page": "06. Quản lý không gian",
+    "vertices": 22,
+    "edges": 21
+  },
+  {
+    "file": "usecase_decomposition_v2.drawio",
+    "page": "07. Duyệt đơn và sử dụng",
+    "vertices": 22,
+    "edges": 21
+  },
+  {
+    "file": "usecase_decomposition_v2.drawio",
+    "page": "08. Chat và liên hệ",
+    "vertices": 22,
+    "edges": 21
+  },
+  {
+    "file": "usecase_decomposition_v2.drawio",
+    "page": "09. Đánh giá sau sử dụng",
+    "vertices": 22,
+    "edges": 21
+  },
+  {
+    "file": "usecase_decomposition_v2.drawio",
+    "page": "10. Báo cáo và phản hồi",
+    "vertices": 22,
+    "edges": 21
+  },
+  {
+    "file": "usecase_decomposition_v2.drawio",
+    "page": "11. Quản trị và sự cố",
+    "vertices": 22,
+    "edges": 21
+  },
+  {
+    "file": "usecase_decomposition_v2.drawio",
+    "page": "12. Theo dõi và nhật ký",
+    "vertices": 22,
+    "edges": 21
+  },
+  {
+    "file": "usecase_decomposition_v2.drawio",
+    "page": "13. Hồ sơ và thông báo",
+    "vertices": 22,
+    "edges": 21
+  },
+  {
+    "file": "usecase_decomposition_v2.drawio",
+    "page": "14. Thanh toán demo",
+    "vertices": 22,
+    "edges": 21
+  },
+  {
+    "file": "usecase_diagram_v2.drawio",
+    "page": "00. Tổng quát",
+    "vertices": 25,
+    "edges": 22
+  },
+  {
+    "file": "usecase_diagram_v2.drawio",
+    "page": "01. Người thuê",
+    "vertices": 16,
+    "edges": 14
+  },
+  {
+    "file": "usecase_diagram_v2.drawio",
+    "page": "02. Host",
+    "vertices": 16,
+    "edges": 14
+  },
+  {
+    "file": "usecase_diagram_v2.drawio",
+    "page": "03. Admin",
+    "vertices": 12,
+    "edges": 10
+  },
+  {
+    "file": "workflow_diagram_v2.drawio",
+    "page": "01. Host và đăng phòng",
+    "vertices": 15,
+    "edges": 12
+  },
+  {
+    "file": "workflow_diagram_v2.drawio",
+    "page": "02. Tạo và duyệt booking",
+    "vertices": 19,
+    "edges": 13
+  },
+  {
+    "file": "workflow_diagram_v2.drawio",
+    "page": "03. Sử dụng và ngoại lệ",
+    "vertices": 17,
+    "edges": 14
+  },
+  {
+    "file": "workflow_diagram_v2.drawio",
+    "page": "04. Thanh toán payOS demo",
+    "vertices": 21,
+    "edges": 14
+  }
+]

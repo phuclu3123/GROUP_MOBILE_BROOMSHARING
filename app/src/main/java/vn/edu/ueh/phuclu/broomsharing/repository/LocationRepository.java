@@ -22,6 +22,7 @@ public class LocationRepository {
         manager = (LocationManager) this.context.getSystemService(Context.LOCATION_SERVICE);
     }
 
+    // Xin vị trí một lần khi màn hình cần dùng, trả lỗi hoặc kết quả qua callback thay vì giữ Activity.
     public void current(ResultCallback<MapPoint> callback) {
         cancel();
         boolean fine =
@@ -102,6 +103,7 @@ public class LocationRepository {
                 "Vị trí thiết bị (±" + Math.round(value.getAccuracy()) + " m)");
     }
 
+    // Hủy yêu cầu vị trí đang chờ khi màn hình dừng để tránh callback và tiêu thụ pin ngoài phiên sử dụng.
     public void cancel() {
         if (timeout != null) {
             handler.removeCallbacks(timeout);

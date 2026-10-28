@@ -19,6 +19,8 @@ public final class BookingNotifier {
     private static final String CHANNEL="booking_updates";
     private BookingNotifier(){}
     public static SharedPreferences preferences(Context c,String uid){return c.getSharedPreferences("booking_notices_"+uid,Context.MODE_PRIVATE);}
+    // Chỉ phát các sự kiện chưa đọc/chưa gửi của tài khoản khi quyền thông báo và lựa chọn người dùng cho phép.
+    // Đây là thông báo cục bộ khi có dữ liệu, không phải dịch vụ FCM đánh thức app đã bị dừng cưỡng bức.
     public static void deliver(Context c,String uid,List<BookingNotice> notices){
         SharedPreferences prefs=preferences(c,uid);
         if(!prefs.getBoolean("enabled",false))return;

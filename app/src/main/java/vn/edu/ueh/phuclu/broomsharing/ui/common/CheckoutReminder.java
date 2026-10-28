@@ -14,6 +14,7 @@ import vn.edu.ueh.phuclu.broomsharing.utils.PendingCheckout;
 public final class CheckoutReminder {
     private CheckoutReminder() {}
 
+    // Gắn lối tắt tiếp tục thanh toán vào màn đang xem; dữ liệu nhắc phải được ViewModel xác nhận còn hiệu lực.
     public static void attach(AppCompatActivity activity, View view, String uid, String roomId) {
         ViewPendingCheckoutBinding binding = ViewPendingCheckoutBinding.bind(view);
         PendingPaymentViewModel model = new ViewModelProvider(activity).get(PendingPaymentViewModel.class);

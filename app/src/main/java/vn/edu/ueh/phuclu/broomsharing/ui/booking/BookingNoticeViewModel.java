@@ -76,6 +76,7 @@ public class BookingNoticeViewModel extends ViewModel {
                                                     + " rồi thử đồng bộ lại.")));
             };
 
+    // Đăng ký các nguồn sự kiện theo UID; thông báo được dựng từ booking, hội thoại và báo cáo.
     public void start() {
         start(false);
     }
@@ -194,6 +195,7 @@ public class BookingNoticeViewModel extends ViewModel {
                             });
     }
 
+    // Hợp nhất nguồn thành sự kiện có định danh ổn định, áp dụng mốc đọc của tài khoản để tính số chưa đọc.
     private void render() {
         if (sessionUid == null
                 || !sessionUid.equals(FirebaseAuth.getInstance().getUid())
@@ -276,6 +278,7 @@ public class BookingNoticeViewModel extends ViewModel {
         notices.setValue(UiState.success(list));
     }
 
+    // Gửi mốc đọc tới noticeReads; không sửa booking chỉ vì người dùng mở thông báo.
     public void markRead(BookingNotice n) {
         if (!n.conversationId.isEmpty()) return;
         receipts.read(
@@ -337,6 +340,7 @@ public class BookingNoticeViewModel extends ViewModel {
         start(host);
     }
 
+    // Tháo các nguồn đang nghe và vô hiệu callback thuộc lần tải cũ.
     public void stop() {
         generation++;
         if (listener != null) listener.remove();

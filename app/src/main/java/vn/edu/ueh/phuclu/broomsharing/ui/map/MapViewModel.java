@@ -62,6 +62,7 @@ public class MapViewModel extends AndroidViewModel {
         locations = new LocationRepository(app);
     }
 
+    // Đọc lại phòng từ ID đã chọn trước khi mở trang chi tiết; địa điểm tham khảo chỉ có liên kết nguồn.
     public void openRoom(String roomId) {
         if (roomId == null || roomId.equals(openedRoomId)) return;
         openedRoomId = roomId;
@@ -152,6 +153,7 @@ public class MapViewModel extends AndroidViewModel {
         return new MapPoint(p.location.getLatitude(), p.location.getLongitude(), p.name);
     }
 
+    // Chọn một nguồn tham khảo trên bản đồ; không tạo ra phòng có thể đặt từ dữ liệu ngoài app.
     public void selectReference(RentalPlace p) {
         select(point(p), null);
         selectedReference = p;
@@ -327,6 +329,7 @@ public class MapViewModel extends AndroidViewModel {
                 });
     }
 
+    // Yêu cầu tuyến đường từ điểm xuất phát hiện tại, giữ lỗi và kết quả trong trạng thái giao diện.
     public void directions() {
         if (destination.getValue() == null || Boolean.TRUE.equals(busy.getValue())) return;
         allowRetry();
@@ -382,6 +385,7 @@ public class MapViewModel extends AndroidViewModel {
                         : GoogleMapsLink.route(origin.getValue(), destination.getValue()));
     }
 
+    // Hủy yêu cầu GPS khi màn hình dừng, không tắt dịch vụ vị trí của thiết bị.
     public void stopLocation() {
         locations.cancel();
         if (locating) {

@@ -16,6 +16,7 @@ import java.util.*;
 public class ProfileRepository {
     private final FirebaseFirestore db = FirebaseHelper.getFirestore();
 
+    // Cập nhật ảnh đúng UID và bản chiếu PublicHost trong cùng transaction, không cho sửa role/status qua biểu mẫu ảnh.
     public void setPhoto(String expectedUid, String url, ResultCallback<String> cb) {
         if (expectedUid == null
                 || !expectedUid.equals(FirebaseAuth.getInstance().getUid())

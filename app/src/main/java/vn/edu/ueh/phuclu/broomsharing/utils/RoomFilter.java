@@ -32,6 +32,7 @@ public final class RoomFilter {
                 .trim();
     }
 
+    // Kết hợp từ khóa và các điều kiện lọc trên dữ liệu đã ghép Building/PublicHost, không suy ra mode từ mức giá.
     public static boolean matches(
             RoomListing item, String search, String area, String type, String mode) {
         if (!type.isEmpty() && !type.equals(item.room.getRoomType())) return false;

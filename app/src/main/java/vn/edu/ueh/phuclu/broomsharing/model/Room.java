@@ -7,6 +7,10 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+/*
+   Model phòng lưu dưới rooms/{roomId}, liên kết tòa nhà và chủ sở hữu bằng ID.
+   activeMode chọn HOURLY hoặc FIXED; giá, lịch và trạng thái được kiểm lại khi đặt chỗ.
+*/
 public class Room implements Serializable {
     // -1: dữ liệu cũ chưa đối soát; 0: không giữ chỗ; >0: khóa sửa cấu hình lịch.
     public long activeBookingCount = -1;

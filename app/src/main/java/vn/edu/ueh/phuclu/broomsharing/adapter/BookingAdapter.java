@@ -11,6 +11,10 @@ import vn.edu.ueh.phuclu.broomsharing.utils.CancellationPolicy;
 import vn.edu.ueh.phuclu.broomsharing.utils.FormatUtils;
 import vn.edu.ueh.phuclu.broomsharing.utils.TimeUtils;
 
+/*
+   Bind danh sách booking của người thuê và chuyển các thao tác hợp lệ về màn hình.
+   Không ghi trạng thái hoặc suy ra đã thanh toán từ nội dung hiển thị.
+*/
 public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.Holder> {
     // Dữ liệu mà RecyclerView cần hiển thị, mỗi phần tử tương ứng một booking.
     private final List<Booking> items = new ArrayList<>();

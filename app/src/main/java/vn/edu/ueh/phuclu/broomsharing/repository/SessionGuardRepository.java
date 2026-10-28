@@ -12,6 +12,7 @@ import vn.edu.ueh.phuclu.broomsharing.utils.FirebaseHelper;
    Bỏ callback của phiên cũ; Security Rules vẫn kiểm quyền ở từng lần đọc/ghi.
 */
 public class SessionGuardRepository {
+    // Nghe role/status của UID hiện tại; thu hồi phiên hoặc chuyển quyền phải phản ánh lên màn hình đang mở.
     public ListenerRegistration watch(String uid, ResultCallback<UserProfile> cb) {
         return FirebaseHelper.getFirestore()
                 .collection("users")

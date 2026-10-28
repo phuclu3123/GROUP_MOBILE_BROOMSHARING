@@ -26,6 +26,7 @@ public final class HostCalendarPolicy {
         return false;
     }
 
+    // Chỉ đưa các booking còn giữ lịch và giao với ngày đang xem vào danh sách của lưới tháng.
     public static List<Booking> heldOnDay(List<Booking> rows, String roomId, LocalDate day) {
         Date start = Date.from(day.atStartOfDay(HostSchedule.ZONE).toInstant());
         Date end = Date.from(day.plusDays(1).atStartOfDay(HostSchedule.ZONE).toInstant());

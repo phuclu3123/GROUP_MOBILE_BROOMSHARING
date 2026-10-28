@@ -1,0 +1,196 @@
+{
+  "checkedAt": "2026-10-27T18:34:40.159379+00:00",
+  "legacyCases": [
+    {
+      "bookingId": "5132e2aae3cf6ca7eff29365eed4df5a1d38a7c26d13ca7c8dbfd4d674ae69af",
+      "booking": {
+        "roomId": "dataset_hcm_v1_room_02",
+        "status": "CONFIRMED",
+        "schemaVersion": 2,
+        "paymentFlow": null,
+        "paymentStatus": "DEMO_PENDING",
+        "paidAmount": null,
+        "startAt": "2026-10-27T02:00:00Z",
+        "endAt": "2026-10-27T04:00:00Z",
+        "createdAt": "2026-10-18T15:06:16.838982Z",
+        "updatedAt": "2026-10-19T15:06:16.838982Z",
+        "usageConfirmedAt": null,
+        "usageConfirmedBy": null,
+        "checkedInAt": null,
+        "closedAt": null,
+        "rejectionReason": "",
+        "requestFingerprint": "f68f8a7fa79fcff5123c897b5f0ad5e465c5f2eb4f68f73124afc93f5c691657"
+      },
+      "room": {
+        "id": "dataset_hcm_v1_room_02",
+        "roomName": "[DEMO] Phòng làm việc Quận 1 2",
+        "ownerUid": "UV3jnNoJf8Y6zklWBe5qaTVZ68R2"
+      },
+      "audits": [
+        {
+          "schemaVersion": 1,
+          "actorUid": "zjEE6Zz83IMoNHO0TMALYy2i8Dn1",
+          "targetPath": "bookings/5132e2aae3cf6ca7eff29365eed4df5a1d38a7c26d13ca7c8dbfd4d674ae69af",
+          "action": "DEMO_DATASET_BOOKING",
+          "before": {},
+          "after": {
+            "status": "CONFIRMED"
+          },
+          "reason": "[DEMO] Bản ghi giả định tạo trực tiếp cho dataset học tập.",
+          "createdAt": "2026-10-19T15:06:16.838982Z",
+          "id": "dataset_hcm_v1_booking_6"
+        }
+      ]
+    },
+    {
+      "bookingId": "78cb225b84f342b8d0eb2b6dc88547bd6e48071c24e2366f907a257074419fa7",
+      "booking": {
+        "roomId": "payos_demo_20261026_room",
+        "status": "CONFIRMED",
+        "schemaVersion": 2,
+        "paymentFlow": null,
+        "paymentStatus": "UNPAID",
+        "paidAmount": 0,
+        "startAt": "2026-10-27T03:00:00Z",
+        "endAt": "2026-10-27T04:00:00Z",
+        "createdAt": "2026-10-26T16:43:43.214Z",
+        "updatedAt": "2026-10-27T05:32:35.060Z",
+        "usageConfirmedAt": null,
+        "usageConfirmedBy": "",
+        "checkedInAt": null,
+        "closedAt": null,
+        "rejectionReason": "",
+        "requestFingerprint": "e88bab9c45300c8dd5d1085c897c57a910735205d7f6cfa4d3baaa4daf862963"
+      },
+      "room": {
+        "id": "payos_demo_20261026_room",
+        "roomName": "[DEMO PAYOS] Phòng thử API 5.000đ/giờ",
+        "ownerUid": "XEkGLNTVi4O2JXxvWf9MXRpvBcv1"
+      },
+      "audits": [
+        {
+          "reason": "",
+          "schemaVersion": 1,
+          "actorUid": "XEkGLNTVi4O2JXxvWf9MXRpvBcv1",
+          "before": {
+            "status": "PENDING"
+          },
+          "action": "CONFIRMED",
+          "targetPath": "bookings/78cb225b84f342b8d0eb2b6dc88547bd6e48071c24e2366f907a257074419fa7",
+          "after": {
+            "status": "CONFIRMED"
+          },
+          "createdAt": "2026-10-26T16:43:52.258Z",
+          "id": "booking_78cb225b84f342b8d0eb2b6dc88547bd6e48071c24e2366f907a257074419fa7_CONFIRMED"
+        },
+        {
+          "reason": "",
+          "schemaVersion": 1,
+          "actorUid": "ki7eypwkEqbN3xqczr4PL4n3zeo2",
+          "before": {
+            "status": ""
+          },
+          "action": "CREATE",
+          "targetPath": "bookings/78cb225b84f342b8d0eb2b6dc88547bd6e48071c24e2366f907a257074419fa7",
+          "after": {
+            "status": "PENDING"
+          },
+          "createdAt": "2026-10-26T16:43:43.214Z",
+          "id": "booking_78cb225b84f342b8d0eb2b6dc88547bd6e48071c24e2366f907a257074419fa7_CREATE"
+        }
+      ]
+    },
+    {
+      "bookingId": "ce0436c3dce49ddd81a4998bcc324335a3d85720ee49305b70c4ff1eb8d93fc4",
+      "booking": {
+        "roomId": "dataset_hcm_v1_room_05",
+        "status": "CONFIRMED",
+        "schemaVersion": 2,
+        "paymentFlow": null,
+        "paymentStatus": "DEMO_PENDING",
+        "paidAmount": null,
+        "startAt": "2026-10-22T04:00:00Z",
+        "endAt": "2026-10-22T06:00:00Z",
+        "createdAt": "2026-10-18T15:06:16.838982Z",
+        "updatedAt": "2026-10-19T15:06:16.838982Z",
+        "usageConfirmedAt": null,
+        "usageConfirmedBy": null,
+        "checkedInAt": null,
+        "closedAt": null,
+        "rejectionReason": "",
+        "requestFingerprint": "4958eb30c1bf6464b5a74628a11339cf7bbc05c112f01ad21a12dd52955277a5"
+      },
+      "room": {
+        "id": "dataset_hcm_v1_room_05",
+        "roomName": "[DEMO] Phòng làm việc Quận 1 5",
+        "ownerUid": "UV3jnNoJf8Y6zklWBe5qaTVZ68R2"
+      },
+      "audits": [
+        {
+          "schemaVersion": 1,
+          "actorUid": "ZNXvZqf6dnhOH0Ht3Ehlpc5568w2",
+          "targetPath": "bookings/ce0436c3dce49ddd81a4998bcc324335a3d85720ee49305b70c4ff1eb8d93fc4",
+          "action": "DEMO_DATASET_BOOKING",
+          "before": {},
+          "after": {
+            "status": "CONFIRMED"
+          },
+          "reason": "[DEMO] Bản ghi giả định tạo trực tiếp cho dataset học tập.",
+          "createdAt": "2026-10-19T15:06:16.838982Z",
+          "id": "dataset_hcm_v1_booking_1"
+        }
+      ]
+    },
+    {
+      "bookingId": "e38f82e850d7e81d996ea1aa3be4f8d62d896e6af8d9cac5acdc1f2c20b6f286",
+      "booking": {
+        "roomId": "video_1792844782287_room",
+        "status": "COMPLETED",
+        "schemaVersion": 2,
+        "paymentFlow": null,
+        "paymentStatus": "UNAVAILABLE",
+        "paidAmount": null,
+        "startAt": "2026-10-23T02:00:00Z",
+        "endAt": "2026-10-23T03:00:00Z",
+        "createdAt": "2026-10-23T01:00:00Z",
+        "updatedAt": "2026-10-24T12:30:07.421Z",
+        "usageConfirmedAt": null,
+        "usageConfirmedBy": null,
+        "checkedInAt": null,
+        "closedAt": null,
+        "rejectionReason": "",
+        "requestFingerprint": "40efcf33c250ab13f4b78bc6769462884ea2382b8b0a46dbe468d4dc435d88e7"
+      },
+      "room": {
+        "id": "video_1792844782287_room",
+        "roomName": "[DEMO] Phòng họp Ánh Dương",
+        "ownerUid": "9EV5wYsx3XVrROaou8UNqnx7o9O2"
+      },
+      "audits": [
+        {
+          "reason": "",
+          "schemaVersion": 1,
+          "actorUid": "9EV5wYsx3XVrROaou8UNqnx7o9O2",
+          "before": {
+            "status": "CHECKED_IN"
+          },
+          "action": "COMPLETED",
+          "targetPath": "bookings/e38f82e850d7e81d996ea1aa3be4f8d62d896e6af8d9cac5acdc1f2c20b6f286",
+          "after": {
+            "status": "COMPLETED"
+          },
+          "createdAt": "2026-10-24T12:30:07.421Z",
+          "id": "booking_e38f82e850d7e81d996ea1aa3be4f8d62d896e6af8d9cac5acdc1f2c20b6f286_COMPLETED"
+        }
+      ]
+    }
+  ],
+  "roomPolicy": {
+    "roomId": "payos_demo_20261026_room",
+    "before": "Trả trước 40% sau xác nhận. Bản demo chưa có API hoàn tiền.",
+    "after": "Trả trước 40% qua QR khi đặt chỗ; lịch tạm giữ tối đa 5 phút, không vượt giờ bắt đầu thuê. Nhận đủ tiền đúng hạn mới xác nhận booking, không cần Host duyệt. Bản demo chưa có API hoàn tiền; trường hợp cần hoàn tiền được đối soát thủ công.",
+    "changed": true
+  },
+  "legacyBookingsMutated": false,
+  "usageProofFabricated": false
+}

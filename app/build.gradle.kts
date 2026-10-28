@@ -87,7 +87,8 @@ dependencies {
     implementation("com.squareup.picasso:picasso:2.8")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.google.zxing:core:3.5.3")
-    implementation("org.maplibre.gl:android-sdk:13.7.1")
+    // OpenGL ES cùng phiên bản: tránh phụ thuộc Vulkan của driver giả lập khi đổi kích thước.
+    implementation("org.maplibre.gl:android-sdk-opengl:13.7.1")
     testImplementation(libs.junit)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.ext.junit)

@@ -134,6 +134,7 @@ public class HostApplicationViewModel extends AndroidViewModel {
                 });
     }
 
+    // Gửi đơn sau khi có URL hai ảnh DEMO; giữ kết quả upload để retry lưu không tạo tệp lặp.
     private void persist(HostApplication item) {
         item.setIdentityImageUrls(new ArrayList<>(uploaded));
         item.setEvidenceMode("DEMO_PUBLIC");

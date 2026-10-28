@@ -160,7 +160,8 @@ public final class BookingPaymentActivity extends SessionActivity {
         boolean payable = current != null && current.canPay(System.currentTimeMillis());
         binding.paymentNotifications.setVisibility(payable ? View.VISIBLE : View.GONE);
         // Android 13+ vẫn cần người dùng cấp quyền; chỉ hỏi khi đã có phiên QR thật.
-        if (payable && PaymentReminderService.shouldAskPermission(this)) {
+        if (payable && android.os.Build.VERSION.SDK_INT >= 33
+                && PaymentReminderService.shouldAskPermission(this)) {
             PaymentReminderService.markPermissionAsked(this);
             notificationPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS);
         }

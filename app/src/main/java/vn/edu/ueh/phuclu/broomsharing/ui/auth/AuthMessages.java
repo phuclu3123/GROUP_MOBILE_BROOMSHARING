@@ -3,9 +3,14 @@ package vn.edu.ueh.phuclu.broomsharing.ui.auth;
 import vn.edu.ueh.phuclu.broomsharing.R;
 import vn.edu.ueh.phuclu.broomsharing.repository.AuthError;
 
+/*
+   Ánh xạ lỗi xác thực đã phân loại sang chuỗi giao diện.
+   Không hiển thị trực tiếp nội dung exception có thể chứa thông tin kỹ thuật.
+*/
 public final class AuthMessages {
     private AuthMessages() { }
 
+    // Trả ID chuỗi thông báo từ mã lỗi chung để các màn xác thực hiển thị nhất quán.
     public static int resource(AuthError error) {
         switch (error) {
             case NOT_CONFIGURED: return R.string.auth_setup_required;

@@ -51,6 +51,7 @@ public final class PayOSGateway implements PaymentGateway {
         return json.valueToTree(client.paymentRequests().cancel(order, reason));
     }
 
+    // Chỉ dữ liệu qua xác minh chữ ký bằng SDK chính thức mới được chuyển sang PaymentService.
     public JsonNode verify(byte[] body) throws Exception {
         return json.valueToTree(client.webhooks().verify(json.readValue(body, Webhook.class)));
     }

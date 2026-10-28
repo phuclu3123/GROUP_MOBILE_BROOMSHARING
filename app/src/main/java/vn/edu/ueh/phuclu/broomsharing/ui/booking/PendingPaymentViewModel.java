@@ -26,6 +26,7 @@ public final class PendingPaymentViewModel extends ViewModel {
         }
     };
 
+    // Nghe cả booking và payment; chỉ giao dịch thật còn hạn mới được đưa vào danh sách tiếp tục thanh toán.
     public void start(String actor) {
         if (bookingListener != null && actor.equals(uid)) return;
         stop(); uid = actor;
@@ -45,6 +46,7 @@ public final class PendingPaymentViewModel extends ViewModel {
         if (uid != null) entries.setValue(PendingCheckout.select(uid, null, mine, transactions, System.currentTimeMillis()));
     }
 
+    // Tháo hai listener và ngừng bộ đếm của View; thao tác này không hủy booking trên server.
     public void stop() {
         ++generation;
         uid = null;

@@ -92,6 +92,7 @@ public class HostRepository {
     }
 
     // Đồng bộ phòng/tòa nhà từ server; dữ liệu cache cũ không được coi là kết quả mới.
+    // Nghe dữ liệu thuộc đúng Host hiện tại; bên gọi phải tháo listener khi không còn dùng màn hình.
     public <T> ListenerRegistration watchOwned(
             String collection, Class<T> type, ResultCallback<List<T>> cb) {
         BookingPolicy.require(
@@ -123,6 +124,7 @@ public class HostRepository {
                         });
     }
 
+    // Gửi hoặc bổ sung hồ sơ theo trạng thái đơn hiện có; nộp đơn không tự cấp role HOST.
     public void submitHostApplication(HostApplication app, Callback<String> cb) {
         final String actor;
         try {
@@ -207,6 +209,7 @@ public class HostRepository {
                 });
     }
 
+    // Đọc hồ sơ của người nộp để phục hồi biểu mẫu và kết quả xét duyệt.
     public void checkHostApplicationStatus(String applicantUid, Callback<HostApplication> cb) {
         try {
             if (!uid().equals(applicantUid))
@@ -244,6 +247,7 @@ public class HostRepository {
                 .addOnFailureListener(cb::onError);
     }
 
+    // Kiểm phiên Host và dữ liệu tòa nhà, cố định ownerUid theo tài khoản đang đăng nhập trước khi lưu.
     public void addBuilding(Building building, Callback<String> cb) {
         String error = HostValidation.building(building);
         if (error != null) {
@@ -304,6 +308,8 @@ public class HostRepository {
                 });
     }
 
+    // Đọc phòng cũ và lịch trước khi lưu thay đổi; chặn sửa cấu hình lịch khi còn booking giữ chỗ.
+    // Không dùng giá trị bộ đếm do biểu mẫu gửi lên để bỏ qua khóa lịch.
     public void saveRoom(Room room, Callback<String> cb) {
         if (!Room.STATUS_DRAFT.equals(room.getApprovalStatus())
                 && !Room.STATUS_PENDING_REVIEW.equals(room.getApprovalStatus())) {
@@ -438,6 +444,7 @@ public class HostRepository {
                 .addOnFailureListener(cb::onError);
     }
 
+    // Tổng hợp phòng và booking thuộc Host; số tiền thuê không đồng nghĩa tiền ngân hàng đã nhận.
     public void getStats(Callback<HostStats> cb) {
         asHost(
                 cb,
@@ -475,6 +482,7 @@ public class HostRepository {
                                 .addOnFailureListener(cb::onError));
     }
 
+    // Đọc lượt thuê thuộc Host để hiển thị; chuyển trạng thái vẫn đi qua BookingRepository.
     public void getBookings(Callback<List<Booking>> cb) {
         asHost(
                 cb,
@@ -507,11 +515,13 @@ public class HostRepository {
                                 .addOnFailureListener(cb::onError));
     }
 
+    // Chuyển yêu cầu sang cơ chế transaction chung để booking, lịch và audit không bị cập nhật rời nhau.
     public void updateBookingStatus(
             String bookingId, String newStatus, String reason, Callback<String> cb) {
         new BookingRepository().transition(bookingId, newStatus, reason, cb);
     }
 
+    // Kiểm chủ sở hữu và trạng thái xét duyệt trước khi mở hoặc tạm dừng nhận yêu cầu mới.
     public void toggleListingStatus(String roomId, String newStatus, Callback<String> cb) {
         final String actor;
         try {

@@ -4,6 +4,10 @@ import org.junit.Test;
 import vn.edu.ueh.phuclu.broomsharing.repository.AuthError;
 import static org.junit.Assert.assertEquals;
 
+/*
+   Kiểm thử configurationNotFoundInsideInternalErrorIsActionable, providerDisabledIsSeparateFromMissingConfiguration, credentialAndCollisionMessagesRemainSpecific.
+   Dữ liệu được tạo trong test; kết quả này không thay cho nghiệm thu thao tác trên thiết bị hoặc cloud.
+*/
 public class AuthErrorMappingTest {
     @Test public void configurationNotFoundInsideInternalErrorIsActionable() {
         assertEquals(AuthError.AUTH_CONFIGURATION_MISSING,

@@ -58,6 +58,7 @@ public class RoomRepository {
         return id != null && !id.trim().isEmpty() && !id.contains("/");
     }
 
+    // Đọc một trang phòng đã duyệt và đang hoạt động theo document ID, giữ cursor của nguồn trước khi ghép dữ liệu.
     public void page(String after, ResultCallback<Page> cb) {
         Query query =
                 db.collection("rooms")
@@ -107,6 +108,7 @@ public class RoomRepository {
                 });
     }
 
+    // Đọc lại một phòng từ server và ghép thông tin chủ/tòa nhà; không dùng thẻ danh sách cũ làm căn cứ đặt chỗ.
     public void detail(String id, ResultCallback<RoomListing> cb) {
         if (!idValid(id)) {
             cb.onError(new Exception("Mã phòng không hợp lệ."));
@@ -138,6 +140,7 @@ public class RoomRepository {
                 .addOnFailureListener(cb::onError);
     }
 
+    // Ghép Building và PublicHost, loại mục không còn đáp ứng điều kiện công bố trước khi trả cho giao diện.
     private void enrich(List<DocumentSnapshot> documents, ResultCallback<List<RoomListing>> cb) {
         Map<String, Task<DocumentSnapshot>> owners = new HashMap<>();
         Map<String, Task<DocumentSnapshot>> buildings = new HashMap<>();
