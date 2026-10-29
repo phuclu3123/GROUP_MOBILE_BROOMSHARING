@@ -8,9 +8,10 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.util.function.IntConsumer;
-import vn.edu.ueh.phuclu.broomsharing.AdminDashboardActivity;
 import vn.edu.ueh.phuclu.broomsharing.R;
 import vn.edu.ueh.phuclu.broomsharing.model.UserRole;
+import vn.edu.ueh.phuclu.broomsharing.ui.admin.AdminDashboardActivity;
+import vn.edu.ueh.phuclu.broomsharing.ui.chat.ConversationsActivity;
 import vn.edu.ueh.phuclu.broomsharing.ui.host.HostBookingsActivity;
 import vn.edu.ueh.phuclu.broomsharing.ui.host.HostDashboardActivity;
 
@@ -33,7 +34,7 @@ public final class ManagementNavigation {
             if (id == current) return true;
             Class<?> target;
             if (id == R.id.host_account || id == R.id.admin_account) target = RoleAccountActivity.class;
-            else if (id == R.id.host_messages) target = vn.edu.ueh.phuclu.broomsharing.ConversationsActivity.class;
+            else if (id == R.id.host_messages) target = ConversationsActivity.class;
             else if (role == UserRole.ADMIN) target = AdminDashboardActivity.class;
             else if (id == R.id.host_bookings) target = HostBookingsActivity.class;
             else target = HostDashboardActivity.class;

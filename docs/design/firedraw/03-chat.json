@@ -1,0 +1,2680 @@
+{
+  "nodes": [
+    {
+      "id": "database",
+      "type": "database",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "label": "broomsharing",
+        "width": 300,
+        "height": 160,
+        "databaseName": "broomsharing",
+        "description": "local source, rules and datasets; no live cloud inventory"
+      }
+    },
+    {
+      "id": "collection-conversations-guestUid-hostUid",
+      "type": "collection",
+      "position": {
+        "x": 520,
+        "y": 0
+      },
+      "data": {
+        "id": "collection-conversations-guestUid-hostUid",
+        "label": "conversations",
+        "isSubcollection": false,
+        "parentDocumentId": null,
+        "height": 150,
+        "width": 300,
+        "fromFirebase": false,
+        "schemaPath": "conversations/{guestUid:hostUid}",
+        "schemaStatus": "repository_referenced",
+        "description": "conversations/{guestUid:hostUid}"
+      },
+      "style": {
+        "borderColor": "#14b8a6"
+      }
+    },
+    {
+      "id": "document-conversations-guestUid-hostUid",
+      "type": "document",
+      "position": {
+        "x": 1040,
+        "y": 0
+      },
+      "data": {
+        "id": "document-conversations-guestUid-hostUid",
+        "label": "{guestUid:hostUid}",
+        "parentDocumentId": "collection-conversations-guestUid-hostUid",
+        "fields": [
+          {
+            "name": "id",
+            "type": "string",
+            "description": "M/W; guestUid + ':' + hostUid",
+            "schemaType": "string",
+            "typeUnconfirmed": false
+          },
+          {
+            "name": "guestUid",
+            "type": "string",
+            "description": "M/W; liên kết users bên thuê",
+            "schemaType": "string",
+            "typeUnconfirmed": false
+          },
+          {
+            "name": "hostUid",
+            "type": "string",
+            "description": "M/W; liên kết users bên cho thuê",
+            "schemaType": "string",
+            "typeUnconfirmed": false
+          },
+          {
+            "name": "guestName",
+            "type": "string",
+            "description": "M/W; snapshot tên bên thuê",
+            "schemaType": "string",
+            "typeUnconfirmed": false
+          },
+          {
+            "name": "hostName",
+            "type": "string",
+            "description": "M/W; snapshot tên Host",
+            "schemaType": "string",
+            "typeUnconfirmed": false
+          },
+          {
+            "name": "memberUids",
+            "type": "array",
+            "description": "M/W; đúng hai UID [guestUid, hostUid], dùng query inbox",
+            "schemaType": "array<string>",
+            "typeUnconfirmed": false,
+            "fields": [
+              {
+                "name": "item",
+                "type": "string",
+                "description": "Array element schema; not an extra stored field.",
+                "schemaType": "string",
+                "typeUnconfirmed": false
+              }
+            ]
+          },
+          {
+            "name": "roomId",
+            "type": "string",
+            "description": "M/W; phòng ngữ cảnh khởi tạo",
+            "schemaType": "string",
+            "typeUnconfirmed": false
+          },
+          {
+            "name": "roomName",
+            "type": "string",
+            "description": "M/W; tên phòng ngữ cảnh",
+            "schemaType": "string",
+            "typeUnconfirmed": false
+          },
+          {
+            "name": "bookingId",
+            "type": "string",
+            "description": "M/W; booking ngữ cảnh khởi tạo hoặc chuỗi rỗng nếu mở từ phòng",
+            "schemaType": "string",
+            "typeUnconfirmed": false
+          },
+          {
+            "name": "lastText",
+            "type": "string",
+            "description": "M/W; preview tin cuối, mới tạo rỗng",
+            "schemaType": "string",
+            "typeUnconfirmed": false
+          },
+          {
+            "name": "lastSenderUid",
+            "type": "string",
+            "description": "M/W; người gửi cuối hoặc rỗng",
+            "schemaType": "string",
+            "typeUnconfirmed": false
+          },
+          {
+            "name": "lastMessageId",
+            "type": "string",
+            "description": "M/W; ID tin cuối trong subcollection hoặc rỗng",
+            "schemaType": "string",
+            "typeUnconfirmed": false
+          },
+          {
+            "name": "sequence",
+            "type": "number",
+            "description": "M/W; số thứ tự tin gần nhất, khởi tạo 0",
+            "schemaType": "integer",
+            "typeUnconfirmed": false
+          },
+          {
+            "name": "guestReceived",
+            "type": "number",
+            "description": "M/W; tổng số tin đến Guest",
+            "schemaType": "integer",
+            "typeUnconfirmed": false
+          },
+          {
+            "name": "hostReceived",
+            "type": "number",
+            "description": "M/W; tổng số tin đến Host",
+            "schemaType": "integer",
+            "typeUnconfirmed": false
+          },
+          {
+            "name": "guestRead",
+            "type": "number",
+            "description": "M/W; mốc số tin đến Guest đã đọc",
+            "schemaType": "integer",
+            "typeUnconfirmed": false
+          },
+          {
+            "name": "hostRead",
+            "type": "number",
+            "description": "M/W; mốc số tin đến Host đã đọc",
+            "schemaType": "integer",
+            "typeUnconfirmed": false
+          },
+          {
+            "name": "createdAt",
+            "type": "timestamp",
+            "description": "M/W; thời gian tạo",
+            "schemaType": "timestamp",
+            "typeUnconfirmed": false
+          },
+          {
+            "name": "updatedAt",
+            "type": "timestamp",
+            "description": "M/W; cập nhật khi gửi tin",
+            "schemaType": "timestamp",
+            "typeUnconfirmed": false
+          }
+        ],
+        "subcollections": [
+          {
+            "id": "collection-conversations-guestUid-hostUid-messages-messageId",
+            "name": "messages"
+          }
+        ],
+        "width": 900,
+        "height": 2980,
+        "schemaPath": "conversations/{guestUid:hostUid}",
+        "schemaStatus": "repository_referenced",
+        "description": "conversations/{guestUid:hostUid}"
+      },
+      "style": {
+        "width": 900,
+        "borderColor": "#14b8a6"
+      }
+    },
+    {
+      "id": "collection-conversations-guestUid-hostUid-messages-messageId",
+      "type": "collection",
+      "position": {
+        "x": 2160,
+        "y": 0
+      },
+      "data": {
+        "id": "collection-conversations-guestUid-hostUid-messages-messageId",
+        "label": "messages",
+        "isSubcollection": true,
+        "parentDocumentId": "document-conversations-guestUid-hostUid",
+        "height": 150,
+        "width": 300,
+        "fromFirebase": false,
+        "schemaPath": "conversations/{guestUid:hostUid}/messages/{messageId}",
+        "schemaStatus": "repository_referenced",
+        "description": "conversations/{guestUid:hostUid}/messages/{messageId}"
+      },
+      "style": {
+        "borderColor": "#14b8a6"
+      }
+    },
+    {
+      "id": "document-conversations-guestUid-hostUid-messages-messageId",
+      "type": "document",
+      "position": {
+        "x": 2680,
+        "y": 0
+      },
+      "data": {
+        "id": "document-conversations-guestUid-hostUid-messages-messageId",
+        "label": "{messageId}",
+        "parentDocumentId": "collection-conversations-guestUid-hostUid-messages-messageId",
+        "fields": [
+          {
+            "name": "id",
+            "type": "string",
+            "description": "M/W; cùng messageId",
+            "schemaType": "string",
+            "typeUnconfirmed": false
+          },
+          {
+            "name": "senderUid",
+            "type": "string",
+            "description": "M/W; thành viên gửi, liên kết users",
+            "schemaType": "string",
+            "typeUnconfirmed": false
+          },
+          {
+            "name": "text",
+            "type": "string",
+            "description": "M/W; nội dung 1..2000 ký tự",
+            "schemaType": "string",
+            "typeUnconfirmed": false
+          },
+          {
+            "name": "roomId",
+            "type": "string",
+            "description": "M/W; phòng ngữ cảnh hoặc rỗng",
+            "schemaType": "string",
+            "typeUnconfirmed": false
+          },
+          {
+            "name": "roomName",
+            "type": "string",
+            "description": "M/W; snapshot tên phòng ngữ cảnh hoặc rỗng",
+            "schemaType": "string",
+            "typeUnconfirmed": false
+          },
+          {
+            "name": "sequence",
+            "type": "number",
+            "description": "M/W; thứ tự tin trong conversation",
+            "schemaType": "integer",
+            "typeUnconfirmed": false
+          },
+          {
+            "name": "createdAt",
+            "type": "timestamp",
+            "description": "M/W; thời gian server",
+            "schemaType": "timestamp",
+            "typeUnconfirmed": false
+          }
+        ],
+        "subcollections": [],
+        "width": 900,
+        "height": 1225,
+        "schemaPath": "conversations/{guestUid:hostUid}/messages/{messageId}",
+        "schemaStatus": "repository_referenced",
+        "description": "conversations/{guestUid:hostUid}/messages/{messageId}"
+      },
+      "style": {
+        "width": 900,
+        "borderColor": "#14b8a6"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "contains-database-collection-conversations-guestUid-hostUid",
+      "source": "database",
+      "target": "collection-conversations-guestUid-hostUid",
+      "type": "smoothstep",
+      "data": {
+        "kind": "containment"
+      },
+      "style": {
+        "stroke": "#94a3b8",
+        "strokeWidth": 1.5
+      }
+    },
+    {
+      "id": "contains-collection-conversations-guestUid-hostUid-document-conversations-guestUid-hostUid",
+      "source": "collection-conversations-guestUid-hostUid",
+      "target": "document-conversations-guestUid-hostUid",
+      "type": "smoothstep",
+      "data": {
+        "kind": "containment"
+      },
+      "style": {
+        "stroke": "#94a3b8",
+        "strokeWidth": 1.5
+      }
+    },
+    {
+      "id": "contains-document-conversations-guestUid-hostUid-collection-conversations-guestUid-hostUid-messages-messageId",
+      "source": "document-conversations-guestUid-hostUid",
+      "target": "collection-conversations-guestUid-hostUid-messages-messageId",
+      "type": "smoothstep",
+      "data": {
+        "kind": "containment"
+      },
+      "style": {
+        "stroke": "#94a3b8",
+        "strokeWidth": 1.5
+      }
+    },
+    {
+      "id": "contains-collection-conversations-guestUid-hostUid-messages-messageId-document-conversations-guestUid-hostUid-messages-messageId",
+      "source": "collection-conversations-guestUid-hostUid-messages-messageId",
+      "target": "document-conversations-guestUid-hostUid-messages-messageId",
+      "type": "smoothstep",
+      "data": {
+        "kind": "containment"
+      },
+      "style": {
+        "stroke": "#94a3b8",
+        "strokeWidth": 1.5
+      }
+    }
+  ],
+  "viewport": {
+    "x": 80,
+    "y": 80,
+    "zoom": 0.45
+  },
+  "metadata": {
+    "exportedAt": "2026-10-23T11:06:52.528002+00:00",
+    "version": "1.1",
+    "exportedBy": "BroomSharing schema converter for FireDraw",
+    "totalNodes": 5,
+    "totalEdges": 4,
+    "scope": "local source, rules and datasets; no live cloud inventory",
+    "schemaInventory": {
+      "project": "broom-sharing-firebase-mobile",
+      "database": "broomsharing",
+      "reviewedAt": "2026-10-23",
+      "scope": "local source, rules and datasets; no live cloud inventory",
+      "authoritativeNarrative": "firestore-visualization-handoff.md",
+      "documents": [
+        {
+          "path": "users/{uid}",
+          "status": "repository_referenced",
+          "fields": [
+            {
+              "name": "uid",
+              "type": "string",
+              "notes": "M/W/D; cùng UID với document ID và Authentication"
+            },
+            {
+              "name": "schemaVersion",
+              "type": "integer",
+              "notes": "M/W/D; hiện 1"
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "notes": "M/W/D; tên hiển thị"
+            },
+            {
+              "name": "username",
+              "type": "string",
+              "notes": "M/W/D; username đã chuẩn hóa"
+            },
+            {
+              "name": "email",
+              "type": "string",
+              "notes": "M/W/D; email tài khoản"
+            },
+            {
+              "name": "phone",
+              "type": "string",
+              "notes": "M/W/D; số điện thoại, đăng ký chuẩn hóa dạng quốc tế"
+            },
+            {
+              "name": "phoneVerified",
+              "type": "boolean",
+              "notes": "M/W/D; mặc định false; không phải xác minh email"
+            },
+            {
+              "name": "role",
+              "type": "string",
+              "notes": "M/W/D; GUEST, HOST, ADMIN"
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "notes": "M/W/D; ACTIVE, BLOCKED"
+            },
+            {
+              "name": "createdAt",
+              "type": "timestamp",
+              "notes": "W/D; thời gian server khi đăng ký"
+            },
+            {
+              "name": "updatedAt",
+              "type": "timestamp",
+              "notes": "W/D; lần cập nhật"
+            },
+            {
+              "name": "moderationReason",
+              "type": "string",
+              "notes": "W/D; lý do quản trị, phát sinh khi xử lý"
+            },
+            {
+              "name": "moderatedBy",
+              "type": "string",
+              "notes": "W; UID Admin xử lý"
+            },
+            {
+              "name": "photoUrl",
+              "type": "unknown",
+              "notes": "S-only; tên trường được phép cập nhật, dự kiến URL string nhưng Rules không kiểm tra kiểu và chưa có luồng ghi tương ứng trong Repository"
+            }
+          ]
+        },
+        {
+          "path": "users/{uid}/favorites/{roomId}",
+          "status": "repository_referenced",
+          "fields": [
+            {
+              "name": "roomId",
+              "type": "string",
+              "notes": "M/W/D; liên kết rooms"
+            },
+            {
+              "name": "roomName",
+              "type": "string",
+              "notes": "M/W/D; snapshot tên lúc lưu"
+            },
+            {
+              "name": "createdAt",
+              "type": "timestamp",
+              "notes": "M/W/D; thời gian lưu"
+            }
+          ]
+        },
+        {
+          "path": "users/{uid}/noticeReads/{eventId}",
+          "status": "repository_referenced",
+          "fields": [
+            {
+              "name": "readAt",
+              "type": "timestamp",
+              "notes": "W/S; thời gian server xác nhận đã đọc"
+            }
+          ]
+        },
+        {
+          "path": "publicHosts/{uid}",
+          "status": "repository_referenced",
+          "fields": [
+            {
+              "name": "uid",
+              "type": "string",
+              "notes": "M/W/D; liên kết users cùng UID"
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "notes": "M/W/D; tên Host"
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "notes": "M/W/D; đồng bộ trạng thái users, ACTIVE/BLOCKED"
+            }
+          ]
+        },
+        {
+          "path": "usernames/{normalizedUsername}",
+          "status": "repository_referenced",
+          "fields": [
+            {
+              "name": "uid",
+              "type": "string",
+              "notes": "W/D; liên kết users/Authentication"
+            },
+            {
+              "name": "email",
+              "type": "string",
+              "notes": "W/D; email đưa vào Firebase Authentication sau lookup"
+            }
+          ]
+        },
+        {
+          "path": "hostApplications/{uid}",
+          "status": "repository_referenced",
+          "fields": [
+            {
+              "name": "id",
+              "type": "string",
+              "notes": "M/W/D; cùng UID/document ID"
+            },
+            {
+              "name": "schemaVersion",
+              "type": "integer",
+              "notes": "M/W/D; hiện 1"
+            },
+            {
+              "name": "applicantUid",
+              "type": "string",
+              "notes": "M/W/D; người nộp, liên kết users"
+            },
+            {
+              "name": "fullName",
+              "type": "string",
+              "notes": "M/W/D; họ tên khai trong đơn"
+            },
+            {
+              "name": "phone",
+              "type": "string",
+              "notes": "M/W/D; số liên hệ"
+            },
+            {
+              "name": "email",
+              "type": "string",
+              "notes": "M/W/D; email liên hệ"
+            },
+            {
+              "name": "organizationType",
+              "type": "string",
+              "notes": "M/W/D; loại cá nhân/tổ chức"
+            },
+            {
+              "name": "identityDoc",
+              "type": "string",
+              "notes": "M/W/D; thông tin giấy tờ dạng chuỗi, không phải file nhị phân"
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "notes": "M/W/D; PENDING, APPROVED, REJECTED"
+            },
+            {
+              "name": "rejectionReason",
+              "type": "string",
+              "notes": "M/W/D; lý do/kết quả duyệt, có thể rỗng"
+            },
+            {
+              "name": "createdAt",
+              "type": "timestamp",
+              "notes": "M/W/D; thời gian tạo"
+            },
+            {
+              "name": "updatedAt",
+              "type": "timestamp",
+              "notes": "M/W/D; thời gian cập nhật"
+            },
+            {
+              "name": "reviewedBy",
+              "type": "string",
+              "notes": "W; UID Admin duyệt"
+            }
+          ]
+        },
+        {
+          "path": "buildings/{buildingId}",
+          "status": "repository_referenced",
+          "fields": [
+            {
+              "name": "id",
+              "type": "string",
+              "notes": "M/W/D; document ID"
+            },
+            {
+              "name": "schemaVersion",
+              "type": "integer",
+              "notes": "M/W/D; hiện 1"
+            },
+            {
+              "name": "ownerUid",
+              "type": "string",
+              "notes": "M/W/D; Host sở hữu, liên kết users"
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "notes": "M/W/D; tên tòa nhà"
+            },
+            {
+              "name": "address",
+              "type": "string",
+              "notes": "M/W/D; địa chỉ"
+            },
+            {
+              "name": "district",
+              "type": "string",
+              "notes": "M/W/D; khu vực/quận"
+            },
+            {
+              "name": "contactPhone",
+              "type": "string",
+              "notes": "M/W/D; số liên hệ địa điểm"
+            },
+            {
+              "name": "contactName",
+              "type": "string",
+              "notes": "M/W/D; người liên hệ"
+            },
+            {
+              "name": "latitude",
+              "type": "double",
+              "notes": "M/W/D; vĩ độ"
+            },
+            {
+              "name": "longitude",
+              "type": "double",
+              "notes": "M/W/D; kinh độ"
+            },
+            {
+              "name": "location",
+              "type": "geopoint/null",
+              "notes": "M/W; getter getLocation() có thể được serialize khi ghi POJO; dataset cũ chỉ có latitude/longitude. Không coi cả hai biểu diễn là luôn hiện diện hoặc tự đồng bộ ngoài getter/setter Java"
+            },
+            {
+              "name": "directionGuide",
+              "type": "string",
+              "notes": "M/W/D; hướng dẫn đến/lối vào"
+            },
+            {
+              "name": "coverUrl",
+              "type": "string",
+              "notes": "M/W/D; URL ảnh bìa"
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "notes": "M/W/D; mặc định ACTIVE; luồng hiện tại không xác định thêm enum hoàn chỉnh"
+            },
+            {
+              "name": "createdAt",
+              "type": "timestamp",
+              "notes": "M/W/D; thời gian tạo"
+            },
+            {
+              "name": "updatedAt",
+              "type": "timestamp",
+              "notes": "M/W/D; thời gian cập nhật"
+            }
+          ]
+        },
+        {
+          "path": "rooms/{roomId}",
+          "status": "repository_referenced",
+          "fields": [
+            {
+              "name": "id",
+              "type": "string",
+              "notes": "M/W/D; document ID"
+            },
+            {
+              "name": "schemaVersion",
+              "type": "integer",
+              "notes": "M/W/D; hiện 1"
+            },
+            {
+              "name": "buildingId",
+              "type": "string",
+              "notes": "M/W/D; liên kết buildings"
+            },
+            {
+              "name": "buildingName",
+              "type": "string",
+              "notes": "M/W/D; tên tòa nhà sao chép"
+            },
+            {
+              "name": "ownerUid",
+              "type": "string",
+              "notes": "M/W/D; Host, phải khớp chủ Building"
+            },
+            {
+              "name": "roomName",
+              "type": "string",
+              "notes": "M/W/D; tên không gian"
+            },
+            {
+              "name": "roomType",
+              "type": "string",
+              "notes": "M/W/D; loại không gian, ví dụ bàn/phòng riêng/phòng họp/mặt bằng"
+            },
+            {
+              "name": "capacity",
+              "type": "integer",
+              "notes": "M/W/D; sức chứa"
+            },
+            {
+              "name": "area",
+              "type": "double",
+              "notes": "M/W/D; diện tích m²"
+            },
+            {
+              "name": "floor",
+              "type": "string",
+              "notes": "M/W/D; tầng"
+            },
+            {
+              "name": "address",
+              "type": "string",
+              "notes": "M/W/D; địa chỉ sao chép"
+            },
+            {
+              "name": "activeMode",
+              "type": "string",
+              "notes": "M/W/D; HOURLY hoặc FIXED"
+            },
+            {
+              "name": "pricePerHour",
+              "type": "double",
+              "notes": "M/W/D; giá thuê giờ VND"
+            },
+            {
+              "name": "pricePerDay",
+              "type": "double",
+              "notes": "M/W/D; trường cũ, không suy ra có luồng đặt theo ngày"
+            },
+            {
+              "name": "pricePerMonth",
+              "type": "double",
+              "notes": "M/W/D; giá tháng VND"
+            },
+            {
+              "name": "pricePerQuarter",
+              "type": "double",
+              "notes": "M/W/D; giá quý VND"
+            },
+            {
+              "name": "deposit",
+              "type": "double",
+              "notes": "M/W/D; trường cọc cũ; không dùng để tính khoản trả trước 40% của booking mới"
+            },
+            {
+              "name": "openTime",
+              "type": "string",
+              "notes": "M/W/D; HH:mm"
+            },
+            {
+              "name": "closeTime",
+              "type": "string",
+              "notes": "M/W/D; HH:mm"
+            },
+            {
+              "name": "amenities",
+              "type": "array<string>",
+              "notes": "M/W/D; tiện ích"
+            },
+            {
+              "name": "rules",
+              "type": "string",
+              "notes": "M/W/D; nội quy"
+            },
+            {
+              "name": "approvalStatus",
+              "type": "string",
+              "notes": "M/W/D; DRAFT, PENDING_REVIEW, APPROVED, REJECTED"
+            },
+            {
+              "name": "listingStatus",
+              "type": "string",
+              "notes": "M/W/D; ACTIVE, INACTIVE, SUSPENDED"
+            },
+            {
+              "name": "imageUrls",
+              "type": "array<string>",
+              "notes": "M/W/D; URL ảnh, Rules giới hạn tối đa 6"
+            },
+            {
+              "name": "blackoutDates",
+              "type": "array<string>",
+              "notes": "M/W/D; ngày khóa YYYY-MM-DD"
+            },
+            {
+              "name": "blackoutRanges",
+              "type": "array<map>",
+              "notes": "M/W/D; khoảng khóa lịch nhúng, không phải collection"
+            },
+            {
+              "name": "blackoutRanges[].startAt",
+              "type": "timestamp",
+              "notes": "M; bắt đầu khoảng khóa"
+            },
+            {
+              "name": "blackoutRanges[].endAt",
+              "type": "timestamp",
+              "notes": "M; kết thúc loại trừ"
+            },
+            {
+              "name": "blackoutRanges[].reason",
+              "type": "string",
+              "notes": "M; lý do khóa"
+            },
+            {
+              "name": "workingDays",
+              "type": "array<integer>",
+              "notes": "M/W/D; thứ ISO 1..7"
+            },
+            {
+              "name": "slotMinutes",
+              "type": "integer",
+              "notes": "M/W/D; bước chọn giờ; không đồng nhất với slot kỹ thuật 30 phút"
+            },
+            {
+              "name": "minBookingMinutes",
+              "type": "integer",
+              "notes": "M/W/D; thời lượng thuê tối thiểu"
+            },
+            {
+              "name": "fixedStartMonth",
+              "type": "string",
+              "notes": "M/W/D; tháng nhận thuê cố định YYYY-MM"
+            },
+            {
+              "name": "renewalPolicy",
+              "type": "string",
+              "notes": "M/W/D; chính sách gia hạn"
+            },
+            {
+              "name": "rentalPolicy",
+              "type": "string",
+              "notes": "M/W/D; chính sách thuê"
+            },
+            {
+              "name": "locationVerification",
+              "type": "string",
+              "notes": "M/W/D; mặc định UNVERIFIED, luồng Admin có thể ghi ADMIN_REVIEWED; không tự thêm trạng thái đối tác"
+            },
+            {
+              "name": "photosVerification",
+              "type": "string",
+              "notes": "M/W/D; như locationVerification cho ảnh"
+            },
+            {
+              "name": "rejectionReason",
+              "type": "string",
+              "notes": "M/W/D; lý do/kết quả xét duyệt"
+            },
+            {
+              "name": "bookingRevision",
+              "type": "integer",
+              "notes": "M/W/D; tăng khi thay đổi booking/lịch liên quan"
+            },
+            {
+              "name": "lastBookingId",
+              "type": "string",
+              "notes": "M/W/D; booking gần nhất tác động lịch/phòng, rỗng khi chưa có"
+            },
+            {
+              "name": "createdAt",
+              "type": "timestamp",
+              "notes": "M/W/D; thời gian tạo"
+            },
+            {
+              "name": "updatedAt",
+              "type": "timestamp",
+              "notes": "M/W/D; lần cập nhật"
+            },
+            {
+              "name": "reviewedBy",
+              "type": "string",
+              "notes": "W; UID Admin xét duyệt tin"
+            },
+            {
+              "name": "moderationReason",
+              "type": "string",
+              "notes": "W; lý do đình chỉ/gỡ đình chỉ"
+            },
+            {
+              "name": "moderatedBy",
+              "type": "string",
+              "notes": "W; UID Admin quản trị"
+            }
+          ]
+        },
+        {
+          "path": "bookings/{bookingId}",
+          "status": "repository_referenced",
+          "fields": [
+            {
+              "name": "id",
+              "type": "string",
+              "notes": "M/W/D; document ID"
+            },
+            {
+              "name": "schemaVersion",
+              "type": "integer",
+              "notes": "M/W/D; class mặc định 1, luồng tạo mới ghi 2"
+            },
+            {
+              "name": "roomId",
+              "type": "string",
+              "notes": "M/W/D; liên kết rooms"
+            },
+            {
+              "name": "roomName",
+              "type": "string",
+              "notes": "M/W/D; snapshot tên phòng"
+            },
+            {
+              "name": "roomAddress",
+              "type": "string",
+              "notes": "M/W/D; snapshot địa chỉ"
+            },
+            {
+              "name": "ownerUid",
+              "type": "string",
+              "notes": "M/W/D; Host của booking"
+            },
+            {
+              "name": "guestUid",
+              "type": "string",
+              "notes": "M/W/D; người thuê; tài khoản role HOST cũng có thể thuê"
+            },
+            {
+              "name": "guestName",
+              "type": "string",
+              "notes": "M/W/D; snapshot tên Guest"
+            },
+            {
+              "name": "guestPhone",
+              "type": "string",
+              "notes": "M/W/D; snapshot liên hệ Guest"
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "notes": "M/W/D; PENDING, CONFIRMED, CHECKED_IN, COMPLETED, CANCELLED, REJECTED"
+            },
+            {
+              "name": "paymentStatus",
+              "type": "string",
+              "notes": "M/W/D; booking mới UNAVAILABLE; UNPAID/DEMO_PENDING là giá trị mặc định/cũ được code nhận diện, không phải thanh toán thật"
+            },
+            {
+              "name": "activeMode",
+              "type": "string",
+              "notes": "M/W/D; HOURLY/FIXED"
+            },
+            {
+              "name": "rejectionReason",
+              "type": "string",
+              "notes": "M/W/D; lý do từ chối hoặc hủy, có thể rỗng"
+            },
+            {
+              "name": "startAt",
+              "type": "timestamp",
+              "notes": "M/W/D; thời điểm bắt đầu"
+            },
+            {
+              "name": "endAt",
+              "type": "timestamp",
+              "notes": "M/W/D; thời điểm kết thúc loại trừ"
+            },
+            {
+              "name": "totalAmount",
+              "type": "double",
+              "notes": "M/W/D; tổng tiền thuê VND"
+            },
+            {
+              "name": "priceSnapshot",
+              "type": "map",
+              "notes": "M/W/D; chụp giá/chính sách tại lúc đặt"
+            },
+            {
+              "name": "priceSnapshot.currency",
+              "type": "string",
+              "notes": "W/D; VND"
+            },
+            {
+              "name": "priceSnapshot.rentalAmount",
+              "type": "number",
+              "notes": "W/D; tiền thuê"
+            },
+            {
+              "name": "priceSnapshot.feeAmount",
+              "type": "integer",
+              "notes": "W/D; hiện 0"
+            },
+            {
+              "name": "priceSnapshot.depositAmount",
+              "type": "number",
+              "notes": "W/D; khoản trả trước dự kiến, booking mới 40%; code mới ghi số nguyên, dataset cũ có double"
+            },
+            {
+              "name": "priceSnapshot.advancePercent",
+              "type": "integer",
+              "notes": "W; booking mới 40; dataset cũ có thể thiếu"
+            },
+            {
+              "name": "priceSnapshot.cancellationPolicyVersion",
+              "type": "integer",
+              "notes": "W; booking mới 1; dataset cũ có thể thiếu"
+            },
+            {
+              "name": "priceSnapshot.totalAmount",
+              "type": "number",
+              "notes": "W/D; tổng tiền"
+            },
+            {
+              "name": "priceSnapshot.paymentDueAmount",
+              "type": "number",
+              "notes": "W/D; khoản phải trả trước dự kiến"
+            },
+            {
+              "name": "priceSnapshot.rentalPolicy",
+              "type": "string",
+              "notes": "W/D; snapshot chính sách thuê"
+            },
+            {
+              "name": "priceSnapshot.renewalPolicy",
+              "type": "string",
+              "notes": "W/D; snapshot chính sách gia hạn"
+            },
+            {
+              "name": "rentalMonths",
+              "type": "integer",
+              "notes": "M/W/D; HOURLY=0, FIXED=1 hoặc 3"
+            },
+            {
+              "name": "slotStart",
+              "type": "integer",
+              "notes": "M/W/D; slot 30 phút đầu trong tháng, FIXED=0"
+            },
+            {
+              "name": "slotCount",
+              "type": "integer",
+              "notes": "M/W/D; số slot 30 phút liên tiếp, FIXED=0"
+            },
+            {
+              "name": "monthKeys",
+              "type": "array<string>",
+              "notes": "M/W/D; ID availabilityMonths, 1 hoặc 3 phần tử"
+            },
+            {
+              "name": "slotKeys",
+              "type": "array<integer>",
+              "notes": "M/W/D; danh sách slot giữ, FIXED rỗng"
+            },
+            {
+              "name": "requestFingerprint",
+              "type": "string",
+              "notes": "M/W/D; SHA-256 lựa chọn phòng/thời gian"
+            },
+            {
+              "name": "cancelledAt",
+              "type": "timestamp/null",
+              "notes": "M/W; mặc định null, khi hủy là server timestamp; dataset cũ có thể thiếu"
+            },
+            {
+              "name": "cancelledByUid",
+              "type": "string",
+              "notes": "M/W; UID bên hủy, mặc định rỗng"
+            },
+            {
+              "name": "cancellationRefundPercent",
+              "type": "integer",
+              "notes": "M/W; tỷ lệ chính sách 0/50/100, không xác nhận đã chuyển tiền"
+            },
+            {
+              "name": "refundAmount",
+              "type": "number",
+              "notes": "M/W; mặc định double 0, thao tác hủy hiện ghi integer 0 vì chưa thu tiền"
+            },
+            {
+              "name": "refundStatus",
+              "type": "string",
+              "notes": "M/W; hiện NOT_REQUIRED"
+            },
+            {
+              "name": "createdAt",
+              "type": "timestamp",
+              "notes": "M/W/D; thời gian tạo"
+            },
+            {
+              "name": "updatedAt",
+              "type": "timestamp",
+              "notes": "M/W/D; lần cập nhật"
+            }
+          ]
+        },
+        {
+          "path": "availabilityMonths/{roomId_yyyyMM}",
+          "status": "repository_referenced",
+          "fields": [
+            {
+              "name": "roomId",
+              "type": "string",
+              "notes": "M/W/D; liên kết rooms"
+            },
+            {
+              "name": "monthIndex",
+              "type": "integer",
+              "notes": "M/W/D; số YYYYMM, không phải chỉ số tháng 0..11"
+            },
+            {
+              "name": "fixedBookingId",
+              "type": "string",
+              "notes": "M/W/D; booking giữ toàn tháng; rỗng nếu không có"
+            },
+            {
+              "name": "slotsBusy",
+              "type": "array<integer>",
+              "notes": "M/W/D; tập slot kỹ thuật 30 phút đang giữ"
+            },
+            {
+              "name": "hourlyBookings",
+              "type": "map<string,array<integer>>",
+              "notes": "M/W/D; key động là bookingId, value là các slot booking đó giữ"
+            },
+            {
+              "name": "hourlyBookings.{bookingId}",
+              "type": "array<integer>",
+              "notes": "M/W/D; liên kết theo key, không phải subcollection"
+            },
+            {
+              "name": "lastBookingId",
+              "type": "string",
+              "notes": "M/W/D; booking vừa tác động lịch"
+            },
+            {
+              "name": "updatedAt",
+              "type": "timestamp",
+              "notes": "M/W/D; thời gian server"
+            }
+          ]
+        },
+        {
+          "path": "conversations/{guestUid:hostUid}",
+          "status": "repository_referenced",
+          "fields": [
+            {
+              "name": "id",
+              "type": "string",
+              "notes": "M/W; guestUid + ':' + hostUid"
+            },
+            {
+              "name": "guestUid",
+              "type": "string",
+              "notes": "M/W; liên kết users bên thuê"
+            },
+            {
+              "name": "hostUid",
+              "type": "string",
+              "notes": "M/W; liên kết users bên cho thuê"
+            },
+            {
+              "name": "guestName",
+              "type": "string",
+              "notes": "M/W; snapshot tên bên thuê"
+            },
+            {
+              "name": "hostName",
+              "type": "string",
+              "notes": "M/W; snapshot tên Host"
+            },
+            {
+              "name": "memberUids",
+              "type": "array<string>",
+              "notes": "M/W; đúng hai UID [guestUid, hostUid], dùng query inbox"
+            },
+            {
+              "name": "roomId",
+              "type": "string",
+              "notes": "M/W; phòng ngữ cảnh khởi tạo"
+            },
+            {
+              "name": "roomName",
+              "type": "string",
+              "notes": "M/W; tên phòng ngữ cảnh"
+            },
+            {
+              "name": "bookingId",
+              "type": "string",
+              "notes": "M/W; booking ngữ cảnh khởi tạo hoặc chuỗi rỗng nếu mở từ phòng"
+            },
+            {
+              "name": "lastText",
+              "type": "string",
+              "notes": "M/W; preview tin cuối, mới tạo rỗng"
+            },
+            {
+              "name": "lastSenderUid",
+              "type": "string",
+              "notes": "M/W; người gửi cuối hoặc rỗng"
+            },
+            {
+              "name": "lastMessageId",
+              "type": "string",
+              "notes": "M/W; ID tin cuối trong subcollection hoặc rỗng"
+            },
+            {
+              "name": "sequence",
+              "type": "integer",
+              "notes": "M/W; số thứ tự tin gần nhất, khởi tạo 0"
+            },
+            {
+              "name": "guestReceived",
+              "type": "integer",
+              "notes": "M/W; tổng số tin đến Guest"
+            },
+            {
+              "name": "hostReceived",
+              "type": "integer",
+              "notes": "M/W; tổng số tin đến Host"
+            },
+            {
+              "name": "guestRead",
+              "type": "integer",
+              "notes": "M/W; mốc số tin đến Guest đã đọc"
+            },
+            {
+              "name": "hostRead",
+              "type": "integer",
+              "notes": "M/W; mốc số tin đến Host đã đọc"
+            },
+            {
+              "name": "createdAt",
+              "type": "timestamp",
+              "notes": "M/W; thời gian tạo"
+            },
+            {
+              "name": "updatedAt",
+              "type": "timestamp",
+              "notes": "M/W; cập nhật khi gửi tin"
+            }
+          ]
+        },
+        {
+          "path": "conversations/{guestUid:hostUid}/messages/{messageId}",
+          "status": "repository_referenced",
+          "fields": [
+            {
+              "name": "id",
+              "type": "string",
+              "notes": "M/W; cùng messageId"
+            },
+            {
+              "name": "senderUid",
+              "type": "string",
+              "notes": "M/W; thành viên gửi, liên kết users"
+            },
+            {
+              "name": "text",
+              "type": "string",
+              "notes": "M/W; nội dung 1..2000 ký tự"
+            },
+            {
+              "name": "roomId",
+              "type": "string",
+              "notes": "M/W; phòng ngữ cảnh hoặc rỗng"
+            },
+            {
+              "name": "roomName",
+              "type": "string",
+              "notes": "M/W; snapshot tên phòng ngữ cảnh hoặc rỗng"
+            },
+            {
+              "name": "sequence",
+              "type": "integer",
+              "notes": "M/W; thứ tự tin trong conversation"
+            },
+            {
+              "name": "createdAt",
+              "type": "timestamp",
+              "notes": "M/W; thời gian server"
+            }
+          ]
+        },
+        {
+          "path": "propertyVerifications/{verificationId}",
+          "status": "repository_referenced",
+          "fields": [
+            {
+              "name": "schemaVersion",
+              "type": "integer",
+              "notes": "D; dữ liệu mẫu hiện 1"
+            },
+            {
+              "name": "ownerUid",
+              "type": "string",
+              "notes": "R/S/D; Host nộp hồ sơ"
+            },
+            {
+              "name": "verificationType",
+              "type": "string",
+              "notes": "R/S/D; LOCATION, PHOTOS, IDENTITY"
+            },
+            {
+              "name": "roomId",
+              "type": "string",
+              "notes": "R/D; phòng cần xác minh; có thể rỗng/thiếu"
+            },
+            {
+              "name": "buildingId",
+              "type": "string",
+              "notes": "R/D; tòa nhà cần xác minh; có thể rỗng/thiếu"
+            },
+            {
+              "name": "description",
+              "type": "string",
+              "notes": "R/D; mô tả"
+            },
+            {
+              "name": "evidenceRefs",
+              "type": "array<string>",
+              "notes": "R/D; đường dẫn tệp, code ưu tiên đọc danh sách này"
+            },
+            {
+              "name": "evidencePath",
+              "type": "string",
+              "notes": "R; dạng đơn được code đọc dự phòng khi evidenceRefs không phải List"
+            },
+            {
+              "name": "evidencePaths",
+              "type": "array<unknown>",
+              "notes": "D-only; tên trường biến thể trong dataset, các mảng đang rỗng nên chưa xác định kiểu phần tử bằng dữ liệu; AdminRepository không đọc tên này"
+            },
+            {
+              "name": "reviewed",
+              "type": "boolean",
+              "notes": "D-only; cờ dữ liệu mẫu; không đồng nhất với reviewedBy/reviewedAt và không chứng minh Admin đã xem tệp"
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "notes": "R/W/S/D; PENDING, VERIFIED, REJECTED"
+            },
+            {
+              "name": "rejectionReason",
+              "type": "string",
+              "notes": "W; lý do/kết quả duyệt"
+            },
+            {
+              "name": "reviewedBy",
+              "type": "string",
+              "notes": "W; UID Admin xử lý"
+            },
+            {
+              "name": "method",
+              "type": "string",
+              "notes": "W; ADMIN_REVIEWED"
+            },
+            {
+              "name": "reviewNote",
+              "type": "string",
+              "notes": "W; ghi chú xét duyệt"
+            },
+            {
+              "name": "reviewedAt",
+              "type": "timestamp",
+              "notes": "W; thời gian xét duyệt"
+            },
+            {
+              "name": "partnerName",
+              "type": "string",
+              "notes": "W; code ghi rỗng, không phải tích hợp đối tác"
+            },
+            {
+              "name": "createdAt",
+              "type": "timestamp",
+              "notes": "R/S/D; thời gian tạo"
+            },
+            {
+              "name": "updatedAt",
+              "type": "timestamp",
+              "notes": "W/D; lần cập nhật"
+            }
+          ]
+        },
+        {
+          "path": "reports/{reportId}",
+          "status": "repository_referenced",
+          "fields": [
+            {
+              "name": "id",
+              "type": "string",
+              "notes": "M/W; cùng reportId; dataset cũ có thể thiếu"
+            },
+            {
+              "name": "schemaVersion",
+              "type": "integer",
+              "notes": "M/W/D; hiện 1"
+            },
+            {
+              "name": "reporterUid",
+              "type": "string",
+              "notes": "M/W/D; người báo, liên kết users"
+            },
+            {
+              "name": "roomId",
+              "type": "string",
+              "notes": "M/W/D; phòng bị báo cáo"
+            },
+            {
+              "name": "ownerUid",
+              "type": "string",
+              "notes": "M/W/D; Host lấy từ dữ liệu phòng"
+            },
+            {
+              "name": "reason",
+              "type": "string",
+              "notes": "M/W/D; Sai thông tin / Ảnh không khớp / Nghi ngờ gian lận / Khác"
+            },
+            {
+              "name": "description",
+              "type": "string",
+              "notes": "M/W/D; mô tả 20..2000 ký tự"
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "notes": "M/W/D; OPEN, RESOLVED, DISMISSED"
+            },
+            {
+              "name": "createdAt",
+              "type": "timestamp",
+              "notes": "M/W/D; thời gian tạo"
+            },
+            {
+              "name": "updatedAt",
+              "type": "timestamp",
+              "notes": "M/W/D; lần cập nhật"
+            },
+            {
+              "name": "action",
+              "type": "string",
+              "notes": "W; NO_ACTION, SUSPEND_ROOM, BLOCK_HOST"
+            },
+            {
+              "name": "resolution",
+              "type": "string",
+              "notes": "W; kết luận 10..1000 ký tự"
+            },
+            {
+              "name": "reviewedBy",
+              "type": "string",
+              "notes": "W; UID Admin xử lý"
+            },
+            {
+              "name": "reviewedAt",
+              "type": "timestamp",
+              "notes": "W; thời gian xử lý"
+            },
+            {
+              "name": "hostResponse",
+              "type": "unknown",
+              "notes": "S-only; contract cho Host cập nhật; dự kiến nội dung phản hồi nhưng Rules hiện không kiểm tra kiểu, chưa có UI/Repository phản hồi trong checkout"
+            }
+          ]
+        },
+        {
+          "path": "auditLogs/{auditId}",
+          "status": "repository_referenced",
+          "fields": [
+            {
+              "name": "schemaVersion",
+              "type": "integer",
+              "notes": "M/W/D; hiện 1"
+            },
+            {
+              "name": "actorUid",
+              "type": "string",
+              "notes": "M/W/D; người thực hiện, liên kết users"
+            },
+            {
+              "name": "targetPath",
+              "type": "string",
+              "notes": "M/W/D; đường dẫn đối tượng, có thể là document hoặc đích tổng hợp của tác vụ dataset"
+            },
+            {
+              "name": "action",
+              "type": "string",
+              "notes": "M/W/D; mã hành động"
+            },
+            {
+              "name": "before",
+              "type": "map<string,any>",
+              "notes": "M/W/D; dữ liệu trước thay đổi, có thể rỗng"
+            },
+            {
+              "name": "after",
+              "type": "map<string,any>",
+              "notes": "M/W/D; dữ liệu sau thay đổi, có thể rỗng"
+            },
+            {
+              "name": "reason",
+              "type": "string",
+              "notes": "M/W/D; lý do"
+            },
+            {
+              "name": "createdAt",
+              "type": "timestamp",
+              "notes": "M/W/D; thời gian server"
+            }
+          ]
+        },
+        {
+          "path": "rentalPlaces/{placeId}",
+          "status": "repository_referenced",
+          "fields": [
+            {
+              "name": "id",
+              "type": "string",
+              "notes": "M/D; document ID"
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "notes": "M/D; tên địa điểm"
+            },
+            {
+              "name": "address",
+              "type": "string",
+              "notes": "M/D; địa chỉ nguồn"
+            },
+            {
+              "name": "location",
+              "type": "geopoint",
+              "notes": "M/D; vị trí từ nguồn tham khảo; không phải map collection"
+            },
+            {
+              "name": "sourceUrl",
+              "type": "string",
+              "notes": "M/D; URL tin nguồn"
+            },
+            {
+              "name": "mapSourceUrl",
+              "type": "string",
+              "notes": "M/D; URL bản đồ nguồn"
+            },
+            {
+              "name": "sourceCoordinateLabel",
+              "type": "string",
+              "notes": "M/D; nhãn tọa độ từ nguồn"
+            },
+            {
+              "name": "locationNote",
+              "type": "string",
+              "notes": "M/D; ghi chú giới hạn vị trí"
+            },
+            {
+              "name": "checkedAt",
+              "type": "timestamp",
+              "notes": "M/D; thời điểm đối chiếu nguồn"
+            }
+          ]
+        },
+        {
+          "path": "payments/{paymentId}",
+          "status": "rules_only",
+          "fields": [
+            {
+              "name": "guestUid",
+              "type": "unknown",
+              "notes": "S-only; được dùng kiểm tra quyền chủ thanh toán, ngữ nghĩa là UID string nhưng không có validation/luồng ghi xác nhận kiểu"
+            }
+          ]
+        },
+        {
+          "path": "notifications/{notificationId}",
+          "status": "rules_only",
+          "fields": [
+            {
+              "name": "recipientUid",
+              "type": "unknown",
+              "notes": "S-only; dùng kiểm tra người nhận, ngữ nghĩa UID string nhưng chưa có schema ghi/validation kiểu"
+            },
+            {
+              "name": "readAt",
+              "type": "unknown",
+              "notes": "S-only; trường duy nhất được phép thay đổi; dự kiến timestamp nhưng Rules match này chưa kiểm tra kiểu"
+            }
+          ]
+        }
+      ],
+      "relationships": [
+        {
+          "source": "users/{uid}, khóa document",
+          "target": "Authentication UID",
+          "cardinalityAndNotes": "1 theo thiết kế đăng ký; hai dịch vụ không có transaction chung, có thể phát sinh tài khoản/hồ sơ thiếu cần xử lý"
+        },
+        {
+          "source": "publicHosts.uid / khóa document",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "1; User có 0..1 bản chiếu"
+        },
+        {
+          "source": "usernames.uid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "1; theo đăng ký hiện tại User có một alias username"
+        },
+        {
+          "source": "hostApplications.applicantUid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "1; User có 0..1 document đơn hiện hành"
+        },
+        {
+          "source": "hostApplications.reviewedBy",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "0..1 Admin"
+        },
+        {
+          "source": "buildings.ownerUid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "1 Host"
+        },
+        {
+          "source": "rooms.ownerUid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "1 Host"
+        },
+        {
+          "source": "rooms.buildingId",
+          "target": "buildings/{buildingId}",
+          "cardinalityAndNotes": "1; cùng ownerUid"
+        },
+        {
+          "source": "rooms.reviewedBy",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "0..1 Admin"
+        },
+        {
+          "source": "rooms.moderatedBy",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "0..1 Admin"
+        },
+        {
+          "source": "users.moderatedBy",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "0..1 Admin; quan hệ tự tham chiếu"
+        },
+        {
+          "source": "rooms.lastBookingId",
+          "target": "bookings/{bookingId}",
+          "cardinalityAndNotes": "0..1; liên kết kỹ thuật gần nhất"
+        },
+        {
+          "source": "bookings.roomId",
+          "target": "rooms/{roomId}",
+          "cardinalityAndNotes": "1; Room có 0..N booking qua thời gian"
+        },
+        {
+          "source": "bookings.guestUid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "1 người thuê"
+        },
+        {
+          "source": "bookings.ownerUid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "1 Host; khác guestUid"
+        },
+        {
+          "source": "bookings.cancelledByUid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "0..1; bên thuê hoặc Host"
+        },
+        {
+          "source": "bookings.monthKeys[]",
+          "target": "availabilityMonths/{roomId_yyyyMM}",
+          "cardinalityAndNotes": "1 hoặc 3 ở schema 2; một tháng có thể phục vụ nhiều booking giờ"
+        },
+        {
+          "source": "availabilityMonths.roomId",
+          "target": "rooms/{roomId}",
+          "cardinalityAndNotes": "1; Room có 0..N tháng lịch"
+        },
+        {
+          "source": "availabilityMonths.fixedBookingId",
+          "target": "bookings/{bookingId}",
+          "cardinalityAndNotes": "0..1 booking giữ cả tháng"
+        },
+        {
+          "source": "availabilityMonths.hourlyBookings.{bookingId}",
+          "target": "bookings/{bookingId}",
+          "cardinalityAndNotes": "0..N, liên kết bằng key của map"
+        },
+        {
+          "source": "availabilityMonths.lastBookingId",
+          "target": "bookings/{bookingId}",
+          "cardinalityAndNotes": "0..1 lần tác động gần nhất"
+        },
+        {
+          "source": "users/{uid} chứa favorites",
+          "target": "users/{uid}/favorites/{roomId}",
+          "cardinalityAndNotes": "quan hệ chứa 1 → 0..N"
+        },
+        {
+          "source": "favorites.roomId",
+          "target": "rooms/{roomId}",
+          "cardinalityAndNotes": "1; User–Room là N–N thông qua Favorite"
+        },
+        {
+          "source": "users/{uid} chứa noticeReads",
+          "target": "users/{uid}/noticeReads/{eventId}",
+          "cardinalityAndNotes": "quan hệ chứa 1 → 0..N; eventId là định danh dẫn xuất, không phải FK notifications"
+        },
+        {
+          "source": "conversations.guestUid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "1 bên thuê"
+        },
+        {
+          "source": "conversations.hostUid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "1 Host"
+        },
+        {
+          "source": "conversations.memberUids[]",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "đúng 2, cùng cặp guestUid/hostUid; có thể gộp nhãn để tránh đường trùng"
+        },
+        {
+          "source": "conversations.roomId",
+          "target": "rooms/{roomId}",
+          "cardinalityAndNotes": "1 ngữ cảnh khởi tạo của luồng hiện có; không có nghĩa chỉ chat về một phòng"
+        },
+        {
+          "source": "conversations.bookingId",
+          "target": "bookings/{bookingId}",
+          "cardinalityAndNotes": "0..1 ngữ cảnh khởi tạo"
+        },
+        {
+          "source": "conversations.lastSenderUid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "0..1; rỗng khi chưa có tin"
+        },
+        {
+          "source": "conversations.lastMessageId",
+          "target": "conversations/{guestUid:hostUid}/messages/{messageId}",
+          "cardinalityAndNotes": "0..1 tin cuối trong chính hội thoại"
+        },
+        {
+          "source": "conversations/{guestUid:hostUid} chứa messages",
+          "target": "conversations/{guestUid:hostUid}/messages/{messageId}",
+          "cardinalityAndNotes": "quan hệ chứa 1 → 0..N"
+        },
+        {
+          "source": "messages.senderUid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "1, phải là thành viên"
+        },
+        {
+          "source": "messages.roomId",
+          "target": "rooms/{roomId}",
+          "cardinalityAndNotes": "0..1, phòng thuộc Host của hội thoại"
+        },
+        {
+          "source": "propertyVerifications.ownerUid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "1 Host"
+        },
+        {
+          "source": "propertyVerifications.roomId",
+          "target": "rooms/{roomId}",
+          "cardinalityAndNotes": "0..1 theo loại/ngữ cảnh"
+        },
+        {
+          "source": "propertyVerifications.buildingId",
+          "target": "buildings/{buildingId}",
+          "cardinalityAndNotes": "0..1 theo loại/ngữ cảnh; code ưu tiên roomId"
+        },
+        {
+          "source": "propertyVerifications.reviewedBy",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "0..1 Admin"
+        },
+        {
+          "source": "reports.reporterUid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "1 người báo"
+        },
+        {
+          "source": "reports.ownerUid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "1 Host liên quan"
+        },
+        {
+          "source": "reports.roomId",
+          "target": "rooms/{roomId}",
+          "cardinalityAndNotes": "1"
+        },
+        {
+          "source": "reports.reviewedBy",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "0..1 Admin"
+        },
+        {
+          "source": "auditLogs.actorUid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "1 người thực hiện theo contract app; dữ liệu tác vụ ngoài app có thể dùng định danh khác cần đối chiếu"
+        },
+        {
+          "source": "auditLogs.targetPath",
+          "target": "document được chỉ định",
+          "cardinalityAndNotes": "liên kết đa hình/dynamic, không vẽ thành cột FK cố định hoặc khẳng định mọi targetPath đều trỏ document tồn tại"
+        },
+        {
+          "source": "payments.guestUid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "S-only, chưa xác nhận schema dữ liệu"
+        },
+        {
+          "source": "notifications.recipientUid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "S-only, chưa xác nhận schema dữ liệu"
+        }
+      ],
+      "visualizationInstructions": "Hãy dựng sơ đồ cấu trúc Firestore BroomSharing theo toàn bộ đặc tả dưới đây. Giữ nguyên tên collection và trường, kể cả chữ hoa/thường. Tách rõ Collection → Document → Subcollection → Document; map/array là dữ liệu nhúng, không phải collection. Giữ bố cục 5 trang với các thẻ đầy đủ trường của bản cũ làm bản chính; chỉ chỉnh nhãn/chú thích hoặc bổ sung có căn cứ, không thay bằng bảng trường chọn lọc. Quan hệ chứa dùng nét liền; liên kết ID nếu vẽ phải dùng nét đứt. Bội số là số đích logic của mỗi bản ghi nguồn, không phải khóa ngoại tự động. Toàn bộ 46 đặc tả quan hệ có trong từ điển Markdown; các hình chính hiện chưa vẽ tất cả những liên kết đó thành đường nối. SVG/PDF giữ nét khi zoom, nhưng không khẳng định fit toàn bộ một trang rộng xuống 16 cm sẽ đọc được.\n\n- Nguồn xác nhận: mã Java hiện tại (Model, Repository, BookingPolicy), `firestore.rules`, `firestore.indexes.json`, `firebase.json`, dataset local và công cụ tạo dataset. Đây là kiểm kê cấu trúc được các nguồn này thể hiện, **không phải bản quét trực tiếp toàn bộ cloud**. Document do người khác tạo ngoài checkout có thể có trường khác; không khẳng định không còn trường nào trên cloud.\n- Có **13 collection gốc được Repository tham chiếu**, **3 loại subcollection** và **2 collection chỉ có contract trong Rules**. Tức 18 mẫu đường dẫn document cần biểu diễn, trong đó 16 mẫu thuộc nhóm Repository tham chiếu. “Được tham chiếu” không có nghĩa mọi luồng đã hoàn thiện.\n- Không đưa mật khẩu, token, API key hay dữ liệu liên hệ thật vào sơ đồ. Chỉ thể hiện schema và ID ký hiệu.\n- Không tự thêm `displayName`, `bio`, `stats`, `followers`, `posts`, `isVerified`, `avatarUrl` chỉ vì có trong ảnh minh họa của công cụ khác. Hồ sơ app hiện dùng `name`; `photoUrl` chỉ có trong quyền cập nhật Rules.\n- Không tạo ba collection Guest/Host/Admin: đây là ba giá trị `users.role`; Host cũng có thể thực hiện quyền thuê.\n- Dữ liệu tiền/phương thức thanh toán chưa tích hợp: không tự vẽ Payment/Refund/Payout thành luồng đang hoạt động.\n- ID được lưu bằng `string`, không đổi thành Firestore `DocumentReference`. Những mũi tên dưới đây là quan hệ logic, không phải khóa ngoại tự động.\n- Ký hiệu nguồn: **M** = Model Java; **W** = code ghi/update; **R** = code đọc; **S** = Security Rules; **D** = dataset/công cụ tạo dữ liệu. Nguồn S đơn lẻ không chứng minh trường đã có document thật. Các trường phát sinh sau duyệt/hủy có thể chưa tồn tại ở document mới; không mặc định mọi trường đều bắt buộc.\n- Kiểu `integer`/`double` đều thuộc nhóm số Firestore nhưng được ghi riêng cho chính xác. `number` là số có thể khác kiểu giữa code/dataset. `unknown` nghĩa nguồn hiện tại không đủ xác định kiểu được bảo vệ, không tự ép kiểu. `timestamp` được Java ánh xạ bằng Date/Timestamp; có thể null trước khi server giải quyết giá trị server timestamp.",
+      "businessConstraints": "- Một Room thuê độc quyền trong khoảng [startAt, endAt); không đặt chồng trên cùng không gian. PENDING đã giữ lịch; không phải chờ thanh toán mới giữ.\n- Luồng chính PENDING → CONFIRMED → CHECKED_IN → COMPLETED; có nhánh REJECTED từ PENDING và CANCELLED từ PENDING/CONFIRMED trước giờ bắt đầu. Không khẳng định tự động chuyển trạng thái chỉ vì thời gian trôi qua.\n- Tạo booking ghi booking + lịch tháng + revision phòng + audit cùng transaction. Hủy/từ chối/hoàn tất nhả đúng khóa lịch tương ứng; không xóa booking lịch sử.\n- HOURLY dùng các slot 30 phút; FIXED giữ trọn 1 hoặc 3 tháng. Không có luồng đặt theo ngày từ pricePerDay.\n- Tiền mới: paymentStatus UNAVAILABLE, khoản trả trước dự kiến 40%. Chưa thu/hoàn tiền thật; hủy hiện refundAmount=0, refundStatus=NOT_REQUIRED. Không thêm payment/refund/payout đang hoạt động vào sơ đồ.\n- Policy v1 cho Guest: HOURLY trước >=24h:100%, >=6h:50%, còn lại 0%; FIXED trước >=7 ngày:100%, >=48h:50%, còn lại 0%. Host hủy trước giờ bắt đầu cần lý do, tỷ lệ chính sách 100%; tỷ lệ không phải bằng chứng tiền đã hoàn.\n- Chat ghi message + preview/sequence + received counter trong transaction; chỉ bên nhận tăng read counter của chính mình. Admin không mặc định đọc chat riêng.\n- noticeReads không có nội dung/thông tin người gửi. BookingNotice là dữ liệu dẫn xuất, không có collection tương ứng đang được app ghi.\n- Khi phân loại quyền, phải theo Rules thực tế; “publicHosts” vẫn cần đăng nhập hoạt động. Phòng được người thuê đọc khi APPROVED + ACTIVE; người sở hữu/Admin có quyền riêng.",
+      "externalServicesAndFiles": "| Dịch vụ / đường dẫn | Vai trò và liên kết |\n| --- | --- |\n| Firebase Authentication | Danh tính, mật khẩu, phiên đăng nhập, email reset; liên kết users bằng UID. Không đưa password/token vào Firestore |\n| Storage roomMedia/{uid}/{roomId}/{file} | Ảnh phòng; liên hệ rooms.imageUrls theo URL/path, không có collection Media trong Firestore |\n| Storage buildingMedia/{uid}/{buildingId}/{file} | Ảnh tòa nhà; liên hệ buildings.coverUrl |\n| Storage verification/{uid}/{file} | Bằng chứng riêng tư; liên hệ evidenceRefs/evidencePath. Storage Rules hiện chỉ chủ tệp đọc; quyền Admin xem tệp chưa hoàn tất |\n\nTệp ảnh/PDF không lưu nhị phân trong Firestore. URL ảnh mẫu có thể trỏ dịch vụ khác, không khẳng định mọi URL đều thuộc các path Storage này. Rules tệp cho ảnh JPEG/PNG/WebP tối đa 5 MiB; verification cho thêm PDF, tối đa 5 MiB.",
+      "queryAndIndexNotes": "Composite index được khai báo local:\n\n| Collection | Trường / thứ tự | Query scope |\n| --- | --- | --- |\n| rooms | approvalStatus ASC, listingStatus ASC | COLLECTION |\n| bookings | ownerUid ASC, status ASC | COLLECTION |\n| bookings | roomId ASC, endAt ASC | COLLECTION |\n\nfieldOverrides rỗng. Đây là cấu hình local, không xác nhận trạng thái triển khai index cloud.\n\n- Trang phòng: lọc APPROVED + ACTIVE, phân trang theo document ID; đọc bổ sung Building/PublicHost.\n- Booking: lọc guestUid hoặc ownerUid; listener theo dữ liệu của bên tham gia.\n- Inbox: conversations whereArrayContains(memberUids, uid); messages orderBy(sequence DESC) và limit.\n- noticeReads dùng listener theo tài khoản; không đọc collection notifications làm nguồn hộp cập nhật.\n- Bản đồ: đọc phòng và Building, lọc khoảng cách phía app; rentalPlaces limit 100. Không có geohash trong schema hiện tại, không vẽ truy vấn bán kính phía Firestore như tính năng đã có.",
+      "excludedJavaClasses": "BookingNotice, HostStats, MapPoint, MapRoute, NearbyPlace, ReviewItem, RoomListing, UiState và UserRole không phải collection lưu độc lập hiện tại. RoomBlackout là map nhúng trong rooms.blackoutRanges. PublicHost và AvailabilityMonth có lưu thật nhưng là bản chiếu/lịch kỹ thuật, không phải loại người dùng hay đơn vị tài sản mới.\n\nKhông thêm collection reviews chỉ vì có ReviewItem: class này đang phục vụ hàng chờ xét duyệt. Không thêm collection cho State/ViewModel/Activity/Adapter.",
+      "layoutInstructions": "1. Tổng quan: đủ 13 collection gốc đang tham chiếu, 3 subcollection và hai thẻ Rules-only màu xám.\n2. Tài khoản/quyền: users, usernames, publicHosts, hostApplications; favorites và noticeReads dưới users.\n3. Không gian/booking: buildings, rooms, bookings, availabilityMonths, map giá và blackout mở đầy đủ.\n4. Chat: conversations và messages, counters và ngữ cảnh phòng/booking.\n5. Quản trị/nguồn ngoài: propertyVerifications, reports, auditLogs, rentalPlaces; Authentication/Storage ở vùng ngoài database.\n\nCác trang chi tiết dùng lại cùng mẫu đường dẫn với trang tổng quan. Bộ hình chính giữ đủ 225 dòng định nghĩa, gồm cả đường dẫn lồng/key động. Từ điển Markdown giải thích nguồn, legacy, snapshot và unknown/any, đồng thời giữ đủ 46 đặc tả quan hệ (bao gồm 3 quan hệ chứa, 1 liên hệ Auth và 1 đích động của audit). [S]/[D] ở tên hiển thị là chú giải nguồn, không phải ký tự trong tên trường lưu thật. D-only chỉ là biến thể đã thấy trong dataset, không nâng thành contract được code đọc/ghi. Không sử dụng các giá trị ví dụ làm field mới.\n\nSản phẩm chính: [5 trang native draw.io](drawio/broomsharing-data-design.drawio), [từ điển và quan hệ Markdown](drawio/field-and-relationship-dictionary.md), [PDF vector toàn bộ 5 trang](../../output/pdf/firestore/broomsharing-firestore-diagrams.pdf). Bố cục bảng chọn lọc và phụ lục native/PDF sinh theo bố cục đó đã bị loại, không lưu làm backup. Auth/Storage/index được diễn giải ở các mục 6–7 của tài liệu này.",
+      "sourceLinks": "- [Model Java](../../app/src/main/java/vn/edu/ueh/phuclu/broomsharing/model)\n- [Repository Java](../../app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository)\n- [BookingPolicy](../../app/src/main/java/vn/edu/ueh/phuclu/broomsharing/utils/BookingPolicy.java)\n- [CancellationPolicy](../../app/src/main/java/vn/edu/ueh/phuclu/broomsharing/utils/CancellationPolicy.java)\n- [Firebase config](../../firebase.json), [Rules](../../firestore.rules), [Storage Rules](../../storage.rules), [Index](../../firestore.indexes.json)\n- [Dataset Firestore local](../../data/demo/firestore-dataset.json), [Reference places](../../data/reference/rental-places-hcm.json)\n- [Công cụ tạo dataset](../../tools/dataset/FirestoreDataset.java), [Công cụ reference places](../../tools/dataset/RentalPlacesDataset.java)\n\nKhông thay schema, dữ liệu cloud hay Rules khi tạo tài liệu này. Muốn gọi đây là kiểm kê toàn bộ cloud cần thêm lượt đọc metadata/document thực tế trong đúng database; giữ nguyên ghi chú phạm vi cho tới khi có bằng chứng đó.",
+      "compositeIndexes": {
+        "indexes": [
+          {
+            "collectionGroup": "rooms",
+            "queryScope": "COLLECTION",
+            "fields": [
+              {
+                "fieldPath": "approvalStatus",
+                "order": "ASCENDING"
+              },
+              {
+                "fieldPath": "listingStatus",
+                "order": "ASCENDING"
+              }
+            ]
+          },
+          {
+            "collectionGroup": "bookings",
+            "queryScope": "COLLECTION",
+            "fields": [
+              {
+                "fieldPath": "ownerUid",
+                "order": "ASCENDING"
+              },
+              {
+                "fieldPath": "status",
+                "order": "ASCENDING"
+              }
+            ]
+          },
+          {
+            "collectionGroup": "bookings",
+            "queryScope": "COLLECTION",
+            "fields": [
+              {
+                "fieldPath": "roomId",
+                "order": "ASCENDING"
+              },
+              {
+                "fieldPath": "endAt",
+                "order": "ASCENDING"
+              }
+            ]
+          }
+        ],
+        "fieldOverrides": []
+      },
+      "coverageChecks": {
+        "scope": "Local source and data only. No live cloud read.",
+        "datasetDocuments": 157,
+        "referenceDocuments": 8,
+        "persistedModelClasses": 13,
+        "missingDatasetTopLevelFields": [],
+        "missingModelDeclaredFields": [],
+        "note": "225 field entries include nested paths and dynamic map entry notation; not 225 unique top-level fields. Rules-only fields do not imply deployed documents."
+      },
+      "sourcePriority": "Current Java read/write paths and local Rules define the app contract; dataset-only variants remain observations, not current write requirements.",
+      "presentationPolicy": {
+        "mainViews": "Classic full-field five-page layout retained as primary; no selected-key redesign.",
+        "completeDictionary": "225 field entries and 46 relationship specifications in Markdown.",
+        "logicalConnectors": "Incomplete in the primary diagrams; do not claim full connector coverage.",
+        "cloudScope": "No current live cloud inventory."
+      }
+    },
+    "metadataOnlyRelationships": [
+      {
+        "source": "users/{uid}, khóa document",
+        "target": "Authentication UID",
+        "cardinalityAndNotes": "1 theo thiết kế đăng ký; hai dịch vụ không có transaction chung, có thể phát sinh tài khoản/hồ sơ thiếu cần xử lý"
+      },
+      {
+        "source": "auditLogs.targetPath",
+        "target": "document được chỉ định",
+        "cardinalityAndNotes": "liên kết đa hình/dynamic, không vẽ thành cột FK cố định hoặc khẳng định mọi targetPath đều trỏ document tồn tại"
+      }
+    ],
+    "typeMapping": "integer/double -> number; unknown/any -> string display placeholder only, original type preserved in schemaType and metadata",
+    "compatibilitySource": "FireDraw public frontend bundles checked 2026-10-23; importer requires nodes/edges and smoothstep edges",
+    "compatibilityStatus": "Validated against public importer predicates and field renderer structure; not imported into an authenticated user canvas by this script.",
+    "logicalEdges": [
+      {
+        "id": "logical-01",
+        "source": "document-publicHosts-uid",
+        "target": "document-users-uid",
+        "type": "smoothstep",
+        "label": "publicHosts.uid / khóa document | 1; User có 0..1 bản chiếu",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "publicHosts.uid / khóa document",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "1; User có 0..1 bản chiếu"
+        }
+      },
+      {
+        "id": "logical-02",
+        "source": "document-usernames-normalizedUsername",
+        "target": "document-users-uid",
+        "type": "smoothstep",
+        "label": "usernames.uid | 1; theo đăng ký hiện tại User có một alias username",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "usernames.uid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "1; theo đăng ký hiện tại User có một alias username"
+        }
+      },
+      {
+        "id": "logical-03",
+        "source": "document-hostApplications-uid",
+        "target": "document-users-uid",
+        "type": "smoothstep",
+        "label": "hostApplications.applicantUid | 1; User có 0..1 document đơn hiện hành",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "hostApplications.applicantUid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "1; User có 0..1 document đơn hiện hành"
+        }
+      },
+      {
+        "id": "logical-04",
+        "source": "document-hostApplications-uid",
+        "target": "document-users-uid",
+        "type": "smoothstep",
+        "label": "hostApplications.reviewedBy | 0..1 Admin",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "hostApplications.reviewedBy",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "0..1 Admin"
+        }
+      },
+      {
+        "id": "logical-05",
+        "source": "document-buildings-buildingId",
+        "target": "document-users-uid",
+        "type": "smoothstep",
+        "label": "buildings.ownerUid | 1 Host",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "buildings.ownerUid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "1 Host"
+        }
+      },
+      {
+        "id": "logical-06",
+        "source": "document-rooms-roomId",
+        "target": "document-users-uid",
+        "type": "smoothstep",
+        "label": "rooms.ownerUid | 1 Host",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "rooms.ownerUid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "1 Host"
+        }
+      },
+      {
+        "id": "logical-07",
+        "source": "document-rooms-roomId",
+        "target": "document-buildings-buildingId",
+        "type": "smoothstep",
+        "label": "rooms.buildingId | 1; cùng ownerUid",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "rooms.buildingId",
+          "target": "buildings/{buildingId}",
+          "cardinalityAndNotes": "1; cùng ownerUid"
+        }
+      },
+      {
+        "id": "logical-08",
+        "source": "document-rooms-roomId",
+        "target": "document-users-uid",
+        "type": "smoothstep",
+        "label": "rooms.reviewedBy | 0..1 Admin",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "rooms.reviewedBy",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "0..1 Admin"
+        }
+      },
+      {
+        "id": "logical-09",
+        "source": "document-rooms-roomId",
+        "target": "document-users-uid",
+        "type": "smoothstep",
+        "label": "rooms.moderatedBy | 0..1 Admin",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "rooms.moderatedBy",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "0..1 Admin"
+        }
+      },
+      {
+        "id": "logical-10",
+        "source": "document-users-uid",
+        "target": "document-users-uid",
+        "type": "smoothstep",
+        "label": "users.moderatedBy | 0..1 Admin; quan hệ tự tham chiếu",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "users.moderatedBy",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "0..1 Admin; quan hệ tự tham chiếu"
+        }
+      },
+      {
+        "id": "logical-11",
+        "source": "document-rooms-roomId",
+        "target": "document-bookings-bookingId",
+        "type": "smoothstep",
+        "label": "rooms.lastBookingId | 0..1; liên kết kỹ thuật gần nhất",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "rooms.lastBookingId",
+          "target": "bookings/{bookingId}",
+          "cardinalityAndNotes": "0..1; liên kết kỹ thuật gần nhất"
+        }
+      },
+      {
+        "id": "logical-12",
+        "source": "document-bookings-bookingId",
+        "target": "document-rooms-roomId",
+        "type": "smoothstep",
+        "label": "bookings.roomId | 1; Room có 0..N booking qua thời gian",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "bookings.roomId",
+          "target": "rooms/{roomId}",
+          "cardinalityAndNotes": "1; Room có 0..N booking qua thời gian"
+        }
+      },
+      {
+        "id": "logical-13",
+        "source": "document-bookings-bookingId",
+        "target": "document-users-uid",
+        "type": "smoothstep",
+        "label": "bookings.guestUid | 1 người thuê",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "bookings.guestUid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "1 người thuê"
+        }
+      },
+      {
+        "id": "logical-14",
+        "source": "document-bookings-bookingId",
+        "target": "document-users-uid",
+        "type": "smoothstep",
+        "label": "bookings.ownerUid | 1 Host; khác guestUid",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "bookings.ownerUid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "1 Host; khác guestUid"
+        }
+      },
+      {
+        "id": "logical-15",
+        "source": "document-bookings-bookingId",
+        "target": "document-users-uid",
+        "type": "smoothstep",
+        "label": "bookings.cancelledByUid | 0..1; bên thuê hoặc Host",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "bookings.cancelledByUid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "0..1; bên thuê hoặc Host"
+        }
+      },
+      {
+        "id": "logical-16",
+        "source": "document-bookings-bookingId",
+        "target": "document-availabilityMonths-roomId_yyyyMM",
+        "type": "smoothstep",
+        "label": "bookings.monthKeys[] | 1 hoặc 3 ở schema 2; một tháng có thể phục vụ nhiều booking giờ",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "bookings.monthKeys[]",
+          "target": "availabilityMonths/{roomId_yyyyMM}",
+          "cardinalityAndNotes": "1 hoặc 3 ở schema 2; một tháng có thể phục vụ nhiều booking giờ"
+        }
+      },
+      {
+        "id": "logical-17",
+        "source": "document-availabilityMonths-roomId_yyyyMM",
+        "target": "document-rooms-roomId",
+        "type": "smoothstep",
+        "label": "availabilityMonths.roomId | 1; Room có 0..N tháng lịch",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "availabilityMonths.roomId",
+          "target": "rooms/{roomId}",
+          "cardinalityAndNotes": "1; Room có 0..N tháng lịch"
+        }
+      },
+      {
+        "id": "logical-18",
+        "source": "document-availabilityMonths-roomId_yyyyMM",
+        "target": "document-bookings-bookingId",
+        "type": "smoothstep",
+        "label": "availabilityMonths.fixedBookingId | 0..1 booking giữ cả tháng",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "availabilityMonths.fixedBookingId",
+          "target": "bookings/{bookingId}",
+          "cardinalityAndNotes": "0..1 booking giữ cả tháng"
+        }
+      },
+      {
+        "id": "logical-19",
+        "source": "document-availabilityMonths-roomId_yyyyMM",
+        "target": "document-bookings-bookingId",
+        "type": "smoothstep",
+        "label": "availabilityMonths.hourlyBookings.{bookingId} | 0..N, liên kết bằng key của map",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "availabilityMonths.hourlyBookings.{bookingId}",
+          "target": "bookings/{bookingId}",
+          "cardinalityAndNotes": "0..N, liên kết bằng key của map"
+        }
+      },
+      {
+        "id": "logical-20",
+        "source": "document-availabilityMonths-roomId_yyyyMM",
+        "target": "document-bookings-bookingId",
+        "type": "smoothstep",
+        "label": "availabilityMonths.lastBookingId | 0..1 lần tác động gần nhất",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "availabilityMonths.lastBookingId",
+          "target": "bookings/{bookingId}",
+          "cardinalityAndNotes": "0..1 lần tác động gần nhất"
+        }
+      },
+      {
+        "id": "logical-22",
+        "source": "document-users-uid-favorites-roomId",
+        "target": "document-rooms-roomId",
+        "type": "smoothstep",
+        "label": "favorites.roomId | 1; User–Room là N–N thông qua Favorite",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "favorites.roomId",
+          "target": "rooms/{roomId}",
+          "cardinalityAndNotes": "1; User–Room là N–N thông qua Favorite"
+        }
+      },
+      {
+        "id": "logical-24",
+        "source": "document-conversations-guestUid-hostUid",
+        "target": "document-users-uid",
+        "type": "smoothstep",
+        "label": "conversations.guestUid | 1 bên thuê",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "conversations.guestUid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "1 bên thuê"
+        }
+      },
+      {
+        "id": "logical-25",
+        "source": "document-conversations-guestUid-hostUid",
+        "target": "document-users-uid",
+        "type": "smoothstep",
+        "label": "conversations.hostUid | 1 Host",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "conversations.hostUid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "1 Host"
+        }
+      },
+      {
+        "id": "logical-26",
+        "source": "document-conversations-guestUid-hostUid",
+        "target": "document-users-uid",
+        "type": "smoothstep",
+        "label": "conversations.memberUids[] | đúng 2, cùng cặp guestUid/hostUid; có thể gộp nhãn để tránh đường trùng",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "conversations.memberUids[]",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "đúng 2, cùng cặp guestUid/hostUid; có thể gộp nhãn để tránh đường trùng"
+        }
+      },
+      {
+        "id": "logical-27",
+        "source": "document-conversations-guestUid-hostUid",
+        "target": "document-rooms-roomId",
+        "type": "smoothstep",
+        "label": "conversations.roomId | 1 ngữ cảnh khởi tạo của luồng hiện có; không có nghĩa chỉ chat về một phòng",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "conversations.roomId",
+          "target": "rooms/{roomId}",
+          "cardinalityAndNotes": "1 ngữ cảnh khởi tạo của luồng hiện có; không có nghĩa chỉ chat về một phòng"
+        }
+      },
+      {
+        "id": "logical-28",
+        "source": "document-conversations-guestUid-hostUid",
+        "target": "document-bookings-bookingId",
+        "type": "smoothstep",
+        "label": "conversations.bookingId | 0..1 ngữ cảnh khởi tạo",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "conversations.bookingId",
+          "target": "bookings/{bookingId}",
+          "cardinalityAndNotes": "0..1 ngữ cảnh khởi tạo"
+        }
+      },
+      {
+        "id": "logical-29",
+        "source": "document-conversations-guestUid-hostUid",
+        "target": "document-users-uid",
+        "type": "smoothstep",
+        "label": "conversations.lastSenderUid | 0..1; rỗng khi chưa có tin",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "conversations.lastSenderUid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "0..1; rỗng khi chưa có tin"
+        }
+      },
+      {
+        "id": "logical-30",
+        "source": "document-conversations-guestUid-hostUid",
+        "target": "document-conversations-guestUid-hostUid-messages-messageId",
+        "type": "smoothstep",
+        "label": "conversations.lastMessageId | 0..1 tin cuối trong chính hội thoại",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "conversations.lastMessageId",
+          "target": "conversations/{guestUid:hostUid}/messages/{messageId}",
+          "cardinalityAndNotes": "0..1 tin cuối trong chính hội thoại"
+        }
+      },
+      {
+        "id": "logical-32",
+        "source": "document-conversations-guestUid-hostUid-messages-messageId",
+        "target": "document-users-uid",
+        "type": "smoothstep",
+        "label": "messages.senderUid | 1, phải là thành viên",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "messages.senderUid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "1, phải là thành viên"
+        }
+      },
+      {
+        "id": "logical-33",
+        "source": "document-conversations-guestUid-hostUid-messages-messageId",
+        "target": "document-rooms-roomId",
+        "type": "smoothstep",
+        "label": "messages.roomId | 0..1, phòng thuộc Host của hội thoại",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "messages.roomId",
+          "target": "rooms/{roomId}",
+          "cardinalityAndNotes": "0..1, phòng thuộc Host của hội thoại"
+        }
+      },
+      {
+        "id": "logical-34",
+        "source": "document-propertyVerifications-verificationId",
+        "target": "document-users-uid",
+        "type": "smoothstep",
+        "label": "propertyVerifications.ownerUid | 1 Host",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "propertyVerifications.ownerUid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "1 Host"
+        }
+      },
+      {
+        "id": "logical-35",
+        "source": "document-propertyVerifications-verificationId",
+        "target": "document-rooms-roomId",
+        "type": "smoothstep",
+        "label": "propertyVerifications.roomId | 0..1 theo loại/ngữ cảnh",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "propertyVerifications.roomId",
+          "target": "rooms/{roomId}",
+          "cardinalityAndNotes": "0..1 theo loại/ngữ cảnh"
+        }
+      },
+      {
+        "id": "logical-36",
+        "source": "document-propertyVerifications-verificationId",
+        "target": "document-buildings-buildingId",
+        "type": "smoothstep",
+        "label": "propertyVerifications.buildingId | 0..1 theo loại/ngữ cảnh; code ưu tiên roomId",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "propertyVerifications.buildingId",
+          "target": "buildings/{buildingId}",
+          "cardinalityAndNotes": "0..1 theo loại/ngữ cảnh; code ưu tiên roomId"
+        }
+      },
+      {
+        "id": "logical-37",
+        "source": "document-propertyVerifications-verificationId",
+        "target": "document-users-uid",
+        "type": "smoothstep",
+        "label": "propertyVerifications.reviewedBy | 0..1 Admin",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "propertyVerifications.reviewedBy",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "0..1 Admin"
+        }
+      },
+      {
+        "id": "logical-38",
+        "source": "document-reports-reportId",
+        "target": "document-users-uid",
+        "type": "smoothstep",
+        "label": "reports.reporterUid | 1 người báo",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "reports.reporterUid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "1 người báo"
+        }
+      },
+      {
+        "id": "logical-39",
+        "source": "document-reports-reportId",
+        "target": "document-users-uid",
+        "type": "smoothstep",
+        "label": "reports.ownerUid | 1 Host liên quan",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "reports.ownerUid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "1 Host liên quan"
+        }
+      },
+      {
+        "id": "logical-40",
+        "source": "document-reports-reportId",
+        "target": "document-rooms-roomId",
+        "type": "smoothstep",
+        "label": "reports.roomId | 1",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "reports.roomId",
+          "target": "rooms/{roomId}",
+          "cardinalityAndNotes": "1"
+        }
+      },
+      {
+        "id": "logical-41",
+        "source": "document-reports-reportId",
+        "target": "document-users-uid",
+        "type": "smoothstep",
+        "label": "reports.reviewedBy | 0..1 Admin",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "reports.reviewedBy",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "0..1 Admin"
+        }
+      },
+      {
+        "id": "logical-42",
+        "source": "document-auditLogs-auditId",
+        "target": "document-users-uid",
+        "type": "smoothstep",
+        "label": "auditLogs.actorUid | 1 người thực hiện theo contract app; dữ liệu tác vụ ngoài app có thể dùng định danh khác cần đối chiếu",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "auditLogs.actorUid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "1 người thực hiện theo contract app; dữ liệu tác vụ ngoài app có thể dùng định danh khác cần đối chiếu"
+        }
+      },
+      {
+        "id": "logical-44",
+        "source": "document-payments-paymentId",
+        "target": "document-users-uid",
+        "type": "smoothstep",
+        "label": "payments.guestUid | S-only, chưa xác nhận schema dữ liệu",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "payments.guestUid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "S-only, chưa xác nhận schema dữ liệu"
+        }
+      },
+      {
+        "id": "logical-45",
+        "source": "document-notifications-notificationId",
+        "target": "document-users-uid",
+        "type": "smoothstep",
+        "label": "notifications.recipientUid | S-only, chưa xác nhận schema dữ liệu",
+        "style": {
+          "stroke": "#60a5fa",
+          "strokeWidth": 1,
+          "strokeDasharray": "5 4"
+        },
+        "data": {
+          "kind": "logical_string_id",
+          "source": "notifications.recipientUid",
+          "target": "users/{uid}",
+          "cardinalityAndNotes": "S-only, chưa xác nhận schema dữ liệu"
+        }
+      }
+    ],
+    "layout": "Left-to-right ownership tree; full fields; logical ID relationships retained in metadata, not drawn over field cards.",
+    "view": "03-chat",
+    "partialView": true
+  }
+}

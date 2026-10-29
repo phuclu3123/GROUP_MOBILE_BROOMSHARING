@@ -1,0 +1,72 @@
+[
+  {
+    "label": "fig:app-host-workflow",
+    "physicalPage": 11,
+    "landscape": true
+  },
+  {
+    "label": "fig:ch2-booking-workflow",
+    "physicalPage": 12,
+    "landscape": true
+  },
+  {
+    "label": "fig:app-usage-workflow",
+    "physicalPage": 13,
+    "landscape": true
+  },
+  {
+    "label": "fig:app-payment-workflow",
+    "physicalPage": 14,
+    "landscape": true
+  },
+  {
+    "label": "fig:ch2-functions",
+    "physicalPage": 15,
+    "landscape": false
+  },
+  {
+    "label": "fig:ch2-usecase-overview",
+    "physicalPage": 16,
+    "landscape": false
+  },
+  {
+    "label": "fig:app-usecase-guest",
+    "physicalPage": 17,
+    "landscape": false
+  },
+  {
+    "label": "fig:app-usecase-host",
+    "physicalPage": 18,
+    "landscape": false
+  },
+  {
+    "label": "fig:app-usecase-admin",
+    "physicalPage": 19,
+    "landscape": false
+  },
+  {
+    "label": "fig:ch4-overview",
+    "physicalPage": 30,
+    "landscape": false
+  },
+  {
+    "label": "fig:ch4-accounts",
+    "physicalPage": 31,
+    "landscape": true
+  },
+  {
+    "label": "fig:ch4-booking",
+    "physicalPage": 32,
+    "landscape": true
+  },
+  {
+    "label": "fig:ch4-chat",
+    "physicalPage": 33,
+    "landscape": true
+  },
+  {
+    "label": "fig:ch4-administration",
+    "physicalPage": 34,
+    "landscape": true
+  }
+]

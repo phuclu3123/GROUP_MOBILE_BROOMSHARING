@@ -26,6 +26,14 @@ Lỗi bản đồ/geocoding/Directions tự mở Google Maps bằng ACTION_VIEW,
 
 Kiểm thử Java: `MapApiTest` (`runMapApis=true`), `MapExperienceTest` (`runMapExperience=true`) và MapPriorityTest. Công cụ nạp/đối chiếu địa chỉ là Java `RentalPlacesDataset`, nằm ngoài APK. Không có JS/Node/backend mới trong ứng dụng.
 
+## Tiện ích quanh địa điểm — giai đoạn 3
+
+Menu bản đồ có “Tiện ích trong 1 km”, tìm quanh điểm đến đang chọn hoặc tâm tìm kiếm nếu chưa có đích. Repository dùng **MapTiler reverse geocoding `types=poi&limit=10`**, với key MapTiler hiện có, rồi lọc nhà hàng/cà phê, giao thông, bãi đỗ và cửa hàng tiện lợi. API trả tối đa 10 POI gần nhất trong 1 km; sau lọc có thể còn ít hơn. Không phải tìm toàn bộ POI hoặc bảo đảm mỗi nhóm đều có kết quả. Thông tin này không phải danh sách phòng hoặc bằng chứng dịch vụ còn hoạt động.
+
+Kiểm tra lại 1.000 m đường thẳng bằng Java, giới hạn phản hồi 512 KiB, timeout và một yêu cầu foreground; cache bộ nhớ 5 phút/tối đa 8 tâm và cách nhau ít nhất 30 giây giữa các yêu cầu chưa cache. Bán kính tìm **phòng** vẫn là 3 km. Chỉ giữ nhóm được hỗ trợ có `feature_tags` và tham chiếu OSM hợp lệ; tọa độ có thể là tâm khuôn viên, không khẳng định đó là lối vào. Chạm một kết quả có thể xem đối tượng OSM gốc hoặc chọn tuyến trong app từ điểm xuất phát đã chọn. Màn tiện ích trả tọa độ bằng Activity Result về MapActivity đang mở, giữ nguyên MapView; không chồng thêm một màn bản đồ và renderer thứ hai. Callback phòng cũ không được ghi đè điểm đến mới.
+
+Ghi công MapTiler/OSM và liên kết copyright ở cuối màn hình. Không coi HTTP lỗi/JSON sai/timeout là dữ liệu rỗng thành công. Lỗi dịch vụ mở Google Maps dự phòng theo lựa chọn trước của người dùng; quay lại có thể thử lại. Xem [API và giới hạn nearest-neighbour](https://docs.maptiler.com/cloud/api/geocoding/). Overpass đã bỏ khỏi mã ứng dụng sau khi timeout; openrouteservice POI trả rỗng tại Q8 nên không được thêm. Không cần dịch vụ hoặc API key mới, không tắt xác thực TLS để vượt lỗi mạng.
+
 ## Ưu tiên chỉ đường trong ứng dụng (20/10/2026)
 
 Nút chỉ đường ở chi tiết phòng mở MapActivity và chọn đúng phòng. Hai tọa độ cách nhau dưới 5 m được báo trùng điểm, không gửi Directions và không mở Google Maps. Với hai điểm khác nhau, luôn gọi Directions và vẽ tuyến bằng MapLibre trước; Google Maps chỉ nhận khi dịch vụ thực sự thất bại. Lỗi tải một tile/glyph/sprite không tự chuyển ứng dụng. Timeout nạp style được hủy khi callback style đã sẵn sàng, tránh chuyển Google Maps dù nền bản đồ đã hiện. Khi đổi xuất phát/đích, sự kiện fallback cũ được xóa.

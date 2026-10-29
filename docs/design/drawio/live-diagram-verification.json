@@ -1,0 +1,41 @@
+{
+  "document": "31c24cc6-7010-4629-9913-82c76e093309",
+  "verifiedPages": [
+    {
+      "slug": "00-relationships-overview",
+      "id": "N41ylznPhZ87A-rPrKVu",
+      "name": "BROOMSHARING  /  FIRESTORE STORAGE HIERARCHY",
+      "edgesVerified": 36,
+      "dashedEdgesVerified": 0
+    },
+    {
+      "slug": "broomsharing-accounts",
+      "id": "_zuNtEPcwCrxTB9iPgxX",
+      "name": "BROOMSHARING  /  ACCOUNT DATA",
+      "edgesVerified": 12,
+      "dashedEdgesVerified": 0
+    },
+    {
+      "slug": "02-booking",
+      "id": "B9VDVWD0aiZ8Sz0Bb9O7",
+      "name": "BROOMSHARING  /  BOOKING STORAGE",
+      "edgesVerified": 8,
+      "dashedEdgesVerified": 0
+    },
+    {
+      "slug": "03-chat",
+      "id": "7DYU1Rszeyx7WCkdU3cw",
+      "name": "BROOMSHARING  /  CHAT STORAGE",
+      "edgesVerified": 4,
+      "dashedEdgesVerified": 0
+    },
+    {
+      "slug": "04-administration-reference",
+      "id": "2ntjwlpEiRYSW8ZyPiYj",
+      "name": "BROOMSHARING  /  ADMIN & REFERENCE STORAGE",
+      "edgesVerified": 12,
+      "dashedEdgesVerified": 0
+    }
+  ],
+  "scope": "MCP import followed by endpoint and dash-style readback; not screenshot or cloud verification."
+}

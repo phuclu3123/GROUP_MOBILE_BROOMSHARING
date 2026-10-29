@@ -50,13 +50,14 @@
         android:textColor="@color/text_primary"
         android:textSize="13sp" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnExplain"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
         android:layout_marginTop="12dp"
-        android:background="@drawable/bg_button_outline"
-        android:text="Gửi phản hồi / Giải trình cho Admin"
+        android:text="Gửi giải trình"
         android:textAllCaps="false"
         android:textColor="@color/teal_dark"
         android:textSize="13sp"

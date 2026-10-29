@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/workspaceRoot" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@color/screen_bg">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:orientation="horizontal" android:paddingStart="20dp" android:paddingEnd="20dp" android:paddingTop="4dp" android:paddingBottom="4dp" android:background="@color/white" android:gravity="center_vertical">
+        <TextView style="@style/WorkspaceBody" android:text="@string/workspace_admin" android:textStyle="bold" android:textColor="@color/navy" android:visibility="gone" />
+        <TextView android:id="@+id/adminTitle" style="@style/WorkspaceSection" android:text="@string/workspace_overview" android:layout_width="0dp" android:layout_weight="1" android:textSize="20sp" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnRefresh" style="@style/WorkspaceAction" android:text="@string/workspace_refresh" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="0dp" />
+    </LinearLayout>
+    <ScrollView android:id="@+id/adminOverview" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="20dp" android:orientation="vertical">
+            <TextView android:id="@+id/adminGreeting" style="@style/WorkspaceTitle" android:text="" />
+            <TextView style="@style/WorkspaceBody" android:text="@string/workspace_admin_hint" android:layout_marginTop="8dp" />
+            <TextView style="@style/WorkspaceSection" android:text="@string/workspace_quick_actions" android:layout_marginTop="28dp" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/openReview" style="@style/WorkspaceAction" android:text="@string/workspace_open_review" />
+            <TextView style="@style/WorkspaceBody" android:text="@string/workspace_admin_review_hint" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/openManage" style="@style/WorkspaceAction" android:text="@string/workspace_open_manage" />
+            <TextView style="@style/WorkspaceBody" android:text="@string/workspace_admin_manage_hint" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/openReports" style="@style/WorkspaceAction" android:text="@string/workspace_open_reports" />
+            <TextView style="@style/WorkspaceBody" android:text="@string/workspace_admin_reports_hint" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/openAudit" style="@style/WorkspaceAction" android:text="@string/workspace_open_audit" />
+            <TextView style="@style/WorkspaceBody" android:text="@string/workspace_verify_note" android:layout_marginTop="24dp" />
+        </LinearLayout>
+    </ScrollView>
+    <LinearLayout android:id="@+id/adminWorkPanel" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:orientation="horizontal" android:visibility="gone">
+        <ScrollView android:layout_width="336dp" android:layout_height="match_parent">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+                <TextView android:id="@+id/sectionHint" style="@style/WorkspaceBody" android:text="" android:padding="16dp" />
+                <com.google.android.material.tabs.TabLayout android:id="@+id/adminTabs" android:layout_width="match_parent" android:layout_height="wrap_content" app:tabMode="fixed" app:tabTextColor="@color/text_secondary" app:tabSelectedTextColor="@color/teal_dark" app:tabGravity="fill" app:tabMinWidth="0dp" app:tabPaddingStart="4dp" app:tabPaddingEnd="4dp" app:tabTextAppearance="@style/AdminCompactTabText" />
+                <TextView android:id="@+id/tvFeedback" style="@style/WorkspaceBody" android:text="" android:padding="16dp" android:accessibilityLiveRegion="polite" />
+                <ProgressBar android:id="@+id/progressBar" android:layout_width="28dp" android:layout_height="28dp" android:layout_gravity="center" android:visibility="gone" />
+            </LinearLayout>
+        </ScrollView>
+        <androidx.recyclerview.widget.RecyclerView android:id="@+id/reviewList" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:clipToPadding="true" android:padding="16dp" />
+    </LinearLayout>
+    <include layout="@layout/view_management_navigation" />
+</LinearLayout>

@@ -1,0 +1,20 @@
+{
+  "checkedAt": "2026-10-28T03:35:52.358245+00:00",
+  "androidBuildAndLintPassed": true,
+  "androidUnitTests": 146,
+  "backendTests": 55,
+  "backendTransactionTestsOnEmulator": 32,
+  "skippedTests": 0,
+  "backendInstallDistBuilt": true,
+  "demoClosureOfflineGuardTests": 7,
+  "pendingHoldQueryFiltersInstantFlowAtServer": true,
+  "pendingHoldRegressionLegacyDocuments": 60,
+  "cloudQueryRevalidationPendingQuota": true,
+  "cloudDocumentsWrittenThisPushTurn": 0,
+  "oldDemoServerAndTunnelStopped": true,
+  "envAndWebhookUnchanged": true,
+  "sqliteImplemented": false,
+  "responsiveEvidenceScope": "Existing emulator checks, not all physical tablets",
+  "mainPdfSha256": "8b5081a774694efb20dc1075a6a56fbabfabc729f317caf677fc074cbe43cdde",
+  "retainedTemplateWhitespace": "36 warnings in imported TeX/style files; runtime/source diff check passes; protected chapter content unchanged"
+}

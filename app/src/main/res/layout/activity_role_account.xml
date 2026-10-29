@@ -6,6 +6,7 @@
     </LinearLayout>
     <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp">
+            <include layout="@layout/view_avatar_editor" />
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp" android:background="@drawable/bg_card">
                 <TextView style="@style/WorkspaceBody" android:text="@string/workspace_signed_in"/>
                 <TextView android:id="@+id/accountName" style="@style/WorkspaceTitle" android:text="" android:layout_marginTop="8dp"/>

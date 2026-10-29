@@ -3,8 +3,14 @@ package vn.edu.ueh.phuclu.broomsharing.model;
 import com.google.firebase.firestore.ServerTimestamp;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+/*
+   Đơn xin quyền cho thuê, dùng UID người nộp làm document ID.
+   Trạng thái duyệt đơn và quyền users.role được cập nhật qua luồng quản trị.
+*/
 public class HostApplication implements Serializable {
     private long schemaVersion = 1;
     private Date updatedAt;
@@ -19,6 +25,9 @@ public class HostApplication implements Serializable {
     private String email;
     private String organizationType;
     private String identityDoc;
+    private List<String> identityImageUrls = new ArrayList<>();
+    private String evidenceMode = "";
+    private Date identityReviewedAt;
     private String status;
     private String rejectionReason;
 
@@ -98,6 +107,30 @@ public class HostApplication implements Serializable {
 
     public void setIdentityDoc(String identityDoc) {
         this.identityDoc = identityDoc;
+    }
+
+    public List<String> getIdentityImageUrls() {
+        return identityImageUrls;
+    }
+
+    public void setIdentityImageUrls(List<String> value) {
+        identityImageUrls = value;
+    }
+
+    public String getEvidenceMode() {
+        return evidenceMode;
+    }
+
+    public void setEvidenceMode(String value) {
+        evidenceMode = value;
+    }
+
+    public Date getIdentityReviewedAt() {
+        return identityReviewedAt;
+    }
+
+    public void setIdentityReviewedAt(Date value) {
+        identityReviewedAt = value;
     }
 
     public String getStatus() {

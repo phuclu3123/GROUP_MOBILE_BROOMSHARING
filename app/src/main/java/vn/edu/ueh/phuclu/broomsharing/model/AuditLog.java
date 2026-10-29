@@ -1,10 +1,13 @@
 package vn.edu.ueh.phuclu.broomsharing.model;
 
 import com.google.firebase.firestore.ServerTimestamp;
-
 import java.util.*;
 
 /** The auditLogs Firestore document shared by booking, Host and Admin repositories. */
+/*
+    Lưu người thực hiện, đối tượng và dữ liệu trước/sau của một thao tác.
+    createdAt dùng thời gian server; nhật ký không thay thế quyền kiểm tra trong Rules.
+ */
 public class AuditLog {
     public long schemaVersion = 1;
     public String actorUid, targetPath, action, reason;

@@ -1,17 +1,21 @@
 package vn.edu.ueh.phuclu.broomsharing.utils;
 
-import vn.edu.ueh.phuclu.broomsharing.model.MapPoint;
-
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import vn.edu.ueh.phuclu.broomsharing.model.MapPoint;
 
+/*
+   Tạo URL bản đồ dự phòng từ tọa độ hoặc địa chỉ đã mã hóa.
+   Mở ứng dụng bên ngoài không tạo booking và không thay đổi dữ liệu vị trí trong Firestore.
+*/
 public final class GoogleMapsLink {
     private GoogleMapsLink() {}
 
     private static String encode(String value) {
         try {
             return URLEncoder.encode(value, StandardCharsets.UTF_8.name());
-        } catch (java.io.UnsupportedEncodingException impossible) {
+        } catch (UnsupportedEncodingException impossible) {
             throw new IllegalStateException(impossible);
         }
     }

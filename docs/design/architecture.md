@@ -1,5 +1,7 @@
 # Java/XML + MVVM + Repository + Model
 
+Vị trí các file và quy ước package: xem [Cấu trúc mã nguồn](source-structure.md). Activity và ViewModel nằm theo chức năng trong `ui`; các lớp dữ liệu, Repository, Adapter và helper vẫn có package riêng.
+
 Luồng duy nhất: **Activity/XML → ViewModel → Repository → Firebase Android SDK → Firestore**. Model mang dữ liệu qua các lớp. Không có backend riêng, Cloud Functions, Node, JavaScript, DTO, use-case layer, DI framework hoặc event bus.
 
 | Phần | Trách nhiệm |
@@ -66,6 +68,15 @@ MapLibre/MapTiler/openrouteservice thay Google SDK, Java transaction + Rules tha
 - Gradle `.kts`, JSON cấu hình và `.rules` phân quyền là cấu hình; mã ứng dụng và kiểm thử nghiệp vụ viết bằng Java. Không thêm ngôn ngữ/backend nghiệp vụ khác.
 
 Chỉ bổ sung lớp/model khi có trách nhiệm thực tế; không tạo wrapper cho từng thao tác, không nhân bản validation hoặc thêm framework vì “sau này có thể cần”. Thay đổi kiến trúc/ngôn ngữ phải trao đổi với người dùng trước.
+
+## Phần Phúc giai đoạn 3
+
+- `NearbyPlacesActivity → NearbyPlacesViewModel → NearbyPlacesRepository → NearbyPlace`: HTTP chạy trong Executor, trả kết quả về main thread. Chỉ tra cứu khi người dùng mở mục tiện ích; không theo dõi nền. Dữ liệu tiện ích là dữ liệu bên ngoài, không biến thành phòng cho thuê hoặc tự ghi vào Firestore.
+- `RoomReportActivity → ReportViewModel → ReportRepository → RoomReport`: Guest/Host gửi phản ánh về phòng của người khác; Admin kết luận trong transaction kèm nhật ký. UUID giữ qua recreate và retry để tránh gửi trùng. Không tự hủy booking, tự hoàn tiền hoặc coi một báo cáo là bằng chứng vi phạm.
+- `BookingNoticesActivity → BookingNoticeViewModel → BookingRepository/ChatRepository/NoticeRepository`: nội dung lấy từ booking và hội thoại thật; trạng thái đã đọc của cập nhật booking lưu riêng tại `users/{uid}/noticeReads`. Tin nhắn dùng bộ đếm đã đọc của hội thoại. Đây là danh sách **trạng thái hiện tại và tin nhắn mới nhất**, không phải lịch sử bất biến của mọi sự kiện.
+- Không thêm DTO, service backend, JavaScript, FCM hay framework mới. Activity xử lý giao diện/Intent; ViewModel giữ trạng thái qua recreate; Repository làm việc với HTTP/Firestore; Model chứa dữ liệu. Các helper lịch/giá vẫn là Java thuần.
+
+Nội dung môn học được dùng có mục đích: Activity/Intent và lifecycle, XML/Menu/RecyclerView, thao tác Internet ngoài main thread, ViewModel/LiveData, NotificationManager cục bộ và permission theo phiên bản Android. Không thêm tính năng chỉ để đủ tên bài giảng. Giai đoạn 4 chưa bắt đầu.
 
 ## Bổ sung theo thảo luận chat/hủy
 

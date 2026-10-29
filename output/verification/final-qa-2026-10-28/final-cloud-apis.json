@@ -1,0 +1,10 @@
+{
+  "variant": "cloud",
+  "class": "vn.edu.ueh.phuclu.broomsharing.CloudBookingAcceptanceTest,vn.edu.ueh.phuclu.broomsharing.PayOSAcceptanceTest,vn.edu.ueh.phuclu.broomsharing.CloudinaryLiveUploadTest,vn.edu.ueh.phuclu.broomsharing.MapApiTest",
+  "passed": true,
+  "apkHashes": {
+    "app.apk": "62268d53ee18a8e1019563d028fc8dd4b35412d8d07cf344634d3d9a2468e14e",
+    "test.apk": "58c48d08fb24d2f0cbc5241dffc7812f3e965a6f3f47debc69ea84280b5e6c8d"
+  },
+  "tests": 4
+}

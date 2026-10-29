@@ -22,6 +22,19 @@
         </RadioGroup>
         <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:text="Mô tả pháp lý / Giấy tờ minh chứng" android:textColor="@color/text_primary" android:textSize="12sp" android:textStyle="bold" />
         <EditText android:id="@+id/etDoc" android:layout_width="match_parent" android:layout_height="90dp" android:layout_marginTop="6dp" android:background="@drawable/bg_input" android:gravity="top|start" android:hint="Mô tả CCCD, giấy phép kinh doanh hoặc quyền sử dụng mặt bằng..." android:inputType="textMultiLine" android:padding="12dp" android:textColor="@color/text_primary" android:textSize="13sp" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/identity_demo_note" android:textColor="@color/text_secondary" android:paddingTop="12dp" android:paddingBottom="8dp" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/identity_front" android:textStyle="bold" />
+        <ImageView android:id="@+id/identityFront" android:layout_width="match_parent" android:layout_height="150dp" android:src="@drawable/ic_photo" android:scaleType="fitCenter" android:contentDescription="@string/identity_front" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+          <Button android:id="@+id/btnIdentityFrontGallery" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/avatar_gallery" android:textAllCaps="false" />
+          <Button android:id="@+id/btnIdentityFrontUrl" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/avatar_url" android:textAllCaps="false" />
+        </LinearLayout>
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/identity_back" android:textStyle="bold" />
+        <ImageView android:id="@+id/identityBack" android:layout_width="match_parent" android:layout_height="150dp" android:src="@drawable/ic_photo" android:scaleType="fitCenter" android:contentDescription="@string/identity_back" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+          <Button android:id="@+id/btnIdentityBackGallery" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/avatar_gallery" android:textAllCaps="false" />
+          <Button android:id="@+id/btnIdentityBackUrl" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/avatar_url" android:textAllCaps="false" />
+        </LinearLayout>
         <TextView android:id="@+id/tvApplicationStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="12dp" android:textColor="@color/teal_dark" android:accessibilityLiveRegion="polite" />
         <TextView android:id="@+id/tvFeedback" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/danger" android:accessibilityLiveRegion="polite" />
         <Button android:id="@+id/btnRefresh" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Tải lại trạng thái" />

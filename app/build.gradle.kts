@@ -18,6 +18,12 @@ fun mapKey(name: String): String {
     return "\"$value\""
 }
 
+val paymentApiBase = providers.environmentVariable("PAYMENT_API_BASE_URL")
+    .orElse(mapEnvironment["PAYMENT_API_BASE_URL"] ?: "").get().trim().removeSuffix("/")
+require(paymentApiBase.isEmpty() || paymentApiBase.matches(Regex("https://[A-Za-z0-9.-]+(?::[0-9]+)?"))) {
+    "PAYMENT_API_BASE_URL must be an HTTPS origin"
+}
+
 android {
     namespace = "vn.edu.ueh.phuclu.broomsharing"
     compileSdk {
@@ -35,6 +41,10 @@ android {
         buildConfigField("String", "FIRESTORE_EMULATOR_HOST", "\"\"")
         buildConfigField("String", "MAPTILER_API_KEY", mapKey("MapTiler_API_KEY"))
         buildConfigField("String", "HEIGIT_API_KEY", mapKey("HeiGIT_API_KEY"))
+        // Cấu hình unsigned upload công khai; tuyệt đối không đưa API Secret vào APK.
+        buildConfigField("String", "CLOUDINARY_CLOUD_NAME", mapKey("CLOUDINARY_CLOUD_NAME"))
+        buildConfigField("String", "CLOUDINARY_UPLOAD_PRESET", mapKey("CLOUDINARY_UPLOAD_PRESET"))
+        buildConfigField("String", "PAYMENT_API_BASE_URL", "\"$paymentApiBase\"")
     }
 
     buildTypes {
@@ -74,7 +84,11 @@ dependencies {
     implementation(libs.lifecycle.viewmodel)
     implementation(libs.lifecycle.livedata)
     implementation(libs.glide)
-    implementation("org.maplibre.gl:android-sdk:13.7.1")
+    implementation("com.squareup.picasso:picasso:2.8")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.google.zxing:core:3.5.3")
+    // OpenGL ES cùng phiên bản: tránh phụ thuộc Vulkan của driver giả lập khi đổi kích thước.
+    implementation("org.maplibre.gl:android-sdk-opengl:13.7.1")
     testImplementation(libs.junit)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.ext.junit)

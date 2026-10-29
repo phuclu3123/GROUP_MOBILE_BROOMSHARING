@@ -1,5 +1,10 @@
 package vn.edu.ueh.phuclu.broomsharing.repository;
 
+
+
+/*
+   Phân loại lỗi Firebase Auth thành mã dùng chung trong luồng đăng nhập và khôi phục mật khẩu.
+*/
 public enum AuthError {
     NOT_CONFIGURED, INVALID_CREDENTIALS, EMAIL_IN_USE, USERNAME_IN_USE,
     WEAK_PASSWORD, NETWORK, TOO_MANY_REQUESTS, DISABLED, OPERATION_DISABLED,

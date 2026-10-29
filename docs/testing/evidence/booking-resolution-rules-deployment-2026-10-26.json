@@ -1,0 +1,24 @@
+{
+  "verifiedAt": "2026-10-26T11:46:48.844729+07:00",
+  "project": "broom-sharing-firebase-mobile",
+  "database": "broomsharing",
+  "before": {
+    "name": "projects/broom-sharing-firebase-mobile/releases/cloud.firestore/broomsharing",
+    "rulesetName": "projects/broom-sharing-firebase-mobile/rulesets/0536aa04-8f30-4984-a013-239c84d5aeff",
+    "createTime": "2026-10-14T10:13:11.152351Z",
+    "updateTime": "2026-10-25T09:56:40.622799Z"
+  },
+  "after": {
+    "name": "projects/broom-sharing-firebase-mobile/releases/cloud.firestore/broomsharing",
+    "rulesetName": "projects/broom-sharing-firebase-mobile/rulesets/3c6fc665-01e7-4f1d-89ef-4faf9a934074",
+    "createTime": "2026-10-14T10:13:11.152351Z",
+    "updateTime": "2026-10-26T04:46:48.527039Z"
+  },
+  "sourceSha256": "f3cd7420ac52eea81be7c214d56e7860673a8938604c247b53c12c0f1595024b",
+  "compile": {},
+  "indexesUnchanged": true,
+  "indexesReady": 7,
+  "cloudDocumentWrites": 0,
+  "rulesCases": 44,
+  "regressionCases": 13
+}

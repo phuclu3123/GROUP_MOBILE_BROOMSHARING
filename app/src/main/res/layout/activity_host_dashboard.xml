@@ -33,11 +33,9 @@
                 <com.google.android.material.button.MaterialButton android:id="@+id/cardBookingRequests" style="@style/WorkspaceAction" android:text="@string/workspace_open_bookings"/>
                 <TextView style="@style/WorkspaceBody" android:text="@string/workspace_open_bookings_hint"/>
                 <com.google.android.material.button.MaterialButton android:id="@+id/btnManageSpaces" style="@style/WorkspaceAction" android:text="@string/workspace_open_spaces"/>
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnHostReports" style="@style/WorkspaceAction" android:text="@string/reports_center"/>
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnPropertyVerification" style="@style/WorkspaceAction" android:text="Hồ sơ xác minh tài sản"/>
                 <TextView style="@style/WorkspaceBody" android:text="@string/workspace_open_spaces_hint"/>
-                <com.google.android.material.button.MaterialButton android:id="@+id/btnPropertyVerification" style="@style/WorkspaceAction" android:text="Xác thực Bất Động Sản" android:layout_marginTop="8dp"/>
-                <TextView style="@style/WorkspaceBody" android:text="Nộp giấy tờ chủ quyền &amp; ảnh thực tế để được gắn tích xác thực"/>
-                <com.google.android.material.button.MaterialButton android:id="@+id/btnHostReports" style="@style/WorkspaceAction" android:text="Báo cáo &amp; Tranh chấp" android:layout_marginTop="8dp"/>
-                <TextView style="@style/WorkspaceBody" android:text="Xem phản ánh vi phạm từ khách và gửi văn bản giải trình cho Admin"/>
                 <TextView style="@style/WorkspaceBody" android:text="@string/workspace_host_summary" android:layout_marginTop="20dp"/>
             </LinearLayout>
             <LinearLayout android:id="@+id/spacesPanel" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">

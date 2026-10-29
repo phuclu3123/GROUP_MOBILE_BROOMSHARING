@@ -1,0 +1,24 @@
+{
+  "applicantUid": "XEkGLNTVi4O2JXxvWf9MXRpvBcv1",
+  "guestAvatarUrl": "https:\/\/res.cloudinary.com\/f3kqy0pc\/image\/upload\/v1793016931\/broomsharing\/avatarMedia\/XEkGLNTVi4O2JXxvWf9MXRpvBcv1\/avatar\/56669488-aeef-4407-b802-df9abc7dc8a4.jpg",
+  "identityImageUrls": [
+    "https:\/\/res.cloudinary.com\/f3kqy0pc\/image\/upload\/v1793016948\/broomsharing\/hostIdentity\/XEkGLNTVi4O2JXxvWf9MXRpvBcv1\/XEkGLNTVi4O2JXxvWf9MXRpvBcv1\/0931511a-9c6b-42e4-af0e-261cf011feb5.jpg",
+    "https:\/\/res.cloudinary.com\/f3kqy0pc\/image\/upload\/v1793016950\/broomsharing\/hostIdentity\/XEkGLNTVi4O2JXxvWf9MXRpvBcv1\/XEkGLNTVi4O2JXxvWf9MXRpvBcv1\/73708c10-14b7-4abc-8b24-652d02b49151.jpg"
+  ],
+  "hostAvatarUrl": "https:\/\/res.cloudinary.com\/f3kqy0pc\/image\/upload\/v1793016961\/broomsharing\/avatarMedia\/XEkGLNTVi4O2JXxvWf9MXRpvBcv1\/avatar\/e88a429d-ded1-4776-b798-87dae13bd51c.jpg",
+  "passed": true,
+  "checks": [
+    "New demo account registered through app repository; role GUEST",
+    "Guest avatar from actual MediaStore content URI uploaded and saved",
+    "Avatar HTTPS URL downloaded with OkHttp, re-uploaded to own folder, Firestore updated",
+    "Avatar replacement and removal persisted; foreign URL rejected",
+    "Two distinct sides: content URI front and HTTPS back uploaded; submission PENDING without promotion",
+    "Peer read denied; approve-before-view denied; Admin rejection with reason persisted",
+    "Rejected applicant resubmitted cached uploaded URLs without re-upload",
+    "Admin reads both files; approved application + HOST role + public projection saved atomically",
+    "Promoted Host changes avatar; users\/PublicHost URLs match; Picasso visible in Host account"
+  ],
+  "fixture": "Fictional geometric DEMO documents, no real identity data",
+  "cloud": "Cloudinary and Firestore actual account",
+  "existingAccountsPromoted": false
+}

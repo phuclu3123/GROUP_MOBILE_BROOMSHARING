@@ -4,6 +4,10 @@ import java.io.Serializable;
 import java.util.Date;
 
 /** A local-time selection stored as UTC instants, with an exclusive end. */
+/*
+    Khoảng khóa lịch nhúng trong rooms.blackoutRanges.
+    Khoảng thời gian sử dụng đầu bao gồm, cuối loại trừ như lịch booking.
+ */
 public class RoomBlackout implements Serializable {
     private Date startAt;
     private Date endAt;

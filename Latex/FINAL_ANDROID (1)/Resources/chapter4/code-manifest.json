@@ -1,0 +1,1667 @@
+{
+  "snippets": [
+    {
+      "file": "room-query.java",
+      "source": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/RoomRepository.java",
+      "firstLine": 63,
+      "lastLine": 70,
+      "sourceSha256": "1e5b6e055c4bbbed4cd0912c685467425eb8e92ca1cb5fccc828ccf9ccc1d388",
+      "excerptSha256": "837d2273a23cbec388c06e5715f0266ea7368c215bcd22610715e10db1022cbe"
+    },
+    {
+      "file": "booking-query-listener.java",
+      "source": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/BookingRepository.java",
+      "firstLine": 659,
+      "lastLine": 671,
+      "sourceSha256": "66e706762dba229df07d70f38093e06d3af440b64b75a42f5cfa4e5448b78239",
+      "excerptSha256": "6e641b160977b7c765aa5a6e160dc5504916678a29aa6bd4815a8ae113ae74e0"
+    },
+    {
+      "file": "chat-listener.java",
+      "source": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/ChatRepository.java",
+      "firstLine": 189,
+      "lastLine": 196,
+      "sourceSha256": "9baac4cd8ef727c57327b8d0130a95b4f274669b8e99773fa285807d1c683607",
+      "excerptSha256": "5be6a743488f3edb1b4608ae790ff00c77c98b61f030d1ea83afc0c1d7248f7e"
+    },
+    {
+      "file": "booking-prepare.java",
+      "source": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/BookingRepository.java",
+      "firstLine": 206,
+      "lastLine": 217,
+      "sourceSha256": "66e706762dba229df07d70f38093e06d3af440b64b75a42f5cfa4e5448b78239",
+      "excerptSha256": "8820ff6b8b89026a20a0df69038c2be38fea4d9938dfafd048ca80a4b4d4e87a"
+    },
+    {
+      "file": "booking-commit.java",
+      "source": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/BookingRepository.java",
+      "firstLine": 226,
+      "lastLine": 237,
+      "sourceSha256": "66e706762dba229df07d70f38093e06d3af440b64b75a42f5cfa4e5448b78239",
+      "excerptSha256": "e56a8d8c1eb44b2ccb5608b21f4ff65ac1974319489e85b6adc6366491066278"
+    },
+    {
+      "file": "rules-roles.txt",
+      "source": "firestore.rules",
+      "firstLine": 5,
+      "lastLine": 11,
+      "sourceSha256": "cfe2d370803cb5c2f4357be058a82fb570f4523736ec093617f71784b252d722",
+      "excerptSha256": "01d3794f9432890f01df203e7194dcdcdb0be81fb1d2c48422f26b2c3d50dc9f"
+    },
+    {
+      "file": "rules-held-month.txt",
+      "source": "firestore.rules",
+      "firstLine": 24,
+      "lastLine": 30,
+      "sourceSha256": "cfe2d370803cb5c2f4357be058a82fb570f4523736ec093617f71784b252d722",
+      "excerptSha256": "ca2c195df8eae91c5811bb8d1aee9719b2e95a4b5dad743d461401966aa0834c"
+    },
+    {
+      "file": "rules-favorites.txt",
+      "source": "firestore.rules",
+      "firstLine": 174,
+      "lastLine": 180,
+      "sourceSha256": "cfe2d370803cb5c2f4357be058a82fb570f4523736ec093617f71784b252d722",
+      "excerptSha256": "70b09814e724a81433572604e26bd86c4da7411c4ea8413b70bf3a5a3635e566"
+    },
+    {
+      "file": "storage-evidence.txt",
+      "source": "storage.rules",
+      "firstLine": 21,
+      "lastLine": 27,
+      "sourceSha256": "55ffb08b6c509f529c0be2ef7cb3796d509df5a2caee37891d18ab8ce6a79d2f",
+      "excerptSha256": "233f8a0351d3d52a508b2a444c7a65917f0ff531f46ab9bce27890f4fe9c7bf7"
+    }
+  ],
+  "tableDocumentPatterns": 20,
+  "includedFields": [
+    {
+      "path": "users/{uid}",
+      "name": "uid",
+      "type": "string",
+      "notes": "M/W/D; cùng UID với document ID và Authentication"
+    },
+    {
+      "path": "users/{uid}",
+      "name": "schemaVersion",
+      "type": "integer",
+      "notes": "M/W/D; hiện 1"
+    },
+    {
+      "path": "users/{uid}",
+      "name": "name",
+      "type": "string",
+      "notes": "M/W/D; tên hiển thị"
+    },
+    {
+      "path": "users/{uid}",
+      "name": "username",
+      "type": "string",
+      "notes": "M/W/D; username đã chuẩn hóa"
+    },
+    {
+      "path": "users/{uid}",
+      "name": "email",
+      "type": "string",
+      "notes": "M/W/D; email tài khoản"
+    },
+    {
+      "path": "users/{uid}",
+      "name": "phone",
+      "type": "string",
+      "notes": "M/W/D; số điện thoại, đăng ký chuẩn hóa dạng quốc tế"
+    },
+    {
+      "path": "users/{uid}",
+      "name": "phoneVerified",
+      "type": "boolean",
+      "notes": "M/W/D; mặc định false; không phải xác minh email"
+    },
+    {
+      "path": "users/{uid}",
+      "name": "role",
+      "type": "string",
+      "notes": "M/W/D; GUEST, HOST, ADMIN"
+    },
+    {
+      "path": "users/{uid}",
+      "name": "status",
+      "type": "string",
+      "notes": "M/W/D; ACTIVE, BLOCKED"
+    },
+    {
+      "path": "users/{uid}",
+      "name": "createdAt",
+      "type": "timestamp",
+      "notes": "W/D; thời gian server khi đăng ký"
+    },
+    {
+      "path": "users/{uid}",
+      "name": "updatedAt",
+      "type": "timestamp",
+      "notes": "W/D; lần cập nhật"
+    },
+    {
+      "path": "users/{uid}",
+      "name": "moderationReason",
+      "type": "string",
+      "notes": "W/D; lý do quản trị, phát sinh khi xử lý"
+    },
+    {
+      "path": "users/{uid}",
+      "name": "moderatedBy",
+      "type": "string",
+      "notes": "W; UID Admin xử lý"
+    },
+    {
+      "path": "users/{uid}",
+      "name": "photoUrl",
+      "type": "string",
+      "notes": "M/W/S; URL avatar Cloudinary theo UID, có thể rỗng"
+    },
+    {
+      "path": "users/{uid}/favorites/{roomId}",
+      "name": "roomId",
+      "type": "string",
+      "notes": "M/W/D; liên kết rooms"
+    },
+    {
+      "path": "users/{uid}/favorites/{roomId}",
+      "name": "roomName",
+      "type": "string",
+      "notes": "M/W/D; snapshot tên lúc lưu"
+    },
+    {
+      "path": "users/{uid}/favorites/{roomId}",
+      "name": "createdAt",
+      "type": "timestamp",
+      "notes": "M/W/D; thời gian lưu"
+    },
+    {
+      "path": "users/{uid}/noticeReads/{eventId}",
+      "name": "readAt",
+      "type": "timestamp",
+      "notes": "W/S; thời gian server xác nhận đã đọc"
+    },
+    {
+      "path": "publicHosts/{uid}",
+      "name": "uid",
+      "type": "string",
+      "notes": "M/W/D; liên kết users cùng UID"
+    },
+    {
+      "path": "publicHosts/{uid}",
+      "name": "name",
+      "type": "string",
+      "notes": "M/W/D; tên Host"
+    },
+    {
+      "path": "publicHosts/{uid}",
+      "name": "status",
+      "type": "string",
+      "notes": "M/W/D; đồng bộ trạng thái users, ACTIVE/BLOCKED"
+    },
+    {
+      "path": "publicHosts/{uid}",
+      "name": "photoUrl",
+      "type": "string",
+      "notes": "M/W/S; ảnh đại diện đồng bộ với hồ sơ Host"
+    },
+    {
+      "path": "usernames/{normalizedUsername}",
+      "name": "uid",
+      "type": "string",
+      "notes": "W/D; liên kết users/Authentication"
+    },
+    {
+      "path": "usernames/{normalizedUsername}",
+      "name": "email",
+      "type": "string",
+      "notes": "W/D; email đưa vào Firebase Authentication sau lookup"
+    },
+    {
+      "path": "hostApplications/{uid}",
+      "name": "id",
+      "type": "string",
+      "notes": "M/W/D; cùng UID/document ID"
+    },
+    {
+      "path": "hostApplications/{uid}",
+      "name": "schemaVersion",
+      "type": "integer",
+      "notes": "M/W/D; hiện 1"
+    },
+    {
+      "path": "hostApplications/{uid}",
+      "name": "applicantUid",
+      "type": "string",
+      "notes": "M/W/D; người nộp, liên kết users"
+    },
+    {
+      "path": "hostApplications/{uid}",
+      "name": "fullName",
+      "type": "string",
+      "notes": "M/W/D; họ tên khai trong đơn"
+    },
+    {
+      "path": "hostApplications/{uid}",
+      "name": "phone",
+      "type": "string",
+      "notes": "M/W/D; số liên hệ"
+    },
+    {
+      "path": "hostApplications/{uid}",
+      "name": "email",
+      "type": "string",
+      "notes": "M/W/D; email liên hệ"
+    },
+    {
+      "path": "hostApplications/{uid}",
+      "name": "organizationType",
+      "type": "string",
+      "notes": "M/W/D; loại cá nhân/tổ chức"
+    },
+    {
+      "path": "hostApplications/{uid}",
+      "name": "identityDoc",
+      "type": "string",
+      "notes": "M/W/D; thông tin giấy tờ dạng chuỗi, không phải file nhị phân"
+    },
+    {
+      "path": "hostApplications/{uid}",
+      "name": "status",
+      "type": "string",
+      "notes": "M/W/D; PENDING, APPROVED, REJECTED"
+    },
+    {
+      "path": "hostApplications/{uid}",
+      "name": "rejectionReason",
+      "type": "string",
+      "notes": "M/W/D; lý do/kết quả duyệt, có thể rỗng"
+    },
+    {
+      "path": "hostApplications/{uid}",
+      "name": "createdAt",
+      "type": "timestamp",
+      "notes": "M/W/D; thời gian tạo"
+    },
+    {
+      "path": "hostApplications/{uid}",
+      "name": "updatedAt",
+      "type": "timestamp",
+      "notes": "M/W/D; thời gian cập nhật"
+    },
+    {
+      "path": "hostApplications/{uid}",
+      "name": "reviewedBy",
+      "type": "string",
+      "notes": "W; UID Admin duyệt"
+    },
+    {
+      "path": "hostApplications/{uid}",
+      "name": "identityImageUrls",
+      "type": "array<string>",
+      "notes": "M/W/S; hai URL ảnh giấy tờ DEMO"
+    },
+    {
+      "path": "hostApplications/{uid}",
+      "name": "evidenceMode",
+      "type": "string",
+      "notes": "M/W/S; DEMO"
+    },
+    {
+      "path": "hostApplications/{uid}",
+      "name": "identityReviewedAt",
+      "type": "timestamp/null",
+      "notes": "M/W; mốc Admin xem ảnh"
+    },
+    {
+      "path": "buildings/{buildingId}",
+      "name": "id",
+      "type": "string",
+      "notes": "M/W/D; document ID"
+    },
+    {
+      "path": "buildings/{buildingId}",
+      "name": "schemaVersion",
+      "type": "integer",
+      "notes": "M/W/D; hiện 1"
+    },
+    {
+      "path": "buildings/{buildingId}",
+      "name": "ownerUid",
+      "type": "string",
+      "notes": "M/W/D; Host sở hữu, liên kết users"
+    },
+    {
+      "path": "buildings/{buildingId}",
+      "name": "name",
+      "type": "string",
+      "notes": "M/W/D; tên tòa nhà"
+    },
+    {
+      "path": "buildings/{buildingId}",
+      "name": "address",
+      "type": "string",
+      "notes": "M/W/D; địa chỉ"
+    },
+    {
+      "path": "buildings/{buildingId}",
+      "name": "district",
+      "type": "string",
+      "notes": "M/W/D; khu vực/quận"
+    },
+    {
+      "path": "buildings/{buildingId}",
+      "name": "contactPhone",
+      "type": "string",
+      "notes": "M/W/D; số liên hệ địa điểm"
+    },
+    {
+      "path": "buildings/{buildingId}",
+      "name": "contactName",
+      "type": "string",
+      "notes": "M/W/D; người liên hệ"
+    },
+    {
+      "path": "buildings/{buildingId}",
+      "name": "latitude",
+      "type": "double",
+      "notes": "M/W/D; vĩ độ"
+    },
+    {
+      "path": "buildings/{buildingId}",
+      "name": "longitude",
+      "type": "double",
+      "notes": "M/W/D; kinh độ"
+    },
+    {
+      "path": "buildings/{buildingId}",
+      "name": "location",
+      "type": "geopoint/null",
+      "notes": "M/W; getter getLocation() có thể được serialize khi ghi POJO; dataset cũ chỉ có latitude/longitude. Không coi cả hai biểu diễn là luôn hiện diện hoặc tự đồng bộ ngoài getter/setter Java"
+    },
+    {
+      "path": "buildings/{buildingId}",
+      "name": "directionGuide",
+      "type": "string",
+      "notes": "M/W/D; hướng dẫn đến/lối vào"
+    },
+    {
+      "path": "buildings/{buildingId}",
+      "name": "coverUrl",
+      "type": "string",
+      "notes": "M/W/D; URL ảnh bìa"
+    },
+    {
+      "path": "buildings/{buildingId}",
+      "name": "status",
+      "type": "string",
+      "notes": "M/W/D; mặc định ACTIVE; luồng hiện tại không xác định thêm enum hoàn chỉnh"
+    },
+    {
+      "path": "buildings/{buildingId}",
+      "name": "createdAt",
+      "type": "timestamp",
+      "notes": "M/W/D; thời gian tạo"
+    },
+    {
+      "path": "buildings/{buildingId}",
+      "name": "updatedAt",
+      "type": "timestamp",
+      "notes": "M/W/D; thời gian cập nhật"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "id",
+      "type": "string",
+      "notes": "M/W/D; document ID"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "schemaVersion",
+      "type": "integer",
+      "notes": "M/W/D; hiện 1"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "buildingId",
+      "type": "string",
+      "notes": "M/W/D; liên kết buildings"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "buildingName",
+      "type": "string",
+      "notes": "M/W/D; tên tòa nhà sao chép"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "ownerUid",
+      "type": "string",
+      "notes": "M/W/D; Host, phải khớp chủ Building"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "roomName",
+      "type": "string",
+      "notes": "M/W/D; tên không gian"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "roomType",
+      "type": "string",
+      "notes": "M/W/D; loại không gian, ví dụ bàn/phòng riêng/phòng họp/mặt bằng"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "capacity",
+      "type": "integer",
+      "notes": "M/W/D; sức chứa"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "area",
+      "type": "double",
+      "notes": "M/W/D; diện tích m²"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "floor",
+      "type": "string",
+      "notes": "M/W/D; tầng"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "address",
+      "type": "string",
+      "notes": "M/W/D; địa chỉ sao chép"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "activeMode",
+      "type": "string",
+      "notes": "M/W/D; HOURLY hoặc FIXED"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "pricePerHour",
+      "type": "double",
+      "notes": "M/W/D; giá thuê giờ VND"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "pricePerDay",
+      "type": "double",
+      "notes": "M/W/D; trường cũ, không suy ra có luồng đặt theo ngày"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "pricePerMonth",
+      "type": "double",
+      "notes": "M/W/D; giá tháng VND"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "pricePerQuarter",
+      "type": "double",
+      "notes": "M/W/D; giá quý VND"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "deposit",
+      "type": "double",
+      "notes": "M/W/D; trường cọc cũ; không dùng để tính khoản trả trước 40% của booking mới"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "openTime",
+      "type": "string",
+      "notes": "M/W/D; HH:mm"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "closeTime",
+      "type": "string",
+      "notes": "M/W/D; HH:mm"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "amenities",
+      "type": "array<string>",
+      "notes": "M/W/D; tiện ích"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "rules",
+      "type": "string",
+      "notes": "M/W/D; nội quy"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "approvalStatus",
+      "type": "string",
+      "notes": "M/W/D; DRAFT, PENDING_REVIEW, APPROVED, REJECTED"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "listingStatus",
+      "type": "string",
+      "notes": "M/W/D; ACTIVE, INACTIVE, SUSPENDED"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "imageUrls",
+      "type": "array<string>",
+      "notes": "M/W/D; URL ảnh, Rules giới hạn tối đa 6"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "blackoutDates",
+      "type": "array<string>",
+      "notes": "M/W/D; ngày khóa YYYY-MM-DD"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "blackoutRanges",
+      "type": "array<map>",
+      "notes": "M/W/D; khoảng khóa lịch nhúng, không phải collection"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "blackoutRanges[].startAt",
+      "type": "timestamp",
+      "notes": "M; bắt đầu khoảng khóa"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "blackoutRanges[].endAt",
+      "type": "timestamp",
+      "notes": "M; kết thúc loại trừ"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "blackoutRanges[].reason",
+      "type": "string",
+      "notes": "M; lý do khóa"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "workingDays",
+      "type": "array<integer>",
+      "notes": "M/W/D; thứ ISO 1..7"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "slotMinutes",
+      "type": "integer",
+      "notes": "M/W/D; bước chọn giờ; không đồng nhất với slot kỹ thuật 30 phút"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "minBookingMinutes",
+      "type": "integer",
+      "notes": "M/W/D; thời lượng thuê tối thiểu"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "fixedStartMonth",
+      "type": "string",
+      "notes": "M/W/D; tháng nhận thuê cố định YYYY-MM"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "renewalPolicy",
+      "type": "string",
+      "notes": "M/W/D; chính sách gia hạn"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "rentalPolicy",
+      "type": "string",
+      "notes": "M/W/D; chính sách thuê"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "locationVerification",
+      "type": "string",
+      "notes": "M/W/D; mặc định UNVERIFIED, luồng Admin có thể ghi ADMIN_REVIEWED; không tự thêm trạng thái đối tác"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "photosVerification",
+      "type": "string",
+      "notes": "M/W/D; như locationVerification cho ảnh"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "rejectionReason",
+      "type": "string",
+      "notes": "M/W/D; lý do/kết quả xét duyệt"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "bookingRevision",
+      "type": "integer",
+      "notes": "M/W/D; tăng khi thay đổi booking/lịch liên quan"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "lastBookingId",
+      "type": "string",
+      "notes": "M/W/D; booking gần nhất tác động lịch/phòng, rỗng khi chưa có"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "createdAt",
+      "type": "timestamp",
+      "notes": "M/W/D; thời gian tạo"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "updatedAt",
+      "type": "timestamp",
+      "notes": "M/W/D; lần cập nhật"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "reviewedBy",
+      "type": "string",
+      "notes": "W; UID Admin xét duyệt tin"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "moderationReason",
+      "type": "string",
+      "notes": "W; lý do đình chỉ/gỡ đình chỉ"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "moderatedBy",
+      "type": "string",
+      "notes": "W; UID Admin quản trị"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "activeBookingCount",
+      "type": "integer",
+      "notes": "M/W/S; số booking đang chiếm lịch, gồm phần giữ tạm"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "id",
+      "type": "string",
+      "notes": "M/W/D; document ID"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "schemaVersion",
+      "type": "integer",
+      "notes": "M/W/D; class mặc định 1, luồng tạo mới ghi 2"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "roomId",
+      "type": "string",
+      "notes": "M/W/D; liên kết rooms"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "roomName",
+      "type": "string",
+      "notes": "M/W/D; snapshot tên phòng"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "roomAddress",
+      "type": "string",
+      "notes": "M/W/D; snapshot địa chỉ"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "ownerUid",
+      "type": "string",
+      "notes": "M/W/D; Host của booking"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "guestUid",
+      "type": "string",
+      "notes": "M/W/D; người thuê; tài khoản role HOST cũng có thể thuê"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "guestName",
+      "type": "string",
+      "notes": "M/W/D; snapshot tên Guest"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "guestPhone",
+      "type": "string",
+      "notes": "M/W/D; snapshot liên hệ Guest"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "status",
+      "type": "string",
+      "notes": "M/W/S; PENDING, CONFIRMED, CHECKED_IN, COMPLETED, CANCELLED, REJECTED, EXPIRED, NO_SHOW, TERMINATED; REJECTED thuộc nhánh cũ"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "paymentStatus",
+      "type": "string",
+      "notes": "M/W; UNAVAILABLE before QR creation, PENDING, PAID, REVIEW_REQUIRED; expiry is UNPAID. Legacy values retained on old data."
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "activeMode",
+      "type": "string",
+      "notes": "M/W/D; HOURLY/FIXED"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "rejectionReason",
+      "type": "string",
+      "notes": "M/W/D; lý do từ chối hoặc hủy, có thể rỗng"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "startAt",
+      "type": "timestamp",
+      "notes": "M/W/D; thời điểm bắt đầu"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "endAt",
+      "type": "timestamp",
+      "notes": "M/W/D; thời điểm kết thúc loại trừ"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "totalAmount",
+      "type": "double",
+      "notes": "M/W/D; tổng tiền thuê VND"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "priceSnapshot",
+      "type": "map",
+      "notes": "M/W/D; chụp giá/chính sách tại lúc đặt"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "priceSnapshot.currency",
+      "type": "string",
+      "notes": "W/D; VND"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "priceSnapshot.rentalAmount",
+      "type": "number",
+      "notes": "W/D; tiền thuê"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "priceSnapshot.feeAmount",
+      "type": "integer",
+      "notes": "W/D; hiện 0"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "priceSnapshot.depositAmount",
+      "type": "number",
+      "notes": "W/D; khoản trả trước dự kiến, booking mới 40%; code mới ghi số nguyên, dataset cũ có double"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "priceSnapshot.advancePercent",
+      "type": "integer",
+      "notes": "W; booking mới 40; dataset cũ có thể thiếu"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "priceSnapshot.cancellationPolicyVersion",
+      "type": "integer",
+      "notes": "W; booking mới 1; dataset cũ có thể thiếu"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "priceSnapshot.totalAmount",
+      "type": "number",
+      "notes": "W/D; tổng tiền"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "priceSnapshot.paymentDueAmount",
+      "type": "number",
+      "notes": "W/D; khoản phải trả trước dự kiến"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "priceSnapshot.rentalPolicy",
+      "type": "string",
+      "notes": "W/D; snapshot chính sách thuê"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "priceSnapshot.renewalPolicy",
+      "type": "string",
+      "notes": "W/D; snapshot chính sách gia hạn"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "rentalMonths",
+      "type": "integer",
+      "notes": "M/W/D; HOURLY=0, FIXED=1 hoặc 3"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "slotStart",
+      "type": "integer",
+      "notes": "M/W/D; slot 30 phút đầu trong tháng, FIXED=0"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "slotCount",
+      "type": "integer",
+      "notes": "M/W/D; số slot 30 phút liên tiếp, FIXED=0"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "monthKeys",
+      "type": "array<string>",
+      "notes": "M/W/D; ID availabilityMonths, 1 hoặc 3 phần tử"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "slotKeys",
+      "type": "array<integer>",
+      "notes": "M/W/D; danh sách slot giữ, FIXED rỗng"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "requestFingerprint",
+      "type": "string",
+      "notes": "M/W/D; SHA-256 lựa chọn phòng/thời gian"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "cancelledAt",
+      "type": "timestamp/null",
+      "notes": "M/W; mặc định null, khi hủy là server timestamp; dataset cũ có thể thiếu"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "cancelledByUid",
+      "type": "string",
+      "notes": "M/W; UID bên hủy, mặc định rỗng"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "cancellationRefundPercent",
+      "type": "integer",
+      "notes": "M/W; tỷ lệ chính sách 0/50/100, không xác nhận đã chuyển tiền"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "refundAmount",
+      "type": "number",
+      "notes": "M/W; mặc định double 0, thao tác hủy hiện ghi integer 0 vì chưa thu tiền"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "refundStatus",
+      "type": "string",
+      "notes": "M/W; NOT_REQUIRED hoặc MANUAL_REVIEW; không xác nhận đã hoàn tiền"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "createdAt",
+      "type": "timestamp",
+      "notes": "M/W/D; thời gian tạo"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "updatedAt",
+      "type": "timestamp",
+      "notes": "M/W/D; lần cập nhật"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "paymentFlow",
+      "type": "string",
+      "notes": "M/W/S; INSTANT_5M cho booking mới; rỗng ở dữ liệu tương thích"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "paidAmount",
+      "type": "integer",
+      "notes": "M/W; số tiền thực nhận do backend đối soát"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "usageConfirmedAt",
+      "type": "timestamp/null",
+      "notes": "M/W/S; xác nhận đã sử dụng, có thể chưa có"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "usageConfirmedBy",
+      "type": "string",
+      "notes": "M/W/S; UID xác nhận sử dụng"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "closedAt",
+      "type": "timestamp/null",
+      "notes": "M/W/S; mốc khép lượt"
+    },
+    {
+      "path": "availabilityMonths/{roomId_yyyyMM}",
+      "name": "roomId",
+      "type": "string",
+      "notes": "M/W/D; liên kết rooms"
+    },
+    {
+      "path": "availabilityMonths/{roomId_yyyyMM}",
+      "name": "monthIndex",
+      "type": "integer",
+      "notes": "M/W/D; số YYYYMM, không phải chỉ số tháng 0..11"
+    },
+    {
+      "path": "availabilityMonths/{roomId_yyyyMM}",
+      "name": "fixedBookingId",
+      "type": "string",
+      "notes": "M/W/D; booking giữ toàn tháng; rỗng nếu không có"
+    },
+    {
+      "path": "availabilityMonths/{roomId_yyyyMM}",
+      "name": "slotsBusy",
+      "type": "array<integer>",
+      "notes": "M/W/D; tập slot kỹ thuật 30 phút đang giữ"
+    },
+    {
+      "path": "availabilityMonths/{roomId_yyyyMM}",
+      "name": "hourlyBookings",
+      "type": "map<string,array<integer>>",
+      "notes": "M/W/D; key động là bookingId, value là các slot booking đó giữ"
+    },
+    {
+      "path": "availabilityMonths/{roomId_yyyyMM}",
+      "name": "hourlyBookings.{bookingId}",
+      "type": "array<integer>",
+      "notes": "M/W/D; liên kết theo key, không phải subcollection"
+    },
+    {
+      "path": "availabilityMonths/{roomId_yyyyMM}",
+      "name": "lastBookingId",
+      "type": "string",
+      "notes": "M/W/D; booking vừa tác động lịch"
+    },
+    {
+      "path": "availabilityMonths/{roomId_yyyyMM}",
+      "name": "updatedAt",
+      "type": "timestamp",
+      "notes": "M/W/D; thời gian server"
+    },
+    {
+      "path": "availabilityMonths/{roomId_yyyyMM}",
+      "name": "pendingPaymentIds",
+      "type": "array<string>",
+      "notes": "M/W/S; booking đang giữ lịch tạm chờ thanh toán"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}",
+      "name": "id",
+      "type": "string",
+      "notes": "M/W; guestUid + ':' + hostUid"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}",
+      "name": "guestUid",
+      "type": "string",
+      "notes": "M/W; liên kết users bên thuê"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}",
+      "name": "hostUid",
+      "type": "string",
+      "notes": "M/W; liên kết users bên cho thuê"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}",
+      "name": "guestName",
+      "type": "string",
+      "notes": "M/W; snapshot tên bên thuê"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}",
+      "name": "hostName",
+      "type": "string",
+      "notes": "M/W; snapshot tên Host"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}",
+      "name": "memberUids",
+      "type": "array<string>",
+      "notes": "M/W; đúng hai UID [guestUid, hostUid], dùng query inbox"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}",
+      "name": "roomId",
+      "type": "string",
+      "notes": "M/W; phòng ngữ cảnh khởi tạo"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}",
+      "name": "roomName",
+      "type": "string",
+      "notes": "M/W; tên phòng ngữ cảnh"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}",
+      "name": "bookingId",
+      "type": "string",
+      "notes": "M/W; booking ngữ cảnh khởi tạo hoặc chuỗi rỗng nếu mở từ phòng"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}",
+      "name": "lastText",
+      "type": "string",
+      "notes": "M/W; preview tin cuối, mới tạo rỗng"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}",
+      "name": "lastSenderUid",
+      "type": "string",
+      "notes": "M/W; người gửi cuối hoặc rỗng"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}",
+      "name": "lastMessageId",
+      "type": "string",
+      "notes": "M/W; ID tin cuối trong subcollection hoặc rỗng"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}",
+      "name": "sequence",
+      "type": "integer",
+      "notes": "M/W; số thứ tự tin gần nhất, khởi tạo 0"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}",
+      "name": "guestReceived",
+      "type": "integer",
+      "notes": "M/W; tổng số tin đến Guest"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}",
+      "name": "hostReceived",
+      "type": "integer",
+      "notes": "M/W; tổng số tin đến Host"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}",
+      "name": "guestRead",
+      "type": "integer",
+      "notes": "M/W; mốc số tin đến Guest đã đọc"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}",
+      "name": "hostRead",
+      "type": "integer",
+      "notes": "M/W; mốc số tin đến Host đã đọc"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}",
+      "name": "createdAt",
+      "type": "timestamp",
+      "notes": "M/W; thời gian tạo"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}",
+      "name": "updatedAt",
+      "type": "timestamp",
+      "notes": "M/W; cập nhật khi gửi tin"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}/messages/{messageId}",
+      "name": "id",
+      "type": "string",
+      "notes": "M/W; cùng messageId"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}/messages/{messageId}",
+      "name": "senderUid",
+      "type": "string",
+      "notes": "M/W; thành viên gửi, liên kết users"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}/messages/{messageId}",
+      "name": "text",
+      "type": "string",
+      "notes": "M/W; nội dung 1..2000 ký tự"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}/messages/{messageId}",
+      "name": "roomId",
+      "type": "string",
+      "notes": "M/W; phòng ngữ cảnh hoặc rỗng"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}/messages/{messageId}",
+      "name": "roomName",
+      "type": "string",
+      "notes": "M/W; snapshot tên phòng ngữ cảnh hoặc rỗng"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}/messages/{messageId}",
+      "name": "sequence",
+      "type": "integer",
+      "notes": "M/W; thứ tự tin trong conversation"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}/messages/{messageId}",
+      "name": "createdAt",
+      "type": "timestamp",
+      "notes": "M/W; thời gian server"
+    },
+    {
+      "path": "propertyVerifications/{verificationId}",
+      "name": "schemaVersion",
+      "type": "integer",
+      "notes": "D; dữ liệu mẫu hiện 1"
+    },
+    {
+      "path": "propertyVerifications/{verificationId}",
+      "name": "ownerUid",
+      "type": "string",
+      "notes": "R/S/D; Host nộp hồ sơ"
+    },
+    {
+      "path": "propertyVerifications/{verificationId}",
+      "name": "verificationType",
+      "type": "string",
+      "notes": "R/W/S; LOCATION or PHOTOS in the current submission flow; Host identity demo is in hostApplications."
+    },
+    {
+      "path": "propertyVerifications/{verificationId}",
+      "name": "roomId",
+      "type": "string",
+      "notes": "R/D; phòng cần xác minh; có thể rỗng/thiếu"
+    },
+    {
+      "path": "propertyVerifications/{verificationId}",
+      "name": "buildingId",
+      "type": "string",
+      "notes": "R/D; tòa nhà cần xác minh; có thể rỗng/thiếu"
+    },
+    {
+      "path": "propertyVerifications/{verificationId}",
+      "name": "description",
+      "type": "string",
+      "notes": "R/D; mô tả"
+    },
+    {
+      "path": "propertyVerifications/{verificationId}",
+      "name": "evidenceRefs",
+      "type": "array<string>",
+      "notes": "R/D; đường dẫn tệp, code ưu tiên đọc danh sách này"
+    },
+    {
+      "path": "propertyVerifications/{verificationId}",
+      "name": "evidencePath",
+      "type": "string",
+      "notes": "R; dạng đơn được code đọc dự phòng khi evidenceRefs không phải List"
+    },
+    {
+      "path": "propertyVerifications/{verificationId}",
+      "name": "evidencePaths",
+      "type": "array<unknown>",
+      "notes": "D-only; tên trường biến thể trong dataset, các mảng đang rỗng nên chưa xác định kiểu phần tử bằng dữ liệu; AdminRepository không đọc tên này"
+    },
+    {
+      "path": "propertyVerifications/{verificationId}",
+      "name": "reviewed",
+      "type": "boolean",
+      "notes": "D-only; cờ dữ liệu mẫu; không đồng nhất với reviewedBy/reviewedAt và không chứng minh Admin đã xem tệp"
+    },
+    {
+      "path": "propertyVerifications/{verificationId}",
+      "name": "status",
+      "type": "string",
+      "notes": "R/W/S/D; PENDING, VERIFIED, REJECTED"
+    },
+    {
+      "path": "propertyVerifications/{verificationId}",
+      "name": "rejectionReason",
+      "type": "string",
+      "notes": "W; lý do/kết quả duyệt"
+    },
+    {
+      "path": "propertyVerifications/{verificationId}",
+      "name": "reviewedBy",
+      "type": "string",
+      "notes": "W; UID Admin xử lý"
+    },
+    {
+      "path": "propertyVerifications/{verificationId}",
+      "name": "method",
+      "type": "string",
+      "notes": "W; ADMIN_REVIEWED"
+    },
+    {
+      "path": "propertyVerifications/{verificationId}",
+      "name": "reviewNote",
+      "type": "string",
+      "notes": "W; ghi chú xét duyệt"
+    },
+    {
+      "path": "propertyVerifications/{verificationId}",
+      "name": "reviewedAt",
+      "type": "timestamp",
+      "notes": "W; thời gian xét duyệt"
+    },
+    {
+      "path": "propertyVerifications/{verificationId}",
+      "name": "partnerName",
+      "type": "string",
+      "notes": "W; code ghi rỗng, không phải tích hợp đối tác"
+    },
+    {
+      "path": "propertyVerifications/{verificationId}",
+      "name": "createdAt",
+      "type": "timestamp",
+      "notes": "R/S/D; thời gian tạo"
+    },
+    {
+      "path": "propertyVerifications/{verificationId}",
+      "name": "updatedAt",
+      "type": "timestamp",
+      "notes": "W/D; lần cập nhật"
+    },
+    {
+      "path": "reports/{reportId}",
+      "name": "id",
+      "type": "string",
+      "notes": "M/W; cùng reportId; dataset cũ có thể thiếu"
+    },
+    {
+      "path": "reports/{reportId}",
+      "name": "schemaVersion",
+      "type": "integer",
+      "notes": "M/W/D; hiện 1"
+    },
+    {
+      "path": "reports/{reportId}",
+      "name": "reporterUid",
+      "type": "string",
+      "notes": "M/W/D; người báo, liên kết users"
+    },
+    {
+      "path": "reports/{reportId}",
+      "name": "roomId",
+      "type": "string",
+      "notes": "M/W/D; phòng bị báo cáo"
+    },
+    {
+      "path": "reports/{reportId}",
+      "name": "ownerUid",
+      "type": "string",
+      "notes": "M/W/D; Host lấy từ dữ liệu phòng"
+    },
+    {
+      "path": "reports/{reportId}",
+      "name": "reason",
+      "type": "string",
+      "notes": "M/W/D; Sai thông tin / Ảnh không khớp / Nghi ngờ gian lận / Khác"
+    },
+    {
+      "path": "reports/{reportId}",
+      "name": "description",
+      "type": "string",
+      "notes": "M/W/D; mô tả 20..2000 ký tự"
+    },
+    {
+      "path": "reports/{reportId}",
+      "name": "status",
+      "type": "string",
+      "notes": "M/W/D; OPEN, RESOLVED, DISMISSED"
+    },
+    {
+      "path": "reports/{reportId}",
+      "name": "createdAt",
+      "type": "timestamp",
+      "notes": "M/W/D; thời gian tạo"
+    },
+    {
+      "path": "reports/{reportId}",
+      "name": "updatedAt",
+      "type": "timestamp",
+      "notes": "M/W/D; lần cập nhật"
+    },
+    {
+      "path": "reports/{reportId}",
+      "name": "action",
+      "type": "string",
+      "notes": "W; NO_ACTION, SUSPEND_ROOM, BLOCK_HOST"
+    },
+    {
+      "path": "reports/{reportId}",
+      "name": "resolution",
+      "type": "string",
+      "notes": "W; kết luận 10..1000 ký tự"
+    },
+    {
+      "path": "reports/{reportId}",
+      "name": "reviewedBy",
+      "type": "string",
+      "notes": "W; UID Admin xử lý"
+    },
+    {
+      "path": "reports/{reportId}",
+      "name": "reviewedAt",
+      "type": "timestamp",
+      "notes": "W; thời gian xử lý"
+    },
+    {
+      "path": "reports/{reportId}",
+      "name": "hostResponse",
+      "type": "string",
+      "notes": "M/W/S; phản hồi của Host khi báo cáo còn mở"
+    },
+    {
+      "path": "reports/{reportId}",
+      "name": "bookingId",
+      "type": "string",
+      "notes": "M/W/S; booking liên quan nếu có, có thể rỗng"
+    },
+    {
+      "path": "auditLogs/{auditId}",
+      "name": "schemaVersion",
+      "type": "integer",
+      "notes": "M/W/D; hiện 1"
+    },
+    {
+      "path": "auditLogs/{auditId}",
+      "name": "actorUid",
+      "type": "string",
+      "notes": "M/W/D; người thực hiện, liên kết users"
+    },
+    {
+      "path": "auditLogs/{auditId}",
+      "name": "targetPath",
+      "type": "string",
+      "notes": "M/W/D; đường dẫn đối tượng, có thể là document hoặc đích tổng hợp của tác vụ dataset"
+    },
+    {
+      "path": "auditLogs/{auditId}",
+      "name": "action",
+      "type": "string",
+      "notes": "M/W/D; mã hành động"
+    },
+    {
+      "path": "auditLogs/{auditId}",
+      "name": "before",
+      "type": "map<string,any>",
+      "notes": "M/W/D; dữ liệu trước thay đổi, có thể rỗng"
+    },
+    {
+      "path": "auditLogs/{auditId}",
+      "name": "after",
+      "type": "map<string,any>",
+      "notes": "M/W/D; dữ liệu sau thay đổi, có thể rỗng"
+    },
+    {
+      "path": "auditLogs/{auditId}",
+      "name": "reason",
+      "type": "string",
+      "notes": "M/W/D; lý do"
+    },
+    {
+      "path": "auditLogs/{auditId}",
+      "name": "createdAt",
+      "type": "timestamp",
+      "notes": "M/W/D; thời gian server"
+    },
+    {
+      "path": "rentalPlaces/{placeId}",
+      "name": "id",
+      "type": "string",
+      "notes": "M/D; document ID"
+    },
+    {
+      "path": "rentalPlaces/{placeId}",
+      "name": "name",
+      "type": "string",
+      "notes": "M/D; tên địa điểm"
+    },
+    {
+      "path": "rentalPlaces/{placeId}",
+      "name": "address",
+      "type": "string",
+      "notes": "M/D; địa chỉ nguồn"
+    },
+    {
+      "path": "rentalPlaces/{placeId}",
+      "name": "location",
+      "type": "geopoint",
+      "notes": "M/D; vị trí từ nguồn tham khảo; không phải map collection"
+    },
+    {
+      "path": "rentalPlaces/{placeId}",
+      "name": "sourceUrl",
+      "type": "string",
+      "notes": "M/D; URL tin nguồn"
+    },
+    {
+      "path": "rentalPlaces/{placeId}",
+      "name": "mapSourceUrl",
+      "type": "string",
+      "notes": "M/D; URL bản đồ nguồn"
+    },
+    {
+      "path": "rentalPlaces/{placeId}",
+      "name": "sourceCoordinateLabel",
+      "type": "string",
+      "notes": "M/D; nhãn tọa độ từ nguồn"
+    },
+    {
+      "path": "rentalPlaces/{placeId}",
+      "name": "locationNote",
+      "type": "string",
+      "notes": "M/D; ghi chú giới hạn vị trí"
+    },
+    {
+      "path": "rentalPlaces/{placeId}",
+      "name": "checkedAt",
+      "type": "timestamp",
+      "notes": "M/D; thời điểm đối chiếu nguồn"
+    },
+    {
+      "path": "payments/{bookingId}",
+      "name": "bookingId",
+      "type": "string",
+      "notes": "W/R; backend quản lý; expiresAt dùng epoch giây, các trường kết quả phát sinh theo giao dịch"
+    },
+    {
+      "path": "payments/{bookingId}",
+      "name": "guestUid",
+      "type": "string",
+      "notes": "W/R; backend quản lý; expiresAt dùng epoch giây, các trường kết quả phát sinh theo giao dịch"
+    },
+    {
+      "path": "payments/{bookingId}",
+      "name": "ownerUid",
+      "type": "string",
+      "notes": "W/R; backend quản lý; expiresAt dùng epoch giây, các trường kết quả phát sinh theo giao dịch"
+    },
+    {
+      "path": "payments/{bookingId}",
+      "name": "orderCode",
+      "type": "integer",
+      "notes": "W/R; backend quản lý; expiresAt dùng epoch giây, các trường kết quả phát sinh theo giao dịch"
+    },
+    {
+      "path": "payments/{bookingId}",
+      "name": "amount",
+      "type": "integer",
+      "notes": "W/R; backend quản lý; expiresAt dùng epoch giây, các trường kết quả phát sinh theo giao dịch"
+    },
+    {
+      "path": "payments/{bookingId}",
+      "name": "expiresAt",
+      "type": "integer",
+      "notes": "W/R; backend quản lý; expiresAt dùng epoch giây, các trường kết quả phát sinh theo giao dịch"
+    },
+    {
+      "path": "payments/{bookingId}",
+      "name": "status",
+      "type": "string",
+      "notes": "W/R; backend quản lý; expiresAt dùng epoch giây, các trường kết quả phát sinh theo giao dịch"
+    },
+    {
+      "path": "payments/{bookingId}",
+      "name": "provider",
+      "type": "string",
+      "notes": "W/R; backend quản lý; expiresAt dùng epoch giây, các trường kết quả phát sinh theo giao dịch"
+    },
+    {
+      "path": "payments/{bookingId}",
+      "name": "advancePercent",
+      "type": "integer",
+      "notes": "W/R; backend quản lý; expiresAt dùng epoch giây, các trường kết quả phát sinh theo giao dịch"
+    },
+    {
+      "path": "payments/{bookingId}",
+      "name": "createdAt",
+      "type": "timestamp",
+      "notes": "W/R; backend quản lý; expiresAt dùng epoch giây, các trường kết quả phát sinh theo giao dịch"
+    },
+    {
+      "path": "payments/{bookingId}",
+      "name": "updatedAt",
+      "type": "timestamp",
+      "notes": "W/R; backend quản lý; expiresAt dùng epoch giây, các trường kết quả phát sinh theo giao dịch"
+    },
+    {
+      "path": "payments/{bookingId}",
+      "name": "paymentLinkId",
+      "type": "string",
+      "notes": "W/R; backend quản lý; expiresAt dùng epoch giây, các trường kết quả phát sinh theo giao dịch"
+    },
+    {
+      "path": "payments/{bookingId}",
+      "name": "checkoutUrl",
+      "type": "string",
+      "notes": "W/R; backend quản lý; expiresAt dùng epoch giây, các trường kết quả phát sinh theo giao dịch"
+    },
+    {
+      "path": "payments/{bookingId}",
+      "name": "qrCode",
+      "type": "string",
+      "notes": "W/R; backend quản lý; expiresAt dùng epoch giây, các trường kết quả phát sinh theo giao dịch"
+    },
+    {
+      "path": "payments/{bookingId}",
+      "name": "accountName",
+      "type": "string",
+      "notes": "W/R; backend quản lý; expiresAt dùng epoch giây, các trường kết quả phát sinh theo giao dịch"
+    },
+    {
+      "path": "payments/{bookingId}",
+      "name": "accountNumber",
+      "type": "string",
+      "notes": "W/R; backend quản lý; expiresAt dùng epoch giây, các trường kết quả phát sinh theo giao dịch"
+    },
+    {
+      "path": "payments/{bookingId}",
+      "name": "bin",
+      "type": "string",
+      "notes": "W/R; backend quản lý; expiresAt dùng epoch giây, các trường kết quả phát sinh theo giao dịch"
+    },
+    {
+      "path": "payments/{bookingId}",
+      "name": "paidAmount",
+      "type": "integer",
+      "notes": "W/R; backend quản lý; expiresAt dùng epoch giây, các trường kết quả phát sinh theo giao dịch"
+    },
+    {
+      "path": "payments/{bookingId}",
+      "name": "paidAt",
+      "type": "timestamp",
+      "notes": "W/R; backend quản lý; expiresAt dùng epoch giây, các trường kết quả phát sinh theo giao dịch"
+    },
+    {
+      "path": "payments/{bookingId}",
+      "name": "providerReference",
+      "type": "string",
+      "notes": "W/R; backend quản lý; expiresAt dùng epoch giây, các trường kết quả phát sinh theo giao dịch"
+    },
+    {
+      "path": "reviews/{bookingId}",
+      "name": "bookingId",
+      "type": "string",
+      "notes": "M/W/S; một đánh giá cho lượt thuê đã khép và có xác nhận sử dụng"
+    },
+    {
+      "path": "reviews/{bookingId}",
+      "name": "roomId",
+      "type": "string",
+      "notes": "M/W/S; một đánh giá cho lượt thuê đã khép và có xác nhận sử dụng"
+    },
+    {
+      "path": "reviews/{bookingId}",
+      "name": "guestUid",
+      "type": "string",
+      "notes": "M/W/S; một đánh giá cho lượt thuê đã khép và có xác nhận sử dụng"
+    },
+    {
+      "path": "reviews/{bookingId}",
+      "name": "guestName",
+      "type": "string",
+      "notes": "M/W/S; một đánh giá cho lượt thuê đã khép và có xác nhận sử dụng"
+    },
+    {
+      "path": "reviews/{bookingId}",
+      "name": "comment",
+      "type": "string",
+      "notes": "M/W/S; một đánh giá cho lượt thuê đã khép và có xác nhận sử dụng"
+    },
+    {
+      "path": "reviews/{bookingId}",
+      "name": "rating",
+      "type": "integer",
+      "notes": "M/W/S; một đánh giá cho lượt thuê đã khép và có xác nhận sử dụng"
+    },
+    {
+      "path": "reviews/{bookingId}",
+      "name": "createdAt",
+      "type": "timestamp",
+      "notes": "M/W/S; một đánh giá cho lượt thuê đã khép và có xác nhận sử dụng"
+    },
+    {
+      "path": "paymentOrders/{orderCode}",
+      "name": "bookingId",
+      "type": "string",
+      "notes": "W/R; ánh xạ mã đơn payOS về booking; chỉ backend truy cập"
+    },
+    {
+      "path": "appConfig/payments",
+      "name": "flow",
+      "type": "string",
+      "notes": "W/R; INSTANT_5M"
+    },
+    {
+      "path": "appConfig/payments",
+      "name": "demoHostUid",
+      "type": "string",
+      "notes": "W/R; UID Host của kênh demo"
+    }
+  ],
+  "deferredContracts": [
+    "notifications"
+  ],
+  "logicalRelationshipRows": 53
+}

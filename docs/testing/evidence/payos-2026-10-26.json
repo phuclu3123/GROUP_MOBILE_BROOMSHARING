@@ -1,0 +1,77 @@
+{
+  "checkedAt": "2026-10-26T16:51:21.734862+00:00",
+  "scope": "Java backend and Android local integration; no bank transfer, no public webhook deployment",
+  "backendTests": {
+    "tests": 38,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "androidUnitTests": {
+    "tests": 125,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "androidContract": {
+    "tests": 8,
+    "passed": 8,
+    "bankTransfer": false,
+    "receipt": "output/verification/payos-2026-10-26/android-contract.txt"
+  },
+  "rulesPayments": {
+    "passed": 26,
+    "total": 26,
+    "cloud": false
+  },
+  "rulesLifecycle": {
+    "passed": 44,
+    "cloud": false
+  },
+  "rulesBoundaries": {
+    "passed": 15,
+    "cloud": false
+  },
+  "providerLive": {
+    "created": true,
+    "qrPresent": true,
+    "readStatus": "PENDING",
+    "amountPaid": 0,
+    "cleanupStatus": "CANCELLED"
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 606
+  },
+  "rulesLocalSha256": "04123917e2a54487ff13af16b806c1deed2891121832e0426f1a66fbd42a4fe9",
+  "deployedRules": true,
+  "webhookChanged": false,
+  "bankTransferVerified": false,
+  "backendFirebaseCloudVerified": true,
+  "awaiting": [
+    "User deploy of WEB_TCC relay commit on Render",
+    "Relay registration with existing setup token",
+    "Actual bank transfer initiated by the user to verify money receipt"
+  ],
+  "secrets": "Server .env ignored by Git; no payOS secrets in Android BuildConfig",
+  "liveAndroid": {
+    "accepted": true,
+    "durationSeconds": 68.425,
+    "checks": 7,
+    "bankTransferPerformed": false,
+    "receipt": "payos-live-android-2026-10-26.json"
+  },
+  "backendRuntime": {
+    "publicBaseUrl": "https://permission-philips-quiet-modems.trycloudflare.com",
+    "firebaseStartupCheckPassed": true,
+    "temporaryHttps": true
+  },
+  "webTccRelay": {
+    "commit": "d00716407350d1f61e253e1ad68e43b34bca962d",
+    "branch": "main",
+    "remoteHeadVerified": true,
+    "tests": 81,
+    "deployedFingerprintVerified": false,
+    "status": "User is deploying this commit on Render; current endpoint still reports previous build"
+  }
+}

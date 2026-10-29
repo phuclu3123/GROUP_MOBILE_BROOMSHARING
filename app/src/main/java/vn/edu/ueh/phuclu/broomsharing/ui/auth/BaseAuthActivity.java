@@ -1,28 +1,31 @@
 package vn.edu.ueh.phuclu.broomsharing.ui.auth;
 
 import android.content.Intent;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
-
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
-
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
-
-import vn.edu.ueh.phuclu.broomsharing.AdminDashboardActivity;
-import vn.edu.ueh.phuclu.broomsharing.MainActivity;
 import vn.edu.ueh.phuclu.broomsharing.R;
 import vn.edu.ueh.phuclu.broomsharing.model.UserProfile;
 import vn.edu.ueh.phuclu.broomsharing.model.UserRole;
+import vn.edu.ueh.phuclu.broomsharing.ui.admin.AdminDashboardActivity;
+import vn.edu.ueh.phuclu.broomsharing.ui.host.HostDashboardActivity;
+import vn.edu.ueh.phuclu.broomsharing.ui.room.MainActivity;
 
+/*
+   Khung chung cho các biểu mẫu xác thực: trạng thái bận, thông báo và điều hướng.
+   Xóa nội dung mật khẩu theo vòng đời màn hình, không lưu mật khẩu vào Bundle.
+*/
 public abstract class BaseAuthActivity extends AppCompatActivity {
     protected AuthViewModel model;
     protected TextView message;
@@ -113,7 +116,7 @@ public abstract class BaseAuthActivity extends AppCompatActivity {
         message.post(
                 () ->
                         message.requestRectangleOnScreen(
-                                new android.graphics.Rect(
+                                new Rect(
                                         0, 0, message.getWidth(), message.getHeight()),
                                 false));
     }
@@ -123,7 +126,7 @@ public abstract class BaseAuthActivity extends AppCompatActivity {
                 profile.getUserRole() == UserRole.ADMIN
                         ? AdminDashboardActivity.class
                         : profile.getUserRole() == UserRole.HOST
-                                ? vn.edu.ueh.phuclu.broomsharing.ui.host.HostDashboardActivity.class
+                                ? HostDashboardActivity.class
                                 : MainActivity.class;
         Intent intent = new Intent(this, target);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

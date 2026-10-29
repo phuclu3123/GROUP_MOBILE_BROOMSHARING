@@ -23,19 +23,23 @@
             </LinearLayout>
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_margin="16dp" android:padding="16dp" android:background="@color/white">
                 <TextView style="@style/DetailSectionTitle" android:text="Địa điểm và liên hệ" />
+                <ImageView android:id="@+id/hostAvatar" android:layout_width="48dp" android:layout_height="48dp" android:contentDescription="Ảnh đại diện Host" android:visibility="gone" android:scaleType="centerCrop" />
                 <TextView android:id="@+id/location" style="@style/DetailBody" />
                 <com.google.android.material.button.MaterialButton android:id="@+id/btnChat" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/chat_contact" android:textAllCaps="false" android:enabled="false" />
                 <com.google.android.material.button.MaterialButton android:id="@+id/btnCall" style="@style/Widget.MaterialComponents.Button.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/chat_call" android:textAllCaps="false" android:enabled="false" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnReport" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Báo cáo thông tin phòng" android:textAllCaps="false" android:enabled="false" />
                 <com.google.android.material.button.MaterialButton android:id="@+id/btnDirections" style="@style/Widget.MaterialComponents.Button.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:text="Xem bản đồ và chỉ đường" android:textAllCaps="false" android:enabled="false" />
             </LinearLayout>
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginHorizontal="16dp" android:padding="16dp" android:background="@color/white">
                 <TextView style="@style/DetailSectionTitle" android:text="Thông tin xác minh" />
                 <TextView android:id="@+id/verification" style="@style/DetailBody" />
             </LinearLayout>
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnReviews" style="@style/WorkspaceAction" android:text="@string/reviews_title" android:layout_marginHorizontal="16dp" />
             <TextView android:id="@+id/tvFeedback" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp" android:textColor="@color/danger" android:accessibilityLiveRegion="polite" />
             <com.google.android.material.button.MaterialButton android:id="@+id/btnRefresh" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Thử tải lại" android:textAllCaps="false" android:visibility="gone" />
         </LinearLayout>
     </ScrollView>
+    <include android:id="@+id/pendingCheckout" layout="@layout/view_pending_checkout" />
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingHorizontal="16dp" android:paddingVertical="8dp" android:background="@color/white" android:elevation="6dp">
         <com.google.android.material.button.MaterialButton android:id="@+id/btnFavorite" style="@style/Widget.MaterialComponents.Button.OutlinedButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:minHeight="48dp" android:layout_marginEnd="8dp" android:text="Lưu phòng" android:textAllCaps="false" android:enabled="false" />
         <com.google.android.material.button.MaterialButton android:id="@+id/btnBook" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:minHeight="48dp" android:text="Đặt chỗ" android:textAllCaps="false" android:enabled="false" />

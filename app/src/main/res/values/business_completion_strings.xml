@@ -1,0 +1,18 @@
+<resources>
+    <string name="booking_report">Báo cáo vấn đề của lượt thuê</string>
+    <string name="reviews_title">Đánh giá từ người đã thuê</string>
+    <string name="review_help">Mỗi lượt thuê đã hoàn tất được đánh giá một lần. Nhận xét không chứa thông tin liên hệ riêng tư.</string>
+    <string name="review_rating">Chọn số sao</string>
+    <string name="review_comment">Nhận xét từ 10 đến 1.000 ký tự</string>
+    <string name="review_send">Gửi đánh giá</string>
+    <string name="review_list_limit">Tối đa 50 đánh giá mới nhất. Chỉ khách đã hoàn tất booking được gửi đánh giá.</string>
+    <string name="review_booking">Đánh giá lượt thuê</string>
+    <string name="calendar_save">Lưu vào ứng dụng Lịch</string>
+    <string name="reports_center">Báo cáo và phản hồi</string>
+    <string name="reports_sent">Báo cáo đã gửi</string>
+    <string name="reports_received">Báo cáo về phòng của tôi</string>
+    <string name="reports_reply">Phản hồi báo cáo</string>
+    <string name="business_loading">Đang đồng bộ…</string>
+    <string name="business_empty">Chưa có dữ liệu.</string>
+    <string name="account_blocked">Tài khoản đã bị khóa. Các thao tác bị dừng; lịch sử được giữ lại. Liên hệ đơn vị quản lý để được hỗ trợ.</string>
+</resources>

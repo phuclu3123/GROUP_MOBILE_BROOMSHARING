@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="true">
+<LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_card"
@@ -23,7 +27,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Cuốn lịch đặt phòng"
+                android:text="Lịch đặt phòng"
                 android:textColor="@color/teal_dark"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -52,7 +56,7 @@
                     android:minHeight="36dp"
                     android:paddingStart="4dp"
                     android:paddingEnd="4dp"
-                    android:text="[Đổi phòng khác]"
+                    android:text="Đổi phòng"
                     android:textAllCaps="false"
                     android:textColor="@color/teal"
                     android:textSize="13sp"
@@ -222,42 +226,28 @@
         <View
             android:layout_width="10dp"
             android:layout_height="10dp"
-            android:background="@color/teal" />
+            android:background="#D8EFEA" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginEnd="16dp"
-            android:text="Đã đặt phòng"
+            android:text="Có đơn giữ chỗ"
             android:textColor="@color/text_secondary"
             android:textSize="11sp" />
 
         <View
             android:layout_width="10dp"
             android:layout_height="10dp"
-            android:background="@color/warning" />
+            android:background="#E8ECEF" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginEnd="16dp"
-            android:text="Chờ duyệt"
-            android:textColor="@color/text_secondary"
-            android:textSize="11sp" />
-
-        <View
-            android:layout_width="10dp"
-            android:layout_height="10dp"
-            android:background="#B0BEC5" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:layout_marginEnd="16dp"
-            android:text="Khóa / Nghỉ"
+            android:text="Có khóa/nghỉ"
             android:textColor="@color/text_secondary"
             android:textSize="11sp" />
 
@@ -270,7 +260,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
-            android:text="Trống"
+            android:text="Chưa giữ chỗ"
             android:textColor="@color/text_secondary"
             android:textSize="11sp" />
     </LinearLayout>
@@ -292,11 +282,10 @@
         android:textSize="14sp"
         android:textStyle="bold" />
 
-    <ScrollView
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:maxHeight="160dp">
+        android:layout_marginTop="6dp">
 
         <LinearLayout
             android:id="@+id/layoutSelectedDayBookings"
@@ -313,5 +302,6 @@
                 android:textColor="@color/text_secondary"
                 android:textSize="13sp" />
         </LinearLayout>
-    </ScrollView>
+    </FrameLayout>
 </LinearLayout>
+</ScrollView>

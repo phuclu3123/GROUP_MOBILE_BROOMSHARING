@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/workspaceRoot" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@color/screen_bg">
+    <com.google.android.material.appbar.MaterialToolbar android:id="@+id/toolbar" android:layout_width="match_parent" android:layout_height="?attr/actionBarSize" app:navigationIcon="@drawable/ic_arrow_back" />
+    <com.google.android.material.button.MaterialButton android:id="@+id/switchMode" style="@style/WorkspaceAction" android:text="@string/reports_received" android:layout_marginHorizontal="16dp" android:visibility="gone" />
+    <TextView android:id="@+id/feedback" style="@style/WorkspaceBody" android:paddingHorizontal="16dp" android:accessibilityLiveRegion="polite" />
+    <com.google.android.material.button.MaterialButton android:id="@+id/refresh" style="@style/WorkspaceAction" android:layout_marginHorizontal="16dp" android:text="@string/workspace_refresh" />
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+        <LinearLayout android:id="@+id/items" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" />
+    </ScrollView>
+</LinearLayout>

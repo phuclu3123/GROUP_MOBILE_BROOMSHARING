@@ -1,12 +1,20 @@
 package vn.edu.ueh.phuclu.broomsharing;
 
-import static org.junit.Assert.*;
-import static org.junit.Assume.assumeTrue;
+import android.Manifest;
 import android.app.Activity;
+import android.app.Instrumentation;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.SystemClock;
 import android.widget.TextView;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.espresso.Espresso;
+import androidx.test.espresso.action.ViewActions;
+import androidx.test.espresso.assertion.ViewAssertions;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.runner.lifecycle.*;
 import com.google.android.gms.tasks.Tasks;
@@ -21,13 +29,21 @@ import java.util.function.*;
 import org.junit.Test;
 import vn.edu.ueh.phuclu.broomsharing.model.Conversation;
 import vn.edu.ueh.phuclu.broomsharing.ui.auth.LoginActivity;
+import vn.edu.ueh.phuclu.broomsharing.ui.booking.BookingNoticesActivity;
+import vn.edu.ueh.phuclu.broomsharing.ui.chat.ChatActivity;
+import vn.edu.ueh.phuclu.broomsharing.ui.chat.ConversationsActivity;
 import vn.edu.ueh.phuclu.broomsharing.ui.common.BookingNotifier;
 import vn.edu.ueh.phuclu.broomsharing.ui.host.HostDashboardActivity;
 import vn.edu.ueh.phuclu.broomsharing.utils.FirebaseHelper;
+import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
 
+/*
+   Kiểm thử sendNavigateBadgesReadAndLocalBookingNotification.
+*/
 public class ChatUiTest {
-    private final android.app.Instrumentation device=InstrumentationRegistry.getInstrumentation();
-    private final android.content.Context context=device.getTargetContext();
+    private final Instrumentation device=InstrumentationRegistry.getInstrumentation();
+    private final Context context=device.getTargetContext();
     private final Properties credentials=new Properties();
     private <T extends Activity> void await(Class<T> type,Predicate<T> ready)throws Exception{
         AtomicBoolean done=new AtomicBoolean();
@@ -47,13 +63,13 @@ public class ChatUiTest {
         String host=credentials.getProperty("host1.uid"),guest=credentials.getProperty("guest1.uid"),id=guest+":"+host;
         try{
             login("guest1");open(ConversationsActivity.class,new Intent().putExtra("renterMode",true));
-            await(ConversationsActivity.class,a->a.findViewById(R.id.conversationList)!=null&&((androidx.recyclerview.widget.RecyclerView)a.findViewById(R.id.conversationList)).getAdapter().getItemCount()>0);capture("chat-guest-inbox");
+            await(ConversationsActivity.class,a->a.findViewById(R.id.conversationList)!=null&&((RecyclerView)a.findViewById(R.id.conversationList)).getAdapter().getItemCount()>0);capture("chat-guest-inbox");
             open(ChatActivity.class,new Intent().putExtra("conversationId",id));
             await(ChatActivity.class,a->a.findViewById(R.id.chatSend)!=null&&a.findViewById(R.id.chatSend).isEnabled());
-            androidx.test.espresso.Espresso.onView(androidx.test.espresso.matcher.ViewMatchers.withId(R.id.chatInput)).perform(androidx.test.espresso.action.ViewActions.click(),androidx.test.espresso.action.ViewActions.typeText("[QA UI] Guest asks Host about room availability."));
-            androidx.test.espresso.Espresso.onView(androidx.test.espresso.matcher.ViewMatchers.withId(R.id.chatSend)).check(androidx.test.espresso.assertion.ViewAssertions.matches(androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed()));
+            Espresso.onView(ViewMatchers.withId(R.id.chatInput)).perform(ViewActions.click(),ViewActions.typeText("[QA UI] Guest asks Host about room availability."));
+            Espresso.onView(ViewMatchers.withId(R.id.chatSend)).check(ViewAssertions.matches(ViewMatchers.isCompletelyDisplayed()));
             capture("chat-keyboard");
-            androidx.test.espresso.Espresso.closeSoftKeyboard();
+            Espresso.closeSoftKeyboard();
             act(ChatActivity.class,a->a.findViewById(R.id.chatSend).performClick());
             await(ChatActivity.class,a->a.findViewById(R.id.chatSend).isEnabled()&&((TextView)a.findViewById(R.id.chatInput)).getText().length()==0);capture("chat-thread");
             act(ChatActivity.class,a->{((TextView)a.findViewById(R.id.chatInput)).setText("Draft retained");a.recreate();});
@@ -67,13 +83,13 @@ public class ChatUiTest {
             act(ChatActivity.class,a->{((TextView)a.findViewById(R.id.chatInput)).setText("[QA UI] Host reply from app.");a.findViewById(R.id.chatSend).performClick();});
             await(ChatActivity.class,a->a.findViewById(R.id.chatSend).isEnabled()&&((TextView)a.findViewById(R.id.chatInput)).getText().length()==0);
             open(LoginActivity.class,new Intent());login("guest1");open(BookingNoticesActivity.class,new Intent());
-            await(BookingNoticesActivity.class,a->a.findViewById(R.id.noticeList)!=null&&((androidx.recyclerview.widget.RecyclerView)a.findViewById(R.id.noticeList)).getAdapter().getItemCount()>0);
-            if(android.os.Build.VERSION.SDK_INT>=33)device.getUiAutomation().grantRuntimePermission(context.getPackageName(),android.Manifest.permission.POST_NOTIFICATIONS);
+            await(BookingNoticesActivity.class,a->a.findViewById(R.id.noticeList)!=null&&((RecyclerView)a.findViewById(R.id.noticeList)).getAdapter().getItemCount()>0);
+            if(Build.VERSION.SDK_INT>=33)device.getUiAutomation().grantRuntimePermission(context.getPackageName(),Manifest.permission.POST_NOTIFICATIONS);
             BookingNotifier.preferences(context,guest).edit().clear().apply();
             act(BookingNoticesActivity.class,a->a.findViewById(R.id.noticePermission).performClick());
-            SystemClock.sleep(500);assertTrue(context.getSystemService(android.app.NotificationManager.class).getActiveNotifications().length>0);capture("booking-notices");
+            SystemClock.sleep(500);assertTrue(context.getSystemService(NotificationManager.class).getActiveNotifications().length>0);capture("booking-notices");
         }finally{
-            context.getSystemService(android.app.NotificationManager.class).cancelAll();BookingNotifier.preferences(context,guest).edit().putBoolean("enabled",false).apply();
+            context.getSystemService(NotificationManager.class).cancelAll();BookingNotifier.preferences(context,guest).edit().putBoolean("enabled",false).apply();
             FirebaseAuth.getInstance().signOut();open(LoginActivity.class,new Intent());
         }
     }

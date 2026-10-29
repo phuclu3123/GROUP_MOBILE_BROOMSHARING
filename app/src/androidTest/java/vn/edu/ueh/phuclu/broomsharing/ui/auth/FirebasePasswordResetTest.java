@@ -1,15 +1,10 @@
 package vn.edu.ueh.phuclu.broomsharing.ui.auth;
 
-import static androidx.test.espresso.Espresso.*;
-import static androidx.test.espresso.action.ViewActions.*;
-import static androidx.test.espresso.matcher.ViewMatchers.*;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static org.junit.Assert.*;
-import static org.junit.Assume.assumeTrue;
+import android.app.Instrumentation;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.SystemClock;
-import android.widget.TextView;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -21,11 +16,17 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Test;
 import vn.edu.ueh.phuclu.broomsharing.R;
+import static androidx.test.espresso.Espresso.*;
+import static androidx.test.espresso.action.ViewActions.*;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.*;
+import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
 
 /** Opt-in cloud check: one email to the approved recipient; reset only a disposable QA account. */
 public class FirebasePasswordResetTest {
-    private final android.app.Instrumentation device=InstrumentationRegistry.getInstrumentation();
-    private final android.content.Context context=device.getTargetContext();
+    private final Instrumentation device=InstrumentationRegistry.getInstrumentation();
+    private final Context context=device.getTargetContext();
     private Properties fixture() throws Exception {
         Properties p = new Properties();
         try (var in = new FileInputStream(new File(context.getExternalFilesDir(null), "firebase-reset-qa.properties"))) { p.load(in); }

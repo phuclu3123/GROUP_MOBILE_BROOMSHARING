@@ -1,0 +1,94 @@
+{
+  "date": "2026-10-24",
+  "unit": {
+    "tests": 71,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "unitSuites": 9,
+  "lint": {
+    "Warning": 503
+  },
+  "androidCohort": {
+    "passed": 4,
+    "device": "Pixel_4 API 29",
+    "log": "final-device-acceptance.txt"
+  },
+  "finalLifecycleSDK": {
+    "passed": 1,
+    "seconds": 76.235,
+    "log": "lifecycle-final-device.txt",
+    "realAuthCreated": 4,
+    "realAuthDeleted": 4,
+    "cloudFirestoreWrites": 0
+  },
+  "cloudTargetGuard": {
+    "skippedAsDesigned": 1,
+    "log": "cloud-target-safety-guard.txt"
+  },
+  "rulesDirect": {
+    "passed": 13,
+    "log": "rules-boundaries.json"
+  },
+  "cloudCompilerIssues": [],
+  "localRulesSha256": "8e9d0f15d18f144a0197fcb68a84b483763517a5bc22d6a0390afa934e6aee62",
+  "cloudRulesSha256": "cafebcdaafe62bedf41965bb54d5c5e691ed5464464f4594cdee5e6eacf33264",
+  "rulesHashNote": "Local byte hash uses CRLF; cloud source matches local after newline normalization",
+  "deployment": "deployed and read back after explicit user approval",
+  "cloudRelease": {
+    "project": "broom-sharing-firebase-mobile",
+    "database": "broomsharing",
+    "rulesetId": "f1a984f1-da45-4fd0-ab04-522e667aff7c",
+    "updateTimeUTC": "2026-10-24T12:08:31.198687Z",
+    "indexesReady": 7,
+    "originalIndexesPreserved": 3,
+    "indexQueriesPassed": 4,
+    "cloudDocumentWrites": 0,
+    "scope": "Administrative deployment checks; client role transactions subsequently accepted in cloudBusinessAcceptance"
+  },
+  "newCompositeIndexes": 4,
+  "cloudDataMigration": false,
+  "datasetLocal": {
+    "rooms": 24,
+    "activeBookings": 13,
+    "relationsPassed": true
+  },
+  "apk": {
+    "firestoreDatabase": "broomsharing",
+    "emulatorHost": "",
+    "artifacts": {
+      "BroomSharing-business-2026-10-24-debug.apk": {
+        "bytes": 93228256,
+        "sha256": "3c429e0af9ca6c5488166b71cd4d5f6d47a526b6d31aef2baac32a047e28a609"
+      },
+      "BroomSharing-business-2026-10-24-release-unsigned.apk": {
+        "bytes": 75352882,
+        "sha256": "fa8a5f166632ecaa8a57d00233f2ba52103632a6c230df6617abdd9dc7b86263"
+      }
+    }
+  },
+  "knownLimits": [
+    "foreground expiry only",
+    "payment and image integration deferred",
+    "checked-in blocked-Host booking needs manual review",
+    "release unsigned; real-device integrated acceptance pending"
+  ],
+  "cloudAPKAuthUI": {
+    "passed": 3,
+    "log": "final-cloud-auth-ui.txt",
+    "seconds": 44.554
+  },
+  "launchSmoke": {
+    "coldRetest": "ok",
+    "totalMilliseconds": 9122,
+    "previousAttempt": "timeout",
+    "notAPerformanceAcceptance": true
+  },
+  "cloudBusinessAcceptance": {
+    "status": "passed; retained real Auth cohort",
+    "receipt": "cloud-business-2026-10-24.json",
+    "checkpointGroups": 18,
+    "finalBookingUITestPassed": true
+  }
+}

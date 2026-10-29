@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="payment_back_label">Quay lại</string>
+  <string name="payment_title" formatted="false">Thanh toán trả trước 40%</string>
+  <string name="payment_qr_description">Mã QR thanh toán payOS</string>
+  <string name="payment_open_label">Mở trang thanh toán payOS</string>
+  <string name="payment_refresh_label">Kiểm tra giao dịch</string>
+  <string name="payment_retry_label">Tải lại QR</string>
+  <string name="payment_scope_note">Kênh thu tiền demo của nhóm. Chỉ chuyển đúng số tiền và nội dung QR. Trạng thái được xác nhận từ payOS, không phải từ nút quay lại. Chức năng hoàn tiền chưa được triển khai.</string>
+</resources>

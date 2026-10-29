@@ -1,43 +1,36 @@
 package vn.edu.ueh.phuclu.broomsharing.ui.auth;
 
-import static androidx.test.espresso.Espresso.closeSoftKeyboard;
-import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.*;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.*;
-
-import static org.junit.Assert.*;
-import static org.junit.Assume.assumeTrue;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.SystemClock;
 import android.widget.TextView;
-
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 import androidx.test.runner.lifecycle.Stage;
-
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Source;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import vn.edu.ueh.phuclu.broomsharing.MainActivity;
-import vn.edu.ueh.phuclu.broomsharing.ProfileActivity;
-import vn.edu.ueh.phuclu.broomsharing.R;
-import vn.edu.ueh.phuclu.broomsharing.utils.FirebaseConfig;
-
 import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import vn.edu.ueh.phuclu.broomsharing.R;
+import vn.edu.ueh.phuclu.broomsharing.ui.profile.ProfileActivity;
+import vn.edu.ueh.phuclu.broomsharing.ui.room.MainActivity;
+import vn.edu.ueh.phuclu.broomsharing.utils.FirebaseConfig;
+import static androidx.test.espresso.Espresso.closeSoftKeyboard;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.*;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.*;
+import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
 
 /** Opt-in real Firebase test. Only creates and removes its own random test account. */
 @RunWith(AndroidJUnit4.class)

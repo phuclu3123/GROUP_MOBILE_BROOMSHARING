@@ -1,23 +1,19 @@
 package vn.edu.ueh.phuclu.broomsharing.ui.auth;
 
+import androidx.test.core.app.ActivityScenario;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
+import com.google.firebase.auth.FirebaseAuth;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import vn.edu.ueh.phuclu.broomsharing.R;
+import vn.edu.ueh.phuclu.broomsharing.repository.FirebaseAuthRepository;
 import static androidx.test.espresso.Espresso.closeSoftKeyboard;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.*;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.*;
-
-import androidx.test.core.app.ActivityScenario;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.platform.app.InstrumentationRegistry;
-
-import com.google.firebase.auth.FirebaseAuth;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import vn.edu.ueh.phuclu.broomsharing.R;
-import vn.edu.ueh.phuclu.broomsharing.repository.FirebaseAuthRepository;
 
 /** Invalid form input must show an error without submitting to Firebase. */
 @RunWith(AndroidJUnit4.class)

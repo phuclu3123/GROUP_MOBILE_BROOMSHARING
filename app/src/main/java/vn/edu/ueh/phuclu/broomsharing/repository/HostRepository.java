@@ -1,18 +1,31 @@
 package vn.edu.ueh.phuclu.broomsharing.repository;
 
+import android.util.Patterns;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.*;
 
-import vn.edu.ueh.phuclu.broomsharing.model.*;
+import vn.edu.ueh.phuclu.broomsharing.model.AuditLog;
+import vn.edu.ueh.phuclu.broomsharing.model.AvailabilityMonth;
+import vn.edu.ueh.phuclu.broomsharing.model.Booking;
+import vn.edu.ueh.phuclu.broomsharing.model.Building;
+import vn.edu.ueh.phuclu.broomsharing.model.HostApplication;
+import vn.edu.ueh.phuclu.broomsharing.model.HostStats;
+import vn.edu.ueh.phuclu.broomsharing.model.Room;
 import vn.edu.ueh.phuclu.broomsharing.utils.BookingPolicy;
 import vn.edu.ueh.phuclu.broomsharing.utils.FirebaseHelper;
 import vn.edu.ueh.phuclu.broomsharing.utils.HostSchedule;
 import vn.edu.ueh.phuclu.broomsharing.utils.HostValidation;
 
+import java.time.YearMonth;
 import java.util.*;
 import java.util.function.Consumer;
 
 /** Firebase operations only. Activities observe HostViewModel instead of owning callbacks. */
+/*
+   Thao tác dữ liệu của Host: đơn đăng ký, tòa nhà, phòng và trạng thái listing.
+   Kiểm UID/role trong transaction; thay đổi lịch bị chặn khi còn booking giữ chỗ.
+*/
 public class HostRepository {
     public interface Callback<T> extends ResultCallback<T> {}
 
@@ -78,17 +91,64 @@ public class HostRepository {
         return db.collection("buildings").document().getId();
     }
 
+    // Đồng bộ phòng/tòa nhà từ server; dữ liệu cache cũ không được coi là kết quả mới.
+    // Nghe dữ liệu thuộc đúng Host hiện tại; bên gọi phải tháo listener khi không còn dùng màn hình.
+    public <T> ListenerRegistration watchOwned(
+            String collection, Class<T> type, ResultCallback<List<T>> cb) {
+        BookingPolicy.require(
+                Arrays.asList("rooms", "buildings").contains(collection),
+                "Nguồn dữ liệu không hợp lệ.");
+        final String actor = uid();
+        return db.collection(collection)
+                .whereEqualTo("ownerUid", actor)
+                .addSnapshotListener(
+                        MetadataChanges.INCLUDE,
+                        (rows, error) -> {
+                            if (!actor.equals(FirebaseAuth.getInstance().getUid())) return;
+                            if (error != null) {
+                                cb.onError(error);
+                                return;
+                            }
+                            if (rows == null
+                                    || rows.getMetadata().isFromCache()
+                                    || rows.getMetadata().hasPendingWrites()) return;
+                            List<T> result = new ArrayList<>();
+                            for (DocumentSnapshot doc : rows) {
+                                T value = doc.toObject(type);
+                                if (value instanceof Room) ((Room) value).setId(doc.getId());
+                                if (value instanceof Building)
+                                    ((Building) value).setId(doc.getId());
+                                if (value != null) result.add(value);
+                            }
+                            cb.onSuccess(result);
+                        });
+    }
+
+    // Gửi hoặc bổ sung hồ sơ theo trạng thái đơn hiện có; nộp đơn không tự cấp role HOST.
     public void submitHostApplication(HostApplication app, Callback<String> cb) {
         final String actor;
         try {
             actor = uid();
+            if (app.getIdentityImageUrls() == null
+                    || app.getIdentityImageUrls().size() != 2
+                    || new HashSet<>(app.getIdentityImageUrls()).size() != 2
+                    || !"DEMO_PUBLIC".equals(app.getEvidenceMode()))
+                throw new IllegalArgumentException(
+                        "Cần đủ hai ảnh giấy tờ demo: mặt trước và mặt sau.");
+            for (String url : app.getIdentityImageUrls())
+                if (!vn.edu.ueh.phuclu.broomsharing.utils.MediaPolicy.hostIdentityUrl(
+                        url,
+                        vn.edu.ueh.phuclu.broomsharing.BuildConfig.CLOUDINARY_CLOUD_NAME,
+                        actor))
+                    throw new IllegalArgumentException(
+                            "Ảnh không thuộc hồ sơ Cloudinary của tài khoản này.");
         } catch (Exception e) {
             cb.onError(e);
             return;
         }
         if (HostValidation.empty(app.getFullName())
                 || !HostValidation.phone(app.getPhone())
-                || !android.util.Patterns.EMAIL_ADDRESS
+                || !Patterns.EMAIL_ADDRESS
                         .matcher(app.getEmail() == null ? "" : app.getEmail())
                         .matches()
                 || HostValidation.empty(app.getIdentityDoc())) {
@@ -112,6 +172,8 @@ public class HostRepository {
                         }
                         DocumentReference ref = db.collection("hostApplications").document(actor);
                         app.setId(actor);
+                        app.setSchemaVersion(2);
+                        app.setIdentityReviewedAt(null);
                         app.setApplicantUid(actor);
                         app.setStatus("PENDING");
                         app.setRejectionReason("");
@@ -147,6 +209,7 @@ public class HostRepository {
                 });
     }
 
+    // Đọc hồ sơ của người nộp để phục hồi biểu mẫu và kết quả xét duyệt.
     public void checkHostApplicationStatus(String applicantUid, Callback<HostApplication> cb) {
         try {
             if (!uid().equals(applicantUid))
@@ -184,6 +247,7 @@ public class HostRepository {
                 .addOnFailureListener(cb::onError);
     }
 
+    // Kiểm phiên Host và dữ liệu tòa nhà, cố định ownerUid theo tài khoản đang đăng nhập trước khi lưu.
     public void addBuilding(Building building, Callback<String> cb) {
         String error = HostValidation.building(building);
         if (error != null) {
@@ -244,6 +308,8 @@ public class HostRepository {
                 });
     }
 
+    // Đọc phòng cũ và lịch trước khi lưu thay đổi; chặn sửa cấu hình lịch khi còn booking giữ chỗ.
+    // Không dùng giá trị bộ đếm do biểu mẫu gửi lên để bỏ qua khóa lịch.
     public void saveRoom(Room room, Callback<String> cb) {
         if (!Room.STATUS_DRAFT.equals(room.getApprovalStatus())
                 && !Room.STATUS_PENDING_REVIEW.equals(room.getApprovalStatus())) {
@@ -284,8 +350,7 @@ public class HostRepository {
                                     "Chọn tòa nhà đang hoạt động của bạn.");
                             if (old.exists()) {
                                 List<AvailabilityMonth> months = new ArrayList<>();
-                                java.time.YearMonth first =
-                                        java.time.YearMonth.now(HostSchedule.ZONE);
+                                YearMonth first = YearMonth.now(HostSchedule.ZONE);
                                 for (int i = 0; i < 15; i++) {
                                     AvailabilityMonth month =
                                             tx.get(
@@ -306,6 +371,12 @@ public class HostRepository {
                                         System.currentTimeMillis());
                             }
                             room.setOwnerUid(actor);
+                            room.activeBookingCount =
+                                    old.exists()
+                                            ? (old.getLong("activeBookingCount") == null
+                                                    ? -1
+                                                    : old.getLong("activeBookingCount"))
+                                            : 0;
                             room.setBuildingName(building.getString("name"));
                             room.setListingStatus(
                                     "SUSPENDED".equals(old.getString("listingStatus"))
@@ -373,6 +444,7 @@ public class HostRepository {
                 .addOnFailureListener(cb::onError);
     }
 
+    // Tổng hợp phòng và booking thuộc Host; số tiền thuê không đồng nghĩa tiền ngân hàng đã nhận.
     public void getStats(Callback<HostStats> cb) {
         asHost(
                 cb,
@@ -410,6 +482,7 @@ public class HostRepository {
                                 .addOnFailureListener(cb::onError));
     }
 
+    // Đọc lượt thuê thuộc Host để hiển thị; chuyển trạng thái vẫn đi qua BookingRepository.
     public void getBookings(Callback<List<Booking>> cb) {
         asHost(
                 cb,
@@ -442,11 +515,13 @@ public class HostRepository {
                                 .addOnFailureListener(cb::onError));
     }
 
+    // Chuyển yêu cầu sang cơ chế transaction chung để booking, lịch và audit không bị cập nhật rời nhau.
     public void updateBookingStatus(
             String bookingId, String newStatus, String reason, Callback<String> cb) {
         new BookingRepository().transition(bookingId, newStatus, reason, cb);
     }
 
+    // Kiểm chủ sở hữu và trạng thái xét duyệt trước khi mở hoặc tạm dừng nhận yêu cầu mới.
     public void toggleListingStatus(String roomId, String newStatus, Callback<String> cb) {
         final String actor;
         try {
@@ -493,170 +568,5 @@ public class HostRepository {
                         })
                 .addOnSuccessListener(cb::onSuccess)
                 .addOnFailureListener(cb::onError);
-    }
-
-    public void submitPropertyVerification(
-            PropertyVerification verification,
-            android.net.Uri fileUri,
-            android.content.Context context,
-            Callback<String> cb) {
-        asHost(cb, actor -> {
-            try {
-                if (HostValidation.empty(verification.verificationType)) {
-                    cb.onError(new Exception("Vui lòng chọn loại xác minh (Địa điểm hoặc Ảnh)."));
-                    return;
-                }
-                if (HostValidation.empty(verification.roomId) && HostValidation.empty(verification.buildingId)) {
-                    cb.onError(new Exception("Vui lòng chọn Phòng hoặc Tòa nhà cần xác minh."));
-                    return;
-                }
-                verification.ownerUid = actor;
-                verification.status = "PENDING";
-                final String docId = db.collection("propertyVerifications").document().getId();
-                verification.id = docId;
-
-                if (fileUri != null && context != null) {
-                    com.google.firebase.storage.FirebaseStorage storage = com.google.firebase.storage.FirebaseStorage.getInstance();
-                    String fileName = docId + ".jpg";
-                    String storagePath = "verification/" + actor + "/" + fileName;
-                    com.google.firebase.storage.StorageReference ref = storage.getReference().child(storagePath);
-
-                    try (java.io.InputStream in = context.getContentResolver().openInputStream(fileUri)) {
-                        if (in == null) {
-                            cb.onError(new Exception("Không thể đọc tệp đã chọn."));
-                            return;
-                        }
-                        byte[] bytes = readAllBytes(in);
-                        if (bytes.length > 5 * 1024 * 1024) {
-                            cb.onError(new Exception("Tệp đính kèm không vượt quá 5MB."));
-                            return;
-                        }
-                        com.google.firebase.storage.StorageMetadata metadata = new com.google.firebase.storage.StorageMetadata.Builder()
-                                .setContentType("image/jpeg")
-                                .build();
-                        ref.putBytes(bytes, metadata)
-                                .addOnSuccessListener(taskSnapshot -> {
-                                    verification.evidencePaths = Collections.singletonList(storagePath);
-                                    saveVerificationDoc(verification, docId, cb);
-                                })
-                                .addOnFailureListener(cb::onError);
-                    } catch (Exception e) {
-                        cb.onError(e);
-                    }
-                } else {
-                    saveVerificationDoc(verification, docId, cb);
-                }
-            } catch (Exception e) {
-                cb.onError(e);
-            }
-        });
-    }
-
-    private void saveVerificationDoc(PropertyVerification verification, String docId, Callback<String> cb) {
-        Map<String, Object> data = new HashMap<>();
-        data.put("id", docId);
-        data.put("ownerUid", verification.ownerUid);
-        data.put("roomId", verification.roomId != null ? verification.roomId : "");
-        data.put("buildingId", verification.buildingId != null ? verification.buildingId : "");
-        data.put("roomName", verification.roomName != null ? verification.roomName : "");
-        data.put("buildingName", verification.buildingName != null ? verification.buildingName : "");
-        data.put("verificationType", verification.verificationType);
-        data.put("description", verification.description != null ? verification.description : "");
-        data.put("evidencePaths", verification.evidencePaths != null ? verification.evidencePaths : Collections.emptyList());
-        data.put("status", "PENDING");
-        data.put("rejectionReason", "");
-        data.put("reviewedBy", "");
-        data.put("createdAt", FieldValue.serverTimestamp());
-        data.put("updatedAt", FieldValue.serverTimestamp());
-
-        db.collection("propertyVerifications")
-                .document(docId)
-                .set(data)
-                .addOnSuccessListener(aVoid -> cb.onSuccess(docId))
-                .addOnFailureListener(cb::onError);
-    }
-
-    private byte[] readAllBytes(java.io.InputStream in) throws java.io.IOException {
-        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
-        byte[] buffer = new byte[8192];
-        int read;
-        while ((read = in.read(buffer)) != -1) {
-            out.write(buffer, 0, read);
-        }
-        return out.toByteArray();
-    }
-
-    public void getPropertyVerifications(Callback<List<PropertyVerification>> cb) {
-        asHost(cb, actor -> {
-            db.collection("propertyVerifications")
-                    .whereEqualTo("ownerUid", actor)
-                    .get(Source.SERVER)
-                    .addOnSuccessListener(querySnapshot -> {
-                        List<PropertyVerification> list = new ArrayList<>();
-                        for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                            PropertyVerification item = doc.toObject(PropertyVerification.class);
-                            if (item != null) {
-                                item.id = doc.getId();
-                                list.add(item);
-                            }
-                        }
-                        list.sort((a, b) -> {
-                            if (a.createdAt == null && b.createdAt == null) return 0;
-                            if (a.createdAt == null) return 1;
-                            if (b.createdAt == null) return -1;
-                            return b.createdAt.compareTo(a.createdAt);
-                        });
-                        cb.onSuccess(list);
-                    })
-                    .addOnFailureListener(cb::onError);
-        });
-    }
-
-    public void getReportsForHost(Callback<List<ReviewItem>> cb) {
-        asHost(cb, actor -> {
-            db.collection("reports")
-                    .whereEqualTo("ownerUid", actor)
-                    .get(Source.SERVER)
-                    .addOnSuccessListener(querySnapshot -> {
-                        List<ReviewItem> list = new ArrayList<>();
-                        for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                            String id = doc.getId();
-                            String title = doc.getString("reason");
-                            String details = "Mô tả: " + (doc.getString("description") != null ? doc.getString("description") : "")
-                                    + (doc.getString("resolution") != null && !doc.getString("resolution").isEmpty()
-                                        ? "\nKết luận Admin: " + doc.getString("resolution") : "")
-                                    + (doc.getString("hostResponse") != null && !doc.getString("hostResponse").isEmpty()
-                                        ? "\nGiải trình của Host: " + doc.getString("hostResponse") : "");
-                            ReviewItem item = new ReviewItem("REPORT", id, title != null ? title : id, details);
-                            item.status = doc.getString("status");
-                            list.add(item);
-                        }
-                        cb.onSuccess(list);
-                    })
-                    .addOnFailureListener(cb::onError);
-        });
-    }
-
-    public void submitHostReportResponse(String reportId, String responseText, Callback<Void> cb) {
-        asHost(cb, actor -> {
-            if (reportId == null || reportId.trim().isEmpty()) {
-                cb.onError(new Exception("Mã báo cáo không hợp lệ."));
-                return;
-            }
-            if (responseText == null || responseText.trim().isEmpty()) {
-                cb.onError(new Exception("Vui lòng nhập nội dung giải trình."));
-                return;
-            }
-
-            Map<String, Object> update = new HashMap<>();
-            update.put("hostResponse", responseText.trim());
-            update.put("updatedAt", FieldValue.serverTimestamp());
-
-            db.collection("reports")
-                    .document(reportId)
-                    .update(update)
-                    .addOnSuccessListener(aVoid -> cb.onSuccess(null))
-                    .addOnFailureListener(cb::onError);
-        });
     }
 }

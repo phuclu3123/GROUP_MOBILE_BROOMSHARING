@@ -1,0 +1,17 @@
+{
+  "checkedAt": "2026-10-27T14:42:57.794368+00:00",
+  "database": "broomsharing",
+  "roomId": "payos_demo_20261026_room",
+  "room": {
+    "roomName": "[DEMO PAYOS] Phòng thử API 5.000đ/giờ",
+    "activeMode": "HOURLY",
+    "approvalStatus": "APPROVED",
+    "listingStatus": "ACTIVE",
+    "ownerUid": "XEkGLNTVi4O2JXxvWf9MXRpvBcv1",
+    "buildingId": "payos_demo_20261026_building",
+    "rentalPolicy": "Trả trước 40% sau xác nhận. Bản demo chưa có API hoàn tiền."
+  },
+  "ownerStatus": "ACTIVE",
+  "buildingStatus": "ACTIVE",
+  "writes": 0
+}

@@ -1,0 +1,137 @@
+{
+  "success": true,
+  "result": [
+    {
+      "id": "chat-db-c",
+      "mxObjectId": "mxCell#7833",
+      "value": "",
+      "geometry": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "relative": 1,
+        "TRANSLATE_CONTROL_POINTS": true,
+        "alternateBounds": null,
+        "sourcePoint": null,
+        "targetPoint": null,
+        "points": null,
+        "offset": null
+      },
+      "style": "edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;endSize=6;strokeWidth=1.6;fontFamily=Helvetica;fontSize=14;fontColor=#334B62;labelBackgroundColor=#FFFFFF;labelBorderColor=none;spacing=5;strokeColor=#7B8FA1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;",
+      "edge": 1,
+      "parent": {
+        "id": "1"
+      },
+      "source": {
+        "id": "db-chat"
+      },
+      "target": {
+        "id": "c-conversations"
+      },
+      "layer": {
+        "id": "1",
+        "name": "Default Layer"
+      }
+    },
+    {
+      "id": "chat-c-d",
+      "mxObjectId": "mxCell#7834",
+      "value": "",
+      "geometry": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "relative": 1,
+        "TRANSLATE_CONTROL_POINTS": true,
+        "alternateBounds": null,
+        "sourcePoint": null,
+        "targetPoint": null,
+        "points": null,
+        "offset": null
+      },
+      "style": "edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;endSize=6;strokeWidth=1.6;fontFamily=Helvetica;fontSize=14;fontColor=#334B62;labelBackgroundColor=#FFFFFF;labelBorderColor=none;spacing=5;strokeColor=#7B8FA1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;",
+      "edge": 1,
+      "parent": {
+        "id": "1"
+      },
+      "source": {
+        "id": "c-conversations"
+      },
+      "target": {
+        "id": "d-conversation"
+      },
+      "layer": {
+        "id": "1",
+        "name": "Default Layer"
+      }
+    },
+    {
+      "id": "chat-d-sub",
+      "mxObjectId": "mxCell#7835",
+      "value": "",
+      "geometry": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "relative": 1,
+        "TRANSLATE_CONTROL_POINTS": true,
+        "alternateBounds": null,
+        "sourcePoint": null,
+        "targetPoint": null,
+        "points": null,
+        "offset": null
+      },
+      "style": "edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;endSize=6;strokeWidth=1.6;fontFamily=Helvetica;fontSize=14;fontColor=#334B62;labelBackgroundColor=#FFFFFF;labelBorderColor=none;spacing=5;strokeColor=#7B8FA1;exitX=1;exitY=0.41;entryX=0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;",
+      "edge": 1,
+      "parent": {
+        "id": "1"
+      },
+      "source": {
+        "id": "d-conversation"
+      },
+      "target": {
+        "id": "c-messages"
+      },
+      "layer": {
+        "id": "1",
+        "name": "Default Layer"
+      }
+    },
+    {
+      "id": "chat-sub-d",
+      "mxObjectId": "mxCell#7836",
+      "value": "",
+      "geometry": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "relative": 1,
+        "TRANSLATE_CONTROL_POINTS": true,
+        "alternateBounds": null,
+        "sourcePoint": null,
+        "targetPoint": null,
+        "points": null,
+        "offset": null
+      },
+      "style": "edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;endSize=6;strokeWidth=1.6;fontFamily=Helvetica;fontSize=14;fontColor=#334B62;labelBackgroundColor=#FFFFFF;labelBorderColor=none;spacing=5;strokeColor=#7B8FA1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;",
+      "edge": 1,
+      "parent": {
+        "id": "1"
+      },
+      "source": {
+        "id": "c-messages"
+      },
+      "target": {
+        "id": "d-message"
+      },
+      "layer": {
+        "id": "1",
+        "name": "Default Layer"
+      }
+    }
+  ]
+}

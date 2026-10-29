@@ -1,0 +1,222 @@
+[
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/adapter/BookingAdapter.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/adapter/HostBookingAdapter.java",
+    "commentOnly": false
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/adapter/PropertyVerificationAdapter.java",
+    "commentOnly": false
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/adapter/RoomAdapter.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/model/Payment.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/model/Room.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/AdminRepository.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/AuthError.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/FavoritesRepository.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/HostRepository.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/LocationRepository.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/MapRepository.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/MediaRepository.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/NoticeRepository.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/PaymentRepository.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/ProfileRepository.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/PropertyVerificationRepository.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/PublicCalendarRepository.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/ReportRepository.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/ResultCallback.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/ReviewRepository.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/RoomRepository.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/repository/SessionGuardRepository.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/utils/BookingAvailability.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/utils/FixedRentalBadge.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/utils/GoogleMapsLink.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/utils/HostCalendarPolicy.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/utils/HostSchedule.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/utils/PendingCheckout.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/utils/RoomFilter.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/admin/AdminBookingsViewModel.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/admin/AdminEvidenceViewModel.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/admin/AdminViewModel.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/admin/EvidencePreviewActivity.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/auth/AuthMessages.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/auth/BaseAuthActivity.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/booking/BookingNoticeViewModel.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/booking/BookingPaymentActivity.java",
+    "commentOnly": false
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/booking/PaymentReminderService.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/booking/PaymentViewModel.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/booking/PendingPaymentViewModel.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/chat/ChatViewModel.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/common/BookingNotifier.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/common/CheckoutReminder.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/host/HostApplicationViewModel.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/host/HostBookingsActivity.java",
+    "commentOnly": false
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/host/HostViewModel.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/host/PropertyVerificationViewModel.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/map/MapViewModel.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/profile/ProfilePhotoViewModel.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/room/RoomViewModel.java",
+    "commentOnly": true
+  },
+  {
+    "file": "app/src/main/java/vn/edu/ueh/phuclu/broomsharing/ui/room/SpaceDetailActivity.java",
+    "commentOnly": false
+  },
+  {
+    "file": "backend/payments/src/main/java/vn/edu/ueh/broomsharing/payment/PaymentPolicy.java",
+    "commentOnly": true
+  },
+  {
+    "file": "backend/payments/src/main/java/vn/edu/ueh/broomsharing/payment/PaymentService.java",
+    "commentOnly": true
+  },
+  {
+    "file": "backend/payments/src/main/java/vn/edu/ueh/broomsharing/payment/PayOSGateway.java",
+    "commentOnly": true
+  }
+]

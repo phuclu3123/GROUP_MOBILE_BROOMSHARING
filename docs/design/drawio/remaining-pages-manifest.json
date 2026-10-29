@@ -1,0 +1,33 @@
+{
+  "scope": "local source, rules and datasets; no live cloud inventory",
+  "layout": "Restored classic full-field layout; limited labeling and source-note corrections.",
+  "pages": [
+    {
+      "slug": "00-relationships-overview",
+      "title": "BROOMSHARING  /  FIRESTORE STORAGE HIERARCHY",
+      "fieldEntries": 0
+    },
+    {
+      "slug": "broomsharing-accounts",
+      "title": "BROOMSHARING  /  ACCOUNT DATA",
+      "fieldEntries": 36
+    },
+    {
+      "slug": "02-booking",
+      "title": "BROOMSHARING  /  BOOKING STORAGE",
+      "fieldEntries": 109
+    },
+    {
+      "slug": "03-chat",
+      "title": "BROOMSHARING  /  CHAT STORAGE",
+      "fieldEntries": 26
+    },
+    {
+      "slug": "04-administration-reference",
+      "title": "BROOMSHARING  /  ADMIN & REFERENCE STORAGE",
+      "fieldEntries": 54
+    }
+  ],
+  "completeFieldEntries": 225,
+  "completeRelationshipsInCompanion": 46
+}

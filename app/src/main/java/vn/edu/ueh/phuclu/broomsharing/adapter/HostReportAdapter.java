@@ -1,78 +1,75 @@
 package vn.edu.ueh.phuclu.broomsharing.adapter;
 
-import android.view.LayoutInflater;
-import android.view.ViewGroup;
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
+import android.view.*;
+
 import androidx.recyclerview.widget.RecyclerView;
-import java.util.ArrayList;
-import java.util.List;
-import vn.edu.ueh.phuclu.broomsharing.R;
+
 import vn.edu.ueh.phuclu.broomsharing.databinding.ItemHostReportBinding;
-import vn.edu.ueh.phuclu.broomsharing.model.ReviewItem;
+import vn.edu.ueh.phuclu.broomsharing.model.RoomReport;
+import vn.edu.ueh.phuclu.broomsharing.utils.FormatUtils;
 
-public class HostReportAdapter extends RecyclerView.Adapter<HostReportAdapter.ViewHolder> {
-    public interface OnExplainClickListener {
-        void onExplain(ReviewItem item);
+import java.util.*;
+import java.util.function.Consumer;
+
+// Dùng thẻ giải trình của Hoàng với RoomReport, không ghép dữ liệu vào ReviewItem Admin.
+public class HostReportAdapter extends RecyclerView.Adapter<HostReportAdapter.Holder> {
+    private final List<RoomReport> rows = new ArrayList<>();
+    private final Consumer<RoomReport> reply;
+    private boolean busy;
+
+    public HostReportAdapter(Consumer<RoomReport> reply) {
+        this.reply = reply;
     }
 
-    private final List<ReviewItem> list = new ArrayList<>();
-    private final OnExplainClickListener listener;
-
-    public HostReportAdapter(OnExplainClickListener listener) {
-        this.listener = listener;
-    }
-
-    public void setData(List<ReviewItem> data) {
-        list.clear();
-        if (data != null) list.addAll(data);
+    public void setData(List<RoomReport> values) {
+        rows.clear();
+        if (values != null) rows.addAll(values);
         notifyDataSetChanged();
     }
 
-    @NonNull
-    @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ViewHolder(ItemHostReportBinding.inflate(
-                LayoutInflater.from(parent.getContext()), parent, false));
+    public void setBusy(boolean busy) {
+        this.busy = busy;
+        notifyDataSetChanged();
     }
 
-    @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.bind(list.get(position));
+    public Holder onCreateViewHolder(ViewGroup parent, int type) {
+        return new Holder(
+                ItemHostReportBinding.inflate(
+                        LayoutInflater.from(parent.getContext()), parent, false));
     }
 
-    @Override
+    public void onBindViewHolder(Holder holder, int position) {
+        holder.bind(rows.get(position));
+    }
+
     public int getItemCount() {
-        return list.size();
+        return rows.size();
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder {
-        private final ItemHostReportBinding b;
+    class Holder extends RecyclerView.ViewHolder {
+        final ItemHostReportBinding b;
 
-        ViewHolder(ItemHostReportBinding b) {
+        Holder(ItemHostReportBinding b) {
             super(b.getRoot());
             this.b = b;
         }
 
-        void bind(ReviewItem item) {
-            b.tvReportTitle.setText(item.title != null ? item.title : "Báo cáo #" + item.id);
-            b.tvReportDetails.setText(item.details != null ? item.details : "");
-
-            String status = item.status != null ? item.status.toUpperCase() : "OPEN";
-            if ("RESOLVED".equals(status)) {
-                b.tvReportStatus.setText("ĐÃ GIẢI QUYẾT");
-                b.tvReportStatus.setBackgroundColor(ContextCompat.getColor(itemView.getContext(), R.color.teal));
-            } else if ("DISMISSED".equals(status)) {
-                b.tvReportStatus.setText("ĐÃ BÁC BỎ");
-                b.tvReportStatus.setBackgroundColor(ContextCompat.getColor(itemView.getContext(), R.color.text_secondary));
-            } else {
-                b.tvReportStatus.setText("CHỜ XỬ LÝ");
-                b.tvReportStatus.setBackgroundColor(ContextCompat.getColor(itemView.getContext(), R.color.warning));
-            }
-
-            b.btnExplain.setOnClickListener(v -> {
-                if (listener != null) listener.onExplain(item);
-            });
+        void bind(RoomReport row) {
+            b.tvReportTitle.setText(row.reason);
+            b.tvReportStatus.setText(FormatUtils.reportStatus(row.status));
+            b.tvReportDetails.setText(
+                    row.description
+                            + "\nPhòng: "
+                            + row.roomId
+                            + (row.hostResponse == null || row.hostResponse.isEmpty()
+                                    ? ""
+                                    : "\nPhản hồi: " + row.hostResponse)
+                            + (row.resolution == null || row.resolution.isEmpty()
+                                    ? ""
+                                    : "\nKết luận: " + row.resolution));
+            b.btnExplain.setVisibility("OPEN".equals(row.status) ? View.VISIBLE : View.GONE);
+            b.btnExplain.setEnabled(!busy);
+            b.btnExplain.setOnClickListener(v -> reply.accept(row));
         }
     }
 }

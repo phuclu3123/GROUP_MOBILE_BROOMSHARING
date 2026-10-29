@@ -1,24 +1,45 @@
 package vn.edu.ueh.phuclu.broomsharing.repository;
 
+import android.util.Log;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.*;
 
-import vn.edu.ueh.phuclu.broomsharing.model.*;
+import vn.edu.ueh.phuclu.broomsharing.model.Building;
+import vn.edu.ueh.phuclu.broomsharing.model.PublicHost;
+import vn.edu.ueh.phuclu.broomsharing.model.RentalPlace;
+import vn.edu.ueh.phuclu.broomsharing.model.Room;
+import vn.edu.ueh.phuclu.broomsharing.model.RoomListing;
 import vn.edu.ueh.phuclu.broomsharing.utils.FirebaseHelper;
 
 import java.util.*;
 
 /** Guest reads share Host's schema/database, with bounded one-shot queries (no listeners). */
+/*
+   Đọc phòng công khai và ghép Building/PublicHost cho trang chi tiết.
+   Kết quả phân trang chỉ nhận dữ liệu server; điều kiện đặt phòng được kiểm lại khi ghi.
+*/
 public class RoomRepository {
     public static final int PAGE_SIZE = 20;
     private final FirebaseFirestore db = FirebaseHelper.getFirestore();
+
     public void referencePlaces(ResultCallback<List<RentalPlace>> cb) {
-        db.collection("rentalPlaces").limit(100).get(Source.SERVER).addOnSuccessListener(rows->{
-            List<RentalPlace> values=new ArrayList<>();
-            for(DocumentSnapshot doc:rows){RentalPlace p=doc.toObject(RentalPlace.class);if(p!=null&&p.location!=null){p.id=doc.getId();values.add(p);}}
-            cb.onSuccess(values);
-        }).addOnFailureListener(cb::onError);
+        db.collection("rentalPlaces")
+                .limit(100)
+                .get(Source.SERVER)
+                .addOnSuccessListener(
+                        rows -> {
+                            List<RentalPlace> values = new ArrayList<>();
+                            for (DocumentSnapshot doc : rows) {
+                                RentalPlace p = doc.toObject(RentalPlace.class);
+                                if (p != null && p.location != null) {
+                                    p.id = doc.getId();
+                                    values.add(p);
+                                }
+                            }
+                            cb.onSuccess(values);
+                        })
+                .addOnFailureListener(cb::onError);
     }
 
     public static final class Page {
@@ -37,6 +58,7 @@ public class RoomRepository {
         return id != null && !id.trim().isEmpty() && !id.contains("/");
     }
 
+    // Đọc một trang phòng đã duyệt và đang hoạt động theo document ID, giữ cursor của nguồn trước khi ghép dữ liệu.
     public void page(String after, ResultCallback<Page> cb) {
         Query query =
                 db.collection("rooms")
@@ -86,6 +108,7 @@ public class RoomRepository {
                 });
     }
 
+    // Đọc lại một phòng từ server và ghép thông tin chủ/tòa nhà; không dùng thẻ danh sách cũ làm căn cứ đặt chỗ.
     public void detail(String id, ResultCallback<RoomListing> cb) {
         if (!idValid(id)) {
             cb.onError(new Exception("Mã phòng không hợp lệ."));
@@ -117,32 +140,38 @@ public class RoomRepository {
                 .addOnFailureListener(cb::onError);
     }
 
+    // Ghép Building và PublicHost, loại mục không còn đáp ứng điều kiện công bố trước khi trả cho giao diện.
     private void enrich(List<DocumentSnapshot> documents, ResultCallback<List<RoomListing>> cb) {
         Map<String, Task<DocumentSnapshot>> owners = new HashMap<>();
         Map<String, Task<DocumentSnapshot>> buildings = new HashMap<>();
         List<Room> rooms = new ArrayList<>();
         try {
             for (DocumentSnapshot doc : documents) {
-                if (!doc.exists()
-                        || !"APPROVED".equals(doc.getString("approvalStatus"))
-                        || !"ACTIVE".equals(doc.getString("listingStatus"))) continue;
-                Room room = doc.toObject(Room.class);
-                if (room == null || !idValid(room.getOwnerUid()) || !idValid(room.getBuildingId()))
-                    continue;
-                room.setId(doc.getId());
-                rooms.add(room);
-                if (!owners.containsKey(room.getOwnerUid()))
-                    owners.put(
-                            room.getOwnerUid(),
-                            db.collection("publicHosts")
-                                    .document(room.getOwnerUid())
-                                    .get(Source.SERVER));
-                if (!buildings.containsKey(room.getBuildingId()))
-                    buildings.put(
-                            room.getBuildingId(),
-                            db.collection("buildings")
-                                    .document(room.getBuildingId())
-                                    .get(Source.SERVER));
+                try {
+                    if (!doc.exists()
+                            || !"APPROVED".equals(doc.getString("approvalStatus"))
+                            || !"ACTIVE".equals(doc.getString("listingStatus"))) continue;
+                    Room room = doc.toObject(Room.class);
+                    if (room == null || !idValid(room.getOwnerUid()) || !idValid(room.getBuildingId()))
+                        continue;
+                    room.setId(doc.getId());
+                    rooms.add(room);
+                    if (!owners.containsKey(room.getOwnerUid()))
+                        owners.put(
+                                room.getOwnerUid(),
+                                db.collection("publicHosts")
+                                        .document(room.getOwnerUid())
+                                        .get(Source.SERVER));
+                    if (!buildings.containsKey(room.getBuildingId()))
+                        buildings.put(
+                                room.getBuildingId(),
+                                db.collection("buildings")
+                                        .document(room.getBuildingId())
+                                        .get(Source.SERVER));
+                } catch (RuntimeException invalid) {
+                    // Bỏ riêng bản ghi hỏng, không làm mất toàn bộ trang phòng hợp lệ.
+                    Log.w("RoomRepository", "Invalid room schema");
+                }
             }
         } catch (Exception e) {
             cb.onError(e);
@@ -156,21 +185,27 @@ public class RoomRepository {
                             try {
                                 List<RoomListing> result = new ArrayList<>();
                                 for (Room room : rooms) {
-                                    PublicHost owner =
-                                            owners.get(room.getOwnerUid())
-                                                    .getResult()
-                                                    .toObject(PublicHost.class);
-                                    DocumentSnapshot place =
-                                            buildings.get(room.getBuildingId()).getResult();
-                                    if (owner == null
-                                            || !"ACTIVE".equals(owner.status)
-                                            || !place.exists()
-                                            || !"ACTIVE".equals(place.getString("status"))
-                                            || !room.getOwnerUid()
-                                                    .equals(place.getString("ownerUid"))) continue;
-                                    Building building = place.toObject(Building.class);
-                                    building.setId(place.getId());
-                                    result.add(new RoomListing(room, building, owner.name));
+                                    try {
+                                        PublicHost owner =
+                                                owners.get(room.getOwnerUid())
+                                                        .getResult()
+                                                        .toObject(PublicHost.class);
+                                        DocumentSnapshot place =
+                                                buildings.get(room.getBuildingId()).getResult();
+                                        if (owner == null
+                                                || !"ACTIVE".equals(owner.status)
+                                                || !place.exists()
+                                                || !"ACTIVE".equals(place.getString("status"))
+                                                || !room.getOwnerUid()
+                                                        .equals(place.getString("ownerUid"))) continue;
+                                        Building building = place.toObject(Building.class);
+                                        building.setId(place.getId());
+                                        result.add(
+                                                new RoomListing(
+                                                        room, building, owner.name, owner.photoUrl));
+                                    } catch (RuntimeException invalid) {
+                                        Log.w("RoomRepository", "Invalid listing projection");
+                                    }
                                 }
                                 cb.onSuccess(result);
                             } catch (Exception e) {

@@ -1,0 +1,27 @@
+{
+  "verifiedAt": "2026-10-26T17:20:27.573317+07:00",
+  "project": "broom-sharing-firebase-mobile",
+  "database": "broomsharing",
+  "before": {
+    "name": "projects/broom-sharing-firebase-mobile/releases/cloud.firestore/broomsharing",
+    "rulesetName": "projects/broom-sharing-firebase-mobile/rulesets/3c6fc665-01e7-4f1d-89ef-4faf9a934074",
+    "createTime": "2026-10-14T10:13:11.152351Z",
+    "updateTime": "2026-10-26T04:46:48.527039Z"
+  },
+  "after": {
+    "name": "projects/broom-sharing-firebase-mobile/releases/cloud.firestore/broomsharing",
+    "rulesetName": "projects/broom-sharing-firebase-mobile/rulesets/3c6d21de-326e-4caf-a5e5-52239e504ef4",
+    "createTime": "2026-10-14T10:13:11.152351Z",
+    "updateTime": "2026-10-26T10:20:26.993471Z"
+  },
+  "sourceSha256": "b430e2378032d48f953dea713c72f8743f1291901d30fd2640785bb772764ad8",
+  "compile": {},
+  "rulesCases": 34,
+  "verificationRegressionCases": 14,
+  "bookingRegressionCases": 44,
+  "readPermissionsUnchanged": true,
+  "identityCloudinaryRefsAllowed": false,
+  "indexesUnchanged": true,
+  "indexesReady": 7,
+  "cloudDocumentWrites": 0
+}

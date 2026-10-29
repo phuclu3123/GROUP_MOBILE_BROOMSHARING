@@ -3,6 +3,7 @@
     <com.google.android.material.appbar.MaterialToolbar android:id="@+id/chatToolbar" android:layout_width="match_parent" android:layout_height="?attr/actionBarSize" app:title="@string/chat_title" app:titleTextColor="@color/navy" />
     <TextView android:id="@+id/chatStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp" android:textColor="@color/text_secondary" android:accessibilityLiveRegion="polite" />
     <com.google.android.material.button.MaterialButton android:id="@+id/chatRetry" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:text="@string/workspace_retry" android:visibility="gone" />
+    <com.google.android.material.button.MaterialButton android:id="@+id/openUpdates" style="@style/Widget.MaterialComponents.Button.OutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginHorizontal="16dp" android:text="Xem cập nhật booking và báo cáo" />
     <androidx.recyclerview.widget.RecyclerView android:id="@+id/conversationList" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:paddingHorizontal="16dp" android:clipToPadding="false" />
     <include layout="@layout/view_guest_navigation" />
     <include layout="@layout/view_management_navigation" />

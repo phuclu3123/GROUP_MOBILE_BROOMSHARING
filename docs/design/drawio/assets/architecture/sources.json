@@ -1,0 +1,67 @@
+{
+  "project": "Microsoft Fluent UI System Icons",
+  "license": "MIT",
+  "repository": "https://github.com/microsoft/fluentui-system-icons",
+  "icons": [
+    {
+      "name": "Phone",
+      "file": "phone.svg",
+      "url": "https://raw.githubusercontent.com/microsoft/fluentui-system-icons/main/assets/Phone/SVG/ic_fluent_phone_48_color.svg",
+      "sha256": "8543eabb05352948fbf7ed771012335ca2b4adf1f236c462d685b4e8988b9f6e"
+    },
+    {
+      "name": "Code Block",
+      "file": "code-block.svg",
+      "url": "https://raw.githubusercontent.com/microsoft/fluentui-system-icons/main/assets/Code%20Block/SVG/ic_fluent_code_block_48_color.svg",
+      "sha256": "903d6f2444cba397fd06406d95f4711d9ca47acd3a0c1e504b93e8c2f0474d0c"
+    },
+    {
+      "name": "Toolbox",
+      "file": "toolbox.svg",
+      "url": "https://raw.githubusercontent.com/microsoft/fluentui-system-icons/main/assets/Toolbox/SVG/ic_fluent_toolbox_32_color.svg",
+      "sha256": "def1aa2882dec05cba1501fb7bbb12572f238d5fdc9624eade98b86c517146b0"
+    },
+    {
+      "name": "People",
+      "file": "people.svg",
+      "url": "https://raw.githubusercontent.com/microsoft/fluentui-system-icons/main/assets/People/SVG/ic_fluent_people_48_color.svg",
+      "sha256": "11145c908413f610935f552a3e6bfc1b7758d3f04407b76ff5d2dfbefc71d3fa"
+    },
+    {
+      "name": "Person Key",
+      "file": "person-key.svg",
+      "url": "https://raw.githubusercontent.com/microsoft/fluentui-system-icons/main/assets/Person%20Key/SVG/ic_fluent_person_key_32_color.svg",
+      "sha256": "0dc84e8015505a09f563bb8356b43818913cf58365933e229cd86c1b0f208b03"
+    },
+    {
+      "name": "Database",
+      "file": "database.svg",
+      "url": "https://raw.githubusercontent.com/microsoft/fluentui-system-icons/main/assets/Database/SVG/ic_fluent_database_48_color.svg",
+      "sha256": "9d0d93c81d819f13a9541286d35bf0fc7c7993721aca91e4ff5945a1d98f5b7c"
+    },
+    {
+      "name": "Image",
+      "file": "image.svg",
+      "url": "https://raw.githubusercontent.com/microsoft/fluentui-system-icons/main/assets/Image/SVG/ic_fluent_image_48_color.svg",
+      "sha256": "552b87bb882e3a66aa28fdf19ea28631dcdd34253ab01ac56191ee75941c0b96"
+    },
+    {
+      "name": "Receipt",
+      "file": "receipt.svg",
+      "url": "https://raw.githubusercontent.com/microsoft/fluentui-system-icons/main/assets/Receipt/SVG/ic_fluent_receipt_32_color.svg",
+      "sha256": "9695bd859f62d1d0cd62f7d1d587b8e6fc38c7a144262b5a21a6e5bd75831536"
+    },
+    {
+      "name": "Globe",
+      "file": "globe.svg",
+      "url": "https://raw.githubusercontent.com/microsoft/fluentui-system-icons/main/assets/Globe/SVG/ic_fluent_globe_24_color.svg",
+      "sha256": "b726489c1c3e0438b0d9f2d85495643c1e1d8dbaf44613290baf3efce115fd34"
+    },
+    {
+      "name": "Document Text",
+      "file": "document-text.svg",
+      "url": "https://raw.githubusercontent.com/microsoft/fluentui-system-icons/main/assets/Document%20Text/SVG/ic_fluent_document_text_48_color.svg",
+      "sha256": "a0f5e47363db1434001dbdebba42c73617d2e4089759ed0db55a7bf839f79446"
+    }
+  ]
+}

@@ -1,0 +1,182 @@
+{
+  "sourceDrawioUnchanged": true,
+  "mainTables": 4,
+  "documentPatterns": 16,
+  "representativeFields": 67,
+  "mainRelationshipRows": 8,
+  "appendixAdded": false,
+  "landscapeFooters": [
+    {
+      "page": 4,
+      "number": "13",
+      "centerX": 420.94,
+      "centerY": 567.84
+    },
+    {
+      "page": 5,
+      "number": "14",
+      "centerX": 420.94,
+      "centerY": 567.93
+    },
+    {
+      "page": 6,
+      "number": "15",
+      "centerX": 420.94,
+      "centerY": 567.84
+    },
+    {
+      "page": 7,
+      "number": "16",
+      "centerX": 420.94,
+      "centerY": 567.84
+    }
+  ],
+  "exactExcerptsRetained": 9,
+  "operationRows": 8,
+  "printedCodeExcerpts": [
+    "room-query.java",
+    "booking-query-listener.java",
+    "booking-prepare.java",
+    "booking-commit.java",
+    "rules-held-month.txt"
+  ],
+  "figureChecks": [
+    {
+      "file": "firestore-accounts.pdf",
+      "pages": 1,
+      "rasterImages": 0
+    },
+    {
+      "file": "firestore-administration.pdf",
+      "pages": 1,
+      "rasterImages": 0
+    },
+    {
+      "file": "firestore-booking.pdf",
+      "pages": 1,
+      "rasterImages": 0
+    },
+    {
+      "file": "firestore-chat.pdf",
+      "pages": 1,
+      "rasterImages": 0
+    },
+    {
+      "file": "firestore-overview.pdf",
+      "pages": 1,
+      "rasterImages": 0
+    }
+  ],
+  "previewPages": 13,
+  "layoutWarnings": [],
+  "pageChecks": [
+    {
+      "page": 1,
+      "rotation": 0,
+      "characters": 2095,
+      "firstText": "4. THIẾT KẾCƠ SỞDỮLIỆU BroomSharing sửdụng database broomsharing của Cloud Firestore đểlưu",
+      "lastText": "erUid, status (string); startAt, endAt (timestamp); priceSnapshot (map); ... Còn tiếp ởtrang sau 10 "
+    },
+    {
+      "page": 2,
+      "rotation": 0,
+      "characters": 1491,
+      "firstText": "Đường dẫn Vai trò Thuộc tính tiêu biểu và kiểu availability Months/{roomId_ yyyyMM} Khóa g",
+      "lastText": "ười thuê và giá được lưu tại thời điểm đặt, duy trì ngữcảnh của yêu cầu khi dữliệu gốc thay đổi. 11 "
+    },
+    {
+      "page": 3,
+      "rotation": 0,
+      "characters": 1503,
+      "firstText": "4.2 Quan hệdữliệu và cấu trúc lưu trữ Hình 4.2.1 thểhiện cây lưu trữcủa hệthống. Hai subco",
+      "lastText": "Id} Hình 4.2.1: Cây lưu trữFirestore BroomSharing. Thẻmàu xám: cấu trúc chỉkhai báo trong Rules. 12 "
+    },
+    {
+      "page": 4,
+      "rotation": 90,
+      "characters": 955,
+      "firstText": "DATABASE broomsharing COLLECTION users COLLECTION publicHosts COLLECTION usernames COLLECT",
+      "lastText": "readAt timestamp Hình 4.2.2: Cấu trúc nhóm tài khoản và các subcollection thuộc hồsơ người dùng. 13 "
+    },
+    {
+      "page": 5,
+      "rotation": 90,
+      "characters": 2589,
+      "firstText": "DATABASE broomsharing COLLECTION buildings {buildingId} DOCUMENT buildings/{buildingId} id",
+      "lastText": ".3: Cấu trúc tòa nhà, phòng, booking và lịch tháng. Bốn collection nằm ngang cấp trong database. 14 "
+    },
+    {
+      "page": 6,
+      "rotation": 90,
+      "characters": 731,
+      "firstText": "DATABASE broomsharing COLLECTION conversations {guestUid:hostUid} DOCUMENT conversations/{",
+      "lastText": "createdAt timestamp Hình 4.2.4: Cấu trúc hội thoại và subcollection tin nhắn của từng hội thoại. 15 "
+    },
+    {
+      "page": 7,
+      "rotation": 90,
+      "characters": 1623,
+      "firstText": "DATABASE broomsharing COLLECTION propertyVerifications {verificationId} DOCUMENT propertyV",
+      "lastText": " trịvà dữliệu tham khảo. [D]: trường từdữliệu mẫu; Rules-only: cấu trúc chỉkhai báo trong Rules. 16 "
+    },
+    {
+      "page": 8,
+      "rotation": 0,
+      "characters": 2041,
+      "firstText": "Nhóm tài khoản trong Hình 4.2.2 dùng chung UID đểliên kết hồsơ, bản chiếu Host và đơn đăng",
+      "lastText": "t hoặc ba tháng. Transaction duy trì sựnhất quán giữa booking, lịch tháng và revision của phòng. 17 "
+    },
+    {
+      "page": 9,
+      "rotation": 0,
+      "characters": 1980,
+      "firstText": "4.3 Một sốthao tác dữliệu tiêu biểu 4.3.1 Các nhóm thao tác dữliệu Các Repository thực hiệ",
+      "lastText": "ghi đang chờxác nhận, thông qua metadata isFromCache() và hasPendingWrites() (Firebase, n.d.-d). 18 "
+    },
+    {
+      "page": 10,
+      "rotation": 0,
+      "characters": 2147,
+      "firstText": "4.3.2 Các truy vấn tiêu biểu Khi tải danh sách không gian, RoomRepository.page() chỉchọn p",
+      "lastText": "Writes()) ,→ 12 deliver(rows, callback); 13 }); Nguồn: BookingRepository.java, dòng 410 đến 422. 19 "
+    },
+    {
+      "page": 11,
+      "rotation": 0,
+      "characters": 2166,
+      "firstText": "BookingViewModel.watchMine() đặt trạng thái tải, gọi Repository và cập nhật bookings bằng ",
+      "lastText": "các đối tượng lịch được cập nhật trong bộnhớrồi ghi cùng booking, revision của phòng và nhật ký. 20 "
+    },
+    {
+      "page": 12,
+      "rotation": 0,
+      "characters": 1253,
+      "firstText": "1 for (int i = 0; i < months.size(); i++) 2 tx.set( 3 db.collection(\"availabilityMonths\") ",
+      "lastText": "y, từchối hoặc hoàn tất, hệthống giải phóng khóa lịch tương ứng và giữlại booking đểlưu lịch sử. 21 "
+    },
+    {
+      "page": 13,
+      "rotation": 0,
+      "characters": 2514,
+      "firstText": "4.4 Phân quyền và bảo vệdữliệu Firestore Rules kết hợp UID, vai trò, trạng thái ACTIVE và ",
+      "lastText": "c áp dụng riêng: Admin được duyệt hồsơ nhưng chưa được Storage Rules cấp quyền mởtệp bằng chứng. 22 "
+    }
+  ],
+  "scope": "Static source and report checks; no live cloud inventory or runtime acceptance test.",
+  "fullReportPages": 43,
+  "chapter4Pages": 13,
+  "deliveredPdf": "output\\pdf\\BroomSharing-Bao-cao.pdf",
+  "sha256": "7782312d25fb608c9fda43b01b964a434bfc012b3c5e04f659786b1ac94ca289",
+  "lineNumbering": "Each of the five Chapter 4 excerpts starts at 1; original source ranges remain in captions.",
+  "manualVisualReview": {
+    "pagesRendered": 43,
+    "changedPagesReviewed": [
+      24,
+      25,
+      26,
+      27
+    ],
+    "remainingPagesMatchPreviouslyReviewedRender": true
+  },
+  "contentAuditScope": "Chapter 4 code line numbering and report integration."
+}

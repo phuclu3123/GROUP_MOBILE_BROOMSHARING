@@ -5,9 +5,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.*;
 import android.os.*;
-
 import androidx.core.content.ContextCompat;
-
 import vn.edu.ueh.phuclu.broomsharing.model.MapPoint;
 import vn.edu.ueh.phuclu.broomsharing.utils.MapArea;
 
@@ -24,6 +22,7 @@ public class LocationRepository {
         manager = (LocationManager) this.context.getSystemService(Context.LOCATION_SERVICE);
     }
 
+    // Xin vị trí một lần khi màn hình cần dùng, trả lỗi hoặc kết quả qua callback thay vì giữ Activity.
     public void current(ResultCallback<MapPoint> callback) {
         cancel();
         boolean fine =
@@ -104,6 +103,7 @@ public class LocationRepository {
                 "Vị trí thiết bị (±" + Math.round(value.getAccuracy()) + " m)");
     }
 
+    // Hủy yêu cầu vị trí đang chờ khi màn hình dừng để tránh callback và tiêu thụ pin ngoài phiên sử dụng.
     public void cancel() {
         if (timeout != null) {
             handler.removeCallbacks(timeout);

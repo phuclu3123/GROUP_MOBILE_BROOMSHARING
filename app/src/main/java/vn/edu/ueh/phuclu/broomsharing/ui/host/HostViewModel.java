@@ -5,11 +5,25 @@ import android.net.Uri;
 
 import androidx.lifecycle.*;
 
-import vn.edu.ueh.phuclu.broomsharing.model.*;
-import vn.edu.ueh.phuclu.broomsharing.repository.*;
+import com.google.firebase.firestore.ListenerRegistration;
+
+import vn.edu.ueh.phuclu.broomsharing.model.Booking;
+import vn.edu.ueh.phuclu.broomsharing.model.Building;
+import vn.edu.ueh.phuclu.broomsharing.model.HostApplication;
+import vn.edu.ueh.phuclu.broomsharing.model.HostStats;
+import vn.edu.ueh.phuclu.broomsharing.model.Room;
+import vn.edu.ueh.phuclu.broomsharing.model.UiState;
+import vn.edu.ueh.phuclu.broomsharing.repository.BookingRepository;
+import vn.edu.ueh.phuclu.broomsharing.repository.HostRepository;
+import vn.edu.ueh.phuclu.broomsharing.repository.MediaRepository;
+import vn.edu.ueh.phuclu.broomsharing.repository.ResultCallback;
 
 import java.util.*;
 
+/*
+   Nối các màn hình Host với Repository, giữ biểu mẫu và trạng thái thao tác.
+   Listener dashboard/booking chỉ sống khi màn hình hoạt động và được tháo khi dừng.
+*/
 public class HostViewModel extends AndroidViewModel {
     private final HostRepository repository = new HostRepository();
     private final MediaRepository media;
@@ -99,6 +113,111 @@ public class HostViewModel extends AndroidViewModel {
         }
     }
 
+    // Form hồ sơ/lịch chỉ cần danh sách phòng, không phải tải toàn bộ KPI dashboard.
+    public void loadRooms() {
+        try {
+            repository.getRoomsByOwner(repository.currentUserId(), into(rooms));
+        } catch (Exception e) {
+            rooms.setValue(UiState.error(e));
+        }
+    }
+
+    private final List<ListenerRegistration> dashboardListeners = new ArrayList<>();
+    private int dashboardGeneration;
+    private List<Room> dashboardRooms;
+    private List<Booking> dashboardBookings;
+
+    // Hồ sơ có thể sẵn sàng trước hoặc sau onResume; chỉ gắn một bộ listener cho mỗi lần mở.
+    public void resumeDashboard() {
+        if (dashboardListeners.isEmpty()) watchDashboard();
+    }
+
+    // Ba luồng độc lập giữ dashboard đúng khi thiết bị khác đặt phòng hoặc Admin xét duyệt.
+    // Theo dõi phòng và booking thuộc Host; thống kê và danh sách lấy từ các snapshot cùng phiên.
+    public void watchDashboard() {
+        stopDashboard();
+        final int run = dashboardGeneration;
+        rooms.setValue(UiState.loading());
+        buildings.setValue(UiState.loading());
+        stats.setValue(UiState.loading());
+        dashboardRooms = null;
+        dashboardBookings = null;
+        try {
+            dashboardListeners.add(
+                    repository.watchOwned(
+                            "rooms",
+                            Room.class,
+                            new ResultCallback<List<Room>>() {
+                                public void onSuccess(List<Room> value) {
+                                    if (run != dashboardGeneration) return;
+                                    dashboardRooms = value;
+                                    rooms.setValue(UiState.success(value));
+                                    dashboardStats();
+                                }
+
+                                public void onError(Exception e) {
+                                    if (run == dashboardGeneration)
+                                        rooms.setValue(UiState.error(e));
+                                }
+                            }));
+            dashboardListeners.add(
+                    repository.watchOwned(
+                            "buildings",
+                            Building.class,
+                            new ResultCallback<List<Building>>() {
+                                public void onSuccess(List<Building> value) {
+                                    if (run == dashboardGeneration)
+                                        buildings.setValue(UiState.success(value));
+                                }
+
+                                public void onError(Exception e) {
+                                    if (run == dashboardGeneration)
+                                        buildings.setValue(UiState.error(e));
+                                }
+                            }));
+            dashboardListeners.add(
+                    new BookingRepository()
+                            .watchOwner(
+                                    repository.currentUserId(),
+                                    new ResultCallback<List<Booking>>() {
+                                        public void onSuccess(List<Booking> value) {
+                                            if (run != dashboardGeneration) return;
+                                            dashboardBookings = value;
+                                            dashboardStats();
+                                        }
+
+                                        public void onError(Exception e) {
+                                            if (run == dashboardGeneration)
+                                                stats.setValue(UiState.error(e));
+                                        }
+                                    }));
+        } catch (Exception e) {
+            stats.setValue(UiState.error(e));
+        }
+    }
+
+    // Tổng hợp trạng thái từ dữ liệu dashboard đã nhận; không cộng doanh thu dự kiến thành tiền đã thu.
+    private void dashboardStats() {
+        if (dashboardRooms == null || dashboardBookings == null) return;
+        HostStats value = new HostStats();
+        value.totalRooms = dashboardRooms.size();
+        for (Room room : dashboardRooms) {
+            if ("PENDING_REVIEW".equals(room.getApprovalStatus())) value.pendingRooms++;
+            if ("APPROVED".equals(room.getApprovalStatus())
+                    && "ACTIVE".equals(room.getListingStatus())) value.activeRooms++;
+        }
+        for (Booking booking : dashboardBookings)
+            if ("PENDING".equals(booking.status)) value.bookingRequests++;
+        stats.setValue(UiState.success(value));
+    }
+
+    // Tháo listener dashboard, giữ việc giải phóng vòng đời tách khỏi thay đổi tài sản.
+    public void stopDashboard() {
+        dashboardGeneration++;
+        for (ListenerRegistration listener : dashboardListeners) listener.remove();
+        dashboardListeners.clear();
+    }
+
     public void loadApplication() {
         try {
             repository.checkHostApplicationStatus(repository.currentUserId(), into(application));
@@ -183,6 +302,7 @@ public class HostViewModel extends AndroidViewModel {
                 });
     }
 
+    // Lưu form qua HostRepository sau upload; lỗi ghi dữ liệu phải giữ trạng thái để người dùng thử lại.
     private void persistRoom(
             Room value,
             List<String> old,
@@ -210,22 +330,43 @@ public class HostViewModel extends AndroidViewModel {
                 });
     }
 
+    // Nghe booking cho màn Host và cập nhật dữ liệu lọc, thay vì để Adapter tự truy cập Firestore.
     public void loadBookings() {
         try {
             stopBookings();
             bookings.setValue(UiState.loading());
-            bookingListener = new vn.edu.ueh.phuclu.broomsharing.repository.BookingRepository().watchOwner(repository.currentUserId(),
-                new vn.edu.ueh.phuclu.broomsharing.repository.ResultCallback<List<Booking>>() {
-                    public void onSuccess(List<Booking> values) { bookings.setValue(UiState.success(values)); }
-                    public void onError(Exception e) { bookings.setValue(UiState.error(e)); }
-                });
+            bookingListener =
+                    new BookingRepository()
+                            .watchOwner(
+                                    repository.currentUserId(),
+                                    new ResultCallback<List<Booking>>() {
+                                        public void onSuccess(List<Booking> values) {
+                                            bookings.setValue(UiState.success(values));
+                                        }
+
+                                        public void onError(Exception e) {
+                                            bookings.setValue(UiState.error(e));
+                                        }
+                                    });
         } catch (Exception e) {
             bookings.setValue(UiState.error(e));
         }
     }
-    private com.google.firebase.firestore.ListenerRegistration bookingListener;
-    public void stopBookings() { if(bookingListener!=null)bookingListener.remove();bookingListener=null; }
-    @Override protected void onCleared() { stopBookings(); }
+
+    private ListenerRegistration bookingListener;
+
+    // Dừng nguồn booking khi màn hình không còn theo dõi.
+    public void stopBookings() {
+        if (bookingListener != null) bookingListener.remove();
+        bookingListener = null;
+    }
+
+    @Override
+    protected void onCleared() {
+        stopBookings();
+        stopDashboard();
+        media.close();
+    }
 
     public void updateBookingStatus(String bookingId, String newStatus, String reason) {
         if (actionResult.getValue() != null && actionResult.getValue().loading) return;
@@ -275,72 +416,5 @@ public class HostViewModel extends AndroidViewModel {
         } catch (Exception e) {
             actionResult.setValue(UiState.error(e));
         }
-    }
-
-    public final MutableLiveData<UiState<List<PropertyVerification>>> verifications = new MutableLiveData<>();
-    public final MutableLiveData<UiState<String>> verificationSubmitted = new MutableLiveData<>();
-    public final MutableLiveData<UiState<List<ReviewItem>>> reports = new MutableLiveData<>();
-    public final MutableLiveData<UiState<Void>> reportResponseSubmitted = new MutableLiveData<>();
-
-    public void loadVerifications() {
-        verifications.setValue(UiState.loading());
-        repository.getPropertyVerifications(new HostRepository.Callback<List<PropertyVerification>>() {
-            @Override
-            public void onSuccess(List<PropertyVerification> data) {
-                verifications.setValue(UiState.success(data));
-            }
-
-            @Override
-            public void onError(Exception e) {
-                verifications.setValue(UiState.error(e));
-            }
-        });
-    }
-
-    public void submitVerification(PropertyVerification verification, Uri fileUri, android.content.Context context) {
-        verificationSubmitted.setValue(UiState.loading());
-        repository.submitPropertyVerification(verification, fileUri, context, new HostRepository.Callback<String>() {
-            @Override
-            public void onSuccess(String id) {
-                verificationSubmitted.setValue(UiState.success(id));
-                loadVerifications();
-            }
-
-            @Override
-            public void onError(Exception e) {
-                verificationSubmitted.setValue(UiState.error(e));
-            }
-        });
-    }
-
-    public void loadReports() {
-        reports.setValue(UiState.loading());
-        repository.getReportsForHost(new HostRepository.Callback<List<ReviewItem>>() {
-            @Override
-            public void onSuccess(List<ReviewItem> data) {
-                reports.setValue(UiState.success(data));
-            }
-
-            @Override
-            public void onError(Exception e) {
-                reports.setValue(UiState.error(e));
-            }
-        });
-    }
-
-    public void submitReportResponse(String reportId, String responseText) {
-        reportResponseSubmitted.setValue(UiState.loading());
-        repository.submitHostReportResponse(reportId, responseText, new HostRepository.Callback<Void>() {
-            @Override
-            public void onSuccess(Void data) {
-                reportResponseSubmitted.setValue(UiState.success(null));
-                loadReports();
-            }
-
-            @Override
-            public void onError(Exception e) {
-                reportResponseSubmitted.setValue(UiState.error(e));
-            }
-        });
     }
 }

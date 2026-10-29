@@ -1,0 +1,56 @@
+\subsubsection{Các màn hình dành cho Admin}
+\label{sec:admin-implementation}
+
+Kênh Admin tập trung các công việc xét duyệt, quản lý quyền, xử lý báo cáo và tra cứu nhật ký. Màn hình tổng quan cung cấp lối vào từng nhóm; các hàng đợi được trình bày bằng thẻ hồ sơ hoặc tin đăng. AdminViewModel giữ nhóm đang chọn và trạng thái request, còn AdminRepository truy vấn theo loại đối tượng. Bộ đếm hàng đợi được tính từ dữ liệu vừa tải trong giới hạn truy vấn, không phải số liệu tổng hợp toàn hệ thống.
+
+Hàng đợi Host lấy những đơn đang PENDING từ \texttt{hostApplications}. Mỗi thẻ gồm thông tin người nộp, nội dung hồ sơ và tệp giấy tờ DEMO. Giao diện yêu cầu mở các tệp minh chứng trước khi gửi quyết định chấp thuận. Trong transaction xét duyệt, Repository đọc lại quyền Admin, trạng thái đơn và hồ sơ người nộp. Khi chấp thuận, trạng thái đơn, quyền HOST trong \texttt{users}, bản chiếu \texttt{publicHosts} và audit được cập nhật cùng thao tác. Khi từ chối, lý do được lưu để người nộp có thể bổ sung hồ sơ.
+
+\IfFileExists{Resources/chapter5/admin-overview.png}{%
+\begin{figure}[H]
+\begin{minipage}{\linewidth}
+\setlength{\parindent}{1.27cm}
+\setstretch{1.4}
+Màn hình tổng quan trong Hình~\ref{fig:admin-overview-review}(a) tổ chức các lối vào xét duyệt, quản lý, báo cáo và nhật ký. Khi chọn xét duyệt không gian, Admin nhận danh sách phòng PENDING\_REVIEW như Hình~\ref{fig:admin-overview-review}(b). Mỗi thẻ có ảnh, thông tin tóm tắt và nút mở nội dung đầy đủ trước khi duyệt hoặc từ chối. Repository kiểm lại chủ sở hữu và tòa nhà trước khi ghi quyết định; xét duyệt tin đăng độc lập với cấp quyền Host.
+\par\medskip
+\centering
+\begin{minipage}[t]{0.40\linewidth}\centering
+\includegraphics[width=\linewidth]{chapter5/admin-overview.png}\\[-1mm]
+{\small (a) Tổng quan quản trị}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.40\linewidth}\centering
+\includegraphics[width=\linewidth]{chapter5/admin-room-review.png}\\[-1mm]
+{\small (b) Hàng đợi xét duyệt phòng}
+\end{minipage}
+\caption{Các màn hình tổng quan và xét duyệt tin đăng của Admin}
+\label{fig:admin-overview-review}
+\end{minipage}
+\end{figure}}{}
+
+Minh chứng vị trí và hình ảnh được đọc từ \texttt{propertyVerifications}, phân biệt với đơn xin quyền Host. Admin mở tệp ảnh hoặc PDF trong màn xem minh chứng, sau đó gửi kết quả xét duyệt cùng ghi chú. Repository ghi người xử lý, thời điểm và phương thức ADMIN\_REVIEWED; thông tin xác minh liên quan được cập nhật theo đối tượng phòng hoặc tòa nhà. Quy trình xác minh được thực hiện thủ công trên minh chứng DEMO, chưa có đối tác xác thực tự động.
+
+Nhóm quản lý cho phép khóa hoặc mở khóa Host, đình chỉ hoặc gỡ đình chỉ phòng. Trạng thái tài khoản được đồng bộ với bản chiếu Host công khai; các quyền nhận đặt mới và thao tác nghiệp vụ được kiểm lại khi sử dụng. Lịch sử booking không bị xóa khi tài khoản bị khóa. Với báo cáo vi phạm, Admin đọc nội dung, phản hồi của Host và booking liên quan, rồi nhập kết luận. Kết quả được lưu thành RESOLVED hoặc DISMISSED; hành động xử lý có thể là ghi kết luận, đình chỉ phòng hoặc khóa Host.
+
+Các booking cần can thiệp được mở ở màn hình riêng trong Hình~\ref{fig:admin-reports-bookings}. Admin xử lý từng trường hợp, không hủy đồng loạt theo trạng thái Host. Những thao tác như hủy booking chưa check-in của Host bị khóa, kết thúc lượt đang sử dụng do sự cố hoặc xác minh lại việc sử dụng đều yêu cầu căn cứ phù hợp và lý do. BookingRepository kiểm quyền và trạng thái hiện tại, cập nhật lịch khi cần nhả giữ chỗ, đồng thời ghi audit. Việc khép vụ việc không được tự đổi số tiền thành đã thu hoặc đã hoàn.
+
+\IfFileExists{Resources/chapter5/admin-reports.png}{%
+\begin{figure}[H]
+\begin{minipage}{\linewidth}
+\setlength{\parindent}{1.27cm}
+\setstretch{1.4}
+Hình~\ref{fig:admin-reports-bookings}(a) trình bày các báo cáo đang chờ xử lý. Admin mở nội dung đầy đủ rồi chọn bỏ qua hoặc ghi nhận kết quả, kèm kết luận và hành động phù hợp. Màn booking ở Hình~\ref{fig:admin-reports-bookings}(b) hiển thị mã đặt chỗ, Host, kỳ thuê và trạng thái của từng lượt. Các thao tác can thiệp được áp dụng cho từng booking sau khi kiểm tra điều kiện, giữ lại lịch sử và lý do xử lý.
+\par\medskip
+\centering
+\begin{minipage}[t]{0.40\linewidth}\centering
+\includegraphics[width=\linewidth]{chapter5/admin-reports.png}\\[-1mm]
+{\small (a) Báo cáo cần xử lý}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.40\linewidth}\centering
+\includegraphics[width=\linewidth]{chapter5/admin-booking-cases.png}\\[-1mm]
+{\small (b) Can thiệp từng booking}
+\end{minipage}
+\caption{Giao diện xử lý báo cáo và booking ngoại lệ}
+\label{fig:admin-reports-bookings}
+\end{minipage}
+\end{figure}}{}
+
+Màn đối soát lịch kiểm tra số booking còn giữ chỗ của một phòng và các khóa lịch tương ứng trước khi cập nhật bộ đếm. Chức năng này phục vụ trường hợp dữ liệu cũ cần đối chiếu, không tạo thêm phòng hoặc thay đổi hình thức thuê. Nhóm nhật ký đọc \texttt{auditLogs} để hiển thị người thực hiện, đối tượng, hành động và lý do theo thời gian. Các ảnh bổ sung về hồ sơ Host, minh chứng và nhật ký được tập hợp tại \hyperref[sec:admin-additional-screens]{Phụ lục H}.

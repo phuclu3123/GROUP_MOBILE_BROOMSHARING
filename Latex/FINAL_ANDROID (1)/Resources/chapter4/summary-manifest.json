@@ -1,0 +1,347 @@
+{
+  "patterns": 20,
+  "selectedFields": [
+    {
+      "path": "users/{uid}",
+      "name": "uid",
+      "type": "string"
+    },
+    {
+      "path": "users/{uid}",
+      "name": "role",
+      "type": "string"
+    },
+    {
+      "path": "users/{uid}",
+      "name": "status",
+      "type": "string"
+    },
+    {
+      "path": "users/{uid}",
+      "name": "photoUrl",
+      "type": "string"
+    },
+    {
+      "path": "publicHosts/{uid}",
+      "name": "uid",
+      "type": "string"
+    },
+    {
+      "path": "publicHosts/{uid}",
+      "name": "name",
+      "type": "string"
+    },
+    {
+      "path": "publicHosts/{uid}",
+      "name": "photoUrl",
+      "type": "string"
+    },
+    {
+      "path": "usernames/{normalizedUsername}",
+      "name": "uid",
+      "type": "string"
+    },
+    {
+      "path": "usernames/{normalizedUsername}",
+      "name": "email",
+      "type": "string"
+    },
+    {
+      "path": "hostApplications/{uid}",
+      "name": "applicantUid",
+      "type": "string"
+    },
+    {
+      "path": "hostApplications/{uid}",
+      "name": "status",
+      "type": "string"
+    },
+    {
+      "path": "hostApplications/{uid}",
+      "name": "identityImageUrls",
+      "type": "array<string>"
+    },
+    {
+      "path": "users/{uid}/favorites/{roomId}",
+      "name": "roomId",
+      "type": "string"
+    },
+    {
+      "path": "users/{uid}/favorites/{roomId}",
+      "name": "roomName",
+      "type": "string"
+    },
+    {
+      "path": "users/{uid}/favorites/{roomId}",
+      "name": "createdAt",
+      "type": "timestamp"
+    },
+    {
+      "path": "users/{uid}/noticeReads/{eventId}",
+      "name": "readAt",
+      "type": "timestamp"
+    },
+    {
+      "path": "buildings/{buildingId}",
+      "name": "ownerUid",
+      "type": "string"
+    },
+    {
+      "path": "buildings/{buildingId}",
+      "name": "name",
+      "type": "string"
+    },
+    {
+      "path": "buildings/{buildingId}",
+      "name": "address",
+      "type": "string"
+    },
+    {
+      "path": "buildings/{buildingId}",
+      "name": "location",
+      "type": "geopoint/null"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "buildingId",
+      "type": "string"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "ownerUid",
+      "type": "string"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "activeMode",
+      "type": "string"
+    },
+    {
+      "path": "rooms/{roomId}",
+      "name": "activeBookingCount",
+      "type": "integer"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "roomId",
+      "type": "string"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "guestUid",
+      "type": "string"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "status",
+      "type": "string"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "paymentFlow",
+      "type": "string"
+    },
+    {
+      "path": "bookings/{bookingId}",
+      "name": "priceSnapshot",
+      "type": "map"
+    },
+    {
+      "path": "availabilityMonths/{roomId_yyyyMM}",
+      "name": "fixedBookingId",
+      "type": "string"
+    },
+    {
+      "path": "availabilityMonths/{roomId_yyyyMM}",
+      "name": "slotsBusy",
+      "type": "array<integer>"
+    },
+    {
+      "path": "availabilityMonths/{roomId_yyyyMM}",
+      "name": "hourlyBookings",
+      "type": "map<string,array<integer>>"
+    },
+    {
+      "path": "availabilityMonths/{roomId_yyyyMM}",
+      "name": "pendingPaymentIds",
+      "type": "array<string>"
+    },
+    {
+      "path": "payments/{bookingId}",
+      "name": "orderCode",
+      "type": "integer"
+    },
+    {
+      "path": "payments/{bookingId}",
+      "name": "amount",
+      "type": "integer"
+    },
+    {
+      "path": "payments/{bookingId}",
+      "name": "status",
+      "type": "string"
+    },
+    {
+      "path": "payments/{bookingId}",
+      "name": "expiresAt",
+      "type": "integer"
+    },
+    {
+      "path": "paymentOrders/{orderCode}",
+      "name": "bookingId",
+      "type": "string"
+    },
+    {
+      "path": "appConfig/payments",
+      "name": "flow",
+      "type": "string"
+    },
+    {
+      "path": "appConfig/payments",
+      "name": "demoHostUid",
+      "type": "string"
+    },
+    {
+      "path": "reviews/{bookingId}",
+      "name": "roomId",
+      "type": "string"
+    },
+    {
+      "path": "reviews/{bookingId}",
+      "name": "guestUid",
+      "type": "string"
+    },
+    {
+      "path": "reviews/{bookingId}",
+      "name": "rating",
+      "type": "integer"
+    },
+    {
+      "path": "reviews/{bookingId}",
+      "name": "comment",
+      "type": "string"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}",
+      "name": "memberUids",
+      "type": "array<string>"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}",
+      "name": "sequence",
+      "type": "integer"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}",
+      "name": "guestRead",
+      "type": "integer"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}",
+      "name": "hostRead",
+      "type": "integer"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}/messages/{messageId}",
+      "name": "senderUid",
+      "type": "string"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}/messages/{messageId}",
+      "name": "text",
+      "type": "string"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}/messages/{messageId}",
+      "name": "sequence",
+      "type": "integer"
+    },
+    {
+      "path": "conversations/{guestUid:hostUid}/messages/{messageId}",
+      "name": "createdAt",
+      "type": "timestamp"
+    },
+    {
+      "path": "propertyVerifications/{verificationId}",
+      "name": "ownerUid",
+      "type": "string"
+    },
+    {
+      "path": "propertyVerifications/{verificationId}",
+      "name": "verificationType",
+      "type": "string"
+    },
+    {
+      "path": "propertyVerifications/{verificationId}",
+      "name": "evidenceRefs",
+      "type": "array<string>"
+    },
+    {
+      "path": "propertyVerifications/{verificationId}",
+      "name": "status",
+      "type": "string"
+    },
+    {
+      "path": "reports/{reportId}",
+      "name": "reporterUid",
+      "type": "string"
+    },
+    {
+      "path": "reports/{reportId}",
+      "name": "roomId",
+      "type": "string"
+    },
+    {
+      "path": "reports/{reportId}",
+      "name": "bookingId",
+      "type": "string"
+    },
+    {
+      "path": "reports/{reportId}",
+      "name": "status",
+      "type": "string"
+    },
+    {
+      "path": "auditLogs/{auditId}",
+      "name": "actorUid",
+      "type": "string"
+    },
+    {
+      "path": "auditLogs/{auditId}",
+      "name": "targetPath",
+      "type": "string"
+    },
+    {
+      "path": "auditLogs/{auditId}",
+      "name": "action",
+      "type": "string"
+    },
+    {
+      "path": "auditLogs/{auditId}",
+      "name": "before",
+      "type": "map<string,any>"
+    },
+    {
+      "path": "auditLogs/{auditId}",
+      "name": "after",
+      "type": "map<string,any>"
+    },
+    {
+      "path": "rentalPlaces/{placeId}",
+      "name": "name",
+      "type": "string"
+    },
+    {
+      "path": "rentalPlaces/{placeId}",
+      "name": "location",
+      "type": "geopoint"
+    },
+    {
+      "path": "rentalPlaces/{placeId}",
+      "name": "sourceUrl",
+      "type": "string"
+    }
+  ],
+  "selection": "Representative fields; current implemented app/backend patterns.",
+  "appendixAdded": false
+}

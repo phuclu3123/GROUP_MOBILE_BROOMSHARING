@@ -3,21 +3,22 @@ package vn.edu.ueh.phuclu.broomsharing.adapter;
 import android.view.*;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.bumptech.glide.Glide;
-
+import java.util.Objects;
 import vn.edu.ueh.phuclu.broomsharing.R;
-import vn.edu.ueh.phuclu.broomsharing.model.*;
+import vn.edu.ueh.phuclu.broomsharing.model.Room;
+import vn.edu.ueh.phuclu.broomsharing.model.RoomListing;
 import vn.edu.ueh.phuclu.broomsharing.utils.FormatUtils;
 
-import java.util.Objects;
-
 /** Adapted from Truc's RoomAdapter, using the shared Host Room model. */
+/*
+    Hiển thị phòng ở trang tìm kiếm của người thuê.
+    Giá và trạng thái ở đây phục vụ hiển thị; Repository vẫn kiểm lại trước khi đặt.
+ */
 public class GuestRoomAdapter extends ListAdapter<RoomListing, GuestRoomAdapter.Holder> {
     public interface Click {
         void open(RoomListing room);
@@ -39,6 +40,7 @@ public class GuestRoomAdapter extends ListAdapter<RoomListing, GuestRoomAdapter.
                                 && Objects.equals(x.getAddress(), y.getAddress())
                                 && Objects.equals(x.getRoomType(), y.getRoomType())
                                 && Objects.equals(x.getActiveMode(), y.getActiveMode())
+                                && Objects.equals(a.availability, b.availability)
                                 && Objects.equals(x.getImageUrls(), y.getImageUrls())
                                 && Objects.equals(
                                         a.building.getDistrict(), b.building.getDistrict())
@@ -64,6 +66,18 @@ public class GuestRoomAdapter extends ListAdapter<RoomListing, GuestRoomAdapter.
     public void onBindViewHolder(@NonNull Holder h, int position) {
         RoomListing item = getItem(position);
         Room r = item.room;
+        boolean fixed = Room.MODE_FIXED.equals(r.getActiveMode());
+        h.rentalBadge.setVisibility(fixed ? View.VISIBLE : View.GONE);
+        h.rentalDates.setVisibility(fixed ? View.VISIBLE : View.GONE);
+        if (fixed) {
+            vn.edu.ueh.phuclu.broomsharing.utils.FixedRentalBadge badge = item.availability == null
+                    ? vn.edu.ueh.phuclu.broomsharing.utils.FixedRentalBadge.unknown(true) : item.availability;
+            h.rentalBadge.setText(badge.label);
+            h.rentalDates.setText(badge.detail);
+            int color = badge.tone == 1 ? R.color.teal_dark : badge.tone == 2 || badge.tone == 4
+                    ? R.color.warning : R.color.text_secondary;
+            h.rentalBadge.setTextColor(androidx.core.content.ContextCompat.getColor(h.itemView.getContext(), color));
+        }
         h.name.setText(r.getRoomName());
         h.location.setText(
                 (item.building.getDistrict() == null ? "" : item.building.getDistrict() + " · ")
@@ -102,7 +116,7 @@ public class GuestRoomAdapter extends ListAdapter<RoomListing, GuestRoomAdapter.
     }
 
     static class Holder extends RecyclerView.ViewHolder {
-        final TextView name, location, price, capacity;
+        final TextView name, location, price, capacity, rentalBadge, rentalDates;
         final ImageView image;
 
         Holder(View view) {
@@ -111,6 +125,8 @@ public class GuestRoomAdapter extends ListAdapter<RoomListing, GuestRoomAdapter.
             location = view.findViewById(R.id.tvLocation);
             price = view.findViewById(R.id.tvPrice);
             capacity = view.findViewById(R.id.tvCapacity);
+            rentalBadge = view.findViewById(R.id.tvRentalBadge);
+            rentalDates = view.findViewById(R.id.tvRentalDates);
             image = view.findViewById(R.id.imgRoomThumb);
         }
     }

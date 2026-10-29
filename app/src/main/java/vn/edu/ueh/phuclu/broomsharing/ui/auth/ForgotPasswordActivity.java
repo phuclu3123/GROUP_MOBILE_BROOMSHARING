@@ -5,14 +5,14 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Patterns;
 import android.view.inputmethod.EditorInfo;
-
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-
 import vn.edu.ueh.phuclu.broomsharing.R;
 
 /** Requests the real Firebase password reset through the shared ViewModel. */
 public class ForgotPasswordActivity extends BaseAuthActivity {
+    // Tương tự như login và Register.
     private final Handler timer = new Handler(Looper.getMainLooper());
     private final Runnable tick = new Runnable() {
         @Override public void run() { updateButton(); timer.postDelayed(this, 1000); }
@@ -39,7 +39,7 @@ public class ForgotPasswordActivity extends BaseAuthActivity {
 
     private void updateButton() {
         long wait = model.passwordResetWaitSeconds();
-        com.google.android.material.button.MaterialButton button = findViewById(R.id.submitButton);
+        MaterialButton button = findViewById(R.id.submitButton);
         button.setEnabled(!model.isBusy() && wait == 0);
         button.setText(wait > 0 ? getString(R.string.auth_reset_wait, wait)
                 : getString(model.passwordResetSent() ? R.string.auth_reset_again : R.string.auth_reset));

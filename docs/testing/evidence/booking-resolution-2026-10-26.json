@@ -1,0 +1,59 @@
+{
+  "verifiedAt": "2026-10-26T11:47:43.639682+07:00",
+  "businessTestEnvironment": "Firestore emulator; retained real Firebase Auth demo accounts",
+  "unit": {
+    "tests": 101,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "rules": {
+    "cases": 44,
+    "passed": true
+  },
+  "bookingRulesRegression": {
+    "cases": 13,
+    "passed": true
+  },
+  "counterTests": {
+    "cases": 14,
+    "passed": true
+  },
+  "android": {
+    "tests": 1,
+    "passed": true,
+    "checks": [
+      "Host UI explicitly chooses no-show after end; transaction retains other booking's slot",
+      "No-show cannot review; Guest reports; Admin corrects without second release; verified Guest can review; retry is idempotent",
+      "Blocked Host denied; Admin incident closure preserves original period/payment; Guest review allowed before original end; detail UI displays result",
+      "Admin completes expired checked-in period; missing check-in cannot silently complete; documented late confirmation succeeds"
+    ]
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 586
+  },
+  "debugBuild": true,
+  "releaseUnsignedBuild": true,
+  "localRulesSha256": "f3cd7420ac52eea81be7c214d56e7860673a8938604c247b53c12c0f1595024b",
+  "cloudRulesDeployment": "Verified by release metadata and deployed source readback",
+  "cloudBusinessWrites": 0,
+  "artifacts": [
+    {
+      "path": "output/releases/booking-resolution-2026-10-26/BroomSharing-booking-resolution-2026-10-26-debug.apk",
+      "sha256": "a3e73a1cc12ac043220ba082b7e4739ff591a09a0c8f1173cee597b279170741"
+    },
+    {
+      "path": "output/releases/booking-resolution-2026-10-26/BroomSharing-booking-resolution-2026-10-26-release-unsigned.apk",
+      "sha256": "3e37a6934d7e113a64d5de365a6c4a53ef0755c7d77a26b4bedb2a428b8e70e7"
+    }
+  ],
+  "cloudRulesRelease": {
+    "name": "projects/broom-sharing-firebase-mobile/releases/cloud.firestore/broomsharing",
+    "rulesetName": "projects/broom-sharing-firebase-mobile/rulesets/3c6fc665-01e7-4f1d-89ef-4faf9a934074",
+    "createTime": "2026-10-14T10:13:11.152351Z",
+    "updateTime": "2026-10-26T04:46:48.527039Z"
+  },
+  "indexesUnchanged": true,
+  "indexesReady": 7
+}

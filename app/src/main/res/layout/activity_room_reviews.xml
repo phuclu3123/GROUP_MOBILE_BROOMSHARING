@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/workspaceRoot" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@color/screen_bg">
+    <com.google.android.material.appbar.MaterialToolbar android:id="@+id/toolbar" android:layout_width="match_parent" android:layout_height="?attr/actionBarSize" app:title="@string/reviews_title" app:navigationIcon="@drawable/ic_arrow_back" />
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp">
+            <LinearLayout android:id="@+id/reviewForm" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+                <TextView style="@style/WorkspaceBody" android:text="@string/review_help" />
+                <RatingBar android:id="@+id/rating" android:layout_width="wrap_content" android:layout_height="wrap_content" android:numStars="5" android:stepSize="1" android:contentDescription="@string/review_rating" />
+                <EditText android:id="@+id/comment" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="96dp" android:gravity="top" android:hint="@string/review_comment" android:inputType="textMultiLine|textCapSentences" android:maxLength="1000" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/send" style="@style/WorkspaceAction" android:text="@string/review_send" />
+            </LinearLayout>
+            <TextView android:id="@+id/feedback" style="@style/WorkspaceBody" android:accessibilityLiveRegion="polite" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/retry" style="@style/WorkspaceAction" android:text="@string/workspace_refresh" />
+            <TextView style="@style/WorkspaceBody" android:text="@string/review_list_limit" />
+            <LinearLayout android:id="@+id/reviewList" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

@@ -1,14 +1,15 @@
 package vn.edu.ueh.phuclu.broomsharing;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-
-import vn.edu.ueh.phuclu.broomsharing.model.*;
-import vn.edu.ueh.phuclu.broomsharing.utils.*;
-
 import java.time.*;
 import java.util.*;
+import org.junit.Test;
+import vn.edu.ueh.phuclu.broomsharing.model.AvailabilityMonth;
+import vn.edu.ueh.phuclu.broomsharing.model.Booking;
+import vn.edu.ueh.phuclu.broomsharing.model.Room;
+import vn.edu.ueh.phuclu.broomsharing.utils.BookingPolicy;
+import vn.edu.ueh.phuclu.broomsharing.utils.CancellationPolicy;
+import vn.edu.ueh.phuclu.broomsharing.utils.HostSchedule;
+import static org.junit.Assert.*;
 
 public class BookingPolicyTest {
     private final long now = at("2026-10-19T08:00:00").getTime();
@@ -59,6 +60,7 @@ public class BookingPolicyTest {
     @Test
     public void quoteUsesCurrentRoomPriceAndFortyPercentAdvance() {
         Booking b = hourly();
+        assertEquals(2, b.schemaVersion);
         assertEquals(100001, b.totalAmount, 0);
         assertEquals(40000, ((Number) b.priceSnapshot.get("paymentDueAmount")).doubleValue(), 0);
         assertEquals("UNAVAILABLE", b.paymentStatus);

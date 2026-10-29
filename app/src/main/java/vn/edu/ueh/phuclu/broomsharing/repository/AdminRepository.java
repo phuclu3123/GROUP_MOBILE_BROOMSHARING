@@ -3,16 +3,28 @@ package vn.edu.ueh.phuclu.broomsharing.repository;
 import com.google.android.gms.tasks.*;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.*;
+import com.google.firebase.storage.StorageReference;
 
-import vn.edu.ueh.phuclu.broomsharing.model.*;
-import vn.edu.ueh.phuclu.broomsharing.utils.*;
+import vn.edu.ueh.phuclu.broomsharing.BuildConfig;
+import vn.edu.ueh.phuclu.broomsharing.model.AuditLog;
+import vn.edu.ueh.phuclu.broomsharing.model.PublicHost;
+import vn.edu.ueh.phuclu.broomsharing.model.ReviewItem;
+import vn.edu.ueh.phuclu.broomsharing.model.Room;
+import vn.edu.ueh.phuclu.broomsharing.utils.BookingPolicy;
+import vn.edu.ueh.phuclu.broomsharing.utils.FirebaseHelper;
+import vn.edu.ueh.phuclu.broomsharing.utils.FormatUtils;
+import vn.edu.ueh.phuclu.broomsharing.utils.HostValidation;
+import vn.edu.ueh.phuclu.broomsharing.utils.MediaPolicy;
+import vn.edu.ueh.phuclu.broomsharing.utils.TimeUtils;
 
 import java.util.*;
 
 /** Admin reads and atomic writes through the Firestore Android SDK. */
 public class AdminRepository {
+    // Hàng đợi chỉ dành cho Admin đang ACTIVE; quyền vẫn được Rules kiểm lại lúc đọc và ghi.
     private final FirebaseFirestore db = FirebaseHelper.getFirestore();
 
+    // Đọc và chuẩn hóa đúng nhóm hàng đợi quản trị; các loại hồ sơ vẫn có collection và điều kiện xử lý riêng.
     public void load(String kind, ResultCallback<List<ReviewItem>> cb) {
         if (FirebaseAuth.getInstance().getCurrentUser() == null) {
             cb.onError(new Exception("Vui lòng đăng nhập lại."));
@@ -174,7 +186,7 @@ public class AdminRepository {
                             + text(d, "email")
                             + "\n"
                             + text(d, "organizationType")
-                            + "\nGiấy tờ mô tả (demo): "
+                            + "\nMô tả giấy tờ: "
                             + text(d, "identityDoc");
         } else if ("ROOM".equals(kind) || "ROOM_STATUS".equals(kind)) {
             Room r = d.toObject(Room.class);
@@ -270,7 +282,25 @@ public class AdminRepository {
                             + text(d, "reason");
         } else {
             title = text(d, "reason");
-            details = text(d, "description");
+            details =
+                    text(d, "description")
+                            + "\n\nPhòng: "
+                            + text(d, "roomId")
+                            + "\nChủ: "
+                            + text(d, "ownerUid")
+                            + "\nNgười gửi: "
+                            + text(d, "reporterUid")
+                            + "\nTrạng thái: "
+                            + status
+                            + "\nBooking liên quan: "
+                            + text(d, "bookingId")
+                            + "\nPhản hồi Host: "
+                            + text(d, "hostResponse")
+                            + "\nKết luận: "
+                            + text(d, "resolution")
+                            + "\n"
+                            + "Tệp bằng chứng: đang phát triển; không coi mô tả là kết luận vi"
+                            + " phạm.";
         }
         ReviewItem item =
                 new ReviewItem(
@@ -279,6 +309,10 @@ public class AdminRepository {
                         title == null || title.isEmpty() ? d.getId() : title,
                         details + "\n" + TimeUtils.formatVietnam(d.getDate("createdAt")));
         item.status = status;
+        if ("HOST".equals(kind)) {
+            Object refs = d.get("identityImageUrls");
+            if (refs instanceof List) item.evidenceRefs = (List<String>) refs;
+        }
         if ("ROOM".equals(kind) || "ROOM_STATUS".equals(kind)) {
             Object urls = d.get("imageUrls");
             if (urls instanceof List) item.imageUrls = (List<String>) urls;
@@ -325,6 +359,12 @@ public class AdminRepository {
                 return "Ghi nhận vào phòng demo";
             case "COMPLETED":
                 return "Hoàn tất booking";
+            case "NO_SHOW":
+                return "Xác nhận khách không đến";
+            case "TERMINATED":
+                return "Kết thúc lượt thuê do sự cố";
+            case "ATTENDANCE_CONFIRMED":
+                return "Xác minh sử dụng cho booking cũ";
             case "SAVE_ROOM":
                 return "Sửa thông tin phòng";
             case "SET_LISTING":
@@ -334,12 +374,19 @@ public class AdminRepository {
         }
     }
 
+    // Đọc lại người xử lý và đối tượng trong transaction trước khi duyệt.
+    // Cấp quyền Host hoặc hạn chế tài khoản/phòng đi cùng bản ghi xét duyệt và audit tương ứng.
     public void review(
             ReviewItem item,
             boolean approve,
             String reason,
             boolean evidenceReviewed,
             ResultCallback<String> cb) {
+        if ("REPORT".equals(item.kind)) {
+            new ReportRepository()
+                    .resolve(item.id, approve ? "RESOLVED" : "DISMISSED", "NO_ACTION", reason, cb);
+            return;
+        }
         final String actor;
         String note = reason == null ? "" : reason.trim();
         try {
@@ -379,9 +426,6 @@ public class AdminRepository {
                                     break;
                                 case "VERIFICATION":
                                     collection = "propertyVerifications";
-                                    break;
-                                case "REPORT":
-                                    collection = "reports";
                                     break;
                                 default:
                                     throw new IllegalStateException("Nhóm duyệt không hợp lệ.");
@@ -437,26 +481,52 @@ public class AdminRepository {
                                 changes.put("moderatedBy", actor);
                             } else {
                                 String pending =
-                                        "ROOM".equals(item.kind)
-                                                ? "PENDING_REVIEW"
-                                                : "REPORT".equals(item.kind) ? "OPEN" : "PENDING";
+                                        "ROOM".equals(item.kind) ? "PENDING_REVIEW" : "PENDING";
                                 BookingPolicy.require(
                                         pending.equals(before),
                                         "Hồ sơ đã được xử lý. Vui lòng tải lại.");
                                 action = approve ? "APPROVE" : "REJECT";
                                 after =
-                                        "REPORT".equals(item.kind)
-                                                ? approve ? "RESOLVED" : "DISMISSED"
-                                                : "VERIFICATION".equals(item.kind)
-                                                        ? approve ? "VERIFIED" : "REJECTED"
-                                                        : approve ? "APPROVED" : "REJECTED";
+                                        "VERIFICATION".equals(item.kind)
+                                                ? approve ? "VERIFIED" : "REJECTED"
+                                                : approve ? "APPROVED" : "REJECTED";
                                 changes.put("reviewedBy", actor);
-                                changes.put(
-                                        "REPORT".equals(item.kind)
-                                                ? "resolution"
-                                                : "rejectionReason",
-                                        note);
+                                changes.put("rejectionReason", note);
                                 if ("HOST".equals(item.kind)) {
+                                    List<String> identity =
+                                            (List<String>) target.get("identityImageUrls");
+                                    if (approve) {
+                                        BookingPolicy.require(
+                                                evidenceReviewed,
+                                                "Cần mở xem cả hai mặt giấy tờ trước khi duyệt"
+                                                    + " Host.");
+                                        BookingPolicy.require(
+                                                Long.valueOf(2)
+                                                                .equals(
+                                                                        target.getLong(
+                                                                                "schemaVersion"))
+                                                        && "DEMO_PUBLIC"
+                                                                .equals(
+                                                                        target.getString(
+                                                                                "evidenceMode"))
+                                                        && identity != null
+                                                        && identity.size() == 2
+                                                        && !identity.get(0).equals(identity.get(1)),
+                                                "Hồ sơ thiếu hai ảnh giấy tờ. Hãy từ chối kèm yêu"
+                                                    + " cầu bổ sung.");
+                                        for (String url : identity)
+                                            BookingPolicy.require(
+                                                    vn.edu.ueh.phuclu.broomsharing.utils.MediaPolicy
+                                                            .hostIdentityUrl(
+                                                                    url,
+                                                                    vn.edu.ueh.phuclu.broomsharing
+                                                                            .BuildConfig
+                                                                            .CLOUDINARY_CLOUD_NAME,
+                                                                    item.id),
+                                                    "Ảnh giấy tờ không thuộc đúng người nộp.");
+                                        changes.put(
+                                                "identityReviewedAt", FieldValue.serverTimestamp());
+                                    }
                                     hostRef =
                                             db.collection("users")
                                                     .document(
@@ -551,7 +621,7 @@ public class AdminRepository {
                                                 "Cần xem bằng chứng trước khi duyệt.");
                                         for (String path : refs)
                                             BookingPolicy.require(
-                                                    validEvidence(owner, path),
+                                                    validEvidence(owner, path, item.id),
                                                     "Đường dẫn bằng chứng không hợp lệ.");
                                     }
                                     changes.put("method", "ADMIN_REVIEWED");
@@ -573,12 +643,19 @@ public class AdminRepository {
                                 tx.set(
                                         db.collection("publicHosts").document(host.getId()),
                                         new PublicHost(
-                                                host.getId(), host.getString("name"), "ACTIVE"));
+                                                host.getId(),
+                                                host.getString("name"),
+                                                "ACTIVE",
+                                                host.getString("photoUrl")));
                             }
                             if ("HOST_STATUS".equals(item.kind))
                                 tx.set(
                                         db.collection("publicHosts").document(item.id),
-                                        new PublicHost(item.id, target.getString("name"), after));
+                                        new PublicHost(
+                                                item.id,
+                                                target.getString("name"),
+                                                after,
+                                                target.getString("photoUrl")));
                             if (verificationRoom != null
                                     && approve
                                     && !"IDENTITY".equals(target.getString("verificationType")))
@@ -603,7 +680,12 @@ public class AdminRepository {
                 .addOnFailureListener(cb::onError);
     }
 
+    // Đọc bằng chứng từ nguồn được chấp nhận; quyền xem hồ sơ không tự cấp quyền tải tệp ở dịch vụ lưu trữ.
     public void evidence(String id, String path, ResultCallback<byte[]> cb) {
+        if (path != null && path.contains("/broomsharing/hostIdentity/")) {
+            hostEvidence(id, path, cb);
+            return;
+        }
         final String actor = FirebaseAuth.getInstance().getUid();
         try {
             BookingPolicy.id(id);
@@ -629,15 +711,19 @@ public class AdminRepository {
                                             doc -> {
                                                 if (!doc.exists()
                                                         || !validEvidence(
-                                                                doc.getString("ownerUid"), path)
+                                                                doc.getString("ownerUid"), path, id)
                                                         || !evidencePaths(doc).contains(path)) {
                                                     cb.onError(
                                                             new Exception(
                                                                     "Bằng chứng không thuộc hồ"
-                                                                        + " sơ."));
+                                                                            + " sơ."));
                                                     return;
                                                 }
-                                                com.google.firebase.storage.StorageReference file =
+                                                if (path.startsWith("https://")) {
+                                                    EvidenceDownloader.download(path, actor, cb);
+                                                    return;
+                                                }
+                                                StorageReference file =
                                                         FirebaseHelper.getStorage()
                                                                 .getReference()
                                                                 .child(path);
@@ -679,6 +765,50 @@ public class AdminRepository {
                 .addOnFailureListener(cb::onError);
     }
 
+    private void hostEvidence(String id, String path, ResultCallback<byte[]> cb) {
+        String actor = FirebaseAuth.getInstance().getUid();
+        if (actor == null
+                || !vn.edu.ueh.phuclu.broomsharing.utils.MediaPolicy.hostIdentityUrl(
+                        path,
+                        vn.edu.ueh.phuclu.broomsharing.BuildConfig.CLOUDINARY_CLOUD_NAME,
+                        id)) {
+            cb.onError(new IllegalArgumentException("Ảnh không thuộc hồ sơ Host này."));
+            return;
+        }
+        db.collection("users")
+                .document(actor)
+                .get(Source.SERVER)
+                .addOnSuccessListener(
+                        user -> {
+                            if (!"ADMIN".equals(user.getString("role"))
+                                    || !"ACTIVE".equals(user.getString("status"))) {
+                                cb.onError(new IllegalStateException("Bạn không có quyền Admin."));
+                                return;
+                            }
+                            db.collection("hostApplications")
+                                    .document(id)
+                                    .get(Source.SERVER)
+                                    .addOnSuccessListener(
+                                            doc -> {
+                                                Object refs = doc.get("identityImageUrls");
+                                                if (!actor.equals(
+                                                                FirebaseAuth.getInstance().getUid())
+                                                        || !doc.exists()
+                                                        || !id.equals(doc.getString("applicantUid"))
+                                                        || !(refs instanceof List)
+                                                        || !((List<?>) refs).contains(path)) {
+                                                    cb.onError(
+                                                            new IllegalArgumentException(
+                                                                    "Ảnh không thuộc hồ sơ Host."));
+                                                    return;
+                                                }
+                                                EvidenceDownloader.download(path, actor, cb);
+                                            })
+                                    .addOnFailureListener(cb::onError);
+                        })
+                .addOnFailureListener(cb::onError);
+    }
+
     @SuppressWarnings("unchecked")
     private List<String> evidencePaths(DocumentSnapshot doc) {
         Object value = doc.get("evidenceRefs");
@@ -689,10 +819,13 @@ public class AdminRepository {
                         : Collections.singletonList(doc.getString("evidencePath"));
     }
 
-    private boolean validEvidence(String owner, String path) {
-        return owner != null
-                && path != null
-                && path.startsWith("verification/" + owner + "/")
+    // Kiểm định dạng và nguồn bằng chứng trước khi mở, tránh dùng một URL tùy ý làm chứng cứ đã xét duyệt.
+    private boolean validEvidence(String owner, String path, String id) {
+        if (owner == null || path == null || id == null) return false;
+        if (path.startsWith("https://")) {
+            return MediaPolicy.evidenceUrl(path, BuildConfig.CLOUDINARY_CLOUD_NAME, owner, id);
+        }
+        return path.startsWith("verification/" + owner + "/")
                 && !path.contains("..")
                 && path.split("/").length == 3;
     }

@@ -1,10 +1,14 @@
 package vn.edu.ueh.phuclu.broomsharing.model;
 
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.ServerTimestamp;
-
 import java.io.Serializable;
 import java.util.Date;
 
+/*
+    Thông tin địa điểm chứa các phòng, liên kết Host bằng ownerUid.
+    Tọa độ và thông tin liên hệ phục vụ trang chi tiết và bản đồ.
+ */
 public class Building implements Serializable {
     private long schemaVersion = 1;
     private boolean locationSet;
@@ -161,17 +165,17 @@ public class Building implements Serializable {
         schemaVersion = value;
     }
 
-    public com.google.firebase.firestore.GeoPoint getLocation() {
+    public GeoPoint getLocation() {
         return (locationSet || latitude != 0 || longitude != 0)
                         && Double.isFinite(latitude)
                         && Double.isFinite(longitude)
                         && Math.abs(latitude) <= 90
                         && Math.abs(longitude) <= 180
-                ? new com.google.firebase.firestore.GeoPoint(latitude, longitude)
+                ? new GeoPoint(latitude, longitude)
                 : null;
     }
 
-    public void setLocation(com.google.firebase.firestore.GeoPoint value) {
+    public void setLocation(GeoPoint value) {
         locationSet = value != null;
         if (value != null) {
             latitude = value.getLatitude();

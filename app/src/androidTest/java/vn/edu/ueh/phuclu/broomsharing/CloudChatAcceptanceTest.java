@@ -1,22 +1,29 @@
 package vn.edu.ueh.phuclu.broomsharing;
 
-import static org.junit.Assert.*;
-import static org.junit.Assume.assumeTrue;
+import android.content.Context;
 import androidx.test.platform.app.InstrumentationRegistry;
 import com.google.android.gms.tasks.*;
 import com.google.firebase.*;
 import com.google.firebase.auth.*;
 import com.google.firebase.firestore.*;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.*;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.Test;
-import vn.edu.ueh.phuclu.broomsharing.model.*;
-import vn.edu.ueh.phuclu.broomsharing.repository.*;
+import vn.edu.ueh.phuclu.broomsharing.model.ChatMessage;
+import vn.edu.ueh.phuclu.broomsharing.model.Conversation;
+import vn.edu.ueh.phuclu.broomsharing.repository.ChatRepository;
+import vn.edu.ueh.phuclu.broomsharing.repository.ResultCallback;
+import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
 
 /** Opt-in real-cloud test. No credentials or message content in evidence reports. */
 public class CloudChatAcceptanceTest {
-    private final android.content.Context context=InstrumentationRegistry.getInstrumentation().getTargetContext();
+    private final Context context=InstrumentationRegistry.getInstrumentation().getTargetContext();
     private final List<FirebaseApp> apps=new ArrayList<>();
     private final Properties credentials=new Properties();
     private final Map<String,FirebaseFirestore> databases=new HashMap<>();
@@ -65,9 +72,9 @@ public class CloudChatAcceptanceTest {
             denied(databases.get("host1").collection("conversations").document(id).update("hostRead",concurrent.hostReceived+100));
             denied(databases.get("guest1").collection("conversations").document(id).collection("messages").document(messageId).update("text","tampered"));
             Answer<String> guestRead=new Answer<>();guest.markRead(id,concurrent.guestReceived,guestRead);guestRead.get();
-            org.json.JSONObject report=new org.json.JSONObject();report.put("verifiedAt",java.time.Instant.now().toString());
-            report.put("checks",new org.json.JSONArray(Arrays.asList("cloud realtime with independent guest-host sessions","one thread per pair","idempotent retry","concurrent sends preserve counters","recipient read receipts","stranger and admin denied private chat","peer read and forged receipts denied","messages immutable")));
-            try(Writer out=new OutputStreamWriter(new FileOutputStream(new File(context.getExternalFilesDir(null),"chat-verification.json")),java.nio.charset.StandardCharsets.UTF_8)){out.write(report.toString(2));}
+            JSONObject report=new JSONObject();report.put("verifiedAt",Instant.now().toString());
+            report.put("checks",new JSONArray(Arrays.asList("cloud realtime with independent guest-host sessions","one thread per pair","idempotent retry","concurrent sends preserve counters","recipient read receipts","stranger and admin denied private chat","peer read and forged receipts denied","messages immutable")));
+            try(Writer out=new OutputStreamWriter(new FileOutputStream(new File(context.getExternalFilesDir(null),"chat-verification.json")),StandardCharsets.UTF_8)){out.write(report.toString(2));}
         }finally{if(live!=null)live.remove();for(FirebaseFirestore db:databases.values())try{Tasks.await(db.terminate(),10,TimeUnit.SECONDS);}catch(Exception ignored){}for(FirebaseApp app:apps)app.delete();}
     }
 }

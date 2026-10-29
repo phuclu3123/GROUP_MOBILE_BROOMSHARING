@@ -5,6 +5,10 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
+/*
+    Định dạng thời gian theo múi giờ sử dụng của ứng dụng.
+    Các quyết định chuyển trạng thái vẫn dùng mốc Date/Timestamp trong policy và Rules.
+ */
 public final class TimeUtils {
     private TimeUtils() {}
 

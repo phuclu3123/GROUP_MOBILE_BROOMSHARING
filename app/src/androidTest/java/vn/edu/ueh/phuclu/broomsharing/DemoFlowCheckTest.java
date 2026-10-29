@@ -1,33 +1,47 @@
 package vn.edu.ueh.phuclu.broomsharing;
 
-import static org.junit.Assert.*;
-import static org.junit.Assume.assumeTrue;
 import android.app.Activity;
+import android.app.Instrumentation;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.os.SystemClock;
 import android.view.View;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 import androidx.test.runner.lifecycle.Stage;
-import org.junit.Test;
-import vn.edu.ueh.phuclu.broomsharing.model.*;
-import vn.edu.ueh.phuclu.broomsharing.repository.*;
-import vn.edu.ueh.phuclu.broomsharing.ui.MapViewModel;
-import vn.edu.ueh.phuclu.broomsharing.ui.auth.LoginActivity;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Predicate;
+import org.junit.Test;
+import org.maplibre.android.maps.MapView;
+import vn.edu.ueh.phuclu.broomsharing.model.MapPoint;
+import vn.edu.ueh.phuclu.broomsharing.model.UserProfile;
+import vn.edu.ueh.phuclu.broomsharing.model.UserRole;
+import vn.edu.ueh.phuclu.broomsharing.repository.AuthError;
+import vn.edu.ueh.phuclu.broomsharing.repository.AuthRepository;
+import vn.edu.ueh.phuclu.broomsharing.repository.FirebaseAuthRepository;
+import vn.edu.ueh.phuclu.broomsharing.ui.auth.LoginActivity;
+import vn.edu.ueh.phuclu.broomsharing.ui.host.HostDashboardActivity;
+import vn.edu.ueh.phuclu.broomsharing.ui.map.MapActivity;
+import vn.edu.ueh.phuclu.broomsharing.ui.map.MapViewModel;
+import vn.edu.ueh.phuclu.broomsharing.ui.room.SpaceDetailActivity;
+import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
 
 /** Opt-in, read-only cloud checks using private credentials uploaded separately, never in APK. */
 public class DemoFlowCheckTest {
-    private final android.app.Instrumentation device=InstrumentationRegistry.getInstrumentation();
-    private final android.content.Context context=device.getTargetContext();
+    private final Instrumentation device=InstrumentationRegistry.getInstrumentation();
+    private final Context context=device.getTargetContext();
     private final Properties credentials=new Properties();
     private final FirebaseAuthRepository auth=new FirebaseAuthRepository(context);
 
@@ -42,7 +56,7 @@ public class DemoFlowCheckTest {
         assertEquals("Demo UID mismatch",credentials.getProperty(alias+".uid"),profile[0].uid);
         return profile[0];
     }
-    private <T extends Activity> void waitFor(ActivityScenario<T> screen,java.util.function.Predicate<T> ready,String reason)throws Exception{
+    private <T extends Activity> void waitFor(ActivityScenario<T> screen,Predicate<T> ready,String reason)throws Exception{
         AtomicBoolean done=new AtomicBoolean();
         for(int i=0;i<180&&!done.get();i++){screen.onActivity(activity->done.set(ready.test(activity)));if(!done.get())SystemClock.sleep(250);}
         assertTrue(reason,done.get());
@@ -65,7 +79,7 @@ public class DemoFlowCheckTest {
                 });
                 AtomicBoolean opened=new AtomicBoolean();
                 for(int i=0;i<180&&!opened.get();i++){
-                    device.runOnMainSync(()->{for(Activity a:ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED))if(a instanceof vn.edu.ueh.phuclu.broomsharing.ui.host.HostDashboardActivity)opened.set(true);});
+                    device.runOnMainSync(()->{for(Activity a:ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED))if(a instanceof HostDashboardActivity)opened.set(true);});
                     if(!opened.get())SystemClock.sleep(250);
                 }
                 // Clear password before any failure can produce a diagnostic hierarchy.
@@ -82,7 +96,7 @@ public class DemoFlowCheckTest {
                     assertEquals(View.VISIBLE,activity.findViewById(R.id.detailToolbar).getVisibility());
                 });
                 screenshot("check-detail-top.png");
-                detail.onActivity(activity->((android.widget.ScrollView)activity.findViewById(R.id.detailScroll)).fullScroll(View.FOCUS_DOWN));
+                detail.onActivity(activity->((ScrollView)activity.findViewById(R.id.detailScroll)).fullScroll(View.FOCUS_DOWN));
                 SystemClock.sleep(400);screenshot("check-detail-bottom.png");
             }
             try(ActivityScenario<MapActivity> map=ActivityScenario.launch(new Intent(context,MapActivity.class).putExtra(SpaceDetailActivity.ROOM_ID,"dataset_hcm_v1_room_02"))){
@@ -93,8 +107,8 @@ public class DemoFlowCheckTest {
                 AtomicBoolean drawn=new AtomicBoolean();
                 for(int attempt=0;attempt<160&&!drawn.get();attempt++){
                     map.onActivity(activity->{
-                        org.maplibre.android.maps.MapView canvas=activity.findViewById(R.id.mapCanvas);
-                        canvas.getMapAsync(nativeMap->drawn.set(!nativeMap.queryRenderedFeatures(new android.graphics.RectF(0,0,canvas.getWidth(),canvas.getHeight()),"pilot-route-line").isEmpty()));
+                        MapView canvas=activity.findViewById(R.id.mapCanvas);
+                        canvas.getMapAsync(nativeMap->drawn.set(!nativeMap.queryRenderedFeatures(new RectF(0,0,canvas.getWidth(),canvas.getHeight()),"pilot-route-line").isEmpty()));
                     });
                     if(!drawn.get())SystemClock.sleep(250);
                 }
@@ -109,8 +123,8 @@ public class DemoFlowCheckTest {
                     for (int y = Math.max(0, mapBounds.top); y < Math.min(frame.getHeight(), mapBounds.bottom); y += 2)
                         for (int x = Math.max(0, mapBounds.left); x < Math.min(frame.getWidth(), mapBounds.right); x += 2) {
                             int color = frame.getPixel(x, y);
-                            if (android.graphics.Color.red(color) < 40 && android.graphics.Color.green(color) >= 70
-                                    && android.graphics.Color.green(color) <= 150 && android.graphics.Color.blue(color) > 170) blue++;
+                            if (Color.red(color) < 40 && Color.green(color) >= 70
+                                    && Color.green(color) <= 150 && Color.blue(color) > 170) blue++;
                         }
                     frame.recycle();
                     visibleRoute = blue > 500;

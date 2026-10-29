@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center_horizontal" android:padding="12dp">
+    <FrameLayout android:layout_width="80dp" android:layout_height="80dp">
+        <TextView android:id="@+id/avatarInitial" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/bg_circle_teal" android:gravity="center" android:textSize="30sp" android:textColor="@color/white"/>
+        <ImageView android:id="@+id/avatarPhoto" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerCrop" android:contentDescription="@string/avatar_title" android:visibility="gone"/>
+    </FrameLayout>
+    <GridLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:columnCount="2" android:layout_marginTop="8dp">
+        <Button android:id="@+id/btnAvatarGallery" android:layout_width="0dp" android:layout_columnWeight="1" android:layout_height="wrap_content" android:minHeight="48dp" android:layout_margin="4dp" android:text="@string/avatar_gallery" android:textAllCaps="false" android:textSize="14sp"/>
+        <Button android:id="@+id/btnAvatarUrl" android:layout_width="0dp" android:layout_columnWeight="1" android:layout_height="wrap_content" android:minHeight="48dp" android:layout_margin="4dp" android:text="@string/avatar_url" android:textAllCaps="false" android:textSize="14sp"/>
+        <Button android:id="@+id/btnAvatarRemove" android:layout_width="0dp" android:layout_columnSpan="2" android:layout_columnWeight="1" android:layout_height="wrap_content" android:minHeight="48dp" android:layout_margin="4dp" android:text="@string/avatar_remove" android:textAllCaps="false" android:textSize="14sp"/>
+    </GridLayout>
+    <ProgressBar android:id="@+id/avatarProgress" android:layout_width="24dp" android:layout_height="24dp" android:visibility="gone"/>
+    <TextView android:id="@+id/avatarFeedback" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:textColor="@color/danger" android:accessibilityLiveRegion="polite"/>
+</LinearLayout>

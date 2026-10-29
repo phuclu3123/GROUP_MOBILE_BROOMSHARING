@@ -1,0 +1,7 @@
+# Vector exports may be ASCII PDFs; preserve their bytes instead of applying CRLF.
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.apk binary
+*.zip binary

@@ -4,15 +4,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
+import java.util.List;
 import vn.edu.ueh.phuclu.broomsharing.R;
 import vn.edu.ueh.phuclu.broomsharing.model.Building;
 
-import java.util.List;
-
+/*
+    Hiển thị tòa nhà của Host và chuyển thao tác chỉnh sửa về Activity.
+    Adapter chỉ giữ dữ liệu để bind View, không tự ghi Firestore.
+ */
 public class BuildingAdapter extends RecyclerView.Adapter<BuildingAdapter.ViewHolder> {
 
     public interface OnBuildingClickListener {

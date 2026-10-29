@@ -1,0 +1,12 @@
+<resources>
+    <string name="avatar_title">Ảnh đại diện</string>
+    <string name="avatar_gallery">Chọn ảnh</string>
+    <string name="avatar_url">Nhập URL</string>
+    <string name="avatar_remove">Gỡ ảnh</string>
+    <string name="media_url_hint">https://… (liên kết trực tiếp tới ảnh)</string>
+    <string name="media_url_title">Thêm ảnh bằng URL</string>
+    <string name="identity_front">Mặt trước giấy tờ</string>
+    <string name="identity_back">Mặt sau giấy tờ</string>
+    <string name="identity_demo_note">Bản đồ án dùng giấy tờ giả lập ghi DEMO. Hai ảnh được lưu theo URL công khai; không gửi giấy tờ thật.</string>
+    <string name="identity_required">Cần đủ hai ảnh khác nhau: mặt trước và mặt sau.</string>
+</resources>

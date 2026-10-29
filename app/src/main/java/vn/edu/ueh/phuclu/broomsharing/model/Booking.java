@@ -1,18 +1,33 @@
 package vn.edu.ueh.phuclu.broomsharing.model;
 
+import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.ServerTimestamp;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /** Shared Firestore contract for bookings. Instants stored as Timestamp (UTC). */
+/*
+   Snapshot phòng, người thuê, giá và khóa lịch tại lúc đặt.
+   Các chuyển trạng thái phải qua BookingRepository để booking và lịch thay đổi cùng transaction.
+   Thông tin tỷ lệ hủy không xác nhận đã thu hoặc hoàn tiền.
+*/
 public class Booking implements Serializable {
+    public static final long CURRENT_SCHEMA_VERSION = 2;
+    public static final long LEGACY_SCHEMA_VERSION = 1;
     public static final String STATUS_PENDING = "PENDING";
     public static final String STATUS_CONFIRMED = "CONFIRMED";
     public static final String STATUS_CANCELLED = "CANCELLED";
     public static final String STATUS_REJECTED = "REJECTED";
     public static final String STATUS_COMPLETED = "COMPLETED";
     public static final String STATUS_CHECKED_IN = "CHECKED_IN";
+    public static final String STATUS_EXPIRED = "EXPIRED";
+    public static final String STATUS_NO_SHOW = "NO_SHOW";
+    public static final String STATUS_TERMINATED = "TERMINATED";
 
     public String id;
     public String roomId;
@@ -24,25 +39,45 @@ public class Booking implements Serializable {
     public String guestPhone;
     public String status = STATUS_PENDING;
     public String paymentStatus = "UNPAID";
+    // Rỗng là booking cũ chờ Host duyệt; luồng mới giữ tạm theo createdAt của server.
+    public String paymentFlow = "";
+
+    @Exclude
+    public boolean isInstantPayment() { return "INSTANT_5M".equals(paymentFlow); }
+
+    @Exclude
+    public long paymentDeadline() {
+        if (createdAt == null || startAt == null) return 0;
+        return Math.min(createdAt.getTime() + 300000L, startAt.getTime());
+    }
+    // Backend xác nhận số tiền đã nhận; client chỉ được tạo booking với giá trị 0.
+    public long paidAmount;
     public String activeMode = "HOURLY";
     public String rejectionReason = "";
     public Date startAt;
     public Date endAt;
     public double totalAmount;
-    public java.util.Map<String, Object> priceSnapshot = new java.util.HashMap<>();
-    public long schemaVersion = 1;
+    public Map<String, Object> priceSnapshot = new HashMap<>();
+    // Khi đọc document thiếu version, giữ dấu hiệu dữ liệu cũ để không tự nhận là hợp lệ.
+    // BookingPolicy luôn gán CURRENT_SCHEMA_VERSION khi tạo booking mới.
+    public long schemaVersion = LEGACY_SCHEMA_VERSION;
     public int rentalMonths;
     public int slotStart;
     public int slotCount;
-    public java.util.List<String> monthKeys = new java.util.ArrayList<>();
-    public java.util.List<Integer> slotKeys = new java.util.ArrayList<>();
+    public List<String> monthKeys = new ArrayList<>();
+    public List<Integer> slotKeys = new ArrayList<>();
     public String requestFingerprint = "";
     public Date cancelledAt;
     public String cancelledByUid = "";
     public int cancellationRefundPercent;
     public double refundAmount;
     public String refundStatus = "NOT_REQUIRED";
-    @com.google.firebase.firestore.Exclude public String requestKey = "";
+    // Mốc xác nhận việc sử dụng, không tự suy diễn từ giờ kết thúc hoặc trạng thái cũ.
+    public Date usageConfirmedAt;
+    public String usageConfirmedBy = "";
+    // Thời điểm khép hồ sơ trên hệ thống; giữ nguyên khoảng thuê trong startAt/endAt.
+    public Date closedAt;
+    @Exclude public String requestKey = "";
 
     @ServerTimestamp public Date createdAt;
     @ServerTimestamp public Date updatedAt;

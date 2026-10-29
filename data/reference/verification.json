@@ -14,8 +14,8 @@
     "ref_hcm_ta_quang_buu_547_549",
     "ref_hcm_ta_quang_buu_849"
   ],
-  "ruleset": "projects/broom-sharing-firebase-mobile/rulesets/e953c5d9-35a2-4721-922f-b089df8e197a",
+  "ruleset": "projects/broom-sharing-firebase-mobile/rulesets/d15751b5-bfd7-4bfa-bd0b-90cdcf07027f",
   "rulesRelease": "cloud.firestore/broomsharing",
   "cloudRulesMatchLocal": true,
-  "rulesSourceSha256": "5f0ef3d6a193d20cd18fa40aea4ccfaf2edd8bb9707a8d48782867a47c675c14"
+  "rulesSourceSha256": "ce28f21f934e3474b46dca89c1b57b17a030250b5c7e0937d3d21ac29757c167"
 }

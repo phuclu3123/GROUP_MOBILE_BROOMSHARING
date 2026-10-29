@@ -10,13 +10,13 @@
     <string name="booking_estimate_title">Tạm tính</string>
     <string name="booking_rent_label">Tiền thuê</string>
     <string name="booking_deposit_label">Trả trước dự kiến (40%)</string>
-    <string name="booking_total_label">Trả trước dự kiến</string>
+    <string name="booking_total_label">Tổng tiền thuê và phí</string>
 
     <string name="booking_success_screen_title">Kết quả đặt chỗ</string>
     <string name="booking_success_title">Đã gửi yêu cầu đặt chỗ</string>
     <string name="booking_code_label">Mã đặt chỗ: %1$s</string>
     <string name="booking_deposit_unpaid">Trả trước dự kiến / thanh toán</string>
-    <string name="booking_pending_explanation">Yêu cầu đang chờ chủ phòng xác nhận. Đây chưa phải xác nhận đặt chỗ cuối cùng và chưa có giao dịch thanh toán thật.</string>
+    <string name="booking_pending_explanation">Lịch đang được giữ tạm để thanh toán. Chỉ xác nhận đặt chỗ khi server ghi nhận đủ khoản trả trước. Hết hạn chưa trả sẽ nhả lịch.</string>
     <string name="booking_to_my_bookings">Về đặt chỗ của tôi</string>
     <string name="booking_continue_explore">Tiếp tục khám phá</string>
 
@@ -27,11 +27,14 @@
 
     <string-array name="booking_filter_options">
         <item>Tất cả đặt chỗ</item>
-        <item>Chờ xác nhận</item>
+        <item>Chờ thanh toán / chờ duyệt đơn cũ</item>
         <item>Đã xác nhận</item>
         <item>Đã hủy</item>
         <item>Hoàn tất</item>
         <item>Bị từ chối</item>
-        <item>Đã vào phòng (demo)</item>
+        <item>Đã vào phòng</item>
+        <item>Hết hạn</item>
+        <item>Khách không đến</item>
+        <item>Kết thúc do sự cố</item>
     </string-array>
 </resources>

@@ -89,7 +89,7 @@
             <TextView
                 style="@style/WorkspaceBody"
                 android:layout_marginTop="4dp"
-                android:text="Admin sẽ xem xét chứng từ chủ quyền hoặc ảnh thực tế không gian để cấp tích xác thực nội bộ." />
+                android:text="Admin đối chiếu thông tin và bằng chứng trước khi xét duyệt. Kết quả là kiểm tra nội bộ của ứng dụng." />
 
             <TextView
                 android:layout_width="match_parent"
@@ -126,13 +126,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:checked="true"
-                    android:text="Địa điểm (Quyền sở hữu / Hợp đồng thuê hợp lệ)" />
+                    android:text="Địa điểm" />
 
                 <RadioButton
                     android:id="@+id/rbPhotos"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Ảnh thực tế (Không gian đúng hiện trạng, không dùng ảnh mạng)" />
+                    android:text="Ảnh không gian" />
             </RadioGroup>
 
             <TextView
@@ -213,6 +213,8 @@
                 android:textColor="@color/white"
                 android:textSize="14sp"
                 android:textStyle="bold" />
+            <TextView style="@style/WorkspaceBody" android:layout_marginTop="8dp"
+                android:text="Tệp demo được lưu công khai theo URL trên Cloudinary. Không đính kèm giấy tờ thật hoặc thông tin khách hàng nhạy cảm." />
         </LinearLayout>
     </ScrollView>
 

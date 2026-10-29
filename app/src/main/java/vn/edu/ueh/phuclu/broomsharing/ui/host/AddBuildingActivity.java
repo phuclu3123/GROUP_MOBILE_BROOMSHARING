@@ -3,24 +3,29 @@ package vn.edu.ueh.phuclu.broomsharing.ui.host;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
+import android.util.SparseArray;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
-
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.lifecycle.ViewModelProvider;
-
 import com.bumptech.glide.Glide;
 import com.google.firebase.firestore.GeoPoint;
-
+import java.util.Locale;
 import vn.edu.ueh.phuclu.broomsharing.R;
 import vn.edu.ueh.phuclu.broomsharing.databinding.ActivityAddBuildingBinding;
-import vn.edu.ueh.phuclu.broomsharing.model.*;
+import vn.edu.ueh.phuclu.broomsharing.model.Building;
+import vn.edu.ueh.phuclu.broomsharing.model.UserProfile;
 import vn.edu.ueh.phuclu.broomsharing.ui.auth.SessionActivity;
-import vn.edu.ueh.phuclu.broomsharing.utils.*;
+import vn.edu.ueh.phuclu.broomsharing.utils.HostValidation;
+import vn.edu.ueh.phuclu.broomsharing.utils.UiForms;
 
-import java.util.Locale;
-
+/*
+    Nhập thông tin tòa nhà, chọn vị trí và gửi dữ liệu qua HostViewModel.
+    Khi sửa giữ ID hiện có; Repository xác nhận lại chủ sở hữu trước khi lưu.
+ */
 public class AddBuildingActivity extends SessionActivity {
     private ActivityAddBuildingBinding binding;
     private HostViewModel model;
@@ -61,7 +66,7 @@ public class AddBuildingActivity extends SessionActivity {
     protected void onProfileReady(UserProfile profile) {
         binding =
                 ActivityAddBuildingBinding.bind(
-                        ((android.view.ViewGroup) findViewById(android.R.id.content))
+                        ((ViewGroup) findViewById(android.R.id.content))
                                 .getChildAt(0));
         model = new ViewModelProvider(this).get(HostViewModel.class);
         if (model.editingBuilding == null) {
@@ -149,7 +154,7 @@ public class AddBuildingActivity extends SessionActivity {
     @Override
     protected void onSaveInstanceState(Bundle state) {
         if (binding != null) {
-            android.util.SparseArray<android.os.Parcelable> form = new android.util.SparseArray<>();
+            SparseArray<Parcelable> form = new SparseArray<>();
             binding.getRoot().saveHierarchyState(form);
             state.putSparseParcelableArray("form", form);
         }
