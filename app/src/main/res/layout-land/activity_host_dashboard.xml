@@ -1,0 +1,62 @@
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/workspaceRoot" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@color/screen_bg">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:orientation="horizontal" android:paddingStart="20dp" android:paddingEnd="20dp" android:paddingTop="4dp" android:paddingBottom="4dp" android:background="@color/white" android:gravity="center_vertical">
+        <TextView style="@style/WorkspaceBody" android:text="@string/workspace_host" android:textStyle="bold" android:textColor="@color/teal_dark" android:visibility="gone" />
+        <TextView android:id="@+id/workspaceTitle" style="@style/WorkspaceSection" android:text="@string/workspace_overview" android:layout_width="0dp" android:layout_weight="1" android:textSize="20sp" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnRefresh" style="@style/WorkspaceAction" android:text="@string/workspace_refresh" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="0dp" />
+    </LinearLayout>
+    <androidx.core.widget.NestedScrollView android:id="@+id/dashboardScroll" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+            <LinearLayout android:id="@+id/overviewPanel" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+                <TextView android:id="@+id/tvHostRoleStatus" style="@style/WorkspaceTitle" android:text="" />
+                <TextView style="@style/WorkspaceBody" android:text="@string/workspace_host_hint" android:layout_marginTop="6dp" />
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="12dp">
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_margin="4dp" android:padding="16dp" android:orientation="vertical" android:background="@drawable/bg_card">
+                        <TextView android:id="@+id/tvCountRooms" style="@style/WorkspaceTitle" android:text="@string/workspace_stat_unknown" />
+                        <TextView style="@style/WorkspaceBody" android:text="@string/workspace_total_rooms" />
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_margin="4dp" android:padding="16dp" android:orientation="vertical" android:background="@drawable/bg_card">
+                        <TextView android:id="@+id/tvCountPending" style="@style/WorkspaceTitle" android:text="@string/workspace_stat_unknown" />
+                        <TextView style="@style/WorkspaceBody" android:text="@string/workspace_pending_rooms" />
+                    </LinearLayout>
+                </LinearLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="12dp">
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_margin="4dp" android:padding="16dp" android:orientation="vertical" android:background="@drawable/bg_card">
+                        <TextView android:id="@+id/tvCountActive" style="@style/WorkspaceTitle" android:text="@string/workspace_stat_unknown" />
+                        <TextView style="@style/WorkspaceBody" android:text="@string/workspace_active_rooms" />
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_margin="4dp" android:padding="16dp" android:orientation="vertical" android:background="@drawable/bg_card">
+                        <TextView android:id="@+id/tvBadgeBookingCount" style="@style/WorkspaceTitle" android:text="@string/workspace_stat_unknown" />
+                        <TextView style="@style/WorkspaceBody" android:text="@string/workspace_pending_bookings" />
+                    </LinearLayout>
+                </LinearLayout>
+                <TextView style="@style/WorkspaceSection" android:text="@string/workspace_quick_actions" android:layout_marginTop="24dp" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/cardBookingRequests" style="@style/WorkspaceAction" android:text="@string/workspace_open_bookings" />
+                <TextView style="@style/WorkspaceBody" android:text="@string/workspace_open_bookings_hint" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnManageSpaces" style="@style/WorkspaceAction" android:text="@string/workspace_open_spaces" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnHostReports" style="@style/WorkspaceAction" android:text="@string/reports_center" />
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnPropertyVerification" style="@style/WorkspaceAction" android:text="Hồ sơ xác minh tài sản" />
+                <TextView style="@style/WorkspaceBody" android:text="@string/workspace_open_spaces_hint" />
+                <TextView style="@style/WorkspaceBody" android:text="@string/workspace_host_summary" android:layout_marginTop="20dp" />
+            </LinearLayout>
+            <LinearLayout android:id="@+id/spacesPanel" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:visibility="gone">
+                <LinearLayout android:layout_width="240dp" android:layout_height="wrap_content" android:orientation="vertical" android:paddingEnd="16dp">
+                    <TextView style="@style/WorkspaceBody" android:text="@string/workspace_spaces_hint" android:visibility="gone" />
+                    <com.google.android.material.tabs.TabLayout android:id="@+id/spaceTabs" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" app:tabMode="fixed" app:tabTextColor="@color/text_secondary" app:tabSelectedTextColor="@color/teal_dark" />
+                    <com.google.android.material.button.MaterialButton android:id="@+id/btnAddRoom" style="@style/WorkspaceAction" android:text="@string/workspace_add_room" />
+                    <com.google.android.material.button.MaterialButton android:id="@+id/btnAddBuilding" style="@style/WorkspaceAction" android:text="@string/workspace_add_building" android:visibility="gone" />
+                    <TextView android:id="@+id/tvCountBuildings" style="@style/WorkspaceBody" android:text="" android:layout_marginTop="8dp" />
+                </LinearLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
+                    <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvRooms" android:layout_width="match_parent" android:layout_height="wrap_content" android:nestedScrollingEnabled="false" android:clipToPadding="false" android:paddingBottom="16dp" android:layout_marginTop="12dp" />
+                    <TextView android:id="@+id/tvEmptyRooms" style="@style/WorkspaceBody" android:text="@string/workspace_empty_rooms" android:layout_marginTop="24dp" android:visibility="gone" />
+                    <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvBuildings" android:layout_width="match_parent" android:layout_height="wrap_content" android:nestedScrollingEnabled="false" android:clipToPadding="false" android:paddingBottom="16dp" android:layout_marginTop="12dp" android:visibility="gone" />
+                    <TextView android:id="@+id/tvEmptyBuildings" style="@style/WorkspaceBody" android:text="@string/workspace_empty_buildings" android:layout_marginTop="24dp" android:visibility="gone" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+    <TextView android:id="@+id/tvFeedback" style="@style/WorkspaceBody" android:text="" android:paddingStart="20dp" android:paddingEnd="20dp" android:accessibilityLiveRegion="polite" android:visibility="gone" />
+    <ProgressBar android:id="@+id/progressBar" android:layout_width="24dp" android:layout_height="24dp" android:layout_gravity="center" android:visibility="gone" />
+    <include layout="@layout/view_management_navigation" />
+</LinearLayout>

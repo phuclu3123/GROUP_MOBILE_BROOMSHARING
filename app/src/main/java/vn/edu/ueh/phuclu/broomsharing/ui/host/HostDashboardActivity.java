@@ -54,8 +54,10 @@ public class HostDashboardActivity extends SessionActivity {
                 new Intent(this, AddBuildingActivity.class).putExtra("EXTRA_BUILDING", building)));
         b.rvRooms.setLayoutManager(new LinearLayoutManager(this));
         b.rvRooms.setAdapter(roomAdapter);
+        b.rvRooms.setNestedScrollingEnabled(false);
         b.rvBuildings.setLayoutManager(new LinearLayoutManager(this));
         b.rvBuildings.setAdapter(buildingAdapter);
+        b.rvBuildings.setNestedScrollingEnabled(false);
         b.spaceTabs.addTab(b.spaceTabs.newTab().setText(R.string.workspace_rooms));
         b.spaceTabs.addTab(b.spaceTabs.newTab().setText(R.string.workspace_buildings));
         b.spaceTabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -131,6 +133,7 @@ public class HostDashboardActivity extends SessionActivity {
         b.spacesPanel.setVisibility(selected == R.id.host_spaces ? View.VISIBLE : View.GONE);
         b.workspaceTitle.setText(selected == R.id.host_overview ? R.string.workspace_overview : R.string.workspace_spaces);
         ManagementNavigation.select(this, selected);
+        b.dashboardScroll.scrollTo(0, 0);
     }
 
     @Override protected void onNewIntent(Intent intent) {
