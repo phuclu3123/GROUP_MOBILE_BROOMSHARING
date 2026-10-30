@@ -1,7 +1,0 @@
-    function own(uid) { return request.auth.uid == uid; }
-    function account() { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data; }
-    function active() { return request.auth != null && account().status == 'ACTIVE'; }
-    function admin() { let u=account(); return u.status=='ACTIVE' && u.role=='ADMIN'; }
-    function host() { let u=account(); return u.status=='ACTIVE' && u.role=='HOST'; }
-    function renter() { let u=account(); return u.status=='ACTIVE' && u.role in ['GUEST','HOST']; }
-    function publicRoom(r) { return r.approvalStatus == 'APPROVED' && r.listingStatus == 'ACTIVE'; }

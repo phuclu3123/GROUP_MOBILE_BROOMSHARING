@@ -29,6 +29,7 @@ import java.util.List;
  * để tải và cập nhật đơn.
  */
 public class MyBookingsActivity extends SessionActivity {
+    @Override protected boolean supportsOfflineReading() { return true; }
     // Binding tới activity_my_bookings_live.xml.
     private ActivityMyBookingsLiveBinding b;
 
@@ -108,7 +109,7 @@ public class MyBookingsActivity extends SessionActivity {
                         item -> startActivity(new Intent(this, BookingPaymentActivity.class).putExtra("bookingId", item.id)));
         pendingPayments = new ViewModelProvider(this).get(PendingPaymentViewModel.class);
         pendingPayments.entries.observe(this, adapter::setPendingPayments);
-        pendingPayments.start(uid);
+        if (!isOfflineView()) pendingPayments.start(uid);
 
         // RecyclerView hiển thị danh sách dọc và dùng BookingAdapter tạo từng thẻ.
         b.bookings.setLayoutManager(new LinearLayoutManager(this));
@@ -142,6 +143,7 @@ public class MyBookingsActivity extends SessionActivity {
                                     : state.error == null ? "" : state.error);
                     if (state.error != null) adapter.setData(Collections.emptyList());
                     if (state.data != null) {
+                        adapter.setOffline(state.offline || isOfflineView());
                         render(adapter);
                     }
                 });
@@ -189,7 +191,8 @@ public class MyBookingsActivity extends SessionActivity {
         for (Booking item : state.data)
             if (wanted.isEmpty() || wanted.equals(item.status)) rows.add(item);
         adapter.setData(rows);
-        b.feedback.setText(rows.isEmpty() ? getString(R.string.booking_empty) : "");
+        b.feedback.setText((state.offline ? state.offlineNotice() + "\n" : "")
+                + (rows.isEmpty() ? getString(R.string.booking_empty) : ""));
     }
 
     @Override
@@ -197,7 +200,7 @@ public class MyBookingsActivity extends SessionActivity {
         super.onStart();
         // Màn hình quay lại foreground thì đăng ký listener để nhận thay đổi mới.
         if (model != null && uid != null) model.watchMine(uid);
-        if (pendingPayments != null && uid != null) pendingPayments.start(uid);
+        if (!isOfflineView() && pendingPayments != null && uid != null) pendingPayments.start(uid);
     }
 
     @Override

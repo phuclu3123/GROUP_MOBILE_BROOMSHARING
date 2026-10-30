@@ -32,6 +32,7 @@ import java.util.List;
  * Theo dõi RoomViewModel; dùng GuestNavigation để chuyển giữa các chức năng.
  */
 public class MainActivity extends SessionActivity {
+    @Override protected boolean supportsOfflineReading() { return true; }
     private ActivityMainBinding b;
     private RoomViewModel model;
     private Bundle restored;
@@ -159,8 +160,8 @@ public class MainActivity extends SessionActivity {
                                         });
                                 b.scope.setVisibility(
                                         state.data.isEmpty() ? View.GONE : View.VISIBLE);
-                                b.scope.setText(
-                                        getString(
+                                b.scope.setText((state.offline ? state.offlineNotice() + "\n" : "")
+                                        + getString(
                                                 R.string.home_result_count,
                                                 state.data.size(),
                                                 model.loadedCount()));

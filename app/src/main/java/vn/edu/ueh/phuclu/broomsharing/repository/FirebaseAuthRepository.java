@@ -25,6 +25,10 @@ import vn.edu.ueh.phuclu.broomsharing.utils.FirebaseHelper;
 import java.util.HashMap;
 import java.util.Map;
 
+/*
+    Kết nối Firebase Authentication với hồ sơ Firestore theo cùng UID.
+    Đăng ký kiểm tra alias username và giữ phiên/hồ sơ nhất quán; không lưu mật khẩu trong Firestore.
+ */
 public final class FirebaseAuthRepository implements AuthRepository {
     private final FirebaseAuth auth;
     private final FirebaseFirestore db;
@@ -298,6 +302,7 @@ public final class FirebaseAuthRepository implements AuthRepository {
 
     @Override
     public void logout() {
+        if (auth != null) OfflineRepository.clear(auth.getUid());
         if (auth != null) auth.signOut();
     }
 

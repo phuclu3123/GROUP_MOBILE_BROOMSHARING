@@ -11,6 +11,7 @@ import vn.edu.ueh.phuclu.broomsharing.repository.AuthError;
 import vn.edu.ueh.phuclu.broomsharing.repository.AuthRepository;
 import vn.edu.ueh.phuclu.broomsharing.repository.FirebaseAuthRepository;
 
+// Giữ trạng thái xác thực qua tái tạo Activity, chặn gửi lặp và chuyển yêu cầu xuống Repository.
 public class AuthViewModel extends AndroidViewModel {
     /*
         Quản lý trạng thái cho nhóm màn hình đăng nhập, đăng ký và khôi phục mật khẩu.

@@ -1,5 +1,0 @@
-{
-  "code": 429,
-  "status": "RESOURCE_EXHAUSTED",
-  "message": "Quota limit exceeded. Retry after quota limits are reset or enable billing for this project to avoid quota checks. Cause - Quota exceeded for quota metric 'Free daily read units per project (free tier database)' and limit 'Free daily read units per project (free tier database) per day' of service 'firestore.googleapis.com' for consumer 'project_number:354839824900'."
-}

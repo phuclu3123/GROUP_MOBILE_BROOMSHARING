@@ -1,52 +1,45 @@
-# BROOM Sharing
+# BroomSharing
 
-Ứng dụng Android chia sẻ/thuê không gian làm việc, viết bằng **Java + XML**, theo **MVVM + Repository + Model**. Database chính là **Firestore `broomsharing`** trong project Firebase hiện có.
+Ứng dụng Android chia sẻ không gian làm việc, xây dựng bằng **Java + XML, MVVM + Repository + Model**. Firebase Authentication quản lý đăng nhập; Cloud Firestore lưu dữ liệu nghiệp vụ trong database `broomsharing`.
 
-## Cấu trúc
+## Thành phần
 
-```text
-app/src/main/java/.../
-  model/          Dữ liệu Firestore và trạng thái màn hình
-  repository/     Firebase Android SDK và HTTP bản đồ
-  ui/             Activity và ViewModel chia theo chức năng
-  adapter/        Hiển thị danh sách
-  utils/          Kiểm tra dữ liệu, lịch, giá và cấu hình dùng chung
-app/src/main/res/ XML và tài nguyên Android
-app/src/test/     Unit test Java
-app/src/androidTest/ Kiểm thử Android Java
-docs/            Thiết kế, tính năng và kiểm thử hiện tại
-```
+| Thư mục | Nội dung |
+| --- | --- |
+| `app/` | Ứng dụng Android, tài nguyên XML và các bộ kiểm thử Java |
+| `backend/payments/` | HTTP server Java 17, Firebase Admin SDK và payOS |
+| `tools/payments/` | Ba script PowerShell chạy, khởi động lại server và kết nối webhook relay |
+| `tools/dataset/` | Hai công cụ Java cho dữ liệu demo và địa điểm tham khảo |
+| `data/` | Dữ liệu demo, ảnh minh họa và nguồn ảnh |
+| `docs/` | Hướng dẫn kiến trúc, tích hợp và kiểm tra bản cuối |
+| `Latex/` | Nguồn báo cáo và bản `main.pdf` |
 
-Không có Cloud Functions/backend riêng, Node, JavaScript hoặc DTO. Gradle Kotlin DSL (`.kts`) là cấu hình build Android có sẵn, không phải mã ứng dụng Kotlin.
+## Chạy Android
 
-Xem [cây package và vị trí từng màn hình](docs/design/source-structure.md) để đọc code theo luồng Activity → ViewModel → Repository → Firebase. Model biểu diễn dữ liệu trao đổi giữa các lớp.
-
-## Chạy
-
-Mở bằng Android Studio và giữ `app/google-services.json`, `local.properties` của máy. Không commit thông tin cấu hình riêng. Root `.env` có `MapTiler_API_KEY`, `HeiGIT_API_KEY`; xem `.env.example`.
+Mở dự án bằng Android Studio. Chuẩn bị `app/google-services.json`, `local.properties` và root `.env` theo [.env.example](.env.example). Những tệp cấu hình riêng và khóa server không được commit.
 
 ```powershell
-.\gradlew.bat :app:assembleDebug :app:testDebugUnitTest :app:lintDebug
+.\gradlew.bat :app:assembleDebug
 ```
 
-APK: `app/build/outputs/apk/debug/app-debug.apk`. Mặc định dùng Firestore thật; chỉ bản Debug được bật emulator bằng `-PfirestoreEmulatorHost=10.0.2.2`.
+APK được tạo tại `app/build/outputs/apk/debug/app-debug.apk`. Các giá trị `.env` của Android được đọc khi build; sau khi thay URL backend cần build và cài lại app. Mặc định kết nối Firebase thật. Chỉ bản Debug hỗ trợ Firestore emulator qua `-PfirestoreEmulatorHost=10.0.2.2`.
 
-## Phạm vi hiện tại
+## Luồng chính
 
-- Auth/phiên đăng nhập, quên mật khẩu bằng liên kết email Firebase, hồ sơ Host, tòa nhà/phòng và duyệt Admin.
-- Guest xem/lọc phòng, lưu quan tâm, đặt giờ/tháng/quý, xem yêu cầu và hủy.
-- Transaction Java giữ chỗ, giá/snapshot, xác nhận/từ chối, ghi nhận vào phòng/hoàn tất thủ công và audit; chưa có QR/PIN ra vào.
-- Dữ liệu cloud có [dataset TP.HCM](data/demo/README.md): thêm 10 tài khoản demo, 8 tòa nhà, 24 phòng, 28 booking cùng lịch giữ chỗ, yêu thích và hàng chờ quản trị; giữ lại hai phòng demo trước đó.
-- Bản đồ TP.HCM: GPS/nhập địa chỉ/chọn điểm → tìm trong 3 km → chọn marker và vẽ tuyến thật bằng MapLibre + MapTiler + openrouteservice; Google Maps dự phòng khi lỗi dịch vụ. Có thêm [8 địa chỉ cho thuê công khai](data/reference/README.md), tách thành dữ liệu tham khảo chưa nhận booking.
-- Chat văn bản Guest–Host qua Firestore, inbox/badge chưa đọc và lịch sử đồng bộ khi mở lại app. Liên hệ điện thoại mở trình quay số, không gọi trong app.
-- Booking mới lưu chính sách hủy v1 và trả trước dự kiến 40%. Guest hủy thông thường không cần Admin; Host hủy phải có lý do. Hủy và nhả lịch cùng transaction, không gộp với việc hoàn tiền.
-- Trang “Cập nhật của bạn” dùng chung Guest/Host, tổng hợp booking và tin nhắn mới nhất, lưu đã đọc trên Firestore. Notification Android cục bộ khi bật quyền; chưa có push khi app đóng.
-- Báo cáo thông tin phòng gửi trực tiếp tới hàng chờ Admin; kết luận có lý do, có thể ẩn phòng hoặc khóa Host cùng nhật ký trong transaction. Bằng chứng tệp vẫn hoãn.
-- Menu tiện ích quanh điểm chọn dùng MapTiler hiện có: lọc nhóm từ 10 POI gần nhất trong 1 km, có cache, ghi công và Google Maps dự phòng; không phải danh sách đầy đủ mọi dịch vụ.
-- Theo quyết định người dùng, thanh toán/hoàn tiền hiện hiển thị “Chức năng đang phát triển”, không ghi nhận thu/hoàn tiền giả. Lưu/xem bằng chứng ảnh/PDF riêng tư để sau khi chốt dịch vụ lưu tệp.
+- Người thuê tìm/lọc không gian, xem bản đồ, lưu yêu thích, đặt giờ hoặc tháng/quý, chat, theo dõi lượt thuê, đánh giá và báo cáo.
+- Host quản lý tòa nhà/phòng, giá và lịch, minh chứng, check-in, hoàn tất lượt thuê và ghi nhận khách không đến.
+- Admin duyệt quyền Host, bài đăng và minh chứng; xử lý báo cáo, khóa quyền, xử lý booking ngoại lệ và tra cứu nhật ký.
+- Booking mới của Host payOS demo mở QR ngay, giữ lịch tối đa 5 phút. Backend xác minh nhận đủ khoản trả trước 40% đúng hạn mới xác nhận; không cần Host duyệt booking mới. Hết hạn được đối soát để nhả lịch và giữ lịch sử thất bại. Không triển khai API hoàn tiền tự động.
+- Cloudinary lưu ảnh/tệp DEMO. MapLibre hiển thị bản đồ; MapTiler và openrouteservice cung cấp dữ liệu bản đồ/tuyến đường.
+- SQLite lưu các trang hồ sơ, phòng và booking đã tải để xem lại khi mất mạng. Đặt chỗ, thanh toán và các thao tác ghi cần kết nối mạng.
 
-Firestore Rules cập nhật cho database cloud `broomsharing` ngày 20/10/2026 và đọc lại xác nhận khớp file local, bao gồm chat, chính sách hủy, địa chỉ tham khảo, trạng thái đã đọc và báo cáo. Bản ghép giữ quyền Host đã có trên cloud; UI của nhánh thành viên khác chưa được tích hợp trong lượt Phúc. Xem [nghiệm thu giai đoạn 3](data/demo/phuc-phase3-verification.json). Các lần sửa tiếp theo cần phát hành lại. Chỉ giữ `firestore.rules`, `storage.rules` và `firestore.indexes.json` với đường dẫn trong `firebase.json`. Không thêm Functions hoặc yêu cầu nâng gói trong phạm vi này.
+Backend Java và tunnel phải chạy khi demo thanh toán. Xem [hướng dẫn thanh toán](backend/payments/README.md), [tài liệu tích hợp](docs/README.md) và [kiểm tra bản cuối](docs/testing/README.md).
 
-Đọc [mục lục tài liệu](docs/README.md), đặc biệt [các giới hạn kiến trúc](docs/design/architecture.md) và [kết quả kiểm thử](docs/testing/verification.md).
+## Kiểm tra local
 
-Tài liệu phân công `.xlsx` và slide gốc vẫn được giữ tại đường dẫn người dùng cung cấp. Cache/build/log không thuộc mã nguồn và có thể sinh lại khi chạy kiểm tra.
+```powershell
+.\gradlew.bat :app:assembleDebug :app:testDebugUnitTest :app:lintDebug :app:assembleDebugAndroidTest
+.\gradlew.bat -p backend/payments test
+```
+
+Các bài Android thao tác cloud cần cấu hình demo riêng; không chạy hàng loạt trên dữ liệu đang dùng để quay video. Tệp build, log, credentials và `_local_archive/` không thuộc bản phát hành. Lịch sử thử nghiệm được giữ local để khôi phục, không đặt lẫn trong cây mã nguồn GitHub.

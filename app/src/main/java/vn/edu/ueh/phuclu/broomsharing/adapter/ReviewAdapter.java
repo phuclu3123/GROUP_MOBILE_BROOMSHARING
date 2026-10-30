@@ -2,10 +2,7 @@ package vn.edu.ueh.phuclu.broomsharing.adapter;
 
 import android.content.res.ColorStateList;
 import android.view.*;
-import android.widget.ScrollView;
-import android.widget.TextView;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -46,23 +43,8 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.Holder> {
         ReviewItem item = items.get(position);
         h.b.title.setText(item.title);
         h.b.details.setText(item.details);
-        h.b.viewDetails.setOnClickListener(
-                v -> {
-                    TextView body = new TextView(v.getContext());
-                    int padding = (int) (20 * v.getResources().getDisplayMetrics().density);
-                    body.setPadding(padding, padding, padding, padding);
-                    body.setTextSize(16);
-                    body.setTextColor(ContextCompat.getColor(v.getContext(), R.color.text_primary));
-                    body.setText(item.details);
-                    body.setTextIsSelectable(true);
-                    ScrollView scroll = new ScrollView(v.getContext());
-                    scroll.addView(body);
-                    new AlertDialog.Builder(v.getContext())
-                            .setTitle(item.title)
-                            .setView(scroll)
-                            .setPositiveButton(android.R.string.ok, null)
-                            .show();
-                });
+        h.b.viewDetails.setOnClickListener(v ->
+                vn.edu.ueh.phuclu.broomsharing.ui.admin.ReviewDetailsSheet.show(v.getContext(), item, evidence));
         h.b.evidence.setVisibility(
                 "VERIFICATION".equals(item.kind) || "HOST".equals(item.kind)
                         ? View.VISIBLE

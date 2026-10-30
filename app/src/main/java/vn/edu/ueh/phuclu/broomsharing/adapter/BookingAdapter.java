@@ -27,6 +27,10 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.Holder> 
 
     // Dùng để khóa nút hủy trong lúc ViewModel đang cập nhật booking.
     private boolean busy;
+    private boolean offline;
+
+    // Bản lưu vẫn mở chi tiết được, nhưng không hủy hoặc tiếp tục QR từ dữ liệu cũ.
+    public void setOffline(boolean value) { offline = value; notifyDataSetChanged(); }
 
     // Activity truyền hành động cho Adapter thay vì để Adapter tự điều hướng hoặc gọi Repository.
     public BookingAdapter(Consumer<Booking> cancel, Consumer<Booking> open, Consumer<Booking> resume) {
@@ -56,7 +60,7 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.Holder> 
     // Đổ dữ liệu booking tại position vào ViewHolder đang được RecyclerView dùng lại.
     @Override public void onBindViewHolder(@NonNull Holder h, int position) {
         Booking item = items.get(position);
-        h.b.resumePayment.setVisibility(payable.contains(item.id) ? View.VISIBLE : View.GONE);
+        h.b.resumePayment.setVisibility(!offline && payable.contains(item.id) ? View.VISIBLE : View.GONE);
         h.b.resumePayment.setOnClickListener(v -> { if (payable.contains(item.id)) resume.accept(item); });
         h.b.open.setOnClickListener(v -> open.accept(item));
         h.b.info.setContentDescription("Xem chi tiết đặt chỗ " + (item.roomName == null ? item.roomId : item.roomName));
@@ -71,7 +75,7 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.Holder> 
         h.b.bookingReason.setText(item.rejectionReason == null ? "" : "Lý do: " + item.rejectionReason);
         h.b.cancel.setVisibility(item.startAt != null && item.startAt.after(new Date())
                 && (Booking.STATUS_PENDING.equals(item.status) || Booking.STATUS_CONFIRMED.equals(item.status)) ? View.VISIBLE : View.GONE);
-        h.b.cancel.setEnabled(!busy); h.b.cancel.setOnClickListener(v -> { if (!busy) cancel.accept(item); });
+        h.b.cancel.setEnabled(!busy && !offline); h.b.cancel.setOnClickListener(v -> { if (!busy && !offline) cancel.accept(item); });
     }
 
     // Giữ Binding của một thẻ để RecyclerView tái sử dụng các View khi cuộn danh sách.

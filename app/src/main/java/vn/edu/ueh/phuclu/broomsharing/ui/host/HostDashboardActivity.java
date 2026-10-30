@@ -97,8 +97,10 @@ public class HostDashboardActivity extends SessionActivity {
         b.rvRooms.setLayoutManager(new GridLayoutManager(this,
                 getResources().getInteger(R.integer.room_grid_columns)));
         b.rvRooms.setAdapter(roomAdapter);
+        b.rvRooms.setNestedScrollingEnabled(false);
         b.rvBuildings.setLayoutManager(new LinearLayoutManager(this));
         b.rvBuildings.setAdapter(buildingAdapter);
+        b.rvBuildings.setNestedScrollingEnabled(false);
         b.spaceTabs.addTab(b.spaceTabs.newTab().setText(R.string.workspace_rooms));
         b.spaceTabs.addTab(b.spaceTabs.newTab().setText(R.string.workspace_buildings));
         b.spaceTabs.addOnTabSelectedListener(
@@ -228,6 +230,7 @@ public class HostDashboardActivity extends SessionActivity {
                         ? R.string.workspace_overview
                         : R.string.workspace_spaces);
         ManagementNavigation.select(this, selected);
+        b.dashboardScroll.scrollTo(0, 0);
     }
 
     @Override

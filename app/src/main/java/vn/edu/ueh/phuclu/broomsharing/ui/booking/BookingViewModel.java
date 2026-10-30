@@ -11,6 +11,8 @@ import vn.edu.ueh.phuclu.broomsharing.model.UiState;
 import vn.edu.ueh.phuclu.broomsharing.repository.BookingRepository;
 import vn.edu.ueh.phuclu.broomsharing.repository.ResultCallback;
 import vn.edu.ueh.phuclu.broomsharing.repository.RoomRepository;
+import vn.edu.ueh.phuclu.broomsharing.repository.OfflineRepository;
+import vn.edu.ueh.phuclu.broomsharing.data.local.OfflineDatabase;
 
 import java.util.*;
 
@@ -55,22 +57,29 @@ public class BookingViewModel extends ViewModel {
     // Listener realtime cho danh sách của tôi và booking chi tiết.
     private ListenerRegistration watcher;
     private ListenerRegistration detailWatcher;
+    private int mineGeneration, detailGeneration;
 
     // Theo dõi booking chi tiết realtime để nhận cập nhật từ Firestore.
     public void watchDetail(String id) {
         // Hủy listener cũ trước khi theo dõi một booking khác.
         stopDetail();
+        final int run = detailGeneration;
         detail.setValue(UiState.loading());
+        if (!OfflineRepository.online()) { readSavedBooking(id, run); return; }
         detailWatcher =
                 repository.watchOne(
                         id,
                         new ResultCallback<Booking>() {
                             public void onSuccess(Booking value) {
+                                if (run != detailGeneration) return;
+                                OfflineRepository.saveBooking(value);
                                 // Đóng gói dữ liệu thành công để Activity quan sát.
                                 detail.setValue(UiState.success(value));
                             }
 
                             public void onError(Exception e) {
+                                if (run != detailGeneration) return;
+                                if (OfflineRepository.networkFailure(e)) { readSavedBooking(id, run); return; }
                                 // Đưa lỗi vào trạng thái để Activity hiển thị.
                                 detail.setValue(UiState.error(e));
                             }
@@ -78,6 +87,7 @@ public class BookingViewModel extends ViewModel {
     }
 
     public void stopDetail() {
+        detailGeneration++;
         // remove() ngừng nhận các lần cập nhật realtime tiếp theo.
         if (detailWatcher != null) detailWatcher.remove();
         detailWatcher = null;
@@ -148,28 +158,68 @@ public class BookingViewModel extends ViewModel {
     public void watchMine(String uid) {
         // Tránh giữ đồng thời listener của người dùng hoặc màn hình trước đó.
         stopWatching();
+        final int run = mineGeneration;
         bookings.setValue(UiState.loading());
+        if (!OfflineRepository.online()) { readSavedBookings(uid, run); return; }
         watcher =
                 repository.watchMine(
                         uid,
                         new ResultCallback<List<Booking>>() {
                             public void onSuccess(List<Booking> value) {
+                                if (run != mineGeneration) return;
+                                OfflineRepository.saveBookings(value);
                                 // Mỗi thay đổi realtime sẽ cập nhật danh sách Activity đang quan sát.
                                 bookings.setValue(UiState.success(value));
                             }
 
                             public void onError(Exception e) {
+                                if (run != mineGeneration) return;
+                                if (OfflineRepository.networkFailure(e)) { readSavedBookings(uid, run); return; }
                                 bookings.setValue(UiState.error(e));
                             }
                         });
     }
 
     public void stopWatching() {
+        mineGeneration++;
         // Ngừng theo dõi Firestore để tránh giữ listener khi màn hình không còn dùng.
         if (watcher != null) {
             watcher.remove();
             watcher = null;
         }
+    }
+
+    private void readSavedBooking(String id, int run) {
+        OfflineRepository.read("booking", id, Booking.class,
+                new ResultCallback<OfflineDatabase.Saved<Booking>>() {
+                    public void onSuccess(OfflineDatabase.Saved<Booking> saved) {
+                        if (run != detailGeneration) return;
+                        if (!Objects.equals(OfflineRepository.uid(), saved.data.guestUid)) {
+                            detail.setValue(UiState.error(new Exception("Không có bản lưu đặt chỗ của tài khoản này.")));
+                            return;
+                        }
+                        detail.setValue(UiState.cached(saved.data, saved.savedAt));
+                    }
+                    public void onError(Exception error) {
+                        if (run == detailGeneration) detail.setValue(UiState.error(error));
+                    }
+                });
+    }
+
+    private void readSavedBookings(String uid, int run) {
+        OfflineRepository.read("bookings", "list", ArrayList.class,
+                new ResultCallback<OfflineDatabase.Saved<ArrayList>>() {
+                    public void onSuccess(OfflineDatabase.Saved<ArrayList> saved) {
+                        if (run != mineGeneration || !Objects.equals(uid, OfflineRepository.uid())) return;
+                        List<Booking> rows = new ArrayList<>();
+                        for (Object item : saved.data)
+                            if (item instanceof Booking && uid.equals(((Booking) item).guestUid)) rows.add((Booking) item);
+                        bookings.setValue(UiState.cached(rows, saved.savedAt));
+                    }
+                    public void onError(Exception error) {
+                        if (run == mineGeneration) bookings.setValue(UiState.error(error));
+                    }
+                });
     }
 
     @Override
@@ -226,6 +276,7 @@ public class BookingViewModel extends ViewModel {
     }
 
     public void quote(Booking request) {
+        if (!OfflineRepository.online()) { quote.setValue(UiState.error(new Exception("Kết nối mạng để kiểm tra lịch và giá hiện tại."))); return; }
         // Không khởi động thêm thao tác khi đang có báo giá/lưu booking khác.
         if (busy()) return;
         quote.setValue(UiState.loading());
@@ -245,6 +296,7 @@ public class BookingViewModel extends ViewModel {
     }
 
     public void create(Booking request) {
+        if (!OfflineRepository.online()) { saved.setValue(UiState.error(new Exception("Cần kết nối mạng để đặt chỗ và thanh toán."))); return; }
         // Chặn thao tác trùng khi ViewModel đang xử lý.
         if (busy()) return;
         saved.setValue(UiState.loading());
@@ -284,6 +336,7 @@ public class BookingViewModel extends ViewModel {
     }
 
     public void cancel(String bookingId, String uid, Integer expectedPercent) {
+        if (!OfflineRepository.online()) { saved.setValue(UiState.error(new Exception("Cần kết nối mạng để hủy đặt chỗ."))); return; }
         // Dùng trạng thái CANCELLED; quyền và điều kiện hủy được Repository kiểm tra lại.
         if (busy()) return;
         saved.setValue(UiState.loading());

@@ -27,6 +27,7 @@ import vn.edu.ueh.phuclu.broomsharing.utils.TimeUtils;
  * BookingViewModel để nhận thay đổi của đơn.
  */
 public class BookingSuccessActivity extends SessionActivity {
+    @Override protected boolean supportsOfflineReading() { return true; }
     // ViewModel tải và theo dõi booking được mở từ màn tạo hoặc danh sách booking.
     private BookingViewModel model;
 
@@ -100,6 +101,10 @@ public class BookingSuccessActivity extends SessionActivity {
 
                     // Từ đây đã có dữ liệu booking để đưa lên giao diện.
                     Booking item = state.data;
+                    boolean canChange = !state.offline && !isOfflineView();
+                    b.bookingCalendar.setEnabled(canChange);
+                    b.bookingReview.setEnabled(canChange);
+                    b.bookingReport.setEnabled(canChange);
                     boolean successful = java.util.Arrays.asList("CONFIRMED", "CHECKED_IN", "COMPLETED").contains(item.status)
                             && !"REVIEW_REQUIRED".equals(item.paymentStatus);
                     b.bookingOutcomeIcon.setVisibility(successful ? View.VISIBLE : View.GONE);
@@ -238,6 +243,13 @@ public class BookingSuccessActivity extends SessionActivity {
                                                                                                     .currentTimeMillis()));
                     if ("REVIEW_REQUIRED".equals(item.paymentStatus))
                         b.tvConfirmationNote.setText("Đã ghi nhận tiền nhưng chưa thể xác nhận đặt chỗ hoặc có sai lệch giao dịch. Liên hệ Host/Admin để đối soát. App chưa tự động hoàn tiền.");
+                    if (state.offline || isOfflineView()) {
+                        b.tvConfirmationTitle.setText("Đặt chỗ đã lưu");
+                        b.tvConfirmationNote.setText(state.offlineNotice());
+                        b.bookingOutcomeIcon.setVisibility(View.GONE);
+                        b.bookingPayment.setEnabled(false); b.bookingCalendar.setEnabled(false);
+                        b.bookingReview.setEnabled(false); b.bookingReport.setEnabled(false); b.bookingChat.setEnabled(false);
+                    }
                 });
 
         // Bắt đầu nhận dữ liệu chi tiết ngay khi observer đã được đăng ký.

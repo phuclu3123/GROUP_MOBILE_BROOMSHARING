@@ -13,11 +13,37 @@ public final class UiState<T> {
     public final boolean loading;
     public final T data;
     public final String error;
+    public final boolean offline;
+    public final long savedAt;
+    public final boolean networkError;
 
     private UiState(boolean loading, T data, String error) {
+        this(loading, data, error, false, 0);
+    }
+
+    private UiState(boolean loading, T data, String error, boolean offline, long savedAt) {
+        this(loading, data, error, offline, savedAt, false);
+    }
+
+    private UiState(boolean loading, T data, String error, boolean offline, long savedAt, boolean networkError) {
         this.loading = loading;
         this.data = data;
         this.error = error;
+        this.offline = offline;
+        this.savedAt = savedAt;
+        this.networkError = networkError;
+    }
+
+    // Bản lưu chỉ để xem; thời điểm này không phải lần xác nhận mới từ server.
+    public static <T> UiState<T> cached(T data, long savedAt) {
+        return new UiState<>(false, data, null, true, savedAt);
+    }
+
+    public String offlineNotice() {
+        return offline ? "Ngoại tuyến • Bản lưu "
+                + new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.forLanguageTag("vi-VN"))
+                        .format(new java.util.Date(savedAt))
+                + ". Chỉ xem; kết nối mạng để cập nhật." : "";
     }
 
     public static <T> UiState<T> loading() {
@@ -35,7 +61,7 @@ public final class UiState<T> {
                 || cause instanceof IllegalStateException
                 || cause instanceof IllegalArgumentException
                 || cause instanceof IOException) {
-            return new UiState<>(false, null, cause.getMessage());
+            return new UiState<>(false, null, cause.getMessage(), false, 0, cause instanceof IOException);
         }
         if (e instanceof FirebaseFirestoreException) {
             FirebaseFirestoreException.Code code =
@@ -48,7 +74,7 @@ public final class UiState<T> {
                     || code
                             == FirebaseFirestoreException.Code
                                     .DEADLINE_EXCEEDED)
-                return new UiState<>(false, null, "Không thể kết nối. Kiểm tra mạng và thử lại.");
+                return new UiState<>(false, null, "Không thể kết nối. Kiểm tra mạng và thử lại.", false, 0, true);
         }
         Log.e("Repository", "Operation failed", e);
         return new UiState<>(

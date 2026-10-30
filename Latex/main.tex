@@ -1,0 +1,242 @@
+% BROOMSHARING | DO AN MOBILE | BAN HIEU CHINH THEO 2 MAU
+% AI_PROJECT: bia, cach trinh bay phu luc, lien ket va danh muc cuoi.
+% FINAL_ANDROID: le trang, font, gian dong, thut dau dong, section va tham khao.
+% Build: pdflatex main; biber main; pdflatex main; pdflatex main.
+\documentclass[12pt,a4paper]{article}
+\ifdefined\pdfminorversion\pdfminorversion=7\fi
+\usepackage[utf8]{inputenc}
+\usepackage[T1,T5]{fontenc}
+\usepackage{mathptmx}
+\usepackage{amsmath,amssymb}
+\numberwithin{figure}{subsection}
+\numberwithin{table}{subsection}
+% FINAL_ANDROID: lề trang va line spacing giu nguyen.
+\usepackage[top=2cm,bottom=2cm,left=3cm,right=2cm]{geometry}
+\usepackage{setspace}
+\setstretch{1.4}
+\setlength{\parindent}{1.27cm}
+\setlength{\parskip}{0pt}
+\setcounter{tocdepth}{2} % Noi dung chinh gom section va subsection, khong nhieu tang TOC
+% Khong dung indentfirst: doan dau ngay sau section / subsection sat le.
+% Chi cac doan tiep theo thut 1.27cm theo LaTeX.
+\usepackage{microtype}
+\usepackage{enumitem}
+\setlist[itemize,1]{label=\textbullet,leftmargin=*,itemsep=2pt,topsep=4pt}
+\setlist[itemize,2]{label=$\circ$,leftmargin=*,itemsep=1pt}
+\setlist[itemize,3]{label=--}
+\usepackage[table]{xcolor}
+\usepackage{booktabs,longtable,tabularx,array,makecell}
+\usepackage{graphicx,float,caption,needspace}
+\usepackage{pdflscape}
+\usepackage{placeins}
+\newif\ifBroomLandscapePage
+\AddToHook{shipout/foreground}{%
+  \ifBroomLandscapePage
+    \begin{tikzpicture}[remember picture,overlay]
+      \node[rotate=90,anchor=center,font=\normalsize]
+        at ([xshift=-1cm]current page.east) {\thepage};
+    \end{tikzpicture}%
+  \fi
+}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,shapes.geometric,positioning,calc,fit}
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries}{\thesection.}{1em}{}
+\titleformat{\subsection}{\large\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries}{\thesubsubsection}{1em}{}
+\usepackage{fancyhdr}
+\setlength{\headheight}{14.5pt}
+\addtolength{\topmargin}{-2.5pt}
+\pagestyle{fancy}\fancyhf{}\cfoot{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\usepackage{fontawesome5}
+\usepackage{etoolbox}
+% Minted theo dinh dang ma nguon cua AI_PROJECT (van biên dịch bang pdfLaTeX).
+% pdflatex -shell-escape main.tex; biber main; pdflatex -shell-escape x2
+\usepackage{minted}
+\definecolor{codegray}{HTML}{F5F5F5}
+\setminted{
+  frame=lines,
+  framesep=1.3mm,
+  baselinestretch=1.0,
+  bgcolor=codegray,
+  fontsize=\footnotesize,
+  linenos,
+  firstnumber=1,
+  numbersep=8pt,
+  breaklines=true,
+  breakanywhere=true,
+  autogobble=true,
+  style=friendly
+}
+\renewcommand{\theFancyVerbLine}{%
+  \textcolor{gray!65}{\scriptsize\arabic{FancyVerbLine}}%
+}
+% APA 6th tuy chinh: an ngay/nam; ten ngan phan biet cac nguon cung tac gia.
+\usepackage[style=apa6,backend=biber,doi=true,url=true]{biblatex}
+\renewbibmacro*{labelyear+extradate}{}
+\renewbibmacro*{url+urldate}{%
+  \iffieldundef{url}{}{\printtext{Retrieved from\addspace}\printfield{url}}}
+\DeclareFieldFormat{broomcitetitle}{\mkbibemph{#1}}
+\DeclareCiteCommand{\parencite}[\mkbibparens]
+  {\usebibmacro{prenote}}
+  {\usebibmacro{citeindex}%
+   \printtext[bibhyperref]{%
+     \printnames{labelname}%
+     \setunit{\addcomma\space}%
+     \printfield[broomcitetitle]{labeltitle}}}
+  {\multicitedelim}
+  {\usebibmacro{postnote}}
+\addbibresource{ref.bib}
+\usepackage{xurl}
+\usepackage{hyperref}
+\hypersetup{unicode,hidelinks,hypertexnames=false,pdftitle={BroomSharing - Do an Phat trien Ung dung Mobile}}
+\graphicspath{{Resources/}}
+\definecolor{uehred}{RGB}{210,50,40}
+\definecolor{uehblue}{HTML}{1A408B}
+\definecolor{uehteal}{HTML}{2D5D66}
+\definecolor{uehorange}{HTML}{D96B42}
+\definecolor{genBlue}{RGB}{230,240,255}
+\definecolor{genGreen}{RGB}{230,255,230}
+\definecolor{genOrange}{RGB}{255,240,230}
+\definecolor{lineBlue}{RGB}{60,120,200}
+\definecolor{lineGreen}{RGB}{60,160,80}
+\definecolor{lineOrange}{RGB}{210,120,50}
+\renewcommand{\contentsname}{MỤC LỤC}
+\renewcommand{\figurename}{Hình}
+\renewcommand{\tablename}{Bảng}
+\renewcommand{\listfigurename}{DANH MỤC HÌNH ẢNH}
+\renewcommand{\listtablename}{DANH MỤC BẢNG BIỂU}
+\renewcommand{\refname}{TÀI LIỆU THAM KHẢO}
+\newcommand{\chapstart}{\clearpage}
+\newcommand{\filebox}[2]{\begin{center}\fcolorbox{uehblue!65}{genBlue!35}{\parbox{0.82\textwidth}{\centering\vspace{7mm}\textbf{#1}\\[2mm]\small #2\vspace{7mm}}}\end{center}}
+\renewcommand{\arraystretch}{1.18}
+\setlength{\tabcolsep}{5pt}
+
+% Dien URL that cua RIENG BroomSharing; de trong neu chua duoc cung cap. Khong sao chep link AI_PROJECT.
+\newcommand{\BroomGitHubURL}{}
+\newcommand{\BroomSheetURL}{}
+\newcommand{\BroomCourseURL}{}
+\newcommand{\BroomProjectsURL}{}
+\newcommand{\BroomImagesURL}{}
+\newcommand{\appendixnote}[1]{\par\smallskip\noindent\textit{#1}\par\medskip}
+\makeatletter
+\newcommand{\printappendixfigures}{\@starttoc{lof}}
+\newcommand{\printappendixtables}{\@starttoc{lot}}
+\renewcommand*{\l@figure}[2]{\@dottedtocline{1}{0em}{6.2em}{Hình~#1}{#2}}
+\renewcommand*{\l@table}[2]{\@dottedtocline{1}{0em}{6.2em}{Bảng~#1}{#2}}
+\makeatother
+\begin{document}
+\pagenumbering{gobble}
+% TRANG BIA - AI_PROJECT (giu noi dung bo cuc, khung, mau tieu de do)
+\begin{titlepage}
+\noindent\begin{tikzpicture}[remember picture,overlay]
+  \node[inner sep=0pt] at (current page.center)
+  {\includegraphics[width=1.1\paperwidth,height=\paperheight]{Resources/khung_pdf_AI_PROJECT.pdf}};
+\end{tikzpicture}
+% Center the cover on the paper, independently of the asymmetric body margins.
+\noindent\hspace*{-0.5cm}\begin{minipage}[t][0.96\textheight][t]{\textwidth}
+\centering
+\vspace*{0.2cm}
+{\small BỘ GIÁO DỤC VÀ ĐÀO TẠO}\par\vspace{0.15cm}
+{\bfseries\large ĐẠI HỌC KINH TẾ TP. HỒ CHÍ MINH (UEH)}\par\vspace{0.1cm}
+{\bfseries\small TRƯỜNG CÔNG NGHỆ VÀ THIẾT KẾ}\par
+\vspace{0.7cm}
+\includegraphics[width=4.5cm]{Resources/Logo_UEH_xanh_AI_PROJECT.png}\par
+\vspace{0.7cm}
+{\bfseries\Large ĐỒ ÁN MÔN HỌC}\par\vspace{0.4cm}
+{\bfseries\large ĐỀ TÀI}\par\vspace{0.25cm}
+{\color{uehred}\bfseries\Large PHÁT TRIỂN ỨNG DỤNG DI ĐỘNG\par
+\vspace{0.2cm}CHIA SẺ KHÔNG GIAN BROOMSHARING\par}
+\vspace{0.95cm}
+\begin{minipage}{0.80\linewidth}
+\raggedright
+\setlength{\parindent}{0pt}
+\textbf{Học phần:} Phát triển ứng dụng Mobile\par
+\textbf{Danh sách thành viên:}\par\smallskip
+\hspace*{2.6cm}\begin{minipage}{\dimexpr\linewidth-2.6cm\relax}
+\begingroup\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{@{}r@{\hspace{0.2cm}}>{\raggedright\arraybackslash}X@{\hspace{0.4cm}}l@{}}
+1. & LỮ VÕ HOÀNG PHÚC & 31241025389\\
+2. & LÂM HOÀNG & 31221025740\\
+3. & TỪ TRƯƠNG THANH TRÚC & 31241023563\\
+\end{tabularx}\endgroup
+\end{minipage}\par
+\vspace{0.25cm}
+\textbf{Chuyên ngành:}\hspace{0.35cm}Kỹ thuật phần mềm\hfill\textbf{Khóa:} K50\par
+\vspace{0.1cm}
+\textbf{Giảng viên:} Đặng Ngọc Hoàng Thành\par
+\end{minipage}
+\vfill
+{\bfseries\small TP. Hồ Chí Minh, ngày 29/10/2026}\par
+\vspace{0.5cm}
+\end{minipage}
+\end{titlepage}
+\pagestyle{empty}
+% Theo yeu cau: Abstract -> Viet tat / Thuat ngu -> Muc luc; Danh muc hinh bang o CUOI.
+\clearpage
+\section*{TÓM TẮT}
+\phantomsection\addcontentsline{toc}{section}{TÓM TẮT}
+BroomSharing là ứng dụng Android kết nối người cần thuê không gian làm việc với chủ sở hữu có phòng họp, chỗ ngồi hoặc văn phòng chưa được khai thác hết. Đề tài tập trung giải quyết tình trạng thông tin thuê phân tán, khó xác định lịch trống và khó theo dõi các yêu cầu cùng sử dụng một không gian. Mục tiêu là tổ chức thông tin phòng, thời gian thuê và quá trình sử dụng trên một hệ thống, đồng thời phân định trách nhiệm của người thuê, người cho thuê và quản trị viên.
+
+Ứng dụng được xây dựng bằng Java và XML theo MVVM + Repository + Model. Firebase Authentication quản lý danh tính; Cloud Firestore lưu dữ liệu NoSQL theo collection, document và subcollection, với các đối tượng liên kết bằng ID. Transaction kiểm soát việc cập nhật booking và lịch để hạn chế đặt trùng. Cloudinary cung cấp lưu trữ ảnh; MapLibre kết hợp MapTiler và openrouteservice hỗ trợ bản đồ, tìm địa điểm và tuyến đường. Backend Java kết nối payOS, xác thực và đối soát giao dịch trước khi cập nhật kết quả thanh toán.
+
+Các chức năng đã hiện thực gồm tìm kiếm, xem chi tiết, đặt thuê theo giờ, tháng hoặc quý; quản lý phòng, trao đổi tin nhắn, đánh giá lượt sử dụng và xử lý báo cáo vi phạm. Với luồng thanh toán, hệ thống tạm giữ lịch tối đa năm phút, mở QR ngay và chỉ xác nhận booking khi nhận đủ khoản trả trước 40\% đúng hạn. Kênh Admin xét duyệt hồ sơ Host, tin đăng và minh chứng, đồng thời lưu nhật ký xử lý. SQLite lưu bản sao thông tin phòng và đặt chỗ để xem lại khi mất mạng. Phạm vi đồ án sử dụng một kênh thanh toán demo và chưa có hoàn tiền tự động. Kết quả là một ứng dụng gồm ba phân hệ với quy trình đặt chỗ, sử dụng và quản trị được liên kết qua dữ liệu và trạng thái nghiệp vụ.
+
+\noindent\textbf{Từ khóa:} BroomSharing; Android; Java; XML; MVVM; Repository; Cloud Firestore; chia sẻ không gian; đặt thuê.
+\clearpage
+\section*{DANH MỤC VIẾT TẮT VÀ THUẬT NGỮ}
+\phantomsection\addcontentsline{toc}{section}{DANH MỤC VIẾT TẮT VÀ THUẬT NGỮ}
+\begingroup\small\setstretch{1.3}\renewcommand{\arraystretch}{1.04}
+\setlength{\LTpre}{4pt}\setlength{\LTpost}{4pt}
+\subsection*{Chữ viết tắt}
+\begin{longtable}{@{}p{1.8cm}p{6cm}p{7cm}@{}}\toprule
+\textbf{Ký hiệu}&\textbf{Tiếng Anh}&\textbf{Giải thích}\\\midrule\endfirsthead
+\toprule\textbf{Ký hiệu}&\textbf{Tiếng Anh}&\textbf{Giải thích}\\\midrule\endhead
+API& Application Programming Interface & Giao diện lập trình ứng dụng.\\
+BoM& Bill of Materials & Quản lý phiên bản thư viện Firebase.\\
+HTTPS& Hypertext Transfer Protocol Secure & Giao thức web có bảo mật.\\
+ID& Identifier & Mã định danh đối tượng hoặc document.\\
+JSON& JavaScript Object Notation & Định dạng trao đổi dữ liệu.\\
+MVVM& Model-View-ViewModel & Tách giao diện, trạng thái và dữ liệu.\\
+NoSQL& Not only SQL & Nhóm cơ sở dữ liệu phi quan hệ.\\
+PDF& Portable Document Format & Định dạng tài liệu giữ nguyên bố cục.\\
+QR& Quick Response & Mã phản hồi nhanh dùng thanh toán.\\
+SDK& Software Development Kit & Bộ công cụ phát triển phần mềm.\\
+UI& User Interface & Giao diện người dùng.\\
+UID& Unique Identifier & Định danh tài khoản Firebase.\\
+URL& Uniform Resource Locator & Địa chỉ tài nguyên trên mạng.\\
+XML& Extensible Markup Language & Khai báo bố cục và tài nguyên Android.\\\bottomrule\end{longtable}
+\subsection*{Thuật ngữ chuyên ngành}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{4cm}p{10.2cm}@{}}\toprule
+\textbf{Thuật ngữ}&\textbf{Diễn giải trong đề tài}\\\midrule\endfirsthead
+\toprule\textbf{Thuật ngữ}&\textbf{Diễn giải trong đề tài}\\\midrule\endhead
+Cloud Firestore& Cơ sở dữ liệu NoSQL hướng tài liệu trong Firebase.\\
+SQLite& Cơ sở dữ liệu nhúng, lưu bản sao để xem ngoại tuyến.\\
+Collection / document / subcollection& Collection chứa document; document lưu trường dữ liệu; subcollection gắn với document cha.\\
+ViewModel / LiveData& ViewModel giữ trạng thái; LiveData phát dữ liệu quan sát.\\
+Repository& Thành phần tập trung truy cập và phối hợp nguồn dữ liệu.\\
+Model& Lớp Java biểu diễn dữ liệu nghiệp vụ.\\
+Guest / Host / Admin& Các vai trò người thuê, người cho thuê và quản trị viên.\\
+Booking / check-in& Booking là lượt đặt thuê; check-in ghi nhận bắt đầu sử dụng.\\
+Transaction& Ghi toàn bộ thay đổi hoặc không ghi thay đổi nào.\\
+Listener& Theo dõi thay đổi document hoặc kết quả truy vấn.\\
+Webhook& Thông báo sự kiện từ dịch vụ ngoài gửi tới backend.\\\bottomrule\end{longtable}
+\endgroup
+\clearpage
+\tableofcontents
+\clearpage
+\pagenumbering{arabic}\pagestyle{fancy}\setcounter{page}{1}
+\input{chapters/chapter1}
+\input{chapters/chapter2}
+\input{chapters/chapter3}
+\input{chapters/chapter4}
+\input{chapters/chapter5}
+\input{chapters/chapter6}
+\input{chapters/chapter7}
+\clearpage
+\phantomsection
+\printbibliography[heading=bibintoc,title={TÀI LIỆU THAM KHẢO}]
+\input{appendix}
+\end{document}

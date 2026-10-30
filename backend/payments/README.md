@@ -62,6 +62,6 @@ Webhook cập nhật khi server đang hoạt động; nút kiểm tra giao dịc
 
 Từ root: `gradlew.bat -p backend/payments test`. Muốn chạy cả transaction integration test phải đặt `FIRESTORE_EMULATOR_HOST=127.0.0.1:8085`; dùng database emulator riêng `payment_backend_qa`. Nếu không có biến này, integration suite được đánh dấu skipped, không coi là đã nghiệm thu đủ.
 
-`tools/testing/payment_rules_acceptance.py` chạy kiểm thử Rules độc lập và hồi quy booking trên emulator. `gradlew.bat -p backend/payments liveProviderCheck` là lệnh bật chủ động: tạo link QR thật 2.000đ rồi hủy, không chuyển tiền, không thay webhook, không ghi Firestore cloud.
+`gradlew.bat -p backend/payments liveProviderCheck` là lệnh bật chủ động: tạo link QR thật 2.000đ rồi hủy, không chuyển tiền, không thay webhook, không ghi Firestore cloud.
 
 Tài liệu đối chiếu: [payOS Java SDK](https://payos.vn/docs/sdks/back-end/java/), [Firebase token verification](https://firebase.google.com/docs/auth/admin/verify-id-tokens), [Firestore named database client](https://firebase.google.com/docs/reference/admin/java/reference/com/google/firebase/cloud/FirestoreClient).

@@ -11,6 +11,7 @@ import vn.edu.ueh.phuclu.broomsharing.utils.CancellationPolicy;
 import vn.edu.ueh.phuclu.broomsharing.utils.HostSchedule;
 import static org.junit.Assert.*;
 
+// Kiểm tra giá trả trước, biên thời gian, xung đột và nhả khóa lịch bằng dữ liệu trong bộ nhớ.
 public class BookingPolicyTest {
     private final long now = at("2026-10-19T08:00:00").getTime();
 

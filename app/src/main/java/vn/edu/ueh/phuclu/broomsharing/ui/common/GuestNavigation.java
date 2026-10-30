@@ -32,6 +32,17 @@ public final class GuestNavigation {
         nav.setOnItemSelectedListener(
                 item -> {
                     if (item.getItemId() == current) return true;
+                    if (!vn.edu.ueh.phuclu.broomsharing.repository.OfflineRepository.online()
+                            && item.getItemId() != R.id.nav_home && item.getItemId() != R.id.nav_bookings) {
+                        if (item.getItemId() == R.id.nav_profile && activity instanceof vn.edu.ueh.phuclu.broomsharing.ui.auth.SessionActivity)
+                            new androidx.appcompat.app.AlertDialog.Builder(activity)
+                                    .setTitle("Chế độ ngoại tuyến")
+                                    .setMessage("Bạn có thể xem phòng và đặt chỗ đã lưu. Đăng xuất sẽ xóa bản lưu của tài khoản trên thiết bị này.")
+                                    .setNegativeButton("Đóng", null)
+                                    .setPositiveButton("Đăng xuất", (dialog, which) -> ((vn.edu.ueh.phuclu.broomsharing.ui.auth.SessionActivity) activity).signOutOffline()).show();
+                        else android.widget.Toast.makeText(activity, "Chức năng này cần kết nối mạng.", android.widget.Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
                     Class<?> target;
                     if (item.getItemId() == R.id.nav_home) target = MainActivity.class;
                     else if (item.getItemId() == R.id.nav_map) target = MapActivity.class;

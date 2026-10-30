@@ -10,6 +10,7 @@ import vn.edu.ueh.phuclu.broomsharing.utils.HostValidation;
 import vn.edu.ueh.phuclu.broomsharing.utils.TimeUtils;
 import static org.junit.Assert.*;
 
+// Kiểm tra dữ liệu tòa nhà/phòng trước khi gửi duyệt, gồm giá, lịch, ảnh và số liệu ngoài giới hạn.
 public class HostValidationTest {
     private Room complete() {
         Room r = new Room();

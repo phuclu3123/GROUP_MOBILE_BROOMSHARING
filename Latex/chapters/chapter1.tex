@@ -1,0 +1,38 @@
+\chapstart
+\section{TỔNG QUAN}
+\subsection{Giới thiệu}
+Trong lĩnh vực dịch vụ thương mại điện tử và kinh tế chia sẻ, mô hình kết nối nhu cầu sử dụng tài nguyên giúp khai thác không gian chưa được sử dụng hết công suất. Đối với chỗ ngồi cá nhân, phòng họp và văn phòng, người thuê cần so sánh vị trí, giá, tiện ích và lịch trống trước khi đặt chỗ.
+
+Bài toán nghiên cứu của đề tài là xây dựng ứng dụng di động BroomSharing, hỗ trợ kết nối trực tiếp giữa khách thuê (Guest) có nhu cầu sử dụng không gian, chủ không gian (Host) muốn khai thác mặt bằng và quản trị viên (Admin) thực hiện kiểm duyệt, xử lý các vấn đề phát sinh. Ứng dụng tổ chức hoạt động tìm kiếm, đặt chỗ, trao đổi và theo dõi lượt thuê trên cùng một hệ thống.
+
+\subsection{Tính cấp thiết của đề tài}
+Việc tìm kiếm và đặt chỗ qua các kênh trao đổi rời rạc đặt ra một số khó khăn: thông tin giá và tiện ích thiếu thống nhất; người thuê phải liên hệ để xác nhận lịch trống; chủ không gian khó theo dõi đồng thời nhiều yêu cầu. Khi dữ liệu lịch không được cập nhật nhất quán, các yêu cầu có thể trùng thời gian trên cùng một phòng.
+
+Vì vậy, BroomSharing tập trung chuẩn hóa bài đăng, kiểm tra khả dụng và quản lý vòng đời booking. Phòng đang hiển thị chưa chắc còn trống ở mọi thời điểm; booking chỉ được xác nhận sau khi hệ thống ghi nhận đủ khoản trả trước trong thời hạn thanh toán. Hệ thống phải xác định ai giữ lịch, lượt nào đã sử dụng và trường hợp nào cần Admin can thiệp, đồng thời theo dõi riêng trạng thái tiền và trạng thái sử dụng.
+
+\subsection{Mục tiêu và phạm vi đề tài}
+Mục tiêu của đề tài là xây dựng ứng dụng Android bằng Java và XML theo MVVM kết hợp Repository và Model. Ứng dụng cung cấp thông tin tìm thuê, thống nhất quy trình quản lý phòng và lưu căn cứ xử lý cho Admin. Dữ liệu cần nhất quán khi nhiều tài khoản thao tác, với kết quả xử lý được thể hiện rõ trên màn hình.
+
+Mỗi phòng cho thuê theo giờ hoặc theo kỳ một tháng, ba tháng. Lịch được tạm giữ tối đa 5 phút khi khởi tạo thanh toán; booking được lưu lịch sử sau khi khép. Host chỉ đổi chế độ thuê và cấu hình lịch khi phòng không còn booking giữ chỗ.
+
+Thanh toán sử dụng một kênh payOS demo cho khoản trả trước 40\%; QR được mở ngay khi đặt chỗ, không qua bước Host duyệt booking, chưa có hoàn tiền tự động, phân chia tiền cho nhiều Host hoặc hợp đồng điện tử. Ảnh giấy tờ xét duyệt Host là dữ liệu DEMO, không tương đương định danh pháp lý.
+
+\subsection{Công cụ phát triển ứng dụng di động}
+\subsubsection{Java và XML}
+Java xử lý giao diện, trạng thái và nghiệp vụ; XML định nghĩa bố cục và tài nguyên hiển thị. Việc phân tách View, ViewModel và Repository giới hạn trách nhiệm từng thành phần, phù hợp với định hướng phân lớp giao diện và dữ liệu trong kiến trúc Android \parencite{android_arch}.
+
+\subsubsection{Android SDK và Android Studio}
+Android SDK cung cấp API và công cụ xây dựng ứng dụng. Android Studio hỗ trợ biên tập Java/XML, quản lý tài nguyên, biên dịch Gradle và theo dõi Logcat. Android Emulator hỗ trợ kiểm tra biểu mẫu, điều hướng, trạng thái và bố cục theo cấu hình thiết bị.
+
+\subsubsection{Firebase và lưu trữ dữ liệu}
+\label{sec:ch1-nosql}
+Firebase cung cấp các dịch vụ xác thực và dữ liệu cho ứng dụng. Firebase Authentication quản lý danh tính đăng nhập, còn Cloud Firestore lưu hồ sơ người dùng, phòng, booking và dữ liệu tương tác. Cloud Firestore là cơ sở dữ liệu NoSQL hướng tài liệu: dữ liệu được tổ chức thành collection chứa document, thay cho các bảng và hàng của mô hình quan hệ \parencite{firebase_data_model}.
+
+Document chứa các trường, map, array và có thể gắn với subcollection. Các đối tượng liên kết bằng ID như \texttt{roomId}, \texttt{ownerUid}. Mô hình ở Chương 4 vì vậy thể hiện cấu trúc lưu trữ phân cấp và quan hệ logic, với dữ liệu được kiểm soát qua Model, Repository và Security Rules.
+
+SQLite lưu bản sao phòng và lịch sử đặt chỗ trên thiết bị để xem lại khi mất mạng. Ứng dụng truy cập cơ sở dữ liệu cục bộ bằng \texttt{SQLiteOpenHelper}; Firestore vẫn quản lý giao dịch trực tuyến \parencite{android_sqlite}.
+
+\subsubsection{Lưu trữ ảnh, bản đồ và thanh toán}
+Cloudinary lưu ảnh phòng, ảnh bìa, ảnh đại diện và tệp minh chứng DEMO; Firestore giữ URL tham chiếu \parencite{cloudinary_android}. Bản đồ sử dụng MapLibre, kết hợp MapTiler và openrouteservice để tìm địa điểm và tuyến đường.
+
+Backend Java xác thực người dùng, tạo yêu cầu payOS và nhận webhook chuyển tiếp. Ứng dụng quan sát kết quả tiền để cập nhật trạng thái thanh toán; nhận phòng và hoàn tất lượt thuê là các thao tác riêng.

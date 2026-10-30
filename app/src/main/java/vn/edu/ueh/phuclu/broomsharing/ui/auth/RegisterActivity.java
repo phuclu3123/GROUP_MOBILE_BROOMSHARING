@@ -9,6 +9,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import vn.edu.ueh.phuclu.broomsharing.R;
 import vn.edu.ueh.phuclu.broomsharing.utils.AuthValidation;
 
+// Thu thập thông tin đăng ký, báo lỗi từng trường và gửi dữ liệu hợp lệ cho AuthViewModel.
 public class RegisterActivity extends BaseAuthActivity {
     // Tính chất tương tự với LoginActivity
     private TextInputEditText nameInput, usernameInput, emailInput, phoneInput, passwordInput, confirmInput;

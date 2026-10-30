@@ -1,0 +1,18 @@
+\chapstart
+\section{KẾT LUẬN VÀ HƯỚNG MỞ RỘNG}
+\subsection{Kết quả đạt được}
+BroomSharing được xây dựng bằng Java và XML theo MVVM + Repository + Model, kết nối người thuê, Host và Admin trong các luồng tìm không gian, quản lý tài sản, đặt chỗ và kiểm duyệt. Cloud Firestore lưu dữ liệu theo collection, document và subcollection, liên kết tài khoản, phòng và lịch bằng ID. Giao diện quan sát trạng thái, còn Repository tập trung thao tác dữ liệu.
+
+Luồng đặt chỗ kết nối backend Java với payOS, tạm giữ lịch tối đa năm phút và xác nhận sau khi đối soát đủ khoản trả trước 40\%. Transaction kiểm soát booking và lịch; giao diện phân biệt thanh toán, hết hạn và khép lượt. Bản đồ, ảnh trực tuyến, chat và đánh giá hỗ trợ quá trình thuê; kênh Admin lưu quyết định cùng nhật ký để đối chiếu. SQLite cho phép xem lại thông tin phòng và đặt chỗ đã tải khi thiết bị mất mạng.
+
+\subsection{Những hạn chế hiện tại}
+Thanh toán giới hạn ở một kênh Host demo, với backend Java chạy trên máy của nhóm qua đường hầm kết nối. Đối soát ngoại lệ và hoàn tiền được xử lý thủ công ngoài ứng dụng. Hồ sơ Host dùng giấy tờ DEMO và được Admin xét duyệt bằng người; phạm vi này không bao gồm định danh pháp lý hoặc lưu trữ giấy tờ cá nhân thật.
+
+Dữ liệu ngoại tuyến phản ánh lần tải gần nhất. Kiểm tra lịch trống, đặt chỗ và thanh toán sử dụng dữ liệu trực tuyến; bản đồ và tính tuyến đường phụ thuộc dịch vụ bên ngoài.
+
+Sự kiện trên lịch điện thoại được lưu qua biểu mẫu xác nhận của người dùng và quản lý độc lập với các thay đổi của booking.
+
+\subsection{Hướng phát triển}
+Ưu tiên là triển khai backend tại địa chỉ ổn định, lưu tệp định danh riêng tư và hoàn thiện đối soát, hoàn tiền theo khả năng nhà cung cấp. Thanh toán nhiều Host cần có quy trình đăng ký và kiểm tra bên nhận tiền.
+
+Ở phía ứng dụng, có thể mở rộng dữ liệu được lưu ngoại tuyến và cập nhật lịch điện thoại theo thay đổi của booking. Khi quy mô tăng, cần tiếp tục tối ưu lượt đọc, phạm vi listener và tìm kiếm theo vị trí, đồng thời bảo đảm tính nhất quán của lịch và quyền truy cập.

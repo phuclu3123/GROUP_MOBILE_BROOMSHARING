@@ -2,6 +2,7 @@ package vn.edu.ueh.phuclu.broomsharing.utils;
 
 import java.util.Locale;
 
+// Kiểm tra dữ liệu biểu mẫu; chuẩn hóa username/số điện thoại nhưng giữ nguyên ký tự mật khẩu.
 public final class AuthValidation {
     private AuthValidation() { }
 

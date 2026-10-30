@@ -5,12 +5,13 @@ package vn.edu.ueh.phuclu.broomsharing.model;
    Kết quả ghép dữ liệu phòng với tòa nhà và Host cho giao diện.
    Các trường bổ sung không tạo thành một document RoomListing riêng.
 */
-public final class RoomListing {
+public final class RoomListing implements java.io.Serializable {
+    private static final long serialVersionUID = 1L;
     public final Room room;
     public final Building building;
     public final String hostName;
     public final String hostPhotoUrl;
-    public final vn.edu.ueh.phuclu.broomsharing.utils.FixedRentalBadge availability;
+    public final transient vn.edu.ueh.phuclu.broomsharing.utils.FixedRentalBadge availability;
 
     public RoomListing(Room room, Building building, String hostName) {
         this(room, building, hostName, "");

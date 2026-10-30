@@ -43,6 +43,7 @@ import java.util.*;
  * SessionActivity trước khi tải nội dung.
  */
 public class SpaceDetailActivity extends SessionActivity {
+    @Override protected boolean supportsOfflineReading() { return true; }
     // Key truyền mã phòng giữa các màn hình liên quan đến phòng.
     public static final String ROOM_ID = "ROOM_ID";
 
@@ -54,6 +55,7 @@ public class SpaceDetailActivity extends SessionActivity {
 
     // Hồ sơ của người đang xem màn hình.
     private UserProfile viewer;
+    private boolean localOnly;
 
     @Override
     protected void onCreate(Bundle state) {
@@ -78,6 +80,7 @@ public class SpaceDetailActivity extends SessionActivity {
     @Override
     protected void onProfileReady(UserProfile profile) {
         viewer = profile;
+        localOnly = isOfflineView();
         // Nối Binding với giao diện đã được SessionActivity nạp.
         b =
                 ActivitySpaceDetailBinding.bind(
@@ -89,7 +92,7 @@ public class SpaceDetailActivity extends SessionActivity {
 
         // Nhận mã phòng từ Intent; mã này sẽ được chuyển tiếp sang các màn hình khác.
         String id = getIntent().getStringExtra(ROOM_ID);
-        vn.edu.ueh.phuclu.broomsharing.ui.common.CheckoutReminder.attach(
+        if (!isOfflineView()) vn.edu.ueh.phuclu.broomsharing.ui.common.CheckoutReminder.attach(
                 this, b.pendingCheckout.getRoot(), profile.uid, id);
         b.btnReviews.setOnClickListener(
                 v ->
@@ -124,7 +127,7 @@ public class SpaceDetailActivity extends SessionActivity {
                 this,
                 state -> {
                     b.btnFavorite.setEnabled(
-                            state != null
+                            !localOnly && state != null
                                     && state.data != null
                                     && !state.loading
                                     && !favorites.busy());
@@ -135,10 +138,11 @@ public class SpaceDetailActivity extends SessionActivity {
                 this,
                 state -> {
                     if (state == null) return;
-                    b.btnFavorite.setEnabled(!state.loading);
+                    b.btnFavorite.setEnabled(!localOnly && !state.loading);
                     if (state.error != null) b.tvFeedback.setText(state.error);
                 });
-        favorites.load();
+        b.btnFavorite.setEnabled(!isOfflineView());
+        if (!isOfflineView()) favorites.load();
         model.detail().observe(this, this::render);
         model.ensureDetail(id);
     }
@@ -153,9 +157,11 @@ public class SpaceDetailActivity extends SessionActivity {
     }
 
     private void render(UiState<RoomListing> state) {
+        localOnly = state.offline || isOfflineView();
+        b.btnReviews.setEnabled(!localOnly && state.data != null && !state.loading);
         b.btnRefresh.setVisibility(state.error == null ? View.GONE : View.VISIBLE);
         b.btnRefresh.setEnabled(!state.loading);
-        b.btnBook.setEnabled(state.data != null && !state.loading);
+        b.btnBook.setEnabled(state.data != null && !state.loading && !state.offline && !isOfflineView());
         b.btnDirections.setEnabled(false);
         b.btnChat.setEnabled(false);
         b.btnCall.setEnabled(false);
@@ -178,7 +184,7 @@ public class SpaceDetailActivity extends SessionActivity {
         b.tvFeedback.setText(
                 state.loading
                         ? "Đang tải thông tin phòng…"
-                        : state.error == null ? "" : state.error);
+                        : state.error == null ? state.offlineNotice() : state.error);
         if (state.data == null) return;
         Room room = state.data.room;
         Building building = state.data.building;
@@ -288,6 +294,16 @@ public class SpaceDetailActivity extends SessionActivity {
             b.gallery.setAdapter(new SelectedImageAdapter(photos, null, this::showPhoto));
         }
         b.detailScroll.post(() -> b.detailScroll.scrollTo(0, scrollY));
+        if (state.offline || isOfflineView()) {
+            b.btnBook.setEnabled(false); b.btnFavorite.setEnabled(false);
+            b.btnDirections.setEnabled(false); b.btnChat.setEnabled(false);
+            b.btnReport.setEnabled(false); b.btnReviews.setEnabled(false);
+        } else {
+            b.btnReviews.setEnabled(true);
+            FavoritesViewModel favorites = new ViewModelProvider(this).get(FavoritesViewModel.class);
+            b.btnFavorite.setEnabled(favorites.items.getValue() != null
+                    && favorites.items.getValue().data != null && !favorites.busy());
+        }
     }
 
     private String workingDays(List<Integer> days) {

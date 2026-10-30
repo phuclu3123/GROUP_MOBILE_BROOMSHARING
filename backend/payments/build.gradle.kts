@@ -4,6 +4,8 @@ plugins {
 
 repositories { mavenCentral() }
 java { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
+// Giữ đúng comment và chuỗi tiếng Việt trên cả Windows lẫn Linux.
+tasks.withType<JavaCompile>().configureEach { options.encoding = "UTF-8" }
 dependencies {
     implementation("com.google.firebase:firebase-admin:9.5.0")
     implementation("vn.payos:payos-java:2.0.1")

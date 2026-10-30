@@ -42,11 +42,17 @@ public class AdminDashboardActivity extends SessionActivity {
                     result -> {
                         if (result.getResultCode() == RESULT_OK
                                 && result.getData() != null
-                                && model != null)
-                            model.viewedEvidence.add(
-                                    result.getData().getStringExtra("ID")
-                                            + ":"
-                                            + result.getData().getStringExtra("PATH"));
+                                && model != null) {
+                            String id = result.getData().getStringExtra("ID");
+                            java.util.ArrayList<String> viewed =
+                                    result.getData().getStringArrayListExtra("VIEWED");
+                            if (viewed != null) {
+                                for (String path : viewed) model.viewedEvidence.add(id + ":" + path);
+                            } else {
+                                String path = result.getData().getStringExtra("PATH");
+                                if (path != null) model.viewedEvidence.add(id + ":" + path);
+                            }
+                        }
                     });
 
     @Override
@@ -226,22 +232,11 @@ public class AdminDashboardActivity extends SessionActivity {
             b.tvFeedback.setText("Hồ sơ chưa có tệp bằng chứng. Có thể từ chối kèm lý do.");
             return;
         }
-        String[] labels = new String[item.evidenceRefs.size()];
-        for (int i = 0; i < labels.length; i++) {
-            String path = item.evidenceRefs.get(i);
-            labels[i] = (i + 1) + ". " + path.substring(path.lastIndexOf('/') + 1);
-        }
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.admin_evidence)
-                .setItems(
-                        labels,
-                        (d, index) ->
-                                evidence.launch(
-                                        new Intent(this, EvidencePreviewActivity.class)
-                                                .putExtra("ID", item.id)
-                                                .putExtra("PATH", item.evidenceRefs.get(index))))
-                .setNegativeButton(android.R.string.cancel, null)
-                .show();
+        evidence.launch(new Intent(this, EvidencePreviewActivity.class)
+                .putExtra("ID", item.id)
+                .putExtra("KIND", item.kind)
+                .putExtra("TITLE", item.title)
+                .putStringArrayListExtra("FILES", new java.util.ArrayList<>(item.evidenceRefs)));
     }
 
     private void select(ReviewItem item, boolean approve) {

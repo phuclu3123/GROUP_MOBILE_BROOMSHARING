@@ -1,0 +1,14 @@
+\Needspace{0.55\textheight}
+\subsection{Quy trình thực hiện lượt thuê và đánh giá}
+Điều kiện bắt đầu là booking đã xác nhận và còn thuộc các bên tham gia. Người thuê xem lại thời gian, địa chỉ, liên hệ trong chi tiết; Host theo dõi lịch phòng và danh sách lượt thuê. Trình tự sử dụng thông thường gồm:
+\begin{enumerate}
+\item Khi khách đến trong kỳ thuê, Host ghi nhận nhận phòng. Booking chuyển từ CONFIRMED sang CHECKED\_IN và lưu căn cứ sử dụng; thao tác này độc lập với QR thanh toán.
+\item Sau giờ kết thúc, Host hoàn tất lượt đã sử dụng. Booking chuyển COMPLETED, giải phóng khóa lịch tương ứng, cập nhật dữ liệu phòng và lưu audit, đồng thời giữ lịch sử.
+\item Người thuê mở đánh giá từ lượt đủ điều kiện, chọn điểm 1 đến 5 và nhập nhận xét. Hệ thống kiểm tra lại Guest, trạng thái khép và xác nhận sử dụng trước khi lưu một đánh giá cho booking đó.
+\end{enumerate}
+
+Lịch tháng tại Hình~\ref{fig:actual-host-calendar} giúp Host chọn ngày và kiểm tra khoảng đã giữ. Nếu khách không đến, sau giờ kết thúc Host ghi NO\_SHOW kèm lý do; lượt này không tự có quyền đánh giá. Với lượt đã dùng nhưng thiếu thao tác nhận phòng, cần xác minh sử dụng trước khi hoàn tất, không suy ra việc sử dụng chỉ vì thời gian đã qua.
+
+Khi phát sinh vấn đề, người thuê gửi báo cáo và theo dõi kết quả; Host phản hồi hồ sơ còn mở, Admin kết luận theo phạm vi quản trị. Nếu Host bị khóa, Admin xem xét từng booking: có thể hủy lượt chưa nhận phòng hoặc kết thúc lượt đang sử dụng do sự cố ở trạng thái TERMINATED, kèm lý do và audit. Việc xác minh lại lượt đã khép không nhả lịch lần thứ hai. Các quyết định này không đồng nghĩa đã hoàn tiền; giao dịch liên quan phải được đối soát riêng.
+
+Khi mất kết nối, người thuê vẫn mở được lịch sử và chi tiết booking đã tải từ SQLite, như Hình~\ref{fig:sqlite-offline-screens}(b). Màn hình ghi thời điểm bản lưu và chỉ cho xem thông tin. Khi kết nối trở lại, ứng dụng kiểm tra phiên rồi cập nhật dữ liệu từ Firestore trước khi cho phép thực hiện các thao tác trực tuyến.

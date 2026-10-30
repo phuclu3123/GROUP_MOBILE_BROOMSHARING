@@ -23,6 +23,10 @@ import vn.edu.ueh.phuclu.broomsharing.ui.chat.ChatViewModel;
 import vn.edu.ueh.phuclu.broomsharing.ui.common.BookingNotifier;
 import vn.edu.ueh.phuclu.broomsharing.ui.common.SessionGuardViewModel;
 import vn.edu.ueh.phuclu.broomsharing.ui.room.MainActivity;
+import vn.edu.ueh.phuclu.broomsharing.repository.OfflineRepository;
+import vn.edu.ueh.phuclu.broomsharing.repository.AuthError;
+import vn.edu.ueh.phuclu.broomsharing.repository.ResultCallback;
+import vn.edu.ueh.phuclu.broomsharing.data.local.OfflineDatabase;
 
 /**
  * Activity cha dùng chung cho những màn hình yêu cầu đăng nhập. Kiểm tra Session, phân quyền, điều
@@ -37,6 +41,21 @@ public abstract class SessionActivity extends AppCompatActivity {
     private SessionGuardViewModel guard;
     private String guardUid, initialRole;
     private boolean accessStopped;
+    private boolean offlineView, changingConnection;
+    private android.net.ConnectivityManager.NetworkCallback networkCallback;
+    private final android.os.Handler connectionHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+    private final Runnable connectionRefresh = this::refreshConnectionMode;
+    private int sessionNetworkRetries;
+    private final Runnable sessionRetry = () -> {
+        if (shown || isFinishing() || isDestroyed() || !model.hasSession()) return;
+        if (!OfflineRepository.online()) showOfflineSession();
+        else model.reloadSession();
+    };
+
+    // Chỉ các màn xem phòng/lịch sử được mở bằng bản lưu. Host/Admin vẫn kiểm quyền online.
+    protected boolean supportsOfflineReading() { return false; }
+    public final boolean isOfflineView() { return offlineView; }
+    public final void signOutOffline() { signOut(); }
 
     // Lớp con bắt buộc cung cấp layout của màn hình tương ứng.
     protected abstract int pageLayout();
@@ -72,10 +91,18 @@ public abstract class SessionActivity extends AppCompatActivity {
             return;
         }
 
+        if (!OfflineRepository.online()) {
+            showOfflineSession();
+            return;
+        }
+
         // Xoay màn hình dùng lại phiên đã kiểm tra của chính Activity, không đọc role từ cache.
         // Listener vẫn kiểm tra lại quyền trên server khi kết nối trở lại.
         AuthViewModel.State retained = model.getState().getValue();
-        if (retained == null || retained.profile == null) model.reloadSession();
+        if (getIntent().getBooleanExtra("revalidateSession", false)) {
+            getIntent().removeExtra("revalidateSession");
+            model.reloadSession();
+        } else if (retained == null || retained.profile == null) model.reloadSession();
 
         // LiveData Observer: nhận trạng thái mới khi ViewModel cập nhật State.
         // LifecycleOwner = this, Observer gắn với vòng đời Activity.
@@ -85,6 +112,23 @@ public abstract class SessionActivity extends AppCompatActivity {
                         value -> {
                             // Tránh cập nhật khi đã mở trang hoặc Activity đang bị hủy.
                             if (shown || isFinishing() || isDestroyed()) return;
+
+                            // Kết nối hệ điều hành có thể phục hồi trước transport Firestore.
+                            // Thử lại tối đa hai lần, không polling vô hạn khi server chưa sẵn sàng.
+                            if (value.error == AuthError.NETWORK && supportsOfflineReading()) {
+                                if (!OfflineRepository.online()) {
+                                    showOfflineSession();
+                                    return;
+                                }
+                                if (sessionNetworkRetries++ < 2) {
+                                    findViewById(R.id.authProgress).setVisibility(View.VISIBLE);
+                                    findViewById(R.id.retryButton).setVisibility(View.GONE);
+                                    ((TextView) findViewById(R.id.authMessage)).setText(R.string.auth_busy);
+                                    connectionHandler.removeCallbacks(sessionRetry);
+                                    connectionHandler.postDelayed(sessionRetry, 1800);
+                                    return;
+                                }
+                            }
 
                             // Hiện ProgressBar nếu đang tải, ngược lại ẩn đi.
                             findViewById(R.id.authProgress)
@@ -108,8 +152,42 @@ public abstract class SessionActivity extends AppCompatActivity {
 
     // Kiểm tra lại Session khi người dùng nhấn Retry.
     private void checkSession() {
+        sessionNetworkRetries = 0;
         if (!model.hasSession()) toLogin(0);
+        else if (!OfflineRepository.online()) showOfflineSession();
         else model.reloadSession();
+    }
+
+    private void showOfflineSession() {
+        findViewById(R.id.authProgress).setVisibility(View.GONE);
+        if (!supportsOfflineReading()) {
+            ((TextView) findViewById(R.id.authMessage)).setText("Chức năng này cần kết nối mạng. Bạn vẫn có thể xem phòng và đặt chỗ đã lưu ở Trang chủ.");
+            findViewById(R.id.retryButton).setVisibility(View.VISIBLE);
+            return;
+        }
+        OfflineRepository.read("profile", "current", UserProfile.class,
+                new ResultCallback<OfflineDatabase.Saved<UserProfile>>() {
+                    public void onSuccess(OfflineDatabase.Saved<UserProfile> saved) {
+                        if (shown || isFinishing() || isDestroyed()) return;
+                        if (!"ACTIVE".equals(saved.data.status)
+                                || !java.util.Objects.equals(OfflineRepository.uid(), saved.data.uid)) {
+                            onError(new IllegalStateException("Bản lưu phiên không hợp lệ. Kết nối mạng và đăng nhập lại."));
+                            return;
+                        }
+                        if (OfflineRepository.online()) {
+                            getIntent().putExtra("revalidateSession", true);
+                            recreate();
+                            return;
+                        }
+                        offlineView = true;
+                        show(saved.data);
+                    }
+                    public void onError(Exception error) {
+                        if (shown || isFinishing() || isDestroyed()) return;
+                        ((TextView) findViewById(R.id.authMessage)).setText(error.getMessage());
+                        findViewById(R.id.retryButton).setVisibility(View.VISIBLE);
+                    }
+                });
     }
 
     // Xử lý phân quyền và khởi tạo màn hình sau khi nhận được UserProfile.
@@ -133,7 +211,7 @@ public abstract class SessionActivity extends AppCompatActivity {
         }
 
         // ADMIN vào trang Home dành cho người dùng -> chuyển Admin Dashboard.
-        if (isGuestHome() && profile.getUserRole() == UserRole.ADMIN) {
+        if (!offlineView && isGuestHome() && profile.getUserRole() == UserRole.ADMIN) {
             startActivity(
                     new Intent(this, AdminDashboardActivity.class)
                             .addFlags(
@@ -149,6 +227,8 @@ public abstract class SessionActivity extends AppCompatActivity {
         setContentView(pageLayout());
         // Gọi hook để lớp con khởi tạo giao diện bằng UserProfile.
         onProfileReady(profile);
+        if (offlineView) return;
+        OfflineRepository.saveProfile(profile);
         guardUid = profile.uid;
         initialRole = profile.role;
         guard = new ViewModelProvider(this).get(SessionGuardViewModel.class);
@@ -156,11 +236,21 @@ public abstract class SessionActivity extends AppCompatActivity {
                 this,
                 value -> {
                     if (accessStopped || isFinishing()) return;
+                    // Mất mạng không phải thu hồi quyền. Chuyển màn đọc sang SQLite,
+                    // tránh lỗi listener đến trước NetworkCallback làm khóa mất bản lưu.
+                    if (value.networkError && supportsOfflineReading()) {
+                        if (!OfflineRepository.online() && !changingConnection) {
+                            changingConnection = true;
+                            recreate();
+                        }
+                        return;
+                    }
                     if (value.error != null
                             || value.data == null
                             || !"ACTIVE".equals(value.data.status)) {
                         // Thu hồi UI ngay trong phiên cũ; Rules vẫn là lớp từ chối ghi cuối cùng.
                         accessStopped = true;
+                        if (value.error == null) OfflineRepository.clear(profile.uid);
                         if (chat != null) chat.stop();
                         if (notices != null) notices.stop();
                         setContentView(R.layout.activity_session_check);
@@ -263,6 +353,7 @@ public abstract class SessionActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        watchConnection();
         if (accessStopped) return;
         if (guard != null && guardUid != null) guard.watch(guardUid);
         if (chat != null) chat.watchInbox();
@@ -272,10 +363,51 @@ public abstract class SessionActivity extends AppCompatActivity {
     // Activity chuyển sang Stopped -> dừng các listener/tác vụ theo dõi.
     @Override
     protected void onStop() {
+        connectionHandler.removeCallbacks(connectionRefresh);
+        connectionHandler.removeCallbacks(sessionRetry);
+        if (networkCallback != null) {
+            ((android.net.ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE)).unregisterNetworkCallback(networkCallback);
+            networkCallback = null;
+        }
         if (guard != null) guard.stop();
         if (chat != null) chat.stop();
         if (notices != null) notices.stop();
         super.onStop();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Bảng cài đặt nhanh có thể chỉ làm Activity tạm dừng, không gọi lại onStart.
+        refreshConnectionMode();
+    }
+
+    private void refreshConnectionMode() {
+        if (supportsOfflineReading() && shown && !changingConnection && !accessStopped
+                && !isFinishing() && !isDestroyed() && offlineView == OfflineRepository.online()) {
+            changingConnection = true;
+            if (OfflineRepository.online()) getIntent().putExtra("revalidateSession", true);
+            recreate();
+        }
+    }
+
+    // Thay đổi kết nối chỉ dựng lại màn đọc, không tự gửi lại giao dịch hay thao tác người dùng.
+    private void watchConnection() {
+        if (!supportsOfflineReading() || networkCallback != null) return;
+        networkCallback = new android.net.ConnectivityManager.NetworkCallback() {
+            @Override public void onAvailable(android.net.Network network) { checkConnection(); }
+            @Override public void onLost(android.net.Network network) { checkConnection(); }
+            @Override public void onCapabilitiesChanged(android.net.Network network, android.net.NetworkCapabilities caps) { checkConnection(); }
+            private void checkConnection() {
+                // onLost có thể tới trước khi activeNetwork được cập nhật. Gộp sự kiện,
+                // kiểm lại sau chuyển mạng; không tạo vòng polling hoặc truy vấn Firestore.
+                connectionHandler.removeCallbacks(connectionRefresh);
+                connectionHandler.postDelayed(connectionRefresh, 350);
+            }
+        };
+        ((android.net.ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE)).registerDefaultNetworkCallback(networkCallback);
+        // Nếu Activity đang nằm nền lúc mất mạng, onLost có thể đã xảy ra trước khi đăng ký.
+        refreshConnectionMode();
     }
 
     // Đăng xuất: dừng listener, xóa thông báo, hủy phiên và về Login.

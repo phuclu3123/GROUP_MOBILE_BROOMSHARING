@@ -1,0 +1,35 @@
+\subsection{Kết nối Firebase và các dịch vụ hỗ trợ}
+\label{sec:firebase-and-services}
+
+\subsubsection{Kết nối Firebase Authentication và Cloud Firestore}
+Ứng dụng kết nối Firebase qua \texttt{google-services.json} và plugin Google Services; Firebase BoM quản lý phiên bản SDK \parencite{firebase_android}. FirebaseHelper chọn database \texttt{broomsharing} và cung cấp đối tượng Firestore dùng chung cho các Repository.
+
+FirebaseAuthRepository xác thực tài khoản và gửi email đặt lại mật khẩu bằng \texttt{sendPasswordResetEmail()} \parencite{firebase_auth_users}. UID liên kết hồ sơ \texttt{users/\{uid\}}; SessionActivity điều hướng theo vai trò và trạng thái, Security Rules kiểm soát request Android. Backend xác minh ID token bằng Admin SDK và kiểm tra quyền trên booking \parencite{firebase_admin_token}.
+
+\subsubsection{Tích hợp các dịch vụ và thư viện hỗ trợ}
+Bảng~\ref{tab:implemented-services} phân biệt các dịch vụ dữ liệu với thư viện hiển thị bản đồ. Client xử lý phản hồi trước khi cập nhật giao diện.
+
+\begin{table}[htbp]
+\centering\small
+\caption{Các thành phần kết nối dữ liệu và hiển thị bản đồ}
+\label{tab:implemented-services}
+\begin{tabularx}{\linewidth}{@{}p{4.1cm}X@{}}
+\toprule
+Thành phần & Vai trò trong ứng dụng \\
+\midrule
+Firebase Authentication & Xác thực, quản lý phiên và gửi liên kết đặt lại mật khẩu. \\
+Cloud Firestore & Lưu hồ sơ và dữ liệu nghiệp vụ; truy vấn, listener và transaction. \\
+MapLibre Native & Thư viện dựng bản đồ, marker và tuyến trên Android. \\
+MapTiler & Cung cấp nền bản đồ, geocoding và địa điểm lân cận. \\
+openrouteservice & Trả GeoJSON tuyến ô tô, chiều dài và thời gian ước tính. \\
+Cloudinary & Nhận ảnh, tệp DEMO và trả URL HTTPS cùng metadata. \\
+Backend Java và payOS & Tạo QR, nhận webhook và đối soát tiền theo booking. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Tuyến đường trả về chỉ có thời gian ước tính, không có giao thông trực tiếp \parencite{maplibre_android,maptiler_geocoding,ors_directions}. Cloudinary dùng unsigned upload; Firestore ghi URL sau khi tải thành công. RemoteImageClient kiểm tra ảnh lấy từ URL \parencite{cloudinary_unsigned}.
+
+OkHttp gửi request, JSONObject đọc JSON; Picasso và Glide hiển thị ảnh. Android gửi booking ID và ID token tới backend Java; webhook payOS chuyển qua WEB\_TCC để đối soát và cập nhật Firestore. Khóa merchant ở backend; worker chỉ quét khi có việc, còn bộ đếm chạy tại thiết bị \parencite{payos_java,payos_webhook,firebase_listeners}. Kênh demo phục vụ một Host, chưa hoàn tiền qua API; quy trình tại Mục~\ref{sec:execution-booking-payment}.
+
+SQLite lưu bản sao phòng và booking để đọc ngoại tuyến. OfflineRepository phối hợp nguồn dữ liệu cục bộ này với các màn đọc; cơ chế lưu và phục hồi được trình bày tại Mục~\ref{sec:sqlite-offline}.

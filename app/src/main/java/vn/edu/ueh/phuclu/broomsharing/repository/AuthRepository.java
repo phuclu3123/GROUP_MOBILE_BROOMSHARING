@@ -2,6 +2,7 @@ package vn.edu.ueh.phuclu.broomsharing.repository;
 
 import vn.edu.ueh.phuclu.broomsharing.model.UserProfile;
 
+// Hợp đồng xác thực: kết quả đăng nhập, đăng ký và khôi phục phiên trả về bằng callback.
 public interface AuthRepository {
     // Callback: thành công - và lỗi
     interface Callback {
@@ -19,9 +20,9 @@ public interface AuthRepository {
     boolean isConfigured();
     // Kiểm tra Firebase Auth hiện có người dùng đăng nhập hay không.
     boolean hasSession();
-    // Tạo tài khoản mới với các thông tin ăng nhập trên => kết quả báo về bất đồng bộ callback
+    // Xác thực tài khoản theo email/username; kết quả trả qua callback bất đồng bộ.
     void login(String identifier, String password, Callback callback);
-    // Tương tự như đăng nhập
+    // Tạo tài khoản Authentication và hồ sơ ứng dụng từ thông tin đã kiểm tra.
     void register(String name, String username, String email, String phone, String password, Callback callback);
     // Tải hồ sơ của người dùng đang đăng nhập, kết quả báo về bất đồng bộ callback
     void loadSession(Callback callback);

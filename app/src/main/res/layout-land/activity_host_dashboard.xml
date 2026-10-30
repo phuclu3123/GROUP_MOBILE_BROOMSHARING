@@ -5,7 +5,7 @@
         <TextView android:id="@+id/workspaceTitle" style="@style/WorkspaceSection" android:text="@string/workspace_overview" android:layout_width="0dp" android:layout_weight="1" android:textSize="20sp" />
         <com.google.android.material.button.MaterialButton android:id="@+id/btnRefresh" style="@style/WorkspaceAction" android:text="@string/workspace_refresh" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="0dp" />
     </LinearLayout>
-    <ScrollView android:id="@+id/dashboardScroll" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true">
+    <androidx.core.widget.NestedScrollView android:id="@+id/dashboardScroll" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
             <LinearLayout android:id="@+id/overviewPanel" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
                 <TextView android:id="@+id/tvHostRoleStatus" style="@style/WorkspaceTitle" android:text="" />
@@ -48,14 +48,14 @@
                     <TextView android:id="@+id/tvCountBuildings" style="@style/WorkspaceBody" android:text="" android:layout_marginTop="8dp" />
                 </LinearLayout>
                 <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
-                    <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvRooms" android:layout_width="match_parent" android:layout_height="wrap_content" android:nestedScrollingEnabled="false" android:layout_marginTop="12dp" />
+                    <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvRooms" android:layout_width="match_parent" android:layout_height="wrap_content" android:nestedScrollingEnabled="false" android:clipToPadding="false" android:paddingBottom="16dp" android:layout_marginTop="12dp" />
                     <TextView android:id="@+id/tvEmptyRooms" style="@style/WorkspaceBody" android:text="@string/workspace_empty_rooms" android:layout_marginTop="24dp" android:visibility="gone" />
-                    <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvBuildings" android:layout_width="match_parent" android:layout_height="wrap_content" android:nestedScrollingEnabled="false" android:layout_marginTop="12dp" android:visibility="gone" />
+                    <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvBuildings" android:layout_width="match_parent" android:layout_height="wrap_content" android:nestedScrollingEnabled="false" android:clipToPadding="false" android:paddingBottom="16dp" android:layout_marginTop="12dp" android:visibility="gone" />
                     <TextView android:id="@+id/tvEmptyBuildings" style="@style/WorkspaceBody" android:text="@string/workspace_empty_buildings" android:layout_marginTop="24dp" android:visibility="gone" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
     <TextView android:id="@+id/tvFeedback" style="@style/WorkspaceBody" android:text="" android:paddingStart="20dp" android:paddingEnd="20dp" android:accessibilityLiveRegion="polite" android:visibility="gone" />
     <ProgressBar android:id="@+id/progressBar" android:layout_width="24dp" android:layout_height="24dp" android:layout_gravity="center" android:visibility="gone" />
     <include layout="@layout/view_management_navigation" />

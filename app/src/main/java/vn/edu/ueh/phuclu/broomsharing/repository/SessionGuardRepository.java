@@ -32,7 +32,11 @@ public class SessionGuardRepository {
                                 UserProfile profile = doc.toObject(UserProfile.class);
                                 if (profile == null)
                                     cb.onError(new Exception("Hồ sơ tài khoản không còn tồn tại."));
-                                else cb.onSuccess(profile);
+                                else {
+                                    if ("ACTIVE".equals(profile.status)) OfflineRepository.saveProfile(profile);
+                                    else OfflineRepository.clear(uid);
+                                    cb.onSuccess(profile);
+                                }
                             } catch (RuntimeException invalid) {
                                 cb.onError(new IllegalStateException(
                                         "Hồ sơ tài khoản không hợp lệ. Vui lòng liên hệ Admin."));

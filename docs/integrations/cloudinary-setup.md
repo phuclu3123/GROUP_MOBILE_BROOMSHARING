@@ -58,6 +58,6 @@ Nếu máy ảo/điện thoại đã kết nối, có thể chạy bằng PowerS
 .\gradlew.bat :app:connectedDebugAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=vn.edu.ueh.phuclu.broomsharing.CloudinaryLiveUploadTest" "-Pandroid.testInstrumentationRunnerArguments.runCloudinaryLive=true"
 ```
 
-Rules cho URL minh chứng demo đã được triển khai và xác minh ngày 26/10/2026. [Kết quả kiểm tra và trạng thái triển khai](../testing/cloudinary-media-2026-10-26.md). Bài test thật chỉ upload file demo sinh trên thiết bị, không sửa dữ liệu khách hàng hoặc document Firestore.
+Rules cho URL minh chứng demo đã được triển khai và xác minh ngày 26/10/2026. Các biên bản theo từng đợt được giữ trong bản lưu trữ local. Bài test thật chỉ upload file demo sinh trên thiết bị, không sửa dữ liệu khách hàng hoặc document Firestore.
 
 Nguồn: [Unsigned uploads](https://cloudinary.com/documentation/client_side_uploading), [tham số Upload API](https://cloudinary.com/documentation/image_upload_api_reference#unsigned_upload_parameters), [PDF và giới hạn delivery](https://cloudinary.com/documentation/image_delivery_options).

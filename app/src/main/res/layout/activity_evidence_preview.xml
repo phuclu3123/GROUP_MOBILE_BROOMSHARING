@@ -1,11 +1,34 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:padding="16dp" android:background="@color/screen_bg">
-    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/admin_manual_verification" android:padding="8dp" />
-    <TextView android:id="@+id/feedback" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="8dp" android:accessibilityLiveRegion="polite" />
-    <ImageView android:id="@+id/preview" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:scaleType="fitCenter" android:contentDescription="@string/admin_evidence" />
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
-        <Button android:id="@+id/previous" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/admin_previous_page" />
-        <Button android:id="@+id/next" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/admin_next_page" />
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/workspaceRoot" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@color/screen_bg">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:gravity="center_vertical" android:background="@color/white" android:padding="8dp">
+        <androidx.appcompat.widget.AppCompatImageButton android:id="@+id/close"
+            android:layout_width="48dp" android:layout_height="48dp" android:src="@drawable/ic_arrow_back"
+            android:background="?attr/selectableItemBackgroundBorderless" android:contentDescription="Quay lại hồ sơ" />
+        <TextView android:id="@+id/documentTitle" style="@style/WorkspaceSection" android:layout_width="0dp"
+            android:layout_weight="1" android:maxLines="2" android:ellipsize="end" android:text="Minh chứng hồ sơ" />
     </LinearLayout>
-    <Button android:id="@+id/retry" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/admin_refresh" />
-    <Button android:id="@+id/close" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/admin_evidence_back" />
+    <HorizontalScrollView android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:fillViewport="true" android:scrollbars="none" android:background="@color/white">
+        <LinearLayout android:id="@+id/fileTabs" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:paddingStart="12dp" android:paddingEnd="12dp" />
+    </HorizontalScrollView>
+    <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_margin="12dp" android:background="@drawable/bg_card">
+        <vn.edu.ueh.phuclu.broomsharing.ui.admin.EvidenceImageView android:id="@+id/preview"
+            android:layout_width="match_parent" android:layout_height="match_parent" android:contentDescription="Nội dung minh chứng. Chụm hoặc chạm hai lần để phóng to" />
+        <ProgressBar android:id="@+id/progress" android:layout_width="40dp" android:layout_height="40dp" android:layout_gravity="center" android:visibility="gone" />
+        <LinearLayout android:id="@+id/errorPanel" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_gravity="center" android:padding="24dp" android:orientation="vertical" android:visibility="gone">
+            <TextView android:id="@+id/feedback" style="@style/WorkspaceBody" android:gravity="center" android:accessibilityLiveRegion="polite" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/retry" style="@style/WorkspaceAction" android:text="Thử tải lại" android:gravity="center" />
+        </LinearLayout>
+    </FrameLayout>
+    <TextView android:id="@+id/fileInfo" style="@style/WorkspaceBody" android:gravity="center" android:paddingStart="16dp" android:paddingEnd="16dp" android:maxLines="2" android:ellipsize="middle" />
+    <LinearLayout android:id="@+id/pageControls" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingStart="12dp" android:paddingEnd="12dp" android:visibility="gone">
+        <com.google.android.material.button.MaterialButton android:id="@+id/previous" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:text="Trang trước" />
+        <TextView android:id="@+id/pageNumber" style="@style/WorkspaceBody" android:layout_width="wrap_content" android:text="1 / 1" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/next" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:text="Trang sau" />
+    </LinearLayout>
+    <com.google.android.material.button.MaterialButton android:id="@+id/resetZoom" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="match_parent" android:layout_height="48dp" android:text="Vừa màn hình · Chạm hai lần để phóng to" android:textAllCaps="false" />
 </LinearLayout>

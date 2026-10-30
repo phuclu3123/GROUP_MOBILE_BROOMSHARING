@@ -10,6 +10,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import vn.edu.ueh.phuclu.broomsharing.R;
 import vn.edu.ueh.phuclu.broomsharing.utils.AuthValidation;
 
+// Kiểm tra biểu mẫu đăng nhập, hiển thị trạng thái AuthViewModel và điều hướng theo phiên.
 public class LoginActivity extends BaseAuthActivity {
 
     // Ô input nhập dữ Tài khoản và mật khẩu vào
@@ -84,7 +85,11 @@ public class LoginActivity extends BaseAuthActivity {
             submit();
             return true;
         });
-        model.restoreSessionOnce();
+        // Phiên Firebase còn trên máy chỉ mở các trang đọc đã lưu khi không có mạng.
+        if (model.hasSession() && !vn.edu.ueh.phuclu.broomsharing.repository.OfflineRepository.online()) {
+            startActivity(new Intent(this, vn.edu.ueh.phuclu.broomsharing.ui.room.MainActivity.class));
+            finish();
+        } else model.restoreSessionOnce();
     }
 
     private void submit() {

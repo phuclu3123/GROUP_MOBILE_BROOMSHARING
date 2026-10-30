@@ -2,6 +2,7 @@
 .gradle
 /local.properties
 .idea/
+/_local_archive/
 .DS_Store
 /build
 /captures
@@ -64,5 +65,15 @@ backend/payments/.runtime/
 /Latex/**/*.run.xml
 /Latex/**/*.synctex.gz
 /Latex/**/*.data.minted
+/Latex/**/*.lof
+/Latex/**/*.lot
+/Latex/**/*.toc
+/Latex/**/*.bbl
+/Latex/**/*.blg
+/Latex/**/*.fls
+/Latex/**/*.fdb_latexmk
+/Latex/**/_minted*/
+/Latex/_minted/
+/Latex/**/texput.log
 /Latex/**/chapter4-preview.*
 /Latex/**/Resources/publication_figures/

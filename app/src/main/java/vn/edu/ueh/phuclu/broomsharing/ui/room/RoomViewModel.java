@@ -13,6 +13,8 @@ import vn.edu.ueh.phuclu.broomsharing.model.UiState;
 import vn.edu.ueh.phuclu.broomsharing.repository.ResultCallback;
 import vn.edu.ueh.phuclu.broomsharing.repository.RoomRepository;
 import vn.edu.ueh.phuclu.broomsharing.utils.RoomFilter;
+import vn.edu.ueh.phuclu.broomsharing.repository.OfflineRepository;
+import vn.edu.ueh.phuclu.broomsharing.data.local.OfflineDatabase;
 
 import java.util.*;
 
@@ -50,6 +52,8 @@ public class RoomViewModel extends ViewModel {
     private final Set<String> calendarErrors = new HashSet<>();
     private final Handler handler = new Handler(Looper.getMainLooper());
     private boolean calendarsActive;
+    private long offlineSavedAt;
+    private int detailRequest;
     private int calendarGeneration;
     private final Runnable tick = new Runnable() {
         public void run() { if (calendarsActive) { publish(); handler.postDelayed(this, 60000); } }
@@ -68,7 +72,8 @@ public class RoomViewModel extends ViewModel {
     }
 
     public void ensureLoaded() {
-        if (rooms.getValue() == null) load();
+        UiState<List<RoomListing>> current = rooms.getValue();
+        if (current == null || current.offline == OfflineRepository.online()) load();
     }
 
     // Lưu bộ lọc và tải tiếp các trang cần thiết để tìm kiếm không chỉ giới hạn ở trang đầu.
@@ -95,13 +100,15 @@ public class RoomViewModel extends ViewModel {
                     && (maxPrice <= 0 || RoomFilter.unitPrice(item) <= maxPrice)) {
                 if (Room.MODE_FIXED.equals(item.room.getActiveMode())) {
                     PublicCalendarRepository.Calendar calendar = calendars.get(item.room.getId());
-                    result.add(item.withAvailability(calendar == null
+                    result.add(item.withAvailability(offlineSavedAt != 0
+                            ? new FixedRentalBadge("Ngoại tuyến", "Kết nối mạng để kiểm tra kỳ thuê.", 0)
+                            : calendar == null
                             ? FixedRentalBadge.unknown(!calendarErrors.contains(item.room.getId()))
                             : FixedRentalBadge.from(item.room, calendar.windows, calendar.until, System.currentTimeMillis())));
                 } else result.add(item);
             }
         if (sort > 0) result.sort(RoomFilter.order(sort));
-        rooms.setValue(UiState.success(result));
+        rooms.setValue(offlineSavedAt == 0 ? UiState.success(result) : UiState.cached(result, offlineSavedAt));
     }
 
     public void load() {
@@ -117,21 +124,48 @@ public class RoomViewModel extends ViewModel {
         loading = true;
         final int token = ++request;
         rooms.setValue(UiState.loading());
+        if (!OfflineRepository.online()) { readSavedRooms(token); return; }
         repository.page(
                 refresh ? null : cursor,
                 new ResultCallback<RoomRepository.Page>() {
                     public void onSuccess(RoomRepository.Page page) {
                         if (token != request) return;
+                        offlineSavedAt = 0;
                         if (refresh) { stopCalendarListeners(); loaded.clear(); }
                         for (RoomListing item : page.items) loaded.put(item.room.getId(), item);
                         cursor = page.cursor;
                         hasMore = page.hasMore;
                         loading = false;
+                        OfflineRepository.saveRooms(loaded.values());
                         watchCalendars();
                         if ((hasFilters() || loaded.isEmpty()) && hasMore) { fetch(false); return; }
                         publish();
                     }
 
+                    public void onError(Exception error) {
+                        if (token != request) return;
+                        if (OfflineRepository.networkFailure(error)) { readSavedRooms(token); return; }
+                        loading = false;
+                        rooms.setValue(UiState.error(error));
+                    }
+                });
+    }
+
+    @SuppressWarnings("unchecked")
+    private void readSavedRooms(int token) {
+        OfflineRepository.read("rooms", "list", ArrayList.class,
+                new ResultCallback<OfflineDatabase.Saved<ArrayList>>() {
+                    public void onSuccess(OfflineDatabase.Saved<ArrayList> saved) {
+                        if (token != request) return;
+                        stopCalendarListeners(); loaded.clear();
+                        for (Object row : saved.data) if (row instanceof RoomListing) {
+                            RoomListing item = (RoomListing) row;
+                            loaded.put(item.room.getId(), item);
+                        }
+                        offlineSavedAt = saved.savedAt;
+                        hasMore = false; loading = false;
+                        publish();
+                    }
                     public void onError(Exception error) {
                         if (token != request) return;
                         loading = false;
@@ -149,7 +183,7 @@ public class RoomViewModel extends ViewModel {
 
     // Đăng ký lịch công khai cho các phòng cần hiển thị nhãn tháng/quý, không đọc chi tiết khách khác.
     private void watchCalendars() {
-        if (!calendarsActive) return;
+        if (!calendarsActive || offlineSavedAt != 0 || !OfflineRepository.online()) return;
         final int run = calendarGeneration;
         for (RoomListing listing : loaded.values()) {
             String id = listing.room.getId();
@@ -181,21 +215,42 @@ public class RoomViewModel extends ViewModel {
     }
 
     public void ensureDetail(String id) {
-        if (!Objects.equals(id, detailId) || detail.getValue() == null) load(id);
+        UiState<RoomListing> current = detail.getValue();
+        if (!Objects.equals(id, detailId) || current == null || current.offline == OfflineRepository.online()) load(id);
     }
 
     public void load(String id) {
         detailId = id;
+        final int token = ++detailRequest;
         detail.setValue(UiState.loading());
+        if (!OfflineRepository.online()) { readSavedDetail(id, token); return; }
         repository.detail(
                 id,
                 new ResultCallback<RoomListing>() {
                     public void onSuccess(RoomListing value) {
-                        if (Objects.equals(id, detailId)) detail.setValue(UiState.success(value));
+                        if (Objects.equals(id, detailId) && token == detailRequest) {
+                            OfflineRepository.saveRoom(value);
+                            detail.setValue(UiState.success(value));
+                        }
                     }
 
                     public void onError(Exception e) {
-                        if (Objects.equals(id, detailId)) detail.setValue(UiState.error(e));
+                        if (Objects.equals(id, detailId) && token == detailRequest) {
+                            if (OfflineRepository.networkFailure(e)) readSavedDetail(id, token);
+                            else detail.setValue(UiState.error(e));
+                        }
+                    }
+                });
+    }
+
+    private void readSavedDetail(String id, int token) {
+        OfflineRepository.read("room", id, RoomListing.class,
+                new ResultCallback<OfflineDatabase.Saved<RoomListing>>() {
+                    public void onSuccess(OfflineDatabase.Saved<RoomListing> saved) {
+                        if (token == detailRequest) detail.setValue(UiState.cached(saved.data, saved.savedAt));
+                    }
+                    public void onError(Exception error) {
+                        if (token == detailRequest) detail.setValue(UiState.error(error));
                     }
                 });
     }
@@ -205,5 +260,6 @@ public class RoomViewModel extends ViewModel {
         pauseCalendars();
         request++;
         detailId = null;
+        detailRequest++;
     }
 }

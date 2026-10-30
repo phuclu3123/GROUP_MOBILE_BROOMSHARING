@@ -7,7 +7,8 @@ import com.google.firebase.firestore.Exclude;
    Hồ sơ app gắn cùng UID với Firebase Authentication.
    Role và status phục vụ phân quyền; mật khẩu và token không thuộc model này.
 */
-public class UserProfile {
+public class UserProfile implements java.io.Serializable {
+    private static final long serialVersionUID = 1L;
     public long schemaVersion = 1;
     public String uid;
     public String name;

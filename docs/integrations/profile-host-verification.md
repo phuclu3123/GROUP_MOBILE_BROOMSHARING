@@ -33,6 +33,6 @@ Hồ sơ Firestore chỉ chủ hồ sơ đang hoạt động và Admin được 
 
 ## Dữ liệu và nghiệm thu
 
-`data/demo/host-identity/` có hai mặt giấy tờ hình học/chữ do script tạo, không sao chép mẫu CCCD; hai avatar dùng chữ viết tắt. Script: `tools/dataset/prepare_host_identity_demo.py`.
+`data/demo/host-identity/` có hai mặt giấy tờ hình học/chữ do script tạo, không sao chép mẫu CCCD; hai avatar dùng chữ viết tắt.
 
-Thông tin đăng nhập tài khoản nghiệm thu riêng được giữ tại `data/demo/profile-identity-credentials.local.properties`, được Git bỏ qua. Không hiển thị mật khẩu trong log hoặc video. [Biên bản nghiệm thu](../testing/profile-identity-2026-10-26.md) ghi rõ kết quả emulator và tài khoản cloud thật.
+Thông tin đăng nhập tài khoản nghiệm thu riêng được giữ tại `data/demo/profile-identity-credentials.local.properties`, được Git bỏ qua. Không hiển thị mật khẩu trong log hoặc video. Các nhật ký nghiệm thu từng đợt được lưu local; thông tin tệp và quyền đọc thực tế được kiểm tra khi mở hồ sơ.
